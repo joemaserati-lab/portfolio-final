@@ -156,11 +156,38 @@
 
   async function requestTiltBeforeEntry() {
     const tilt = window.PortfolioTilt;
-    if (!tilt || !tilt.canRequest?.()) return;
+    if (!tilt) return;
+    const status = tilt.getStatus?.() || (tilt.canRequest?.() ? 'ready' : 'unavailable');
+    if (status !== 'ready') {
+      const messages = {
+        active: ['tilt already active / launching sequence', 'done'],
+        listening: ['tilt listening / launching sequence', 'done'],
+        'not-touch': ['desktop pointer mode / launching sequence', 'done'],
+        'reduced-motion': ['reduced motion enabled / tilt skipped', 'warn'],
+        'insecure-context': ['tilt needs HTTPS / launching sequence', 'warn'],
+        unsupported: ['tilt unsupported / launching sequence', 'warn'],
+        unavailable: ['tilt unavailable / launching sequence', 'warn']
+      };
+      const [text, state] = messages[status] || messages.unavailable;
+      setRow('ready', '07 READY', text, state);
+      return;
+    }
     setGate('REQUESTING TILT ACCESS', 'Use the browser prompt to allow motion sensor interaction.');
     const result = await tilt.request();
-    if (result === 'granted' || result === 'active') setRow('ready', '07 READY', 'tilt enabled / launching sequence', 'done');
-    else setRow('ready', '07 READY', 'tilt unavailable / launching sequence', 'warn');
+    const messages = {
+      granted: ['tilt enabled / launching sequence', 'done'],
+      active: ['tilt enabled / launching sequence', 'done'],
+      listening: ['tilt listening / launching sequence', 'done'],
+      denied: ['tilt denied / launching sequence', 'warn'],
+      'blocked-or-private-browser': ['tilt blocked by browser privacy settings', 'warn'],
+      'reduced-motion': ['reduced motion enabled / tilt skipped', 'warn'],
+      'insecure-context': ['tilt needs HTTPS / launching sequence', 'warn'],
+      unsupported: ['tilt unsupported / launching sequence', 'warn'],
+      error: ['tilt permission error / launching sequence', 'warn'],
+      unavailable: ['tilt unavailable / launching sequence', 'warn']
+    };
+    const [text, state] = messages[result] || messages.unavailable;
+    setRow('ready', '07 READY', text, state);
   }
 
   function startSequence() {
