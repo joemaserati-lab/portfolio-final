@@ -122,7 +122,6 @@ button{color:inherit}
 
 .window-layer{position:absolute;z-index:10;inset:var(--screen-safe-top) var(--screen-safe-right) calc(var(--screen-safe-bottom) + 26px) var(--screen-safe-left);pointer-events:none}
 .os-window{position:absolute;pointer-events:auto;width:min(860px,76vw);height:min(560px,68vh);left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;background:rgba(16,8,2,.965);border:1px solid var(--line-strong);box-shadow:0 22px 70px rgba(0,0,0,.75),0 0 28px rgba(255,153,43,.08),inset 0 0 70px rgba(255,137,26,.05);animation:windowIn .16s ease-out}
-.os-window[data-kind="projects"]{width:min(980px,82vw);height:min(610px,72vh)}
  .window-titlebar{height:36px;flex:0 0 36px;display:flex;align-items:center;justify-content:space-between;padding:0 8px 0 12px;background:rgba(255,167,57,.08);border-bottom:1px solid var(--line);cursor:grab;font-size:21px;letter-spacing:.06em;color:var(--bright);user-select:none}
 .window-titlebar:active{cursor:grabbing}
 .window-controls{display:flex;gap:5px}
@@ -202,7 +201,7 @@ button{color:inherit}
   .icon-glyph{width:48px;height:40px}
   .desktop{padding:var(--screen-safe-top) var(--screen-safe-right) var(--screen-safe-bottom) var(--screen-safe-left)}
    .desktop-note{display:none}
-  .os-window,.os-window[data-kind="projects"]{width:100%;height:100%}
+  .os-window{width:100%;height:100%}
   .project-grid{grid-template-columns:1fr}
   .meta-grid{grid-template-columns:1fr}
   .experiment-grid{grid-template-columns:1fr 1fr}
@@ -357,7 +356,6 @@ body.booting .shell{visibility:hidden}
 .directory-header{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.62fr);gap:36px;align-items:end;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--line)}
 .directory-header h2{margin-bottom:0}
  .directory-header>p{margin:0;max-width:520px;font-size:21px;line-height:1.18;color:var(--dim)}
-.os-window[data-kind="projects"]{width:min(1120px,100%);height:min(680px,100%)}
 .project-grid{gap:12px}
 .project-card{grid-template-columns:150px 1fr;min-height:150px;transition:background .15s ease,border-color .15s ease,transform .15s ease}
 .project-thumb{position:relative;padding:10px;background:none;border-right:1px solid var(--line);overflow:hidden;display:block}
@@ -421,7 +419,6 @@ body.booting .shell{visibility:hidden}
 .case-nav b{font-size:21px;font-weight:400}
 
 @media(max-width:1024px){
-  .os-window[data-kind="projects"]{width:100%;height:100%}
   .directory-header{grid-template-columns:1fr;gap:10px}
    .directory-header>p{font-size:19px}
   .project-card{grid-template-columns:128px 1fr}
@@ -481,7 +478,7 @@ body.booting .shell{visibility:hidden}
 @media(max-width:1024px){
   .desktop{padding:var(--screen-safe-top) var(--screen-safe-right) var(--screen-safe-bottom) var(--screen-safe-left)}
   .desktop-icons{right:calc(var(--screen-safe-right) + 4px);top:calc(var(--screen-safe-top) + 8px);left:auto;bottom:auto;grid-template-columns:repeat(2,96px);gap:16px 18px}
-  .os-window,.os-window[data-kind="projects"]{width:100%;height:100%}
+  .os-window{width:100%;height:100%}
 }
 
 @media(max-width:720px){
@@ -662,13 +659,11 @@ body{font-size:var(--type-base)}
 .os-window[data-kind="resume"]{width:min(820px,76%);height:min(560px,76%)}
 .os-window[data-kind="archive"]{width:min(780px,72%);height:min(530px,74%)}
 
-/* PROJECTS is always fullscreen relative to the CRT safezone. */
 .os-window.is-maximized{
   left:0!important;top:0!important;right:auto!important;bottom:auto!important;
   width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;
   transform:none!important;animation:windowInFull .14s ease-out;
 }
-.os-window[data-kind="projects"]  .window-titlebar{cursor:default}
 
 .window-controls button[data-resize]{font-family:inherit;line-height:1;font-size:var(--type-ui);padding-bottom:2px}
 .os-window.is-maximized  .window-titlebar{cursor:default}
@@ -678,14 +673,14 @@ body{font-size:var(--type-base)}
 
 /* Tablet: secondary windows remain windows, but use most of the safezone. */
 @media(max-width:1024px){
-  .os-window:not([data-kind="projects"]):not(.is-maximized){
+  .os-window:not(.is-maximized){
     width:min(680px,88%);height:min(500px,82%);
   }
 }
 
 /* Phones still show a discernible window unless the user explicitly maximizes it. */
 @media(max-width:720px){
-  .os-window:not([data-kind="projects"]):not(.is-maximized){
+  .os-window:not(.is-maximized){
     width:92%;height:min(74vh,82%);min-width:0;min-height:220px;
   }
   .window-controls button{width:clamp(24px,7vw,28px);height:clamp(22px,6.5vw,26px)}
@@ -725,7 +720,7 @@ body{font-size:var(--type-base)}
 .resume-columns .tags{margin-top:14px}
 
 @media(max-width:1024px){
-  .os-window:not([data-kind="projects"]){width:100%!important;height:100%!important;max-width:none!important;max-height:none!important}
+  .os-window{width:100%!important;height:100%!important;max-width:none!important;max-height:none!important}
   .resume-header{grid-template-columns:1fr;align-items:start}
 }
 @media(max-width:720px){
@@ -739,7 +734,7 @@ body{font-size:var(--type-base)}
    Work-first presentation. The CRT/window system remains the shell; selected
    work gets editorial scale, image-led cards and a quieter case-study layout.
 */
-.os-window[data-kind="projects"] .window-body{padding:0;scrollbar-gutter:stable}
+.projects-view{scrollbar-gutter:stable}
 .projects-index-v2{padding:clamp(18px,2.2vw,34px);min-height:100%}
 .projects-index-head{
   display:grid;grid-template-columns:minmax(0,1fr) auto;gap:clamp(24px,5vw,80px);
@@ -1208,11 +1203,11 @@ body{font-size:var(--type-base)}
   padding-left:var(--screen-safe-left);
   padding-right:var(--screen-safe-right);
 }
-.os-window.is-maximized:not([data-kind="projects"]) .window-body{
+.os-window.is-maximized .window-body{
   padding:clamp(28px,4vw,64px) var(--screen-safe-right) var(--screen-safe-bottom) var(--screen-safe-left);
 }
-.os-window[data-kind="projects"].is-maximized .projects-index-v2,
-.os-window[data-kind="projects"].is-maximized .case-study-v2{
+.projects-view .projects-index-v2,
+.projects-view .case-study-v2{
   padding-left:var(--screen-safe-left);
   padding-right:var(--screen-safe-right);
   padding-bottom:var(--screen-safe-bottom);
@@ -1231,6 +1226,10 @@ body{font-size:var(--type-base)}
   line-height:1;
 }
 .window-controls button[data-resize]{font-size:22px;padding:0}
+
+.projects-view{position:absolute;z-index:12;inset:0;overflow:auto;background:#0c0501;color:var(--phosphor);scrollbar-color:var(--dim) transparent;box-shadow:inset 0 0 90px rgba(255,137,26,.045)}
+.projects-view[hidden]{display:none}
+.projects-view .projects-index-v2,.projects-view .case-study-v2{padding-left:var(--screen-safe-left);padding-right:var(--screen-safe-right);padding-bottom:var(--screen-safe-bottom)}
 
 /* Keep editorial lines distinct even with CRT bloom and fallback fonts. */
 .hero-intro h1{line-height:.82}
@@ -1261,7 +1260,7 @@ body{font-size:var(--type-base)}
   .window-titlebar>span{font-size:clamp(15px,4.4vw,18px)}
   .window-controls{position:absolute;top:4px;right:52px;gap:6px}
   .window-controls button{width:44px;height:40px;font-size:23px}
-  .os-window.is-maximized:not([data-kind="projects"]) .window-body{padding:24px var(--screen-safe-right) var(--screen-safe-bottom) var(--screen-safe-left)}
+  .os-window.is-maximized .window-body{padding:24px var(--screen-safe-right) var(--screen-safe-bottom) var(--screen-safe-left)}
   .projects-index-head h2{line-height:.94}
   .contact-panel{grid-template-columns:1fr;gap:16px}
   .contact-photo{min-height:0;max-height:260px;aspect-ratio:5/4;order:-1}
@@ -1585,10 +1584,12 @@ body.site-entering .desktop-icons .desktop-icon:nth-child(5){animation-delay:.58
 
 @media(max-width:720px){
   .language-toggle{left:calc(var(--stage-gap) + var(--bezel-x) + var(--screen-safe-left) + 2px);bottom:calc(var(--stage-gap) + var(--bezel-y) + var(--screen-safe-bottom) + 2px);height:30px;min-width:42px;font-size:16px}
-  .privacy-widget{right:calc(var(--stage-gap) + var(--bezel-x) + var(--screen-safe-right) + 2px);bottom:calc(var(--stage-gap) + var(--bezel-y) + var(--screen-safe-bottom) + 2px)}
+  .privacy-widget{left:calc(var(--stage-gap) + var(--bezel-x) + var(--screen-safe-left) + 54px);right:calc(var(--stage-gap) + var(--bezel-x) + var(--screen-safe-right) + 2px);bottom:calc(var(--stage-gap) + var(--bezel-y) + var(--screen-safe-bottom) + 2px);max-width:none}
   .privacy-toggle{font-size:15px;padding:6px 8px}
-  .privacy-panel{font-size:16px;padding:13px}
+  .privacy-panel{width:100%;max-width:none;font-size:16px;padding:13px}
   .privacy-panel p{font-size:17px}
+  .privacy-actions{justify-content:stretch}
+  .privacy-actions button{flex:1;min-width:0}
 }
 body.booting .language-toggle,
 body.booting .privacy-widget{opacity:0;visibility:hidden;pointer-events:none}

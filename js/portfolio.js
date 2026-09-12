@@ -10,17 +10,20 @@
   const t = key => i18n?.t?.(key) || key;
   const layer = document.getElementById('window-layer');
   const screen = document.getElementById('screen');
+  const projectsView = document.getElementById('projects-view');
   const coarsePointer = matchMedia('(hover: none), (pointer: coarse)');
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const responsiveWindows = matchMedia('(max-width: 1024px)');
   let z = 20;
   let routeReady = !document.body.classList.contains('booting');
   let lastLauncher = null;
+  let closingHistoryWindow = false;
 
   const esc = s => String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
   const paragraphs = value => [].concat(value || []).map(text => `<p>${esc(text)}</p>`).join('');
   const projectById = id => projects.find(p => p.id === String(id).padStart(2,'0'));
   const projectBySlug = slug => projects.find(p => p.slug === slug);
+  const isTouchDevice = () => coarsePointer.matches || navigator.maxTouchPoints > 0;
 
   let degaussSwap=null, degaussEnd=null;
   let mobileProjectObserver=null;
@@ -301,6 +304,47 @@
     bindMobileProjectMotion(root);
   }
 
+  function openProjectsView(){
+    if(!projectsView) return false;
+    projectsView.hidden=false;
+    projectsView.classList.add('is-open');
+    document.body.classList.add('projects-open');
+    return true;
+  }
+
+  function closeProjectsView({updateRoute=false}={}){
+    if(!projectsView || projectsView.hidden) return;
+    projectsView.hidden=true;
+    projectsView.classList.remove('is-open','case-mode');
+    projectsView.innerHTML='';
+    delete projectsView.dataset.view;
+    delete projectsView.dataset.project;
+    document.body.classList.remove('projects-open');
+    if(updateRoute && /^#\/(projects|work\/)/.test(location.hash)) history.pushState(null,'',location.pathname+location.search);
+  }
+
+  function pushMobileWindowState(win){
+    if(!isTouchDevice() || win.__historyManaged) return;
+    win.__historyManaged=true;
+    history.pushState({ portfolioWindow: win.dataset.kind }, '', location.href);
+  }
+
+  function topWindow(){
+    return [...document.querySelectorAll('.os-window')].sort((a,b)=>(+b.style.zIndex||0)-(+a.style.zIndex||0))[0];
+  }
+
+  function renderProjectsDirectory(){
+    if(!openProjectsView()) return false;
+    projectsView.classList.remove('case-mode');
+    projectsView.dataset.view='directory';
+    delete projectsView.dataset.project;
+    projectsView.innerHTML=contents.projects();
+    projectsView.scrollTop=0;
+    bindProjectLinks(projectsView);
+    microGlitch();
+    return true;
+  }
+
   function renderDirectory(win){
     win.classList.remove('case-mode');
     win.dataset.view='directory';
@@ -310,6 +354,7 @@
   }
 
   function openWindow(kind,{updateRoute=false}={}){
+    if(kind==='projects') return renderProjectsDirectory();
     const labels={projects:t('window.projects'),about:t('window.about'),contact:t('window.contact'),resume:t('window.resume'),archive:t('window.archive')};
     const win=createWindow(kind,labels[kind]||kind.toUpperCase());
     if(kind==='projects') renderDirectory(win);
@@ -321,6 +366,7 @@
     applyResponsiveState(win);
     bringFront(win);
     focusWindow(win);
+    pushMobileWindowState(win);
     if(kind!=='projects') microGlitch();
     if(updateRoute && kind==='projects' && location.hash !== '#/projects') location.hash='/projects';
     return win;
@@ -405,10 +451,66 @@
     bindProjectLinks(body); bringFront(win);
   }
 
+  function renderProjectCase(p){
+    if(!openProjectsView()) return false;
+    const index=projects.indexOf(p);
+    const prev=projects[(index-1+projects.length)%projects.length];
+    const next=projects[(index+1)%projects.length];
+    projectsView.classList.add('case-mode');
+    projectsView.dataset.view='case';
+    projectsView.dataset.project=p.slug;
+    const media=p.media||[];
+    const hero=media[0] ? mediaPlaceholder(media[0],1,p) : '';
+    const galleryMedia=media.slice(1);
+    const gallery=galleryMedia.map((m,i)=>mediaPlaceholder(m,i+2,p,{galleryIndex:i,galleryCount:galleryMedia.length})).join('');
+    const outputs=(p.outputs||[]).length ? `
+        <section class="case-outputs-v2">
+          <div class="case-story-label">${esc(t('case.outputs'))}</div>
+          <div class="case-output-list">
+            ${p.outputs.map(item=>`<article><h3>${esc(item.title)}</h3><p>${esc(item.description)}</p></article>`).join('')}
+          </div>
+        </section>` : '';
+    projectsView.innerHTML=`
+      <article class="case-study-v2">
+        <div class="case-topline">
+          <button class="case-back-v2" data-back-projects>← ${esc(t('portfolio.selectedWorkText'))}</button>
+          <span>${String(index+1).padStart(2,'0')} / ${String(projects.length).padStart(2,'0')}</span>
+        </div>
+        <header class="case-lead-v2">
+          <div class="case-title-v2"><h2>${esc(p.displayTitle || p.title).replace(/\n/g,'<br>')}</h2></div>
+          <p>${esc(p.intro)}</p>
+        </header>
+        ${hero}
+        <dl class="case-facts-v2">
+          <div><dt>${esc(t('case.client'))}</dt><dd>${esc(p.client)}</dd></div>
+          <div><dt>${esc(t('case.role'))}</dt><dd>${esc(p.role)}</dd></div>
+          <div><dt>${esc(t('case.deliverables'))}</dt><dd>${esc(p.deliverables)}</dd></div>
+          <div><dt>${esc(t('case.year'))}</dt><dd>${esc(p.year)}</dd></div>
+        </dl>
+        <section class="case-story-v2">
+          <div class="case-story-label">${esc(t('case.notes'))}</div>
+          <div class="case-story-copy">
+            <article><span>01 / ${esc(t('case.context'))}</span><p>${esc(p.context)}</p></article>
+            <article><span>02 / ${esc(t('case.direction'))}</span><p>${esc(p.direction)}</p></article>
+          </div>
+        </section>
+        <section class="case-gallery-v2" aria-label="${esc(t('case.gallery'))}">${gallery}</section>
+        <section class="case-tags-v2"><span>${esc(t('case.disciplines'))}</span>${tagList(p.tags)}</section>
+        ${outputs}
+        <nav class="case-nav-v2" aria-label="${esc(t('case.nav'))}">
+          <button data-project-slug="${esc(prev.slug)}"><small>${esc(t('case.previous'))}</small><b>← ${esc(prev.title)}</b></button>
+          <button data-project-slug="${esc(next.slug)}"><small>${esc(t('case.next'))}</small><b>${esc(next.title)} →</b></button>
+        </nav>
+      </article>`;
+    projectsView.scrollTop=0;
+    projectsView.querySelector('[data-back-projects]').addEventListener('click',()=>navigateProjects());
+    bindProjectLinks(projectsView);
+    return true;
+  }
+
   function openProject(slug,{updateRoute=false}={}){
     const p=projectBySlug(slug) || projectById(slug); if(!p) return false;
-    const win=createWindow('projects',t('window.projects')); renderCase(win,p);
-    focusWindow(win);
+    renderProjectCase(p);
     if(updateRoute && location.hash !== `#/work/${p.slug}`) location.hash=`/work/${p.slug}`;
     return true;
   }
@@ -420,7 +522,8 @@
   }
   function navigateProjects(){
     degauss(()=>{
-      openWindow('projects',{updateRoute:true});
+      renderProjectsDirectory();
+      if(location.hash !== '#/projects') location.hash='/projects';
     });
   }
   function route(){
@@ -429,7 +532,8 @@
     const hash=location.hash || '';
     const work=hash.match(/^#\/work\/([^/?#]+)/);
     if(work){ openProject(decodeURIComponent(work[1])); return; }
-    if(hash==='#/projects'){ openWindow('projects'); return; }
+    if(hash==='#/projects'){ renderProjectsDirectory(); return; }
+    closeProjectsView();
   }
 
   function leavePhosphorGhost(win){
@@ -441,11 +545,8 @@
   function bringFront(win){ win.style.zIndex=++z; }
   function closeWindow(win){
     if(!win) return;
-    if(win.dataset.kind==='projects'){
-      cancelDegauss();
-      if(/^#\/(projects|work\/)/.test(location.hash)) history.replaceState(null,'',location.pathname+location.search);
-      win.remove();
-      if(win.__returnFocus?.isConnected) win.__returnFocus.focus({preventScroll:true});
+    if(isTouchDevice() && win.__historyManaged && !closingHistoryWindow){
+      history.back();
       return;
     }
     const returnFocus=win.__returnFocus;
@@ -516,11 +617,23 @@
   }));
 
   addEventListener('hashchange',route);
+  addEventListener('popstate',()=>{
+    if(!isTouchDevice()) return;
+    const top=topWindow();
+    if(!top) return;
+    closingHistoryWindow=true;
+    closeWindow(top);
+    closingHistoryWindow=false;
+  });
   addEventListener('keydown',e=>{
     if(e.key==='Escape'){
-      const top=[...document.querySelectorAll('.os-window')].sort((a,b)=>(+b.style.zIndex||0)-(+a.style.zIndex||0))[0];
-      if(top?.dataset.kind!=='projects') cancelDegauss();
-      if(top) closeWindow(top);
+      const top=topWindow();
+      if(top) { cancelDegauss(); closeWindow(top); return; }
+      if(!projectsView?.hidden){
+        if(location.hash==='#/projects') history.pushState(null,'',location.pathname+location.search);
+        else location.hash='/projects';
+        route();
+      }
     }
   });
 
@@ -531,16 +644,17 @@
 
   addEventListener('portfolio:langchange',()=>{
     syncLocalizedData();
+    if(projectsView && !projectsView.hidden){
+      const slug=projectsView.dataset.view==='case' ? projectsView.dataset.project : null;
+      if(slug){
+        const project=projectBySlug(slug) || projectById(slug);
+        if(project) renderProjectCase(project);
+        else renderProjectsDirectory();
+      } else renderProjectsDirectory();
+    }
     document.querySelectorAll('.os-window').forEach(win=>{
       const kind=win.dataset.kind;
-      if(kind==='projects'){
-        const slug=win.dataset.view==='case' ? win.dataset.project : null;
-        if(slug){
-          const project=projectBySlug(slug) || projectById(slug);
-          if(project) renderCase(win,project);
-          else renderDirectory(win);
-        } else renderDirectory(win);
-      } else if(contents[kind]){
+      if(contents[kind]){
         win.querySelector('.window-titlebar > span').textContent=({about:t('window.about'),contact:t('window.contact'),resume:t('window.resume'),archive:t('window.archive')}[kind]||kind.toUpperCase());
         win.querySelector('.window-body').innerHTML=contents[kind]();
       }

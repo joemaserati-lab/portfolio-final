@@ -12,6 +12,7 @@ const feature = document.getElementById('crt-head-feature');
 const canvas = document.getElementById('crt-head-canvas');
 const screenElement = document.getElementById('screen');
 const windowLayer = document.getElementById('window-layer');
+const projectsView = document.getElementById('projects-view');
 
 if (feature && canvas && screenElement) {
   const touch = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
@@ -24,7 +25,7 @@ if (feature && canvas && screenElement) {
 
   function sync() {
     if (disposed || !effect) return;
-    const windowOpen = Boolean(windowLayer?.querySelector('.os-window'));
+    const windowOpen = Boolean(windowLayer?.querySelector('.os-window')) || Boolean(projectsView && !projectsView.hidden);
     feature.classList.toggle('is-window-open', windowOpen);
     effect.setPaused(!ready || !booted || !pageVisible || windowOpen);
     if (ready && booted && pageVisible && !windowOpen) feature.classList.add('is-ready');
