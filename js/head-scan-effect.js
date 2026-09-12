@@ -282,13 +282,11 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
     if (disposed || paused || !loaded) return;
     const dt = lastTime === null ? 0 : Math.min((now - lastTime) / 1000, 0.05);
     lastTime = now;
-    if (!reducedMotion) {
-      elapsed += dt;
-      pointer.lerp(targetPointer, 1.0 - Math.pow(0.0007, dt));
-      const ease = 1.0 - Math.pow(0.0012, dt);
-      root.rotation.y += (pointer.x * PRESET.mouseAmount - root.rotation.y) * ease;
-      root.rotation.x += ((pointer.y * PRESET.mouseAmount * 0.40 - 0.015) - root.rotation.x) * ease;
-    }
+    elapsed += dt;
+    pointer.lerp(targetPointer, 1.0 - Math.pow(0.0007, dt));
+    const ease = 1.0 - Math.pow(0.0012, dt);
+    root.rotation.y += (pointer.x * PRESET.mouseAmount - root.rotation.y) * ease;
+    root.rotation.x += ((pointer.y * PRESET.mouseAmount * 0.40 - 0.015) - root.rotation.x) * ease;
     for (const material of materials) {
       material.uniforms.uTime.value = reducedMotion ? 0 : elapsed;
       material.uniforms.uPhase.value = reducedMotion ? 0 : elapsed * PRESET.drift;
@@ -302,7 +300,7 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
       lastFrameStamp = now;
       render(now);
     }
-    if (!reducedMotion) raf = requestAnimationFrame(animate);
+    raf = requestAnimationFrame(animate);
   }
   function refresh() {
     cancelAnimationFrame(raf);
@@ -311,7 +309,7 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
     lastFrameStamp = 0;
     if (disposed || paused || !loaded) return;
     render(performance.now());
-    if (!reducedMotion) raf = requestAnimationFrame(animate);
+    raf = requestAnimationFrame(animate);
   }
   function resize() {
     if (disposed || !composer) return;
@@ -447,7 +445,7 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
     renderer, scene, camera, root, materials, preset: PRESET, ready,
     get disposed() { return disposed; },
     setPointer(x, y) {
-      if (disposed || reducedMotion) return;
+      if (disposed) return;
       targetPointer.set(THREE.MathUtils.clamp(x, -1, 1), THREE.MathUtils.clamp(y, -1, 1));
     },
     setPaused(value) {

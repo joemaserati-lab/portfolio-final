@@ -14,12 +14,13 @@ const screenElement = document.getElementById('screen');
 const windowLayer = document.getElementById('window-layer');
 
 if (feature && canvas && screenElement) {
-  const motion = matchMedia('(prefers-reduced-motion: reduce)');
   const touch = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
   let effect, observer, ready = false, disposed = false, pageVisible = !document.hidden;
   let booted = !document.body.classList.contains('booting');
   let deviceZero = null, tiltAttempted = false, orientationListening = false, lastTiltEventAt = 0;
   let tiltX = 0, tiltY = 0;
+  let fallbackActive = false, fallbackRaf = 0, fallbackPointerId = null, fallbackTouchedAt = 0;
+  let fallbackX = 0, fallbackY = 0, fallbackTargetX = 0, fallbackTargetY = 0;
 
   function sync() {
     if (disposed || !effect) return;
@@ -29,14 +30,14 @@ if (feature && canvas && screenElement) {
     if (ready && booted && pageVisible && !windowOpen) feature.classList.add('is-ready');
   }
   function onPointerMove(event) {
-    if (touch || motion.matches || event.pointerType !== 'mouse') return;
+    if (touch || event.pointerType !== 'mouse') return;
     const rect = feature.getBoundingClientRect();
     const x = (event.clientX - rect.left) / Math.max(rect.width, 1) * 2 - 1;
     const y = (event.clientY - rect.top) / Math.max(rect.height, 1) * 2 - 1;
     effect?.setPointer(x, y);
   }
   function onOrientation(event) {
-    if (motion.matches || !Number.isFinite(event.beta) || !Number.isFinite(event.gamma)) return;
+    if (!Number.isFinite(event.beta) || !Number.isFinite(event.gamma)) return;
     lastTiltEventAt = performance.now();
     const angle = window.screen.orientation?.angle ?? window.orientation ?? 0;
     let rawX = event.gamma, rawY = event.beta;
@@ -53,7 +54,6 @@ if (feature && canvas && screenElement) {
   }
   function getTiltStatus() {
     if (disposed) return 'unavailable';
-    if (motion.matches) return 'reduced-motion';
     if (!touch) return 'not-touch';
     if (!isSecureContext) return 'insecure-context';
     if (!('DeviceOrientationEvent' in window)) return 'unsupported';
@@ -73,7 +73,7 @@ if (feature && canvas && screenElement) {
     });
   }
   function startOrientation() {
-    if (disposed || motion.matches || orientationListening || !isSecureContext || !('DeviceOrientationEvent' in window)) return false;
+    if (disposed || orientationListening || !isSecureContext || !('DeviceOrientationEvent' in window)) return false;
     recenterTilt();
     lastTiltEventAt = 0;
     addEventListener('deviceorientation', onOrientation, true);
@@ -86,6 +86,58 @@ if (feature && canvas && screenElement) {
     tiltY = 0;
     effect?.setPointer(0, 0);
   }
+  function updateFallbackTargetFromPoint(clientX, clientY) {
+    const rect = screenElement.getBoundingClientRect();
+    const x = (clientX - rect.left) / Math.max(rect.width, 1) * 2 - 1;
+    const y = (clientY - rect.top) / Math.max(rect.height, 1) * 2 - 1;
+    fallbackTargetX = Math.max(-0.45, Math.min(0.45, x * 0.45));
+    fallbackTargetY = Math.max(-0.30, Math.min(0.30, y * 0.30));
+  }
+  function onFallbackPointerDown(event) {
+    if (!fallbackActive || fallbackPointerId !== null) return;
+    fallbackPointerId = event.pointerId;
+    fallbackTouchedAt = performance.now();
+    updateFallbackTargetFromPoint(event.clientX, event.clientY);
+  }
+  function onFallbackPointerMove(event) {
+    if (!fallbackActive || fallbackPointerId !== event.pointerId) return;
+    fallbackTouchedAt = performance.now();
+    updateFallbackTargetFromPoint(event.clientX, event.clientY);
+  }
+  function onFallbackPointerEnd(event) {
+    if (fallbackPointerId === event.pointerId) fallbackPointerId = null;
+  }
+  function animateFallback(now) {
+    fallbackRaf = 0;
+    if (disposed || !fallbackActive || orientationListening) return;
+    if (fallbackPointerId === null && now - fallbackTouchedAt > 220) {
+      const t = now / 1000;
+      fallbackTargetX = Math.sin(t * 0.42) * 0.18 + Math.sin(t * 0.17 + 1.2) * 0.08;
+      fallbackTargetY = Math.cos(t * 0.31 + 0.6) * 0.10 + Math.sin(t * 0.21) * 0.035;
+    }
+    const rateX = fallbackPointerId === null ? 0.035 : 0.10;
+    const rateY = fallbackPointerId === null ? 0.030 : 0.085;
+    fallbackX += (fallbackTargetX - fallbackX) * rateX;
+    fallbackY += (fallbackTargetY - fallbackY) * rateY;
+    effect?.setPointer(fallbackX, fallbackY);
+    fallbackRaf = requestAnimationFrame(animateFallback);
+  }
+  function enableFallbackMotion() {
+    if (disposed || fallbackActive || !touch) return false;
+    fallbackActive = true;
+    fallbackPointerId = null;
+    fallbackTouchedAt = 0;
+    fallbackX = 0;
+    fallbackY = 0;
+    fallbackTargetX = 0;
+    fallbackTargetY = 0;
+    screenElement.addEventListener('pointerdown', onFallbackPointerDown, { passive: true });
+    screenElement.addEventListener('pointermove', onFallbackPointerMove, { passive: true });
+    screenElement.addEventListener('pointerup', onFallbackPointerEnd, { passive: true });
+    screenElement.addEventListener('pointercancel', onFallbackPointerEnd, { passive: true });
+    fallbackRaf = requestAnimationFrame(animateFallback);
+    return true;
+  }
   async function requestTilt() {
     const status = getTiltStatus();
     if (status === 'active' || status === 'listening') return status;
@@ -96,21 +148,22 @@ if (feature && canvas && screenElement) {
         const permission = await DeviceOrientationEvent.requestPermission();
         if (permission === 'granted') {
           if (!startOrientation()) return 'unavailable';
-          return await waitForTiltSignal() ? 'granted' : 'blocked-or-private-browser';
+          if (await waitForTiltSignal()) return 'granted';
+          enableFallbackMotion();
+          return 'touch-fallback';
         }
+        enableFallbackMotion();
         return 'denied';
       }
       if (!startOrientation()) return 'unavailable';
-      return await waitForTiltSignal() ? 'active' : 'blocked-or-private-browser';
+      if (await waitForTiltSignal()) return 'active';
+      enableFallbackMotion();
+      return 'touch-fallback';
     } catch (error) {
       console.warn('[CRT Head] Device orientation unavailable.', error);
+      enableFallbackMotion();
       return 'error';
     }
-  }
-  function onMotionChange() {
-    recenterTilt();
-    effect?.setReducedMotion(motion.matches);
-    if (touch && !motion.matches && typeof window.DeviceOrientationEvent?.requestPermission !== 'function') startOrientation();
   }
   function onVisibility() { pageVisible = !document.hidden; sync(); }
   function onBooted() { booted = true; sync(); }
@@ -123,13 +176,17 @@ if (feature && canvas && screenElement) {
     if (disposed) return;
     disposed = true;
     observer?.disconnect();
+    cancelAnimationFrame(fallbackRaf);
     removeEventListener('pointermove', onPointerMove);
+    screenElement.removeEventListener('pointerdown', onFallbackPointerDown);
+    screenElement.removeEventListener('pointermove', onFallbackPointerMove);
+    screenElement.removeEventListener('pointerup', onFallbackPointerEnd);
+    screenElement.removeEventListener('pointercancel', onFallbackPointerEnd);
     removeEventListener('deviceorientation', onOrientation, true);
     document.removeEventListener('visibilitychange', onVisibility);
     removeEventListener('portfolio:booted', onBooted);
     removeEventListener('pagehide', onPageHide);
     removeEventListener('pageshow', onPageShow);
-    motion.removeEventListener('change', onMotionChange);
     effect?.destroy();
   }
   function fail(error) {
@@ -144,19 +201,19 @@ if (feature && canvas && screenElement) {
     effect = mountHeadScanEffect({
       container: feature, canvas,
       modelUrl: new URL('../assets/models/human_head_reference3.glb', import.meta.url).href,
-      reducedMotion: motion.matches, onError: fail
+      reducedMotion: false, onError: fail
     });
     addEventListener('pointermove', onPointerMove, { passive: true });
     document.addEventListener('visibilitychange', onVisibility);
     addEventListener('portfolio:booted', onBooted, { once: true });
     addEventListener('pagehide', onPageHide);
     addEventListener('pageshow', onPageShow);
-    motion.addEventListener('change', onMotionChange);
     window.PortfolioTilt = {
       canRequest: () => getTiltStatus() === 'ready',
       getStatus: getTiltStatus,
       request: requestTilt,
-      recenter: recenterTilt
+      recenter: recenterTilt,
+      enableFallback: enableFallbackMotion
     };
     if (windowLayer) {
       observer = new MutationObserver(sync);

@@ -157,17 +157,22 @@
   async function requestTiltBeforeEntry() {
     const tilt = window.PortfolioTilt;
     if (!tilt) return;
+    const enableFallback = () => Boolean(tilt.enableFallback?.());
     const status = tilt.getStatus?.() || (tilt.canRequest?.() ? 'ready' : 'unavailable');
     if (status !== 'ready') {
+      const fallback = enableFallback();
       const messages = {
         active: ['tilt already active / launching sequence', 'done'],
         listening: ['tilt listening / launching sequence', 'done'],
         'not-touch': ['desktop pointer mode / launching sequence', 'done'],
-        'reduced-motion': ['reduced motion enabled / tilt skipped', 'warn'],
         'insecure-context': ['tilt needs HTTPS / launching sequence', 'warn'],
         unsupported: ['tilt unsupported / launching sequence', 'warn'],
         unavailable: ['tilt unavailable / launching sequence', 'warn']
       };
+      if (fallback) {
+        setRow('ready', '07 READY', 'touch + ambient motion enabled', 'done');
+        return;
+      }
       const [text, state] = messages[status] || messages.unavailable;
       setRow('ready', '07 READY', text, state);
       return;
@@ -178,12 +183,12 @@
       granted: ['tilt enabled / launching sequence', 'done'],
       active: ['tilt enabled / launching sequence', 'done'],
       listening: ['tilt listening / launching sequence', 'done'],
-      denied: ['tilt denied / launching sequence', 'warn'],
-      'blocked-or-private-browser': ['tilt blocked by browser privacy settings', 'warn'],
-      'reduced-motion': ['reduced motion enabled / tilt skipped', 'warn'],
+      denied: ['touch + ambient motion enabled', 'done'],
+      'touch-fallback': ['touch + ambient motion enabled', 'done'],
+      'blocked-or-private-browser': ['touch + ambient motion enabled', 'done'],
       'insecure-context': ['tilt needs HTTPS / launching sequence', 'warn'],
       unsupported: ['tilt unsupported / launching sequence', 'warn'],
-      error: ['tilt permission error / launching sequence', 'warn'],
+      error: ['touch + ambient motion enabled', 'done'],
       unavailable: ['tilt unavailable / launching sequence', 'warn']
     };
     const [text, state] = messages[result] || messages.unavailable;
