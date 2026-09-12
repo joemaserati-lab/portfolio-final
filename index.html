@@ -4,7 +4,20 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#050003" />
+  <meta name="google-site-verification" content="GOOGLE_SEARCH_CONSOLE_VERIFICATION_TOKEN" />
+  <meta name="description" content="Portfolio of Edoardo Rappanello, a multidisciplinary designer working across design, web and digital marketing." />
+  <link rel="canonical" href="https://joemaserati-lab.github.io/portfolio-final/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Edoardo Rappanello — Multidisciplinary Designer" />
+  <meta property="og:description" content="Portfolio of Edoardo Rappanello, a multidisciplinary designer working across design, web and digital marketing." />
+  <meta property="og:url" content="https://joemaserati-lab.github.io/portfolio-final/" />
+  <meta property="og:image" content="https://joemaserati-lab.github.io/portfolio-final/assets/images/profilephoto.webp" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Edoardo Rappanello — Multidisciplinary Designer" />
+  <meta name="twitter:description" content="Portfolio of Edoardo Rappanello, a multidisciplinary designer working across design, web and digital marketing." />
+  <meta name="twitter:image" content="https://joemaserati-lab.github.io/portfolio-final/assets/images/profilephoto.webp" />
   <title>Edoardo Rappanello — Multidisciplinary Designer</title>
+  <link rel="icon" href="favicon.webp" type="image/webp" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="preload" href="assets/font/VT323-Regular.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="assets/font/redaction-50-latin-400-normal.woff" as="font" type="font/woff" crossorigin />
@@ -29,13 +42,13 @@
       </clipPath>
     </defs>
   </svg>
-  <section class="boot-loader" id="boot-loader" aria-label="Loading portfolio">
+  <section class="boot-loader" id="boot-loader" aria-label="Loading portfolio" data-i18n-aria="boot.label">
     <div class="boot-gate" id="boot-gate">
-      <p class="boot-gate-kicker">PORTFOLIO OS</p>
-      <h2>INITIALIZING<br>VISUAL SYSTEM</h2>
-      <p class="boot-gate-status" id="boot-gate-status">LOADING HEAD / TYPE / SIGNAL</p>
-      <button class="boot-enter" id="boot-enter" type="button" disabled>CLICK TO ENTER</button>
-      <p class="boot-gate-note" id="boot-gate-note">Tilt interaction may request motion sensor access on mobile.</p>
+      <p class="boot-gate-kicker" data-i18n="boot.kicker">PORTFOLIO OS</p>
+      <h2 data-i18n-html="boot.title">LOADING</h2>
+      <p class="boot-gate-status" id="boot-gate-status" data-i18n="boot.status">LOADING HEAD / TYPE / SIGNAL</p>
+      <button class="boot-enter" id="boot-enter" type="button" disabled data-i18n="boot.enter">CLICK TO ENTER</button>
+      <p class="boot-gate-note" id="boot-gate-note" data-i18n="boot.note">Tilt interaction may request motion sensor access on mobile.</p>
     </div>
     <div class="boot-output" id="boot-output"></div>
     <div class="boot-prompt"><span>edoardo@portfolio:~$</span><span class="boot-cursor">█</span></div>
@@ -59,33 +72,33 @@
           <canvas id="crt-head-canvas"></canvas>
         </div>
 
-        <section class="hero-intro" aria-label="Portfolio introduction">
-          <p class="system-label">MULTIDISCIPLINARY DESIGNER</p>
+        <section class="hero-intro" aria-label="Portfolio introduction" data-i18n-aria="hero.aria">
+          <p class="system-label" data-i18n="hero.kicker">Welcome to my portfolio</p>
           <h1>EDOARDO<br>RAPPANELLO<span class="blink-dot">_</span></h1>
-          <p class="hero-copy">Multidisciplinary designer working across design, web and digital marketing, turning ideas into visual experiences with both creativity and reason.</p>
-          <button class="primary-action" data-open="projects">ENTER SELECTED WORK</button>
+          <p class="hero-copy" data-i18n="hero.copy">Multidisciplinary designer working across design, web and digital marketing, turning ideas into visual experiences with both creativity and reason.</p>
+          <button class="primary-action" data-open="projects" data-i18n="hero.cta">ENTER SELECTED WORK</button>
         </section>
 
-        <nav class="desktop-icons" aria-label="Portfolio sections">
+        <nav class="desktop-icons" aria-label="Portfolio sections" data-i18n-aria="nav.aria">
           <button class="desktop-icon" data-open="projects">
             <span class="icon-glyph" aria-hidden="true"><svg viewBox="0 0 48 40"><path d="M3 10h16l4-5h22v29H3z"/><path d="M3 13h42"/></svg></span>
-            <span>PROJECTS</span><small>05 ITEMS</small>
+            <span data-i18n="nav.projects">PROJECTS</span><small data-i18n="nav.projectsSmall">05 ITEMS</small>
           </button>
           <button class="desktop-icon" data-open="about">
             <span class="icon-glyph" aria-hidden="true"><svg viewBox="0 0 40 48"><path d="M7 3h19l7 7v35H7z"/><path d="M26 3v8h7M12 20h16M12 26h13M12 32h16"/></svg></span>
-            <span>ABOUT.TXT</span><small>PROFILE</small>
+            <span data-i18n="nav.about">ABOUT.TXT</span><small data-i18n="nav.aboutSmall">PROFILE</small>
           </button>
           <button class="desktop-icon" data-open="resume">
             <span class="icon-glyph" aria-hidden="true"><svg viewBox="0 0 40 48"><path d="M7 3h19l7 7v35H7z"/><path d="M26 3v8h7M12 19h16M12 25h16M12 31h11M12 37h14"/></svg></span>
-            <span>RESUME.TXT</span><small>CV / PROFILE</small>
+            <span data-i18n="nav.resume">RESUME.TXT</span><small data-i18n="nav.resumeSmall">CV / PROFILE</small>
           </button>
           <button class="desktop-icon" data-open="archive">
             <span class="icon-glyph" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M7 10h34v31H7zM4 5h40v8H4z"/><path d="M18 20h12M18 27h12M18 34h8"/></svg></span>
-            <span>ARCHIVE</span><small>2024—2026</small>
+            <span data-i18n="nav.archive">ARCHIVE</span><small data-i18n="nav.archiveSmall">2024-2026</small>
           </button>
           <button class="desktop-icon" data-open="contact">
             <span class="icon-glyph" aria-hidden="true"><svg viewBox="0 0 48 40"><path d="M4 6h40v28H4z"/><path d="M5 8l19 15L43 8"/></svg></span>
-            <span>CONTACT</span><small>TEXT ME :)</small>
+            <span data-i18n="nav.contact">CONTACT</span><small data-i18n="nav.contactSmall">TEXT ME :)</small>
           </button>
         </nav>
 
@@ -95,11 +108,28 @@
     </div>
   </main>
 
+  <button class="language-toggle" id="language-toggle" type="button" aria-label="Switch language">IT</button>
+  <aside class="privacy-widget" aria-label="Privacy and cookie preferences">
+    <button class="privacy-toggle" id="privacy-toggle" type="button" aria-expanded="false" aria-controls="privacy-panel" data-i18n="privacy.button">PRIVACY / COOKIES</button>
+    <div class="privacy-panel" id="privacy-panel" hidden>
+      <div class="privacy-status" data-i18n="privacy.status">LOCAL PREFERENCES ONLY</div>
+      <h2 data-i18n="privacy.title">PRIVACY / COOKIES</h2>
+      <p data-i18n="privacy.copy">This site can use GA4 analytics only after consent. No marketing cookies or profiling are used. Language, privacy and analytics preferences are stored locally.</p>
+      <div class="privacy-actions">
+        <button id="privacy-accept" type="button" data-i18n="privacy.accept">ACCEPT ANALYTICS</button>
+        <button id="privacy-close" type="button" data-i18n="privacy.close">CLOSE</button>
+      </div>
+    </div>
+  </aside>
+
+  <script src="js/i18n.js"></script>
   <script src="js/cursor.js"></script>
   <script src="js/boot.js"></script>
   <script src="js/crt.js"></script>
   <script src="js/content.js"></script>
+  <script src="js/analytics.js"></script>
   <script src="js/portfolio.js"></script>
+  <script src="js/privacy.js"></script>
   <script type="module" src="js/head3d.js"></script>
 </body>
 </html>

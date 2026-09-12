@@ -10,6 +10,10 @@
   const MIN_VISIBLE_MS = 1300;
   const READY_HOLD_MS = 220;
   const ROW_STEP_MS = 135;
+  const HEAD_READY_TIMEOUT_MS = 6500;
+  const i18n = window.PortfolioI18n;
+  const t = key => i18n?.t?.(key) || key;
+  const isTouchDevice = () => Boolean(i18n?.isTouchDevice?.()) || matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
   let finished = false;
   let sequenceStarted = false;
   let resourcesReady = false;
@@ -56,9 +60,16 @@
   }
 
   function setGate(text, note) {
+    gateStatus.removeAttribute('data-i18n');
     gateStatus.textContent = text;
-    if (gateNote && note) gateNote.textContent = note;
+    if (gateNote && note) {
+      gateNote.removeAttribute('data-i18n');
+      gateNote.textContent = note;
+      gateNote.hidden = !isTouchDevice() && /tilt|sensor/i.test(note);
+    }
   }
+
+  if (gateNote) gateNote.hidden = !isTouchDevice();
 
   const domReady = new Promise(resolve => {
     if (document.readyState === 'loading') {
@@ -126,31 +137,40 @@
   });
 
   const headReady = new Promise(resolve => {
-    const state = window.__portfolioHeadState;
-    if (state?.settled) {
-      headOk = Boolean(state.ready);
-      setRow('head', '06 MODEL', state.ready ? 'model ready' : '3D fallback active', state.ready ? 'done' : 'warn');
-      resolve(state);
-      return;
-    }
-    const onSettled = event => {
-      const detail = event.detail || { settled: true, ready: false };
+    let settled = false;
+    let onSettled;
+    const done = detail => {
+      if (settled) return;
+      settled = true;
+      if (onSettled) removeEventListener('portfolio:head-settled', onSettled);
       headOk = Boolean(detail.ready);
       setRow('head', '06 MODEL', detail.ready ? 'model ready' : '3D fallback active', detail.ready ? 'done' : 'warn');
       resolve(detail);
     };
+    const state = window.__portfolioHeadState;
+    if (state?.settled) {
+      done(state);
+      return;
+    }
+    onSettled = event => {
+      done(event.detail || { settled: true, ready: false });
+    };
     addEventListener('portfolio:head-settled', onSettled, { once: true });
+    setTimeout(() => done({ settled: true, ready: false, error: 'Head initialization timed out.' }), HEAD_READY_TIMEOUT_MS);
   });
 
   Promise.allSettled([domReady, fontsReady, pageReady, videoReady, headReady]).then(() => {
     resourcesReady = true;
     if (!headOk) {
-      setGate('3D HEAD UNAVAILABLE', 'The site is waiting for the required visual system. Check console for details.');
-      return;
+      setGate(t('boot.fallbackStatus'), t('boot.fallbackNote'));
+    } else {
+      const note = isTouchDevice()
+        ? (isSecureContext ? t('boot.readyNote') : t('boot.readyNoteInsecure'))
+        : t('boot.readyNoteDesktop');
+      setGate(t('boot.readyStatus'), note);
     }
     loader.classList.add('is-ready');
     enter.disabled = false;
-    setGate('SYSTEM READY', isSecureContext ? 'Click to enter. Mobile tilt permission may be requested.' : 'Click to enter. Tilt requires HTTPS on mobile.');
     enter.focus({ preventScroll: true });
   });
 
@@ -177,7 +197,7 @@
       setRow('ready', '07 READY', text, state);
       return;
     }
-    setGate('REQUESTING TILT ACCESS', 'Use the browser prompt to allow motion sensor interaction.');
+    setGate(t('boot.requestTilt'), t('boot.requestTiltNote'));
     const result = await tilt.request();
     const messages = {
       granted: ['tilt enabled / launching sequence', 'done'],
@@ -235,7 +255,7 @@
   }
 
   enter.addEventListener('click', async () => {
-    if (!resourcesReady || !headOk || sequenceStarted) return;
+    if (!resourcesReady || sequenceStarted) return;
     enter.disabled = true;
     try { await requestTiltBeforeEntry(); }
     finally { startSequence(); }

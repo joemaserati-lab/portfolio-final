@@ -1,11 +1,13 @@
 (() => {
-  const DATA = window.PORTFOLIO_DATA;
+  let DATA = window.PORTFOLIO_DATA;
   if (!DATA) {
     console.error('PORTFOLIO_DATA is missing.');
     return;
   }
 
-  const { profile, resume, projects, archive } = DATA;
+  let { profile, resume, projects, archive } = DATA;
+  const i18n = window.PortfolioI18n;
+  const t = key => i18n?.t?.(key) || key;
   const layer = document.getElementById('window-layer');
   const screen = document.getElementById('screen');
   const coarsePointer = matchMedia('(hover: none), (pointer: coarse)');
@@ -13,6 +15,7 @@
   const responsiveWindows = matchMedia('(max-width: 1024px)');
   let z = 20;
   let routeReady = !document.body.classList.contains('booting');
+  let lastLauncher = null;
 
   const esc = s => String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
   const paragraphs = value => [].concat(value || []).map(text => `<p>${esc(text)}</p>`).join('');
@@ -80,23 +83,23 @@
       <h2>${esc(profile.name)}</h2>
       ${paragraphs(profile.intro)}
       <div class="meta-grid">
-        <div class="meta-card"><small>ROLE</small><b>${esc(profile.role)}</b></div>
-        <div class="meta-card"><small>EXPERIENCE</small><b>${esc(profile.experience)}</b></div>
-        <div class="meta-card"><small>FOCUS</small><b>${profile.focus.map(esc).join(' / ')}</b></div>
+        <div class="meta-card"><small>${esc(t('about.role'))}</small><b>${esc(profile.role)}</b></div>
+        <div class="meta-card"><small>${esc(t('about.experience'))}</small><b>${esc(profile.experience)}</b></div>
+        <div class="meta-card"><small>${esc(t('about.focus'))}</small><b>${profile.focus.map(esc).join(' / ')}</b></div>
       </div>`,
 
     contact:() => `
       <div class="contact-panel">
         <div class="contact-copy">
-          <h2>LET'S TALK.</h2>
-          <p>Selected freelance projects, collaborations and creative opportunities.</p>
+          <h2>${esc(t('portfolio.contactTitle'))}</h2>
+          <p>${esc(t('portfolio.contactCopy'))}</p>
           <div class="contact-links">
             <a class="contact-link" href="mailto:${esc(profile.email)}"><span>EMAIL</span><b>${esc(profile.email)}</b></a>
             <a class="contact-link" href="${esc(profile.linkedin)}" target="_blank" rel="noopener noreferrer"><span>LINKEDIN</span><b>@edoardorappanello</b></a>
           </div>
         </div>
         <figure class="contact-photo">
-          <img src="assets/images/profilephoto.webp" alt="Portrait of Edoardo Rappanello" loading="lazy" decoding="async">
+          <img src="assets/images/profilephoto.webp" alt="${esc(t('portfolio.portraitAlt'))}" loading="lazy" decoding="async">
         </figure>
       </div>`,
 
@@ -107,7 +110,7 @@
           <p>${esc(resume.intro)}</p>
         </header>
         <section class="resume-section">
-          <div class="resume-section-title">EXPERIENCE</div>
+          <div class="resume-section-title">${esc(t('resume.experience'))}</div>
           <div class="resume-list">${resume.experience.map(item=>`
             <article class="resume-row">
               <div class="resume-period">${esc(item.period)}</div>
@@ -115,13 +118,13 @@
             </article>`).join('')}</div>
         </section>
         <section class="resume-section">
-          <div class="resume-section-title">EDUCATION</div>
+          <div class="resume-section-title">${esc(t('resume.education'))}</div>
           <div class="resume-list">${resume.education.map(item=>`
             <article class="resume-row compact"><div class="resume-period">${esc(item.period)}</div><div><h3>${esc(item.course)}</h3><strong>${esc(item.school)}</strong>${paragraphs(item.description)}</div></article>`).join('')}</div>
         </section>
         <div class="resume-columns">
-          <section><div class="resume-section-title">CAPABILITIES</div>${tagList(resume.capabilities)}</section>
-          <section><div class="resume-section-title">TOOLS</div>${tagList(resume.tools)}</section>
+          <section><div class="resume-section-title">${esc(t('resume.capabilities'))}</div>${tagList(resume.capabilities)}</section>
+          <section><div class="resume-section-title">${esc(t('resume.tools'))}</div>${tagList(resume.tools)}</section>
         </div>
       </section>`,
 
@@ -137,22 +140,22 @@
       <section class="projects-index-v2">
         <header class="projects-index-head">
           <div>
-            <h2>SELECTED<br>WORK</h2>
+            <h2>${t('portfolio.selectedWork')}</h2>
           </div>
           <div class="projects-index-side">
-            <span>2026—ONGOING</span>
+            <span>${esc(t('portfolio.period'))}</span>
             <span>DESIGN / WEB / DIGITAL MARKETING</span>
-            <p>A selection of digital projects and ongoing corporate work across design, web and marketing.</p>
+            <p>${esc(t('portfolio.selectedCopy'))}</p>
           </div>
         </header>
         <div class="projects-grid-v2">
           ${projects.map((p,i)=>`
-            <button class="project-tile-v2 project-visual-${(i%4)+1}" data-project-slug="${esc(p.slug)}" aria-label="Open ${esc(p.title)}">
+            <button class="project-tile-v2 project-visual-${(i%4)+1}" data-project-slug="${esc(p.slug)}" aria-label="${esc(t('portfolio.openProject'))} ${esc(p.title)}">
               <span class="project-cover-v2">
                 <span class="project-cover-id">${esc(p.id)}</span>
                 <span class="project-cover-type">${esc(p.type.toUpperCase())}</span>
                 <span class="project-cover-art" aria-hidden="true"></span>
-                <span class="project-cover-open">VIEW PROJECT ↗</span>
+                <span class="project-cover-open">${esc(t('portfolio.viewProject'))} ↗</span>
               </span>
               <span class="project-tile-copy">
                 <span class="project-tile-main"><small>${esc(p.id)} / ${esc(p.year)}</small><strong>${esc(p.displayTitle || p.title).replace(/\n/g,'<br>')}</strong></span>
@@ -222,8 +225,8 @@
     btn.hidden=false;
     const maximized=win.classList.contains('is-maximized');
     btn.textContent=maximized?'◱':'□';
-    btn.setAttribute('aria-label',maximized?'Restore window':'Maximize window');
-    btn.title=maximized?'Restore':'Maximize';
+    btn.setAttribute('aria-label',maximized?t('window.restoreLabel'):t('window.maximizeLabel'));
+    btn.title=maximized?t('window.restore'):t('window.maximize');
   }
 
   function applyResponsiveState(win){
@@ -260,11 +263,17 @@
 
   function createWindow(kind, title){
     const existing = document.querySelector(`.os-window[data-kind="${kind}"]`);
-    if(existing){ bringFront(existing); return existing; }
+    if(existing){ existing.__returnFocus=lastLauncher || existing.__returnFocus; bringFront(existing); focusWindow(existing); return existing; }
     const win=document.createElement('section');
     win.className='os-window'; win.dataset.kind=kind; win.style.zIndex=++z;
-    const resizeControl='<button data-resize aria-label="Restore window" title="Restore">◱</button>';
-    win.innerHTML=`<div class="window-titlebar"><span>${title}</span><div class="window-controls">${resizeControl}<button data-close aria-label="Close">×</button></div></div><div class="window-body"></div>`;
+    win.tabIndex=-1;
+    win.setAttribute('role','dialog');
+    win.setAttribute('aria-modal','false');
+    const titleId=`window-title-${kind}`;
+    win.setAttribute('aria-labelledby',titleId);
+    win.__returnFocus=lastLauncher;
+    const resizeControl=`<button data-resize aria-label="${esc(t('window.restoreLabel'))}" title="${esc(t('window.restore'))}">◱</button>`;
+    win.innerHTML=`<div class="window-titlebar"><span id="${titleId}">${title}</span><div class="window-controls">${resizeControl}<button data-close aria-label="Close">×</button></div></div><div class="window-body"></div>`;
     layer.appendChild(win);
     if(!responsiveWindows.matches){
       placeWindowRandomly(win);
@@ -280,6 +289,13 @@
     return win;
   }
 
+  function focusWindow(win){
+    requestAnimationFrame(()=>{
+      const target=win.querySelector('[data-close]') || win;
+      target.focus({preventScroll:true});
+    });
+  }
+
   function bindProjectLinks(root){
     root.querySelectorAll('[data-project-slug]').forEach(el=>el.addEventListener('click',()=>navigateToProject(el.dataset.projectSlug)));
     bindMobileProjectMotion(root);
@@ -288,13 +304,13 @@
   function renderDirectory(win){
     win.classList.remove('case-mode');
     win.dataset.view='directory';
-    win.querySelector('.window-titlebar > span').textContent='PROJECTS.DIR';
+    win.querySelector('.window-titlebar > span').textContent=t('window.projects');
     const body=win.querySelector('.window-body');
     body.innerHTML=contents.projects(); body.scrollTop=0; bindProjectLinks(body);
   }
 
   function openWindow(kind,{updateRoute=false}={}){
-    const labels={projects:'PROJECTS.DIR',about:'ABOUT.TXT',contact:'CONTACT.EXE',resume:'RESUME.TXT',archive:'ARCHIVE.DIR'};
+    const labels={projects:t('window.projects'),about:t('window.about'),contact:t('window.contact'),resume:t('window.resume'),archive:t('window.archive')};
     const win=createWindow(kind,labels[kind]||kind.toUpperCase());
     if(kind==='projects') renderDirectory(win);
     else {
@@ -304,6 +320,7 @@
     }
     applyResponsiveState(win);
     bringFront(win);
+    focusWindow(win);
     if(kind!=='projects') microGlitch();
     if(updateRoute && kind==='projects' && location.hash !== '#/projects') location.hash='/projects';
     return win;
@@ -325,7 +342,7 @@
     const next=projects[(index+1)%projects.length];
     win.classList.add('case-mode');
     win.dataset.view='case'; win.dataset.project=p.slug;
-    win.querySelector('.window-titlebar > span').textContent=`WORK / ${p.id} / ${p.slug.toUpperCase()}`;
+    win.querySelector('.window-titlebar > span').textContent=`${t('window.work')} / ${p.id} / ${p.slug.toUpperCase()}`;
     const body=win.querySelector('.window-body');
     const media=p.media||[];
     const hero=media[0] ? mediaPlaceholder(media[0],1,p) : '';
@@ -333,7 +350,7 @@
     const gallery=galleryMedia.map((m,i)=>mediaPlaceholder(m,i+2,p,{galleryIndex:i,galleryCount:galleryMedia.length})).join('');
     const outputs=(p.outputs||[]).length ? `
         <section class="case-outputs-v2">
-          <div class="case-story-label">SELECTED OUTPUTS</div>
+          <div class="case-story-label">${esc(t('case.outputs'))}</div>
           <div class="case-output-list">
             ${p.outputs.map(item=>`<article><h3>${esc(item.title)}</h3><p>${esc(item.description)}</p></article>`).join('')}
           </div>
@@ -341,7 +358,7 @@
     body.innerHTML=`
       <article class="case-study-v2">
         <div class="case-topline">
-          <button class="case-back-v2" data-back-projects>← SELECTED WORK</button>
+          <button class="case-back-v2" data-back-projects>← ${esc(t('portfolio.selectedWorkText'))}</button>
           <span>${String(index+1).padStart(2,'0')} / ${String(projects.length).padStart(2,'0')}</span>
         </div>
 
@@ -355,32 +372,32 @@
         ${hero}
 
         <dl class="case-facts-v2">
-          <div><dt>CLIENT</dt><dd>${esc(p.client)}</dd></div>
-          <div><dt>ROLE</dt><dd>${esc(p.role)}</dd></div>
-          <div><dt>DELIVERABLES</dt><dd>${esc(p.deliverables)}</dd></div>
-          <div><dt>YEAR</dt><dd>${esc(p.year)}</dd></div>
+          <div><dt>${esc(t('case.client'))}</dt><dd>${esc(p.client)}</dd></div>
+          <div><dt>${esc(t('case.role'))}</dt><dd>${esc(p.role)}</dd></div>
+          <div><dt>${esc(t('case.deliverables'))}</dt><dd>${esc(p.deliverables)}</dd></div>
+          <div><dt>${esc(t('case.year'))}</dt><dd>${esc(p.year)}</dd></div>
         </dl>
 
         <section class="case-story-v2">
-          <div class="case-story-label">PROJECT NOTES</div>
+          <div class="case-story-label">${esc(t('case.notes'))}</div>
           <div class="case-story-copy">
-            <article><span>01 / CONTEXT</span><p>${esc(p.context)}</p></article>
-            <article><span>02 / DIRECTION</span><p>${esc(p.direction)}</p></article>
+            <article><span>01 / ${esc(t('case.context'))}</span><p>${esc(p.context)}</p></article>
+            <article><span>02 / ${esc(t('case.direction'))}</span><p>${esc(p.direction)}</p></article>
           </div>
         </section>
 
-        <section class="case-gallery-v2" aria-label="Project media placeholders">${gallery}</section>
+        <section class="case-gallery-v2" aria-label="${esc(t('case.gallery'))}">${gallery}</section>
 
         <section class="case-tags-v2">
-          <span>DISCIPLINES</span>
+          <span>${esc(t('case.disciplines'))}</span>
           ${tagList(p.tags)}
         </section>
 
         ${outputs}
 
-        <nav class="case-nav-v2" aria-label="Project navigation">
-          <button data-project-slug="${esc(prev.slug)}"><small>PREVIOUS PROJECT</small><b>← ${esc(prev.title)}</b></button>
-          <button data-project-slug="${esc(next.slug)}"><small>NEXT PROJECT</small><b>${esc(next.title)} →</b></button>
+        <nav class="case-nav-v2" aria-label="${esc(t('case.nav'))}">
+          <button data-project-slug="${esc(prev.slug)}"><small>${esc(t('case.previous'))}</small><b>← ${esc(prev.title)}</b></button>
+          <button data-project-slug="${esc(next.slug)}"><small>${esc(t('case.next'))}</small><b>${esc(next.title)} →</b></button>
         </nav>
       </article>`;
     body.scrollTop=0;
@@ -390,7 +407,8 @@
 
   function openProject(slug,{updateRoute=false}={}){
     const p=projectBySlug(slug) || projectById(slug); if(!p) return false;
-    const win=createWindow('projects','PROJECTS.DIR'); renderCase(win,p);
+    const win=createWindow('projects',t('window.projects')); renderCase(win,p);
+    focusWindow(win);
     if(updateRoute && location.hash !== `#/work/${p.slug}`) location.hash=`/work/${p.slug}`;
     return true;
   }
@@ -427,9 +445,12 @@
       cancelDegauss();
       if(/^#\/(projects|work\/)/.test(location.hash)) history.replaceState(null,'',location.pathname+location.search);
       win.remove();
+      if(win.__returnFocus?.isConnected) win.__returnFocus.focus({preventScroll:true});
       return;
     }
+    const returnFocus=win.__returnFocus;
     leavePhosphorGhost(win); win.remove();
+    if(returnFocus?.isConnected) returnFocus.focus({preventScroll:true});
   }
 
   function maximizeWindow(win){
@@ -490,6 +511,7 @@
   },{passive:true});
 
   document.querySelectorAll('[data-open]').forEach(el=>el.addEventListener('click',()=>{
+    lastLauncher=el;
     if(el.dataset.open==='projects') navigateProjects(); else openWindow(el.dataset.open);
   }));
 
@@ -500,6 +522,30 @@
       if(top?.dataset.kind!=='projects') cancelDegauss();
       if(top) closeWindow(top);
     }
+  });
+
+  function syncLocalizedData(){
+    DATA = window.PORTFOLIO_DATA || DATA;
+    ({ profile, resume, projects, archive } = DATA);
+  }
+
+  addEventListener('portfolio:langchange',()=>{
+    syncLocalizedData();
+    document.querySelectorAll('.os-window').forEach(win=>{
+      const kind=win.dataset.kind;
+      if(kind==='projects'){
+        const slug=win.dataset.view==='case' ? win.dataset.project : null;
+        if(slug){
+          const project=projectBySlug(slug) || projectById(slug);
+          if(project) renderCase(win,project);
+          else renderDirectory(win);
+        } else renderDirectory(win);
+      } else if(contents[kind]){
+        win.querySelector('.window-titlebar > span').textContent=({about:t('window.about'),contact:t('window.contact'),resume:t('window.resume'),archive:t('window.archive')}[kind]||kind.toUpperCase());
+        win.querySelector('.window-body').innerHTML=contents[kind]();
+      }
+      setResizeControl(win);
+    });
   });
 
   const onReady=()=>{routeReady=true;route();};

@@ -1,5 +1,5 @@
 (() => {
-  window.PORTFOLIO_DATA = {
+  const EN = {
     profile: {
       name: 'EDOARDO RAPPANELLO',
       role: 'MULTIDISCIPLINARY DESIGNER',
@@ -182,4 +182,85 @@
       status: ['CURRENTLY IN PROGRESS.', 'NEW WORK WILL BE ADDED SOON.']
     }
   };
+
+  const clone = value => JSON.parse(JSON.stringify(value));
+  const IT = clone(EN);
+  Object.assign(IT.profile, {
+    role: 'DESIGNER MULTIDISCIPLINARE',
+    intro: [
+      'Il mio percorso nasce all\'incrocio tra design, comunicazione e marketing. Ho studiato Marketing e Comunicazione prima di laurearmi con lode in Web Design e Comunicazione Artistica per l\'Impresa all\'Accademia di Belle Arti.',
+      'Negli ultimi quattro anni ho lavorato come graphic designer e digital marketing specialist per aziende attive nella stampa digitale di grande formato. Il mio ruolo è cresciuto tra grafica, comunicazione corporate, gestione siti web, campagne digitali, analytics e visibilità online.',
+      'Oggi lavoro con Adobe Creative Suite e strumenti di digital marketing, integrando workflow AI per immagini, video, prototipazione e vibe coding. Mi interessa usare la tecnologia dentro il processo creativo, senza separare qualità visiva, usabilità e obiettivi di business.'
+    ],
+    focus: ['DESIGN', 'WEB', 'DIGITAL MARKETING']
+  });
+  Object.assign(IT.resume, {
+    title: 'CV',
+    intro: 'Una sintesi di esperienza, formazione, competenze e strumenti tra design, web e digital marketing.',
+    capabilities: ['GRAPHIC & VISUAL DESIGN','WEB DESIGN','DIGITAL MARKETING','DIGITAL ADVERTISING','COMUNICAZIONE CORPORATE','SEO','ANALYTICS','VISUALIZZAZIONE 3D','WORKFLOW CREATIVI AI-ASSISTED'],
+    tools: ['ADOBE CREATIVE CLOUD','WORDPRESS / ELEMENTOR','HTML / CSS / JAVASCRIPT','GOOGLE ADS','META ADS','GOOGLE ANALYTICS 4','GOOGLE SEARCH CONSOLE','STRUMENTI 3D','GENERAZIONE AI IMMAGINI & VIDEO','SVILUPPO AI-ASSISTED / VIBE CODING']
+  });
+  IT.resume.experience[0].description = [
+    'Comunicazione visiva tra stampa e digitale, gestione e sviluppo siti web, campagne advertising, SEO, analytics e comunicazione corporate.',
+    'I progetti includono siti web, brochure, cataloghi, advertising, contenuti social, comunicazione fieristica, layout espositivi 3D e workflow creativi assistiti da AI.'
+  ];
+  IT.resume.experience[1].role = 'WEB DESIGN & SVILUPPO';
+  IT.resume.experience[1].description = 'Design e sviluppo di esperienze digitali dal concept visivo all\'implementazione, combinando interface design, workflow front-end e sviluppo moderno assistito da AI.';
+  IT.resume.experience[2].description = 'Graphic design e produzione per stampa e comunicazione visiva.';
+  IT.resume.experience[3].description = 'Interface design e supporto a prodotti digitali.';
+  IT.resume.experience[4].description = 'Graphic design e supporto alla produzione.';
+  IT.resume.experience[5].description = 'Graphic design, contenuti digitali e comunicazione social.';
+  IT.resume.education[0].course = 'WEB DESIGN & COMUNICAZIONE ARTISTICA PER L\'IMPRESA';
+  IT.resume.education[0].description = '110/110 E LODE. Focus su web design, comunicazione visiva e media digitali. Tesi finale su blockchain, NFT e il loro impatto su internet.';
+  IT.resume.education[1].course = 'MARKETING & COMUNICAZIONE';
+  IT.resume.education[1].description = 'Marketing, comunicazione e basi aziendali.';
+
+  Object.assign(IT.archive, {
+    title: 'ARCHIVIO',
+    eyebrow: 'PROGETTI PERSONALI / CONCEPT / ESPERIMENTI',
+    description: 'Uno spazio per progetti indipendenti, studi visivi e idee sviluppate al di fuori del lavoro per i clienti.',
+    status: ['ATTUALMENTE IN LAVORAZIONE.', 'NUOVI LAVORI SARANNO AGGIUNTI PRESTO.']
+  });
+
+  const projectCopy = {
+    tovadu: {
+      type:'Esperienza Digitale', role:'Web Design / Sviluppo', deliverables:'Sito web / UX / UI / Sviluppo',
+      intro:'Un sito B2B progettato per rendere una proposta di consulenza digitale complessa più chiara, accessibile e facile da navigare.',
+      context:'Tovadu lavora con aziende che affrontano progetti di trasformazione digitale e tecnologia per il business. Il sito doveva comunicare competenza tecnica e approccio consulenziale strutturato senza risultare distante o troppo complesso.',
+      direction:'Il progetto è stato sviluppato attorno a una gerarchia informativa chiara, bilanciando contenuti tecnici e linguaggio visivo diretto e contemporaneo. L\'obiettivo era guidare l\'utente dal problema di business ai servizi e alle competenze dell\'azienda, mantenendo un\'esperienza semplice, strutturata e credibile.'
+    },
+    pholia: {
+      type:'Esperienza Digitale', role:'Web Design / Sviluppo', deliverables:'Sito web / UX / UI / Sviluppo',
+      intro:'Una presenza digitale pensata per trasformare un modello di business innovativo e multidisciplinare in un\'esperienza web chiara e contemporanea.',
+      context:'Pholia opera in uno spazio dove innovazione, strategia e asset intangibili si incontrano. La sfida era presentare un\'offerta complessa a pubblici diversi mantenendo il sito comprensibile, riconoscibile e lontano dalle convenzioni corporate tradizionali.',
+      direction:'L\'esperienza è stata costruita su contenuti modulari, gerarchia visiva forte e identità digitale flessibile. Le informazioni sono organizzate in modo progressivo per rendere temi complessi più facili da esplorare senza perdere un linguaggio visivo contemporaneo.'
+    },
+    sapy: {
+      type:'Esperienza Digitale', role:'Web Design / Sviluppo', deliverables:'Sito web / UX / UI / Sviluppo',
+      intro:'Una piattaforma digitale pensata per introdurre l\'intelligenza artificiale nella scuola con un\'esperienza chiara, accessibile e human-centered.',
+      context:'Sapy esplora l\'uso dell\'intelligenza artificiale come strumento di supporto per insegnanti e attività educative. Il progetto doveva comunicare una tecnologia emergente restando accessibile e costruendo fiducia attorno a un tema spesso tecnico o astratto.',
+      direction:'Il sito è stato strutturato su semplicità, chiarezza e accessibilità. Informazioni di prodotto, contenuti editoriali e visione del progetto sono separati in un\'architettura chiara, per rendere la tecnologia comprensibile senza semplificarla eccessivamente.'
+    },
+    'platinum-technologies': {
+      type:'Comunicazione Corporate', role:'Graphic Design / Digital Marketing / Web Management', deliverables:'Corporate Design / Web / Campagne / Editorial / Eventi',
+      intro:'Un sistema di comunicazione continuativo sviluppato tra graphic design, web, digital marketing, contenuti editoriali ed eventi di settore.',
+      context:'Platinum Technologies opera nel mercato professionale della stampa digitale di grande formato, dove la comunicazione deve unire informazioni tecniche, posizionamento di brand e obiettivi commerciali. Prodotti, tecnologie, eventi, contenuti editoriali e campagne devono restare parte dello stesso linguaggio riconoscibile, pur rivolgendosi a pubblici e obiettivi diversi.',
+      direction:'Il mio lavoro copre diverse fasi del processo comunicativo: dai materiali visivi e corporate alla gestione del sito, campagne digitali, contenuti editoriali e comunicazione per eventi. L\'obiettivo e mantenere un linguaggio visivo coerente adattando ogni output al canale, al pubblico e all\'obiettivo di business.'
+    },
+    'colorcopy-large-format': {
+      type:'Comunicazione Corporate', role:'Graphic Design / Digital Marketing / Web Management', deliverables:'Graphic Design / Web / Advertising / Social / Stampa / Eventi',
+      intro:'Un ecosistema di comunicazione multidisciplinare sviluppato tra graphic design, web, advertising e digital marketing.',
+      context:'Colorcopy Large Format lavora con piu brand, tecnologie e categorie prodotto nel mercato della stampa professionale. La comunicazione deve quindi gestire un portfolio ampio, profili cliente diversi e attivita commerciali frequenti senza perdere chiarezza o coerenza visiva.',
+      direction:'Il mio ruolo combina graphic design, gestione sito e digital marketing nell\'ecosistema comunicativo aziendale. Lanci prodotto, advertising, contenuti web, social, newsletter e materiali evento vengono sviluppati come parti dello stesso sistema, adattando messaggio e approccio visivo a obiettivi commerciali differenti.'
+    }
+  };
+  IT.projects.forEach(project => Object.assign(project, projectCopy[project.slug] || {}));
+
+  const dictionaries = { en: EN, it: IT };
+  function syncData() {
+    const lang = window.PortfolioI18n?.lang === 'it' ? 'it' : 'en';
+    window.PORTFOLIO_DATA = clone(dictionaries[lang]);
+  }
+  syncData();
+  addEventListener('portfolio:langchange', syncData);
 })();
