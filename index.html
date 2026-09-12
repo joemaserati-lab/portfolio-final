@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#050003" />
+  <title>Graphic Designer — CRT Portfolio OS</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preload" href="assets/font/VT323-Regular.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="assets/font/redaction-50-latin-400-normal.woff" as="font" type="font/woff" crossorigin />
+  <link rel="preload" as="image" href="assets/cursors/default-alt-amber.svg" type="image/svg+xml" />
+  <link rel="preload" as="image" href="assets/cursors/pointer-amber.svg" type="image/svg+xml" />
+  <link rel="preload" as="image" href="assets/cursors/text-amber.svg" type="image/svg+xml" />
+  <link rel="preload" href="assets/models/human_head_reference3.glb" as="fetch" crossorigin />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.185.1/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body class="booting">
+  <svg class="svg-defs" aria-hidden="true" width="0" height="0">
+    <defs>
+      <clipPath id="crtScreenClip" clipPathUnits="objectBoundingBox">
+        <path d="M .035 .018 Q .5 0 .965 .018 Q 1 .5 .965 .982 Q .5 1 .035 .982 Q 0 .5 .035 .018 Z"/>
+      </clipPath>
+    </defs>
+  </svg>
+  <section class="boot-loader" id="boot-loader" aria-label="Loading portfolio">
+    <div class="boot-gate" id="boot-gate">
+      <p class="boot-gate-kicker">PORTFOLIO OS</p>
+      <h2>INITIALIZING<br>VISUAL SYSTEM</h2>
+      <p class="boot-gate-status" id="boot-gate-status">LOADING HEAD / TYPE / SIGNAL</p>
+      <button class="boot-enter" id="boot-enter" type="button" disabled>CLICK TO ENTER</button>
+      <p class="boot-gate-note" id="boot-gate-note">Tilt interaction may request motion sensor access on mobile.</p>
+    </div>
+    <div class="boot-output" id="boot-output"></div>
+    <div class="boot-prompt"><span>portfolio@studio:~$</span><span class="boot-cursor">█</span></div>
+  </section>
+
+  <main class="shell">
+    <div class="crt-stage" id="crt-stage">
+      <section class="screen" id="screen" aria-label="Interactive graphic design portfolio desktop">
+        <video class="crt-background-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+          <source src="assets/video/crt-ambient.webm" type="video/webm" />
+        </video>
+        <canvas id="crt-bg" aria-hidden="true"></canvas>
+        <canvas id="crt-fx" aria-hidden="true"></canvas>
+        <div class="noise" aria-hidden="true"></div>
+        <div class="scanlines" aria-hidden="true"></div>
+        <div class="screen-reflection" aria-hidden="true"></div>
+        <div class="edge-light" aria-hidden="true"></div>
+
+      <div class="desktop" id="desktop">
+        <div class="crt-head-feature" id="crt-head-feature" aria-hidden="true">
+          <canvas id="crt-head-canvas"></canvas>
+        </div>
+
+        <section class="hero-intro" aria-label="Portfolio introduction">
+          <p class="system-label">GRAPHIC DESIGNER / CREATIVE DESIGNER</p>
+          <h1>EDOARDO<br>RAPPANELLO<span class="blink-dot">_</span></h1>
+          <p class="hero-copy">Visual identities, digital experiences and experimental systems.</p>
+          <button class="primary-action" data-open="projects">ENTER SELECTED WORK</button>
+        </section>
+
+        <nav class="desktop-icons" aria-label="Portfolio sections">
+          <button class="desktop-icon" data-open="projects">
+            <span class="icon-glyph" aria-hidden="true"><svg viewBox="0 0 48 40"><path d="M3 10h16l4-5h22v29H3z"/><path d="M3 13h42"/></svg></span>
+            <span>PROJECTS</span><small>04 ITEMS</small>
+          </button>
+          <button class="desktop-icon" data-open="about">
+            <span class="icon-glyph" aria-hidden="true"><svg viewBox="0 0 40 48"><path d="M7 3h19l7 7v35H7z"/><path d="M26 3v8h7M12 20h16M12 26h13M12 32h16"/></svg></span>
+            <span>ABOUT.TXT</span><small>PROFILE</small>
+          </button>
+          <button class="desktop-icon" data-open="resume">
+            <span class="icon-glyph" aria-hidden="true"><svg viewBox="0 0 40 48"><path d="M7 3h19l7 7v35H7z"/><path d="M26 3v8h7M12 19h16M12 25h16M12 31h11M12 37h14"/></svg></span>
+            <span>RESUME.TXT</span><small>CV / PROFILE</small>
+          </button>
+          <button class="desktop-icon" data-open="archive">
+            <span class="icon-glyph" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M7 10h34v31H7zM4 5h40v8H4z"/><path d="M18 20h12M18 27h12M18 34h8"/></svg></span>
+            <span>ARCHIVE</span><small>2024—2026</small>
+          </button>
+          <button class="desktop-icon" data-open="contact">
+            <span class="icon-glyph" aria-hidden="true"><svg viewBox="0 0 48 40"><path d="M4 6h40v28H4z"/><path d="M5 8l19 15L43 8"/></svg></span>
+            <span>CONTACT</span><small>OPEN</small>
+          </button>
+        </nav>
+
+      </div>
+      <div class="window-layer" id="window-layer" aria-live="polite"></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="js/cursor.js"></script>
+  <script src="js/boot.js"></script>
+  <script src="js/crt.js"></script>
+  <script src="js/content.js"></script>
+  <script src="js/portfolio.js"></script>
+  <script type="module" src="js/head3d.js"></script>
+</body>
+</html>
