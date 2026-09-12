@@ -15,6 +15,7 @@
   let routeReady = !document.body.classList.contains('booting');
 
   const esc = s => String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const paragraphs = value => [].concat(value || []).map(text => `<p>${esc(text)}</p>`).join('');
   const projectById = id => projects.find(p => p.id === String(id).padStart(2,'0'));
   const projectBySlug = slug => projects.find(p => p.slug === slug);
 
@@ -77,10 +78,10 @@
   const contents = {
     about:() => `
       <h2>${esc(profile.name)}</h2>
-      <p>${esc(profile.intro)}</p>
+      ${paragraphs(profile.intro)}
       <div class="meta-grid">
         <div class="meta-card"><small>ROLE</small><b>${esc(profile.role)}</b></div>
-        <div class="meta-card"><small>BASED</small><b>${esc(profile.location)}</b></div>
+        <div class="meta-card"><small>EXPERIENCE</small><b>${esc(profile.experience)}</b></div>
         <div class="meta-card"><small>FOCUS</small><b>${profile.focus.map(esc).join(' / ')}</b></div>
       </div>`,
 
@@ -110,13 +111,13 @@
           <div class="resume-list">${resume.experience.map(item=>`
             <article class="resume-row">
               <div class="resume-period">${esc(item.period)}</div>
-              <div><h3>${esc(item.role)}</h3><strong>${esc(item.company)}</strong><small>${esc(item.location)}</small><p>${esc(item.description)}</p></div>
+              <div><h3>${esc(item.role)}</h3><strong>${esc(item.company)}</strong><small>${esc(item.location)}</small>${paragraphs(item.description)}</div>
             </article>`).join('')}</div>
         </section>
         <section class="resume-section">
           <div class="resume-section-title">EDUCATION</div>
           <div class="resume-list">${resume.education.map(item=>`
-            <article class="resume-row compact"><div class="resume-period">${esc(item.period)}</div><div><h3>${esc(item.course)}</h3><strong>${esc(item.school)}</strong></div></article>`).join('')}</div>
+            <article class="resume-row compact"><div class="resume-period">${esc(item.period)}</div><div><h3>${esc(item.course)}</h3><strong>${esc(item.school)}</strong>${paragraphs(item.description)}</div></article>`).join('')}</div>
         </section>
         <div class="resume-columns">
           <section><div class="resume-section-title">CAPABILITIES</div>${tagList(resume.capabilities)}</section>
@@ -125,10 +126,11 @@
       </section>`,
 
     archive:() => `
-      <h2>ARCHIVE</h2>
-      <div class="archive-list">
-        ${projects.map(p=>`<button class="archive-row archive-project" data-project-slug="${esc(p.slug)}"><span>${esc(p.year)}</span><b>${esc(p.title)}</b><span>${esc(p.type)}</span></button>`).join('')}
-        ${archive.map(item=>`<div class="archive-row"><span>${esc(item.year)}</span><b>${esc(item.title)}</b><span>${esc(item.type)}</span></div>`).join('')}
+      <h2>${esc(archive.title)}</h2>
+      <p class="window-eyebrow">${esc(archive.eyebrow)}</p>
+      <p>${esc(archive.description)}</p>
+      <div class="archive-status">
+        ${archive.status.map(line=>`<span>${esc(line)}</span>`).join('')}
       </div>`,
 
     projects:() => `
@@ -138,8 +140,9 @@
             <h2>SELECTED<br>WORK</h2>
           </div>
           <div class="projects-index-side">
-            <span>${Math.min(...projects.map(p=>Number(p.year)))}—${Math.max(...projects.map(p=>Number(p.year)))}</span>
-            <span>IDENTITY / DIGITAL / CAMPAIGN</span>
+            <span>2026—ONGOING</span>
+            <span>DESIGN / WEB / DIGITAL MARKETING</span>
+            <p>A selection of digital projects and ongoing corporate work across design, web and marketing.</p>
           </div>
         </header>
         <div class="projects-grid-v2">
@@ -152,7 +155,7 @@
                 <span class="project-cover-open">VIEW PROJECT ↗</span>
               </span>
               <span class="project-tile-copy">
-                <span class="project-tile-main"><small>${esc(p.id)} / ${esc(p.year)}</small><strong>${esc(p.title)}</strong></span>
+                <span class="project-tile-main"><small>${esc(p.id)} / ${esc(p.year)}</small><strong>${esc(p.displayTitle || p.title).replace(/\n/g,'<br>')}</strong></span>
                 <span class="project-tile-details"><small>${esc(p.client)}</small><small>${esc(p.type.toUpperCase())}</small></span>
               </span>
             </button>`).join('')}
@@ -328,6 +331,13 @@
     const hero=media[0] ? mediaPlaceholder(media[0],1,p) : '';
     const galleryMedia=media.slice(1);
     const gallery=galleryMedia.map((m,i)=>mediaPlaceholder(m,i+2,p,{galleryIndex:i,galleryCount:galleryMedia.length})).join('');
+    const outputs=(p.outputs||[]).length ? `
+        <section class="case-outputs-v2">
+          <div class="case-story-label">SELECTED OUTPUTS</div>
+          <div class="case-output-list">
+            ${p.outputs.map(item=>`<article><h3>${esc(item.title)}</h3><p>${esc(item.description)}</p></article>`).join('')}
+          </div>
+        </section>` : '';
     body.innerHTML=`
       <article class="case-study-v2">
         <div class="case-topline">
@@ -337,7 +347,7 @@
 
         <header class="case-lead-v2">
           <div class="case-title-v2">
-            <h2>${esc(p.title)}</h2>
+            <h2>${esc(p.displayTitle || p.title).replace(/\n/g,'<br>')}</h2>
           </div>
           <p>${esc(p.intro)}</p>
         </header>
@@ -365,6 +375,8 @@
           <span>DISCIPLINES</span>
           ${tagList(p.tags)}
         </section>
+
+        ${outputs}
 
         <nav class="case-nav-v2" aria-label="Project navigation">
           <button data-project-slug="${esc(prev.slug)}"><small>PREVIOUS PROJECT</small><b>← ${esc(prev.title)}</b></button>

@@ -19,13 +19,13 @@
   const rowOrder = [];
   const rowState = new Map();
   const rowDefs = [
-    ['init', '01 INIT', 'opening visual workspace', 'done'],
+    ['init', '01 INIT', 'environment initialized', 'done'],
     ['dom', '02 DOM', 'building interface', 'pending'],
-    ['fonts', '03 TYPE', 'loading display / system fonts', 'pending'],
-    ['page', '04 ASSETS', 'loading page resources', 'pending'],
-    ['video', '05 SIGNAL', 'buffering CRT ambient layer', 'pending'],
-    ['head', '06 MODEL', 'loading 3D head / shader stack', 'pending'],
-    ['ready', '07 READY', 'waiting for user entry', 'pending']
+    ['fonts', '03 TYPE', 'loading system fonts', 'pending'],
+    ['page', '04 ASSETS', 'loading visual resources', 'pending'],
+    ['video', '05 SIGNAL', 'initializing CRT layer', 'pending'],
+    ['head', '06 MODEL', 'loading 3D model / shaders', 'pending'],
+    ['ready', '07 READY', 'checking resources', 'pending']
   ];
 
   rowDefs.forEach(([key, label, text, state]) => rowState.set(key, { label, text, state }));
@@ -79,7 +79,7 @@
         document.fonts.load('400 20px "VT323"'),
         document.fonts.load('400 48px "Redaction 50"')
       ]);
-      setRow('fonts', '03 TYPE', 'fonts loaded', 'done');
+      setRow('fonts', '03 TYPE', 'fonts ready', 'done');
       return { ok: true };
     } catch (error) {
       setRow('fonts', '03 TYPE', 'font fallback armed', 'warn');
@@ -91,7 +91,7 @@
     if (document.readyState === 'complete') resolve({ ok: true });
     else addEventListener('load', () => resolve({ ok: true }), { once: true });
   }).then(value => {
-    setRow('page', '04 ASSETS', 'page resources loaded', 'done');
+    setRow('page', '04 ASSETS', 'assets ready', 'done');
     return value;
   });
 
@@ -103,7 +103,7 @@
       return;
     }
     if (video.readyState >= 2) {
-      setRow('video', '05 SIGNAL', 'CRT signal buffered', 'done');
+      setRow('video', '05 SIGNAL', 'signal ready', 'done');
       resolve({ ok: true });
       return;
     }
@@ -114,7 +114,7 @@
       video.removeEventListener('loadeddata', onReady);
       video.removeEventListener('canplay', onReady);
       video.removeEventListener('error', onError);
-      setRow('video', '05 SIGNAL', ok ? 'CRT signal buffered' : 'CRT signal fallback', ok ? 'done' : 'warn');
+      setRow('video', '05 SIGNAL', ok ? 'signal ready' : 'CRT layer unavailable', ok ? 'done' : 'warn');
       resolve({ ok });
     };
     const onReady = () => done(true);
@@ -129,14 +129,14 @@
     const state = window.__portfolioHeadState;
     if (state?.settled) {
       headOk = Boolean(state.ready);
-      setRow('head', '06 MODEL', state.ready ? '3D model / shaders ready' : '3D fallback armed', state.ready ? 'done' : 'warn');
+      setRow('head', '06 MODEL', state.ready ? 'model ready' : '3D fallback active', state.ready ? 'done' : 'warn');
       resolve(state);
       return;
     }
     const onSettled = event => {
       const detail = event.detail || { settled: true, ready: false };
       headOk = Boolean(detail.ready);
-      setRow('head', '06 MODEL', detail.ready ? '3D model / shaders ready' : '3D fallback armed', detail.ready ? 'done' : 'warn');
+      setRow('head', '06 MODEL', detail.ready ? 'model ready' : '3D fallback active', detail.ready ? 'done' : 'warn');
       resolve(detail);
     };
     addEventListener('portfolio:head-settled', onSettled, { once: true });
