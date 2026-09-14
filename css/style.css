@@ -1593,3 +1593,114 @@ body.site-entering .desktop-icons .desktop-icon:nth-child(5){animation-delay:.58
 }
 body.booting .language-toggle,
 body.booting .privacy-widget{opacity:0;visibility:hidden;pointer-events:none}
+
+/* V31.7 / requested UI corrections ---------------------------------------- */
+.language-toggle,.privacy-widget{
+  position:absolute;
+  z-index:8;
+}
+.language-toggle{
+  left:calc(var(--screen-safe-left) + 12px);
+  bottom:calc(var(--screen-safe-bottom) + 8px);
+  background:rgba(7,3,10,.88);
+  box-shadow:0 0 18px rgba(178,132,214,.08);
+}
+.privacy-widget{
+  right:calc(var(--screen-safe-right) + 12px);
+  bottom:calc(var(--screen-safe-bottom) + 8px);
+}
+.privacy-toggle{background:rgba(7,3,10,.88);box-shadow:0 0 18px rgba(178,132,214,.08)}
+.privacy-panel{background:rgba(7,3,10,.98);box-shadow:0 22px 70px rgba(0,0,0,.72),inset 0 0 52px rgba(84,48,112,.16)}
+.privacy-panel p{color:#d7b8e5}
+.language-toggle,.privacy-toggle,.privacy-panel{text-shadow:0 0 7px rgba(178,132,214,.28)}
+.privacy-actions button{background:#07030a}
+
+.window-titlebar{gap:10px}
+.window-back{
+  flex:0 0 auto;
+  width:46px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--line-strong);
+  background:#07030a;
+  color:var(--bright);
+  cursor:pointer;
+  font-size:24px;
+  line-height:1;
+}
+.window-back:hover,.window-back:focus-visible,.projects-back:hover,.projects-back:focus-visible,.projects-close:hover,.projects-close:focus-visible{outline:1px dashed rgba(240,220,255,.42);outline-offset:3px;background:rgba(93,49,124,.62);color:#fff6fb}
+.window-controls button[data-resize]{display:none!important}
+
+.projects-chrome{
+  position:sticky;
+  top:0;
+  z-index:15;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:calc(var(--screen-safe-top) + 4px) var(--screen-safe-right) 8px var(--screen-safe-left);
+  pointer-events:none;
+}
+.projects-back,.projects-close{
+  pointer-events:auto;
+  width:46px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--line-strong);
+  background:rgba(7,3,10,.88);
+  color:var(--bright);
+  cursor:pointer;
+  font-size:24px;
+  line-height:1;
+}
+.projects-back:disabled{opacity:.28;cursor:default;pointer-events:none}
+.projects-view .projects-index-v2,.projects-view .case-study-v2{padding-top:clamp(12px,1.8vw,24px)}
+
+.os-window[data-kind="about"] .window-body p{max-width:none}
+
+.project-cover-v2,.case-media-v2,.projects-view,.os-window.is-maximized{background:#050308}
+.project-cover-art,.case-media-surface{background-color:#08040d}
+.project-visual-1 .project-cover-art,.media-visual-1 .case-media-surface{
+  background:linear-gradient(118deg,transparent 0 38%,rgba(116,77,150,.26) 38.2% 38.5%,transparent 38.7% 100%),radial-gradient(circle at 68% 42%,rgba(86,52,119,.52),transparent 0 18%,rgba(145,101,176,.12) 18.4% 31%,transparent 31.4%),repeating-linear-gradient(90deg,rgba(151,113,181,.07) 0 1px,transparent 1px 8%)
+}
+.project-visual-2 .project-cover-art,.media-visual-2 .case-media-surface{
+  background:linear-gradient(32deg,transparent 0 45%,rgba(116,77,150,.28) 45.2% 45.55%,transparent 45.8%),linear-gradient(148deg,transparent 0 54%,rgba(77,42,105,.34) 54.2% 54.6%,transparent 54.8%),repeating-linear-gradient(0deg,rgba(151,113,181,.065) 0 1px,transparent 1px 34px)
+}
+.project-visual-3 .project-cover-art,.media-visual-3 .case-media-surface{
+  background:linear-gradient(90deg,transparent 49.8%,rgba(145,101,176,.25) 50%,transparent 50.2%),linear-gradient(0deg,transparent 49.8%,rgba(90,51,121,.28) 50%,transparent 50.2%)
+}
+.project-visual-4 .project-cover-art,.media-visual-4 .case-media-surface{
+  background:repeating-linear-gradient(72deg,transparent 0 8%,rgba(151,113,181,.10) 8.2% 8.5%,transparent 8.7% 16%),radial-gradient(ellipse at 40% 58%,rgba(87,50,119,.42),transparent 0 26%,transparent 26%)
+}
+.case-nav-v2 button,.meta-card,.project-card,.experiment-tile{background-color:rgba(42,20,58,.34)}
+.case-nav-v2 button:hover,.project-card:hover,.archive-project:hover,.window-controls button:hover,.contact-link:hover,.primary-action:hover,.privacy-actions button:hover,.privacy-actions button:focus-visible{background:rgba(83,45,111,.54);color:#fff6fb}
+
+.window-body,.projects-view,.terminal-output,.privacy-panel{
+  scrollbar-width:thin;
+  scrollbar-color:#b187c4 rgba(18,8,24,.76);
+}
+.window-body::-webkit-scrollbar,.projects-view::-webkit-scrollbar,.terminal-output::-webkit-scrollbar,.privacy-panel::-webkit-scrollbar{width:12px;height:12px}
+.window-body::-webkit-scrollbar-track,.projects-view::-webkit-scrollbar-track,.terminal-output::-webkit-scrollbar-track,.privacy-panel::-webkit-scrollbar-track{background:rgba(18,8,24,.76);border-left:1px solid rgba(213,184,235,.14)}
+.window-body::-webkit-scrollbar-thumb,.projects-view::-webkit-scrollbar-thumb,.terminal-output::-webkit-scrollbar-thumb,.privacy-panel::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#b187c4,#5f397a);border:2px solid rgba(18,8,24,.95);box-shadow:inset 0 0 0 1px rgba(240,220,255,.22)}
+.window-body::-webkit-scrollbar-thumb:hover,.projects-view::-webkit-scrollbar-thumb:hover,.terminal-output::-webkit-scrollbar-thumb:hover,.privacy-panel::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#f0dcff,#7d4f9c)}
+
+@media(max-width:720px){
+  .hero-copy{
+    max-width:min(100%,330px);
+    padding:10px 12px;
+    border:1px solid rgba(240,220,255,.18);
+    background:rgba(5,3,8,.74);
+    color:#f0dcff;
+    line-height:1.26;
+    text-shadow:0 0 4px rgba(0,0,0,.55);
+    backdrop-filter:blur(2px);
+  }
+  .language-toggle{left:calc(var(--screen-safe-left) + 2px);bottom:calc(var(--screen-safe-bottom) + 2px)}
+  .privacy-widget{left:calc(var(--screen-safe-left) + 54px);right:calc(var(--screen-safe-right) + 2px);bottom:calc(var(--screen-safe-bottom) + 2px)}
+  .window-controls{right:calc(var(--screen-safe-right) + 4px)}
+  .window-back{width:40px;height:38px;font-size:22px}
+  .projects-chrome{padding:calc(var(--screen-safe-top) + 4px) var(--screen-safe-right) 8px var(--screen-safe-left)}
+  .projects-back,.projects-close{width:42px;height:38px;font-size:23px}
+}

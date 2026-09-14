@@ -220,16 +220,29 @@
 
   function setResizeControl(win){
     const btn=win.querySelector('[data-resize]');
-    if(!btn) return;
-    if(win.classList.contains('is-responsive-fullscreen')){
-      btn.hidden=true;
-      return;
-    }
-    btn.hidden=false;
-    const maximized=win.classList.contains('is-maximized');
-    btn.textContent=maximized?'◱':'□';
-    btn.setAttribute('aria-label',maximized?t('window.restoreLabel'):t('window.maximizeLabel'));
-    btn.title=maximized?t('window.restore'):t('window.maximize');
+    if(btn) btn.remove();
+  }
+
+  function projectShell(inner,{caseView=false}={}){
+    return `<div class="projects-chrome" aria-label="${esc(t('window.projects'))}">
+      <button class="projects-back" data-projects-back aria-label="${esc(t('window.backLabel'))}" title="${esc(t('window.back'))}">←</button>
+      <button class="projects-close" data-projects-close aria-label="${esc(t('window.closeLabel'))}" title="${esc(t('window.close'))}">×</button>
+    </div>${inner}`;
+  }
+
+  function bindProjectChrome(root){
+    root.querySelector('[data-projects-back]')?.addEventListener('click',()=>{
+      if(projectsView?.dataset.view==='case') navigateProjects();
+      else closeProjectsView({updateRoute:true});
+    });
+    root.querySelector('[data-projects-close]')?.addEventListener('click',()=>closeProjectsView({updateRoute:true}));
+  }
+
+  function updateWindowControls(win){
+    const back=win.querySelector('[data-window-back]');
+    const close=win.querySelector('[data-close]');
+    if(back){ back.setAttribute('aria-label',t('window.backLabel')); back.title=t('window.back'); }
+    if(close){ close.setAttribute('aria-label',t('window.closeLabel')); close.title=t('window.close'); }
   }
 
   function applyResponsiveState(win){
@@ -275,8 +288,7 @@
     const titleId=`window-title-${kind}`;
     win.setAttribute('aria-labelledby',titleId);
     win.__returnFocus=lastLauncher;
-    const resizeControl=`<button data-resize aria-label="${esc(t('window.restoreLabel'))}" title="${esc(t('window.restore'))}">◱</button>`;
-    win.innerHTML=`<div class="window-titlebar"><span id="${titleId}">${title}</span><div class="window-controls">${resizeControl}<button data-close aria-label="Close">×</button></div></div><div class="window-body"></div>`;
+    win.innerHTML=`<div class="window-titlebar"><button class="window-back" data-window-back aria-label="${esc(t('window.backLabel'))}" title="${esc(t('window.back'))}">←</button><span id="${titleId}">${title}</span><div class="window-controls"><button data-close aria-label="${esc(t('window.closeLabel'))}" title="${esc(t('window.close'))}">×</button></div></div><div class="window-body"></div>`;
     layer.appendChild(win);
     if(!responsiveWindows.matches){
       placeWindowRandomly(win);
@@ -338,8 +350,9 @@
     projectsView.classList.remove('case-mode');
     projectsView.dataset.view='directory';
     delete projectsView.dataset.project;
-    projectsView.innerHTML=contents.projects();
+    projectsView.innerHTML=projectShell(contents.projects());
     projectsView.scrollTop=0;
+    bindProjectChrome(projectsView);
     bindProjectLinks(projectsView);
     microGlitch();
     return true;
@@ -470,7 +483,7 @@
             ${p.outputs.map(item=>`<article><h3>${esc(item.title)}</h3><p>${esc(item.description)}</p></article>`).join('')}
           </div>
         </section>` : '';
-    projectsView.innerHTML=`
+    projectsView.innerHTML=projectShell(`
       <article class="case-study-v2">
         <div class="case-topline">
           <button class="case-back-v2" data-back-projects>← ${esc(t('portfolio.selectedWorkText'))}</button>
@@ -501,8 +514,9 @@
           <button data-project-slug="${esc(prev.slug)}"><small>${esc(t('case.previous'))}</small><b>← ${esc(prev.title)}</b></button>
           <button data-project-slug="${esc(next.slug)}"><small>${esc(t('case.next'))}</small><b>${esc(next.title)} →</b></button>
         </nav>
-      </article>`;
+      </article>`,{caseView:true});
     projectsView.scrollTop=0;
+    bindProjectChrome(projectsView);
     projectsView.querySelector('[data-back-projects]').addEventListener('click',()=>navigateProjects());
     bindProjectLinks(projectsView);
     return true;
@@ -582,11 +596,11 @@
 
   function wireWindow(win){
     win.addEventListener('pointerdown',()=>bringFront(win));
+    win.querySelector('[data-window-back]')?.addEventListener('click',()=>closeWindow(win));
     win.querySelector('[data-close]').addEventListener('click',()=>closeWindow(win));
-    win.querySelector('[data-resize]')?.addEventListener('click',()=>toggleWindowSize(win));
     const bar=win.querySelector('.window-titlebar'); let drag=false,sx=0,sy=0,sl=0,st=0;
     bar.addEventListener('dblclick',e=>{
-      if(!e.target.closest('button') && !win.classList.contains('is-responsive-fullscreen')) toggleWindowSize(win);
+      if(!e.target.closest('button') && !win.classList.contains('is-responsive-fullscreen')) bringFront(win);
     });
     bar.addEventListener('pointerdown',e=>{
       if(e.target.closest('button') || win.classList.contains('is-maximized') || win.classList.contains('is-responsive-fullscreen')) return;
@@ -658,6 +672,7 @@
         win.querySelector('.window-titlebar > span').textContent=({about:t('window.about'),contact:t('window.contact'),resume:t('window.resume'),archive:t('window.archive')}[kind]||kind.toUpperCase());
         win.querySelector('.window-body').innerHTML=contents[kind]();
       }
+      updateWindowControls(win);
       setResizeControl(win);
     });
   });
