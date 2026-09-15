@@ -19,6 +19,7 @@
   let resourcesReady = false;
   let headOk = false;
   let applicationPromise = null;
+  let headPromise = null;
 
   const rows = new Map();
   const rowOrder = [];
@@ -29,7 +30,7 @@
     ['fonts', '03 TYPE', 'loading system fonts', 'pending'],
     ['page', '04 ASSETS', 'loading visual resources', 'pending'],
     ['video', '05 SIGNAL', 'initializing CRT layer', 'pending'],
-    ['head', '06 MODEL', 'loading 3D model / shaders', 'pending'],
+    ['head', '06 MODEL', 'waiting for entry', 'pending'],
     ['ready', '07 READY', 'checking resources', 'pending']
   ];
 
@@ -107,6 +108,64 @@
     return applicationPromise;
   }
 
+  function primeTiltPermission() {
+    if (!isTouchDevice() || !isSecureContext || !('DeviceOrientationEvent' in window)) {
+      return Promise.resolve(null);
+    }
+    if (typeof DeviceOrientationEvent.requestPermission !== 'function') {
+      return Promise.resolve(null);
+    }
+    if (window.__portfolioTiltPermissionPromise) return window.__portfolioTiltPermissionPromise;
+    try {
+      const requested = DeviceOrientationEvent.requestPermission();
+      window.__portfolioTiltPermissionPromise = Promise.resolve(requested).then(
+        permission => {
+          window.__portfolioTiltPermission = permission;
+          return permission;
+        },
+        error => {
+          window.__portfolioTiltPermission = 'error';
+          return 'error';
+        }
+      );
+    } catch (error) {
+      window.__portfolioTiltPermission = 'error';
+      window.__portfolioTiltPermissionPromise = Promise.resolve('error');
+    }
+    return window.__portfolioTiltPermissionPromise;
+  }
+
+  function loadHead() {
+    if (headPromise) return headPromise;
+    setRow('head', '06 MODEL', 'loading 3D model / shaders', 'pending');
+    headPromise = new Promise(resolve => {
+      let settled = false;
+      let timer = null;
+      const done = detail => {
+        if (settled) return;
+        settled = true;
+        removeEventListener('portfolio:head-settled', onSettled);
+        if (timer) clearTimeout(timer);
+        headOk = Boolean(detail?.ready);
+        setRow('head', '06 MODEL', headOk ? 'model ready' : '3D fallback active', headOk ? 'done' : 'warn');
+        resolve(detail || { settled: true, ready: false });
+      };
+      const onSettled = event => done(event.detail || { settled: true, ready: false });
+      const state = window.__portfolioHeadState;
+      if (state?.settled) {
+        done(state);
+        return;
+      }
+      addEventListener('portfolio:head-settled', onSettled, { once: true });
+      timer = setTimeout(() => done({ settled: true, ready: false, error: 'Head initialization timed out.' }), HEAD_READY_TIMEOUT_MS);
+      import(new URL('js/head3d.js', document.baseURI).href).catch(error => {
+        console.error('3D head module failed to load.', error);
+        done({ settled: true, ready: false, error: String(error?.message || error) });
+      });
+    });
+    return headPromise;
+  }
+
   if (gateNote) gateNote.hidden = !isTouchDevice();
 
   const domReady = new Promise(resolve => {
@@ -174,39 +233,12 @@
     try { video.load(); } catch { done(false); }
   });
 
-  const headReady = new Promise(resolve => {
-    let settled = false;
-    let onSettled;
-    const done = detail => {
-      if (settled) return;
-      settled = true;
-      if (onSettled) removeEventListener('portfolio:head-settled', onSettled);
-      headOk = Boolean(detail.ready);
-      setRow('head', '06 MODEL', detail.ready ? 'model ready' : '3D fallback active', detail.ready ? 'done' : 'warn');
-      resolve(detail);
-    };
-    const state = window.__portfolioHeadState;
-    if (state?.settled) {
-      done(state);
-      return;
-    }
-    onSettled = event => {
-      done(event.detail || { settled: true, ready: false });
-    };
-    addEventListener('portfolio:head-settled', onSettled, { once: true });
-    setTimeout(() => done({ settled: true, ready: false, error: 'Head initialization timed out.' }), HEAD_READY_TIMEOUT_MS);
-  });
-
-  Promise.allSettled([domReady, fontsReady, pageReady, videoReady, headReady]).then(() => {
+  Promise.allSettled([domReady, fontsReady, pageReady, videoReady]).then(() => {
     resourcesReady = true;
-    if (!headOk) {
-      setGate(t('boot.fallbackStatus'), t('boot.fallbackNote'));
-    } else {
-      const note = isTouchDevice()
-        ? (isSecureContext ? t('boot.readyNote') : t('boot.readyNoteInsecure'))
-        : t('boot.readyNoteDesktop');
-      setGate(t('boot.readyStatus'), note);
-    }
+    const note = isTouchDevice()
+      ? (isSecureContext ? t('boot.readyNote') : t('boot.readyNoteInsecure'))
+      : t('boot.readyNoteDesktop');
+    setGate(t('boot.readyStatus'), note);
     loader.classList.add('is-ready');
     enter.disabled = false;
     enter.focus({ preventScroll: true });
@@ -253,15 +285,12 @@
     setRow('ready', '07 READY', text, state);
   }
 
-  function startSequence() {
-    if (sequenceStarted || finished) return;
+  function beginSequence() {
+    if (sequenceStarted || finished) return false;
     sequenceStarted = true;
     loader.classList.add('is-sequencing');
     rowDefs.forEach(([key]) => addRow(key));
-    if ((rowState.get('ready')?.state || 'pending') === 'pending') {
-      setRow('ready', '07 READY', 'portfolio environment online', 'done');
-    }
-    launch();
+    return true;
   }
 
   function launch() {
@@ -295,12 +324,35 @@
   enter.addEventListener('click', async () => {
     if (!resourcesReady || sequenceStarted) return;
     enter.disabled = true;
-    const [tiltResult, appResult] = await Promise.allSettled([
-      requestTiltBeforeEntry(),
-      loadApplication()
+    if (!beginSequence()) return;
+
+    // On iOS the permission request must begin synchronously inside the user
+    // gesture. The result is cached and consumed by head3d once its module loads.
+    const permissionPromise = primeTiltPermission();
+    const [headResult, appResult, permissionResult] = await Promise.allSettled([
+      loadHead(),
+      loadApplication(),
+      permissionPromise
     ]);
-    if (tiltResult.status === 'rejected') console.warn('Tilt initialization failed.', tiltResult.reason);
+
+    if (headResult.status === 'rejected') {
+      console.error('3D head initialization failed.', headResult.reason);
+      setRow('head', '06 MODEL', '3D fallback active', 'warn');
+    }
     if (appResult.status === 'rejected') console.error('Portfolio application failed to load.', appResult.reason);
-    startSequence();
+    if (permissionResult.status === 'rejected') console.warn('Tilt permission initialization failed.', permissionResult.reason);
+
+    if (!headOk) setGate(t('boot.fallbackStatus'), t('boot.fallbackNote'));
+
+    try {
+      await requestTiltBeforeEntry();
+    } catch (error) {
+      console.warn('Tilt initialization failed.', error);
+    }
+
+    if ((rowState.get('ready')?.state || 'pending') === 'pending') {
+      setRow('ready', '07 READY', 'portfolio environment online', 'done');
+    }
+    launch();
   });
 })();

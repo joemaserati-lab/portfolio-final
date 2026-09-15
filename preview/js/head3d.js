@@ -146,7 +146,14 @@ if (feature && canvas && screenElement) {
     tiltAttempted = true;
     try {
       if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-        const permission = await DeviceOrientationEvent.requestPermission();
+        let permission = window.__portfolioTiltPermission;
+        if (!permission && window.__portfolioTiltPermissionPromise) {
+          permission = await window.__portfolioTiltPermissionPromise;
+        }
+        if (!permission) {
+          permission = await DeviceOrientationEvent.requestPermission();
+          window.__portfolioTiltPermission = permission;
+        }
         if (permission === 'granted') {
           if (!startOrientation()) return 'unavailable';
           if (await waitForTiltSignal()) return 'granted';
@@ -154,7 +161,7 @@ if (feature && canvas && screenElement) {
           return 'touch-fallback';
         }
         enableFallbackMotion();
-        return 'denied';
+        return permission === 'error' ? 'error' : 'denied';
       }
       if (!startOrientation()) return 'unavailable';
       if (await waitForTiltSignal()) return 'active';
