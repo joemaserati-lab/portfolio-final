@@ -70,6 +70,14 @@ body.content-panel-open .privacy-widget {
 
 /* Center window/tab titles on mobile independently from back/close controls. */
 @media (max-width: 720px) {
+  /* Match the top breathing room used by Selected Works while keeping the
+     window title bar and its controls intact. */
+  .os-window.is-responsive-fullscreen,
+  .os-window.is-maximized {
+    box-sizing: border-box;
+    padding-top: 18px;
+  }
+
   .window-titlebar {
     position: relative;
   }
