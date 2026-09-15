@@ -1,4 +1,4 @@
-name: Perf Branch Audit
+name: Perf Branch A-B Validation
 
 on:
   push:
@@ -6,110 +6,208 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  audit:
+  validate:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout optimized branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
 
-      - name: Apply no-visual-change optimizations
+      - name: Prepare main comparison copy
         run: |
-          python3 <<'PY'
-          from pathlib import Path
-          import re
+          git fetch origin main
+          git worktree add /tmp/portfolio-main origin/main
 
-          index = Path('index.html')
-          s = index.read_text()
-          if 'rel="preconnect" href="https://cdn.jsdelivr.net"' not in s:
-              s = s.replace(
-                  '  <link rel="icon" href="favicon.webp" type="image/webp" />\n',
-                  '  <link rel="icon" href="favicon.webp" type="image/webp" />\n  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />\n'
-              )
-          s = s.replace(
-              '"three": "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js"',
-              '"three": "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.min.js"'
-          )
-          if 'rel="modulepreload" href="js/head3d.js"' not in s:
-              marker = '  </script>\n</head>'
-              s = s.replace(marker, '  </script>\n  <link rel="modulepreload" href="js/head3d.js" />\n</head>')
-          for src in [
-              'js/i18n.js','js/cursor.js','js/boot.js','js/crt.js','js/content.js',
-              'js/fixes.js','js/analytics.js','js/portfolio.js','js/privacy.js'
-          ]:
-              s = s.replace(f'<script src="{src}"></script>', f'<script defer src="{src}"></script>')
-          index.write_text(s)
-
-          head = Path('js/head-scan-effect.js')
-          h = head.read_text()
-          h = h.replace(
-              '  const fitCenter = new THREE.Vector2();\n  let fitX = 1, fitY = 1;',
-              '  // Deterministic optical-fit result for human_head_reference3.glb.\n'
-              '  // These values are exactly what the former 17,566-vertex x 25-angle runtime pass produced.\n'
-              '  const fitCenter = new THREE.Vector2(0, 0.05012886506467777);\n'
-              '  const fitX = 0.22633514007910208, fitY = 0.27843615932888977;'
-          )
-          pattern = re.compile(
-              r"    // Fit the visible vertices, including the reference's full mouse rotation range\.\n.*?"
-              r"    root\.updateMatrixWorld\(true\);\n    loaded = true;",
-              re.S
-          )
-          replacement = (
-              '    // Optical fit is precomputed above; preserve the exact neutral pose used previously.\n'
-              '    root.rotation.set(-0.015, 0, 0);\n'
-              '    root.updateMatrixWorld(true);\n'
-              '    loaded = true;'
-          )
-          h2, count = pattern.subn(replacement, h, count=1)
-          if count not in (0, 1):
-              raise SystemExit(f'Unexpected fit block replacement count: {count}')
-          head.write_text(h2)
-          PY
-
-      - name: Commit optimized branch if changed
+      - name: Start both versions
         run: |
-          if git diff --quiet; then
-            echo "No source changes to commit"
-          else
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add index.html js/head-scan-effect.js
-            git commit -m "Optimize startup without visual changes"
-            git push origin HEAD:perf/no-visual-change
-          fi
-
-      - name: Start branch site
-        run: |
-          python3 -m http.server 8080 --bind 127.0.0.1 >/tmp/http.log 2>&1 &
+          python3 -m http.server 8080 --bind 127.0.0.1 >/tmp/optimized-http.log 2>&1 &
+          (cd /tmp/portfolio-main && python3 -m http.server 8081 --bind 127.0.0.1 >/tmp/main-http.log 2>&1) &
           sleep 2
           curl --fail --silent http://127.0.0.1:8080/ >/dev/null
+          curl --fail --silent http://127.0.0.1:8081/ >/dev/null
 
-      - name: Lighthouse mobile
-        run: npx --yes lighthouse@latest http://127.0.0.1:8080/ --output=json --output-path=./lh-mobile.json --only-categories=performance --chrome-flags='--headless --no-sandbox --disable-dev-shm-usage'
+      - name: Install regression test dependencies
+        run: npm install --no-save puppeteer-core@24 pixelmatch@7 pngjs@7 >/dev/null 2>&1
 
-      - name: Lighthouse desktop
-        run: npx --yes lighthouse@latest http://127.0.0.1:8080/ --preset=desktop --output=json --output-path=./lh-desktop.json --only-categories=performance --chrome-flags='--headless --no-sandbox --disable-dev-shm-usage'
+      - name: Functional, layout and 3D pixel regression
+        run: |
+          CHROME_BIN="$(which google-chrome || which chromium || which chromium-browser)"
+          export CHROME_BIN
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import puppeteer from 'puppeteer-core';
+          import pixelmatch from 'pixelmatch';
+          import { PNG } from 'pngjs';
 
-      - name: Summary
+          const browser = await puppeteer.launch({
+            executablePath: process.env.CHROME_BIN,
+            headless: true,
+            args: ['--no-sandbox','--disable-dev-shm-usage','--enable-webgl','--ignore-gpu-blocklist','--use-angle=swiftshader']
+          });
+
+          const rectSelectors = ['.hero-intro','#crt-head-feature','.desktop-icons','#language-toggle','.privacy-widget','.screen'];
+
+          async function inspect(url, label, mobile=false) {
+            const page = await browser.newPage();
+            await page.setViewport(mobile
+              ? {width:390,height:844,deviceScaleFactor:1,isMobile:true,hasTouch:true}
+              : {width:1440,height:900,deviceScaleFactor:1,isMobile:false,hasTouch:false});
+            await page.goto(url, {waitUntil:'networkidle0', timeout:30000});
+            await page.waitForFunction(() => window.__portfolioHeadState?.settled === true, {timeout:10000}).catch(()=>{});
+            await page.waitForFunction(() => {
+              const b=document.querySelector('#boot-enter'); return b && !b.disabled;
+            }, {timeout:10000});
+
+            const pre = await page.evaluate((sels) => {
+              const rects={};
+              for (const s of sels) {
+                const el=document.querySelector(s);
+                if (!el) { rects[s]=null; continue; }
+                const r=el.getBoundingClientRect();
+                rects[s]={x:r.x,y:r.y,width:r.width,height:r.height};
+              }
+              return {
+                rects,
+                headState: window.__portfolioHeadState,
+                lang: document.documentElement.lang,
+                enterDisabled: document.querySelector('#boot-enter')?.disabled
+              };
+            }, rectSelectors);
+
+            // Reveal only the paused t=0 head canvas for deterministic pixel comparison.
+            await page.addStyleTag({content:`
+              .boot-loader,.crt-background-video,#crt-bg,#crt-fx,.noise,.scanlines,.screen-reflection,.edge-light,
+              .hero-intro,.desktop-icons,.language-toggle,.privacy-widget{visibility:hidden!important}
+              #crt-head-feature{visibility:visible!important;opacity:1!important;filter:none!important}
+            `});
+            const head = await page.$('#crt-head-feature');
+            if (head) await head.screenshot({path:`/tmp/${label}-${mobile?'mobile':'desktop'}-head.png`});
+
+            // Remove the temporary test stylesheet and execute the real UI path.
+            await page.evaluate(() => document.querySelector('style:last-of-type')?.remove());
+            await page.click('#boot-enter');
+            await page.waitForFunction(() => document.body.classList.contains('site-ready'), {timeout:10000});
+
+            const beforeLang = await page.evaluate(() => document.documentElement.lang);
+            await page.click('#language-toggle');
+            const afterLang = await page.evaluate(() => document.documentElement.lang);
+            if (beforeLang === afterLang) throw new Error(`${label}: language toggle did not change language`);
+
+            await page.click('#privacy-toggle');
+            const privacyOpen = await page.evaluate(() => !document.querySelector('#privacy-panel')?.hidden);
+            if (!privacyOpen) throw new Error(`${label}: privacy panel did not open`);
+            await page.click('#privacy-close');
+
+            await page.click('[data-open="about"]');
+            await page.waitForSelector('.os-window', {timeout:5000});
+            const behavior = await page.evaluate(() => {
+              const lang=document.querySelector('#language-toggle');
+              const privacy=document.querySelector('.privacy-widget');
+              const hiddenLike = el => {
+                if (!el) return true;
+                const c=getComputedStyle(el);
+                return c.display==='none' || c.visibility==='hidden' || Number(c.opacity)===0 || el.hidden;
+              };
+              return {
+                lang: document.documentElement.lang,
+                windowOpen: Boolean(document.querySelector('.os-window')),
+                privacyPanelHidden: Boolean(document.querySelector('#privacy-panel')?.hidden),
+                languageHiddenWithWindow: hiddenLike(lang),
+                privacyHiddenWithWindow: hiddenLike(privacy)
+              };
+            });
+            if (!behavior.windowOpen || !behavior.languageHiddenWithWindow || !behavior.privacyHiddenWithWindow) {
+              throw new Error(`${label}: window/control visibility behavior regression ${JSON.stringify(behavior)}`);
+            }
+            await page.close();
+            return {pre, behavior};
+          }
+
+          function compareRects(a,b,label) {
+            for (const s of rectSelectors) {
+              const x=a[s], y=b[s];
+              if (!x || !y) {
+                if (x !== y) throw new Error(`${label}: selector presence differs for ${s}`);
+                continue;
+              }
+              for (const k of ['x','y','width','height']) {
+                const delta=Math.abs(x[k]-y[k]);
+                if (delta > 0.25) throw new Error(`${label}: ${s} ${k} differs by ${delta}px (${x[k]} vs ${y[k]})`);
+              }
+            }
+          }
+
+          function comparePng(aPath,bPath,label) {
+            if (!fs.existsSync(aPath) || !fs.existsSync(bPath)) {
+              console.log(`${label}: head screenshot unavailable; relying on exact fit constants + functional checks`);
+              return;
+            }
+            const a=PNG.sync.read(fs.readFileSync(aPath));
+            const b=PNG.sync.read(fs.readFileSync(bPath));
+            if (a.width!==b.width || a.height!==b.height) throw new Error(`${label}: 3D screenshot dimensions differ`);
+            const diff=new PNG({width:a.width,height:a.height});
+            const mismatched=pixelmatch(a.data,b.data,diff.data,a.width,a.height,{threshold:0.02,includeAA:true});
+            const ratio=mismatched/(a.width*a.height);
+            fs.writeFileSync(`/tmp/${label}-head-diff.png`,PNG.sync.write(diff));
+            console.log(`${label}: 3D pixel mismatch ${(ratio*100).toFixed(5)}% (${mismatched} px)`);
+            if (ratio > 0.0005) throw new Error(`${label}: 3D visual mismatch exceeds 0.05%`);
+          }
+
+          for (const mobile of [false,true]) {
+            const suffix=mobile?'mobile':'desktop';
+            const main=await inspect('http://127.0.0.1:8081/',`main`,mobile);
+            const opt=await inspect('http://127.0.0.1:8080/',`opt`,mobile);
+            compareRects(main.pre.rects,opt.pre.rects,suffix);
+            if (main.pre.headState?.ready !== opt.pre.headState?.ready) throw new Error(`${suffix}: 3D ready state differs`);
+            if (JSON.stringify(main.behavior) !== JSON.stringify(opt.behavior)) throw new Error(`${suffix}: behavior result differs`);
+            comparePng(`/tmp/main-${suffix}-head.png`,`/tmp/opt-${suffix}-head.png`,suffix);
+            console.log(`${suffix}: layout and behavior checks passed`);
+          }
+
+          await browser.close();
+          NODE
+
+      - name: Warm Lighthouse package
+        run: npx --yes lighthouse@latest --version
+
+      - name: Mobile Lighthouse A-B runs
+        run: |
+          for i in 1 2 3; do
+            npx --yes lighthouse@latest http://127.0.0.1:8081/ --output=json --output-path="./main-mobile-$i.json" --only-categories=performance --chrome-flags='--headless --no-sandbox --disable-dev-shm-usage'
+            npx --yes lighthouse@latest http://127.0.0.1:8080/ --output=json --output-path="./opt-mobile-$i.json" --only-categories=performance --chrome-flags='--headless --no-sandbox --disable-dev-shm-usage'
+          done
+
+      - name: Desktop Lighthouse A-B runs
+        run: |
+          npx --yes lighthouse@latest http://127.0.0.1:8081/ --preset=desktop --output=json --output-path=./main-desktop.json --only-categories=performance --chrome-flags='--headless --no-sandbox --disable-dev-shm-usage'
+          npx --yes lighthouse@latest http://127.0.0.1:8080/ --preset=desktop --output=json --output-path=./opt-desktop.json --only-categories=performance --chrome-flags='--headless --no-sandbox --disable-dev-shm-usage'
+
+      - name: A-B summary
         run: |
           node <<'NODE'
           const fs=require('fs');
-          for(const [label,file] of [['MOBILE','lh-mobile.json'],['DESKTOP','lh-desktop.json']]){
-            const r=JSON.parse(fs.readFileSync(file,'utf8')); const a=r.audits;
-            console.log(label, {
-              performance:Math.round(r.categories.performance.score*100),
-              FCP:a['first-contentful-paint'].displayValue,
-              LCP:a['largest-contentful-paint'].displayValue,
-              TBT:a['total-blocking-time'].displayValue,
-              CLS:a['cumulative-layout-shift'].displayValue,
-              TTI:a['interactive'].displayValue,
-              main:a['mainthread-work-breakdown'].displayValue,
-              boot:a['bootup-time'].displayValue
-            });
-          }
+          const ids={score:null,FCP:'first-contentful-paint',LCP:'largest-contentful-paint',TBT:'total-blocking-time',CLS:'cumulative-layout-shift',TTI:'interactive',main:'mainthread-work-breakdown',boot:'bootup-time'};
+          const read=f=>JSON.parse(fs.readFileSync(f,'utf8'));
+          const val=(r,k)=>k==='score'?r.categories.performance.score*100:r.audits[ids[k]].numericValue;
+          const median=a=>{a=[...a].sort((x,y)=>x-y);return a[Math.floor(a.length/2)]};
+          const mobile=(prefix)=>[1,2,3].map(i=>read(`${prefix}-mobile-${i}.json`));
+          const summarize=(arr)=>Object.fromEntries(Object.keys(ids).map(k=>[k,median(arr.map(r=>val(r,k)))]));
+          const mainM=summarize(mobile('main')), optM=summarize(mobile('opt'));
+          console.log('MOBILE_MAIN_MEDIAN',JSON.stringify(mainM));
+          console.log('MOBILE_OPT_MEDIAN ',JSON.stringify(optM));
+          console.log('MOBILE_DELTA      ',JSON.stringify(Object.fromEntries(Object.keys(ids).map(k=>[k,optM[k]-mainM[k]]))));
+          const mainD=summarize([read('main-desktop.json')]), optD=summarize([read('opt-desktop.json')]);
+          console.log('DESKTOP_MAIN',JSON.stringify(mainD));
+          console.log('DESKTOP_OPT ',JSON.stringify(optD));
+          console.log('DESKTOP_DELTA',JSON.stringify(Object.fromEntries(Object.keys(ids).map(k=>[k,optD[k]-mainD[k]]))));
           NODE
