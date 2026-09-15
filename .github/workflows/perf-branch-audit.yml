@@ -1,0 +1,64 @@
+name: Perf Branch Audit
+
+on:
+  push:
+    branches: ['perf/no-visual-change']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Compute deterministic head fit constants
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install three@0.185.1 >/dev/null 2>&1
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import * as THREE from 'three';
+          import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+          const buf = fs.readFileSync('assets/models/human_head_reference3.glb');
+          const ab = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+          const gltf = await new Promise((resolve, reject) => new GLTFLoader().parse(ab, '', resolve, reject));
+          const model = gltf.scene;
+          model.updateMatrixWorld(true);
+          const box = new THREE.Box3().setFromObject(model);
+          const size = box.getSize(new THREE.Vector3());
+          const scale = 3.25 / size.y;
+          model.position.sub(box.getCenter(new THREE.Vector3())).multiplyScalar(scale);
+          model.scale.multiplyScalar(scale);
+          const root = new THREE.Group(); root.add(model); root.position.y=0.02; root.rotation.x=-0.015;
+          const camera = new THREE.PerspectiveCamera(42, 1, 0.05, 50); camera.position.set(0,0,5.25);
+          const points=[], vertex=new THREE.Vector3(); model.updateMatrixWorld(true);
+          const inverseRoot=root.matrixWorld.clone().invert();
+          const fadeLow=.16, mouseAmount=.72;
+          model.traverse(object=>{ if(!object.isMesh)return; if(!object.geometry.boundingBox)object.geometry.computeBoundingBox(); const positions=object.geometry.attributes.position,bounds=object.geometry.boundingBox; const matrix=inverseRoot.clone().multiply(object.matrixWorld); const low=bounds.min.y+(bounds.max.y-bounds.min.y)*fadeLow; for(let i=0;i<positions.count;i++){ vertex.fromBufferAttribute(positions,i); if(vertex.y>=low) points.push(vertex.clone().applyMatrix4(matrix)); }});
+          camera.updateMatrixWorld(true);
+          const projected=new THREE.Box2(), point=new THREE.Vector2(), matrix=new THREE.Matrix4();
+          for(const y of [-1,-.5,0,.5,1]) for(const x of [-1,-.5,0,.5,1]){ const yaw=y*mouseAmount,pitch=x*mouseAmount*.40-.015; root.rotation.set(pitch,yaw,0); root.updateMatrixWorld(true); matrix.multiplyMatrices(camera.matrixWorldInverse,root.matrixWorld); for(const p of points){ vertex.copy(p).applyMatrix4(matrix); point.set(vertex.x/-vertex.z,vertex.y/-vertex.z); projected.expandByPoint(point); }}
+          const fitCenter=new THREE.Vector2(); projected.getCenter(fitCenter); const fitX=(projected.max.x-projected.min.x)*.5, fitY=(projected.max.y-projected.min.y)*.5;
+          console.log(JSON.stringify({fitCenter:[fitCenter.x,fitCenter.y],fitX,fitY,points:points.length},null,2));
+          NODE
+      - name: Start branch site
+        run: |
+          python3 -m http.server 8080 --bind 127.0.0.1 >/tmp/http.log 2>&1 &
+          sleep 2
+          curl --fail --silent http://127.0.0.1:8080/ >/dev/null
+      - name: Lighthouse mobile
+        run: npx --yes lighthouse@latest http://127.0.0.1:8080/ --output=json --output-path=./lh-mobile.json --only-categories=performance --chrome-flags='--headless --no-sandbox --disable-dev-shm-usage'
+      - name: Lighthouse desktop
+        run: npx --yes lighthouse@latest http://127.0.0.1:8080/ --preset=desktop --output=json --output-path=./lh-desktop.json --only-categories=performance --chrome-flags='--headless --no-sandbox --disable-dev-shm-usage'
+      - name: Summary
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          for(const [label,file] of [['MOBILE','lh-mobile.json'],['DESKTOP','lh-desktop.json']]){const r=JSON.parse(fs.readFileSync(file,'utf8')); const a=r.audits; console.log(label, {performance:Math.round(r.categories.performance.score*100),FCP:a['first-contentful-paint'].displayValue,LCP:a['largest-contentful-paint'].displayValue,TBT:a['total-blocking-time'].displayValue,CLS:a['cumulative-layout-shift'].displayValue,TTI:a['interactive'].displayValue,main:a['mainthread-work-breakdown'].displayValue,boot:a['bootup-time'].displayValue});}
+          NODE
