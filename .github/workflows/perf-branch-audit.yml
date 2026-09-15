@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   audit:
@@ -17,48 +17,99 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Compute deterministic head fit constants
+
+      - name: Apply no-visual-change optimizations
         run: |
-          npm init -y >/dev/null 2>&1
-          npm install three@0.185.1 >/dev/null 2>&1
-          node --input-type=module <<'NODE'
-          import fs from 'node:fs';
-          import * as THREE from 'three';
-          import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-          const buf = fs.readFileSync('assets/models/human_head_reference3.glb');
-          const ab = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
-          const gltf = await new Promise((resolve, reject) => new GLTFLoader().parse(ab, '', resolve, reject));
-          const model = gltf.scene;
-          model.updateMatrixWorld(true);
-          const box = new THREE.Box3().setFromObject(model);
-          const size = box.getSize(new THREE.Vector3());
-          const scale = 3.25 / size.y;
-          model.position.sub(box.getCenter(new THREE.Vector3())).multiplyScalar(scale);
-          model.scale.multiplyScalar(scale);
-          const root = new THREE.Group(); root.add(model); root.position.y=0.02; root.rotation.x=-0.015;
-          const camera = new THREE.PerspectiveCamera(42, 1, 0.05, 50); camera.position.set(0,0,5.25);
-          const points=[], vertex=new THREE.Vector3(); model.updateMatrixWorld(true);
-          const inverseRoot=root.matrixWorld.clone().invert();
-          const fadeLow=.16, mouseAmount=.72;
-          model.traverse(object=>{ if(!object.isMesh)return; if(!object.geometry.boundingBox)object.geometry.computeBoundingBox(); const positions=object.geometry.attributes.position,bounds=object.geometry.boundingBox; const matrix=inverseRoot.clone().multiply(object.matrixWorld); const low=bounds.min.y+(bounds.max.y-bounds.min.y)*fadeLow; for(let i=0;i<positions.count;i++){ vertex.fromBufferAttribute(positions,i); if(vertex.y>=low) points.push(vertex.clone().applyMatrix4(matrix)); }});
-          camera.updateMatrixWorld(true);
-          const projected=new THREE.Box2(), point=new THREE.Vector2(), matrix=new THREE.Matrix4();
-          for(const y of [-1,-.5,0,.5,1]) for(const x of [-1,-.5,0,.5,1]){ const yaw=y*mouseAmount,pitch=x*mouseAmount*.40-.015; root.rotation.set(pitch,yaw,0); root.updateMatrixWorld(true); matrix.multiplyMatrices(camera.matrixWorldInverse,root.matrixWorld); for(const p of points){ vertex.copy(p).applyMatrix4(matrix); point.set(vertex.x/-vertex.z,vertex.y/-vertex.z); projected.expandByPoint(point); }}
-          const fitCenter=new THREE.Vector2(); projected.getCenter(fitCenter); const fitX=(projected.max.x-projected.min.x)*.5, fitY=(projected.max.y-projected.min.y)*.5;
-          console.log(JSON.stringify({fitCenter:[fitCenter.x,fitCenter.y],fitX,fitY,points:points.length},null,2));
-          NODE
+          python3 <<'PY'
+          from pathlib import Path
+          import re
+
+          index = Path('index.html')
+          s = index.read_text()
+          if 'rel="preconnect" href="https://cdn.jsdelivr.net"' not in s:
+              s = s.replace(
+                  '  <link rel="icon" href="favicon.webp" type="image/webp" />\n',
+                  '  <link rel="icon" href="favicon.webp" type="image/webp" />\n  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />\n'
+              )
+          s = s.replace(
+              '"three": "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js"',
+              '"three": "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.min.js"'
+          )
+          if 'rel="modulepreload" href="js/head3d.js"' not in s:
+              marker = '  </script>\n</head>'
+              s = s.replace(marker, '  </script>\n  <link rel="modulepreload" href="js/head3d.js" />\n</head>')
+          for src in [
+              'js/i18n.js','js/cursor.js','js/boot.js','js/crt.js','js/content.js',
+              'js/fixes.js','js/analytics.js','js/portfolio.js','js/privacy.js'
+          ]:
+              s = s.replace(f'<script src="{src}"></script>', f'<script defer src="{src}"></script>')
+          index.write_text(s)
+
+          head = Path('js/head-scan-effect.js')
+          h = head.read_text()
+          h = h.replace(
+              '  const fitCenter = new THREE.Vector2();\n  let fitX = 1, fitY = 1;',
+              '  // Deterministic optical-fit result for human_head_reference3.glb.\n'
+              '  // These values are exactly what the former 17,566-vertex x 25-angle runtime pass produced.\n'
+              '  const fitCenter = new THREE.Vector2(0, 0.05012886506467777);\n'
+              '  const fitX = 0.22633514007910208, fitY = 0.27843615932888977;'
+          )
+          pattern = re.compile(
+              r"    // Fit the visible vertices, including the reference's full mouse rotation range\.\n.*?"
+              r"    root\.updateMatrixWorld\(true\);\n    loaded = true;",
+              re.S
+          )
+          replacement = (
+              '    // Optical fit is precomputed above; preserve the exact neutral pose used previously.\n'
+              '    root.rotation.set(-0.015, 0, 0);\n'
+              '    root.updateMatrixWorld(true);\n'
+              '    loaded = true;'
+          )
+          h2, count = pattern.subn(replacement, h, count=1)
+          if count not in (0, 1):
+              raise SystemExit(f'Unexpected fit block replacement count: {count}')
+          head.write_text(h2)
+          PY
+
+      - name: Commit optimized branch if changed
+        run: |
+          if git diff --quiet; then
+            echo "No source changes to commit"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add index.html js/head-scan-effect.js
+            git commit -m "Optimize startup without visual changes"
+            git push origin HEAD:perf/no-visual-change
+          fi
+
       - name: Start branch site
         run: |
           python3 -m http.server 8080 --bind 127.0.0.1 >/tmp/http.log 2>&1 &
           sleep 2
           curl --fail --silent http://127.0.0.1:8080/ >/dev/null
+
       - name: Lighthouse mobile
         run: npx --yes lighthouse@latest http://127.0.0.1:8080/ --output=json --output-path=./lh-mobile.json --only-categories=performance --chrome-flags='--headless --no-sandbox --disable-dev-shm-usage'
+
       - name: Lighthouse desktop
         run: npx --yes lighthouse@latest http://127.0.0.1:8080/ --preset=desktop --output=json --output-path=./lh-desktop.json --only-categories=performance --chrome-flags='--headless --no-sandbox --disable-dev-shm-usage'
+
       - name: Summary
         run: |
           node <<'NODE'
           const fs=require('fs');
-          for(const [label,file] of [['MOBILE','lh-mobile.json'],['DESKTOP','lh-desktop.json']]){const r=JSON.parse(fs.readFileSync(file,'utf8')); const a=r.audits; console.log(label, {performance:Math.round(r.categories.performance.score*100),FCP:a['first-contentful-paint'].displayValue,LCP:a['largest-contentful-paint'].displayValue,TBT:a['total-blocking-time'].displayValue,CLS:a['cumulative-layout-shift'].displayValue,TTI:a['interactive'].displayValue,main:a['mainthread-work-breakdown'].displayValue,boot:a['bootup-time'].displayValue});}
+          for(const [label,file] of [['MOBILE','lh-mobile.json'],['DESKTOP','lh-desktop.json']]){
+            const r=JSON.parse(fs.readFileSync(file,'utf8')); const a=r.audits;
+            console.log(label, {
+              performance:Math.round(r.categories.performance.score*100),
+              FCP:a['first-contentful-paint'].displayValue,
+              LCP:a['largest-contentful-paint'].displayValue,
+              TBT:a['total-blocking-time'].displayValue,
+              CLS:a['cumulative-layout-shift'].displayValue,
+              TTI:a['interactive'].displayValue,
+              main:a['mainthread-work-breakdown'].displayValue,
+              boot:a['bootup-time'].displayValue
+            });
+          }
           NODE
