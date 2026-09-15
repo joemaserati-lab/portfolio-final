@@ -4,24 +4,24 @@
       en: {
         label: 'IMPACT / RESULTS',
         eyebrow: '03 / PERFORMANCE',
-        text: 'An integrated strategy across web, content and paid media strengthened Colorcopy’s digital presence across multiple channels. During the period analysed, Meta activity generated more than 1M impressions and reached hundreds of thousands of people, while Google Ads produced thousands of clicks and measurable conversions. At the same time, the website surpassed 90K views, Instagram reached more than 100K accounts and LinkedIn generated over 10K organic impressions.'
+        text: 'During my time at Colorcopy, I worked across website content, SEO, social media and digital campaigns. Instagram became a much stronger source of traffic, with link clicks growing more than tenfold and profile visits more than quadrupling. Facebook also gained traction, with page visits rising almost sixfold. At the same time, ongoing SEO work and Google Ads helped bring more users to product pages and dedicated landing pages.'
       },
       it: {
         label: 'IMPATTO / RISULTATI',
         eyebrow: '03 / PERFORMANCE',
-        text: 'Una strategia integrata tra web, contenuti e paid media ha rafforzato la presenza digitale di Colorcopy su più canali. Nel periodo analizzato, le attività Meta hanno superato 1 milione di impression e raggiunto centinaia di migliaia di persone, mentre Google Ads ha generato migliaia di clic e conversioni tracciate. Parallelamente, il sito ha superato 90K visualizzazioni, Instagram oltre 100K account raggiunti e LinkedIn oltre 10K impression organiche.'
+        text: 'Durante il mio percorso in Colorcopy ho lavorato su contenuti web, SEO, social media e campagne digitali. Instagram è diventato una fonte di traffico molto più rilevante, con i clic sui link cresciuti di oltre dieci volte e le visite al profilo più che quadruplicate. Anche Facebook ha registrato una crescita netta, con quasi sei volte più visite alla pagina. Parallelamente, il lavoro SEO e le campagne Google Ads hanno contribuito a portare più utenti verso pagine prodotto e landing page dedicate.'
       }
     },
     'platinum-technologies': {
       en: {
         label: 'IMPACT / RESULTS',
         eyebrow: '03 / PERFORMANCE',
-        text: 'Platinum Technologies’ digital presence was developed as a coordinated system across website, social content and paid media. During the period analysed, the website surpassed 150K views, Facebook generated tens of thousands of link clicks, Instagram reached more than 100K accounts and LinkedIn delivered over 60K organic impressions. Paid campaigns extended that distribution further, reaching more than 1M people on Meta and generating thousands of clicks through Google Ads.'
+        text: 'My work for Platinum Technologies has covered the website, SEO, social channels and digital campaigns. Since I started working on them, website traffic has grown to roughly ten times its previous level, supported by ongoing SEO work and Google Ads. Instagram also became a stronger source of traffic, with link clicks increasing more than tenfold, while profile and Facebook page visits grew several times over. The work has been continuous, combining website updates, content production, search visibility and campaign management.'
       },
       it: {
         label: 'IMPATTO / RISULTATI',
         eyebrow: '03 / PERFORMANCE',
-        text: 'La presenza digitale di Platinum Technologies è stata sviluppata come un sistema coordinato tra sito web, contenuti social e paid media. Nel periodo analizzato, il sito ha superato 150K visualizzazioni, Facebook ha generato decine di migliaia di clic sui link, Instagram oltre 100K account raggiunti e LinkedIn oltre 60K impression organiche. Le campagne paid hanno ampliato ulteriormente la distribuzione, raggiungendo oltre 1 milione di persone su Meta e generando migliaia di clic tramite Google Ads.'
+        text: 'Il mio lavoro per Platinum Technologies ha coinvolto sito, SEO, canali social e campagne digitali. Da quando ho iniziato a seguirli, il traffico del sito è arrivato a circa dieci volte il livello precedente, sostenuto dal lavoro SEO e dalle campagne Google Ads. Anche Instagram è diventato una fonte di traffico molto più rilevante, con i clic sui link cresciuti di oltre dieci volte, mentre le visite al profilo e alla pagina Facebook sono aumentate di diverse volte. È stato un lavoro continuativo tra aggiornamenti al sito, contenuti, visibilità sui motori di ricerca e gestione delle campagne.'
       }
     }
   };
