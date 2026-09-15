@@ -25,7 +25,7 @@ jobs:
         run: npm install --no-save lighthouse@13.4.1 puppeteer@24
       - name: Create user-flow runner
         run: |
-          cat > /tmp/portfolio-user-flow.mjs <<'NODE'
+          cat > portfolio-user-flow.mjs <<'NODE'
           import fs from 'node:fs';
           import puppeteer from 'puppeteer';
           import {startFlow, desktopConfig} from 'lighthouse';
@@ -157,14 +157,14 @@ jobs:
       - name: Run repeated mobile flows
         run: |
           for i in 1 2 3; do
-            node /tmp/portfolio-user-flow.mjs "$LIVE_URL" mobile "live-mobile-$i"
-            node /tmp/portfolio-user-flow.mjs "$PREVIEW_URL" mobile "preview-mobile-$i"
+            node portfolio-user-flow.mjs "$LIVE_URL" mobile "live-mobile-$i"
+            node portfolio-user-flow.mjs "$PREVIEW_URL" mobile "preview-mobile-$i"
           done
       - name: Run repeated desktop flows
         run: |
           for i in 1 2 3; do
-            node /tmp/portfolio-user-flow.mjs "$LIVE_URL" desktop "live-desktop-$i"
-            node /tmp/portfolio-user-flow.mjs "$PREVIEW_URL" desktop "preview-desktop-$i"
+            node portfolio-user-flow.mjs "$LIVE_URL" desktop "live-desktop-$i"
+            node portfolio-user-flow.mjs "$PREVIEW_URL" desktop "preview-desktop-$i"
           done
       - name: Summarize user-flow medians
         run: |
