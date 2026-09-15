@@ -11,6 +11,7 @@
   const READY_HOLD_MS = 220;
   const ROW_STEP_MS = 135;
   const HEAD_READY_TIMEOUT_MS = 6500;
+  const SCRIPT_LOAD_TIMEOUT_MS = 8000;
   const i18n = window.PortfolioI18n;
   const t = key => i18n?.t?.(key) || key;
   const isTouchDevice = () => Boolean(i18n?.isTouchDevice?.()) || matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
@@ -20,6 +21,7 @@
   let headOk = false;
   let applicationPromise = null;
   let headPromise = null;
+  let fatalLoadError = false;
 
   const rows = new Map();
   const rowOrder = [];
@@ -73,25 +75,61 @@
 
   function loadScript(src) {
     return new Promise((resolve, reject) => {
-      const existing = document.querySelector(`script[data-app-src="${src}"]`);
+      const selector = `script[data-app-src="${src}"]`;
+      const existing = document.querySelector(selector);
       if (existing?.dataset.loaded === 'true') {
         resolve();
         return;
       }
-      if (existing) {
-        existing.addEventListener('load', resolve, { once: true });
-        existing.addEventListener('error', () => reject(new Error(`Failed to load ${src}`)), { once: true });
-        return;
-      }
+
+      // A previous failed or interrupted attempt must never poison a retry.
+      if (existing) existing.remove();
+
+      const absoluteSrc = new URL(src, document.baseURI).href;
       const script = document.createElement('script');
       script.src = src;
       script.async = true;
       script.dataset.appSrc = src;
-      script.addEventListener('load', () => {
-        script.dataset.loaded = 'true';
-        resolve();
-      }, { once: true });
-      script.addEventListener('error', () => reject(new Error(`Failed to load ${src}`)), { once: true });
+
+      let settled = false;
+      let timer = null;
+
+      const cleanup = () => {
+        if (timer) clearTimeout(timer);
+        removeEventListener('error', onRuntimeError);
+      };
+
+      const finish = (ok, error) => {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        if (ok) {
+          script.dataset.loaded = 'true';
+          resolve();
+          return;
+        }
+        script.dataset.failed = 'true';
+        script.remove();
+        reject(error || new Error(`Failed to load ${src}`));
+      };
+
+      const onRuntimeError = event => {
+        if (!event.filename) return;
+        let filename;
+        try { filename = new URL(event.filename, document.baseURI).href; }
+        catch { return; }
+        if (filename !== absoluteSrc) return;
+        const message = event.message || 'unknown runtime error';
+        finish(false, new Error(`Runtime error in ${src}: ${message}`));
+      };
+
+      addEventListener('error', onRuntimeError);
+      script.addEventListener('load', () => finish(true), { once: true });
+      script.addEventListener('error', () => finish(false, new Error(`Failed to load ${src}`)), { once: true });
+      timer = setTimeout(
+        () => finish(false, new Error(`Timed out loading ${src}`)),
+        SCRIPT_LOAD_TIMEOUT_MS
+      );
       document.body.appendChild(script);
     });
   }
@@ -100,11 +138,15 @@
     if (applicationPromise) return applicationPromise;
     applicationPromise = (async () => {
       await loadScript('js/content.js');
+      if (!window.PORTFOLIO_DATA) throw new Error('Portfolio content failed to initialize.');
       await Promise.all([
         loadScript('js/fixes.js'),
         loadScript('js/portfolio.js')
       ]);
-    })();
+    })().catch(error => {
+      applicationPromise = null;
+      throw error;
+    });
     return applicationPromise;
   }
 
@@ -293,6 +335,29 @@
     return true;
   }
 
+  function recoverApplicationLoad(error) {
+    console.error('Portfolio application failed to load.', error);
+    setRow('ready', '07 READY', 'application load failed - retry available', 'warn');
+
+    fatalLoadError = true;
+    sequenceStarted = false;
+    applicationPromise = null;
+    loader.classList.remove('is-sequencing');
+    loader.classList.add('is-ready');
+
+    const italian = document.documentElement.lang === 'it';
+    setGate(
+      italian ? 'ERRORE CARICAMENTO APPLICAZIONE' : 'APPLICATION LOAD ERROR',
+      italian
+        ? 'Controlla la connessione e clicca RIPROVA per ricaricare il portfolio.'
+        : 'Check your connection and click RETRY to reload the portfolio.'
+    );
+    enter.removeAttribute('data-i18n');
+    enter.textContent = italian ? 'RIPROVA' : 'RETRY';
+    enter.disabled = false;
+    requestAnimationFrame(() => enter.focus({ preventScroll: true }));
+  }
+
   function launch() {
     if (finished) return;
     finished = true;
@@ -322,6 +387,10 @@
   }
 
   enter.addEventListener('click', async () => {
+    if (fatalLoadError) {
+      location.reload();
+      return;
+    }
     if (!resourcesReady || sequenceStarted) return;
     enter.disabled = true;
     if (!beginSequence()) return;
@@ -329,9 +398,18 @@
     // On iOS the permission request must begin synchronously inside the user
     // gesture. The result is cached and consumed by head3d once its module loads.
     const permissionPromise = primeTiltPermission();
-    const [headResult, appResult, permissionResult] = await Promise.allSettled([
-      loadHead(),
-      loadApplication(),
+    const headWork = loadHead();
+    const appWork = loadApplication();
+
+    try {
+      await appWork;
+    } catch (error) {
+      recoverApplicationLoad(error);
+      return;
+    }
+
+    const [headResult, permissionResult] = await Promise.allSettled([
+      headWork,
       permissionPromise
     ]);
 
@@ -339,7 +417,6 @@
       console.error('3D head initialization failed.', headResult.reason);
       setRow('head', '06 MODEL', '3D fallback active', 'warn');
     }
-    if (appResult.status === 'rejected') console.error('Portfolio application failed to load.', appResult.reason);
     if (permissionResult.status === 'rejected') console.warn('Tilt permission initialization failed.', permissionResult.reason);
 
     if (!headOk) setGate(t('boot.fallbackStatus'), t('boot.fallbackNote'));
