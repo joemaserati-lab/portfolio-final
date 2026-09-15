@@ -146,6 +146,27 @@ body.content-panel-open .privacy-widget {
       0 0 22px rgba(0,0,0,.78);
   }
 
+  /* The hero title uses the full CRT safe width. The desktop already owns the
+     left/right safe-zone padding, so keeping this block at 100% makes both
+     outer margins identical. JS sets the final display size from this width. */
+  .hero-intro {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: none;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .hero-intro h1 {
+    width: 100%;
+    max-width: none;
+    white-space: nowrap;
+    overflow: visible;
+    overflow-wrap: normal;
+    word-break: keep-all;
+    hyphens: none;
+  }
+
   .privacy-actions button {
     flex: 1 1 calc(50% - 4px);
     min-width: 0;
@@ -244,25 +265,5 @@ body.content-panel-open .privacy-widget {
 
   .project-tile-details small {
     font-size: clamp(11px, 3.4vw, 15px);
-  }
-}
-
-@media (max-width: 560px) {
-  /* Keep the two-line home title inside the CRT's padded safe area. */
-  .hero-intro {
-    box-sizing: border-box;
-    width: 100%;
-    max-width: 100%;
-    padding-right: 10px;
-  }
-
-  .hero-intro h1 {
-    width: 100%;
-    max-width: 100%;
-    font-size: clamp(36px, 11.6vw, 56px);
-    overflow: visible;
-    overflow-wrap: normal;
-    word-break: keep-all;
-    hyphens: none;
   }
 }
