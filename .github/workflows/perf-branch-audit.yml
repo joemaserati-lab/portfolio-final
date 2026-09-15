@@ -56,6 +56,7 @@ jobs:
           });
 
           const rectSelectors = ['.hero-intro','#crt-head-feature','.desktop-icons','#language-toggle','.privacy-widget','.screen'];
+          const hiddenLike = `el => { if (!el) return true; const c=getComputedStyle(el); return c.display==='none' || c.visibility==='hidden' || Number(c.opacity)===0 || el.hidden; }`;
 
           async function inspect(url, label, mobile=false) {
             const page = await browser.newPage();
@@ -84,17 +85,15 @@ jobs:
               };
             }, rectSelectors);
 
-            // Reveal only the paused t=0 head canvas for deterministic pixel comparison.
-            await page.addStyleTag({content:`
+            const testStyle = await page.addStyleTag({content:`
               .boot-loader,.crt-background-video,#crt-bg,#crt-fx,.noise,.scanlines,.screen-reflection,.edge-light,
               .hero-intro,.desktop-icons,.language-toggle,.privacy-widget{visibility:hidden!important}
               #crt-head-feature{visibility:visible!important;opacity:1!important;filter:none!important}
             `});
             const head = await page.$('#crt-head-feature');
             if (head) await head.screenshot({path:`/tmp/${label}-${mobile?'mobile':'desktop'}-head.png`});
+            await testStyle.evaluate(el => el.remove());
 
-            // Remove the temporary test stylesheet and execute the real UI path.
-            await page.evaluate(() => document.querySelector('style:last-of-type')?.remove());
             await page.click('#boot-enter');
             await page.waitForFunction(() => document.body.classList.contains('site-ready'), {timeout:10000});
 
@@ -103,16 +102,26 @@ jobs:
             const afterLang = await page.evaluate(() => document.documentElement.lang);
             if (beforeLang === afterLang) throw new Error(`${label}: language toggle did not change language`);
 
-            await page.click('#privacy-toggle');
-            const privacyOpen = await page.evaluate(() => !document.querySelector('#privacy-panel')?.hidden);
-            if (!privacyOpen) throw new Error(`${label}: privacy panel did not open`);
+            // The site auto-opens this panel after boot when consent is absent. Ensure it is
+            // open regardless of whether the auto-prompt has already fired, then close it.
+            const privacyInitiallyOpen = await page.evaluate(() => !document.querySelector('#privacy-panel')?.hidden);
+            if (!privacyInitiallyOpen) await page.click('#privacy-toggle');
+            await page.waitForFunction(() => document.querySelector('#privacy-panel')?.hidden === false, {timeout:3000});
             await page.click('#privacy-close');
+            await page.waitForFunction(() => document.querySelector('#privacy-panel')?.hidden === true, {timeout:3000});
 
             await page.click('[data-open="about"]');
             await page.waitForSelector('.os-window', {timeout:5000});
+            await page.waitForFunction(() => {
+              const hiddenLike = el => {
+                if (!el) return true;
+                const c=getComputedStyle(el);
+                return c.display==='none' || c.visibility==='hidden' || Number(c.opacity)===0 || el.hidden;
+              };
+              return hiddenLike(document.querySelector('#language-toggle')) && hiddenLike(document.querySelector('.privacy-widget'));
+            }, {timeout:3000});
+
             const behavior = await page.evaluate(() => {
-              const lang=document.querySelector('#language-toggle');
-              const privacy=document.querySelector('.privacy-widget');
               const hiddenLike = el => {
                 if (!el) return true;
                 const c=getComputedStyle(el);
@@ -122,8 +131,8 @@ jobs:
                 lang: document.documentElement.lang,
                 windowOpen: Boolean(document.querySelector('.os-window')),
                 privacyPanelHidden: Boolean(document.querySelector('#privacy-panel')?.hidden),
-                languageHiddenWithWindow: hiddenLike(lang),
-                privacyHiddenWithWindow: hiddenLike(privacy)
+                languageHiddenWithWindow: hiddenLike(document.querySelector('#language-toggle')),
+                privacyHiddenWithWindow: hiddenLike(document.querySelector('.privacy-widget'))
               };
             });
             if (!behavior.windowOpen || !behavior.languageHiddenWithWindow || !behavior.privacyHiddenWithWindow) {
@@ -165,8 +174,8 @@ jobs:
 
           for (const mobile of [false,true]) {
             const suffix=mobile?'mobile':'desktop';
-            const main=await inspect('http://127.0.0.1:8081/',`main`,mobile);
-            const opt=await inspect('http://127.0.0.1:8080/',`opt`,mobile);
+            const main=await inspect('http://127.0.0.1:8081/','main',mobile);
+            const opt=await inspect('http://127.0.0.1:8080/','opt',mobile);
             compareRects(main.pre.rects,opt.pre.rects,suffix);
             if (main.pre.headState?.ready !== opt.pre.headState?.ready) throw new Error(`${suffix}: 3D ready state differs`);
             if (JSON.stringify(main.behavior) !== JSON.stringify(opt.behavior)) throw new Error(`${suffix}: behavior result differs`);
