@@ -68,16 +68,15 @@ body.content-panel-open .privacy-widget {
   background: linear-gradient(180deg,#f0dcff,#7d4f9c);
 }
 
+/* Give every content window the same top breathing room used on mobile,
+   while keeping the title bar, name and controls unchanged. */
+.os-window {
+  box-sizing: border-box;
+  padding-top: 18px;
+}
+
 /* Center window/tab titles on mobile independently from back/close controls. */
 @media (max-width: 720px) {
-  /* Match the top breathing room used by Selected Works while keeping the
-     window title bar and its controls intact. */
-  .os-window.is-responsive-fullscreen,
-  .os-window.is-maximized {
-    box-sizing: border-box;
-    padding-top: 18px;
-  }
-
   .window-titlebar {
     position: relative;
   }
