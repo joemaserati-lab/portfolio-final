@@ -1,0 +1,199 @@
+name: Lighthouse Enter User Flow Compare
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  LIVE_URL: https://joemaserati-lab.github.io/portfolio-final/
+  PREVIEW_URL: https://joemaserati-lab.github.io/portfolio-final/preview/
+
+jobs:
+  user-flow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Lighthouse user-flow tools
+        run: npm install --no-save lighthouse@13.4.1 puppeteer@24
+      - name: Create user-flow runner
+        run: |
+          cat > /tmp/portfolio-user-flow.mjs <<'NODE'
+          import fs from 'node:fs';
+          import puppeteer from 'puppeteer';
+          import {startFlow, desktopConfig} from 'lighthouse';
+
+          const [url, device, prefix] = process.argv.slice(2);
+          if (!url || !device || !prefix) throw new Error('Usage: script <url> <mobile|desktop> <prefix>');
+
+          const mobile = device === 'mobile';
+          const browser = await puppeteer.launch({
+            headless: true,
+            args: ['--no-sandbox', '--disable-dev-shm-usage'],
+          });
+          const page = await browser.newPage();
+          await page.setViewport(mobile
+            ? {width: 390, height: 844, deviceScaleFactor: 2, isMobile: true, hasTouch: true}
+            : {width: 1440, height: 1000, deviceScaleFactor: 1, isMobile: false, hasTouch: false}
+          );
+
+          if (mobile) {
+            await page.setUserAgent('Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Mobile Safari/537.36');
+          }
+
+          await page.evaluateOnNewDocument(() => {
+            window.__portfolioFlowLongTasks = [];
+            window.__portfolioFlowShifts = [];
+            window.__portfolioFlowCollect = false;
+            try {
+              new PerformanceObserver(list => {
+                if (!window.__portfolioFlowCollect) return;
+                for (const e of list.getEntries()) {
+                  window.__portfolioFlowLongTasks.push({startTime: e.startTime, duration: e.duration});
+                }
+              }).observe({type: 'longtask', buffered: true});
+            } catch {}
+            try {
+              new PerformanceObserver(list => {
+                if (!window.__portfolioFlowCollect) return;
+                for (const e of list.getEntries()) {
+                  if (!e.hadRecentInput) window.__portfolioFlowShifts.push(e.value);
+                }
+              }).observe({type: 'layout-shift', buffered: true});
+            } catch {}
+          });
+
+          const cdp = await page.createCDPSession();
+          await cdp.send('Network.enable');
+          let collectNetwork = false;
+          const postClickRequestIds = new Set();
+          let postClickBytes = 0;
+          cdp.on('Network.requestWillBeSent', event => {
+            if (collectNetwork) postClickRequestIds.add(event.requestId);
+          });
+          cdp.on('Network.loadingFinished', event => {
+            if (collectNetwork && postClickRequestIds.has(event.requestId)) {
+              postClickBytes += event.encodedDataLength || 0;
+            }
+          });
+
+          const navWallStart = Date.now();
+          await page.goto(url, {waitUntil: 'domcontentloaded', timeout: 60000});
+          await page.waitForFunction(() => {
+            const b = document.getElementById('boot-enter');
+            return b && !b.disabled;
+          }, {timeout: 20000});
+          const enterEnabledWall = Date.now();
+
+          const flowOptions = {
+            name: `${device} Enter portfolio`,
+            flags: {screenEmulation: {disabled: true}},
+          };
+          if (!mobile) flowOptions.config = desktopConfig;
+          const flow = await startFlow(page, flowOptions);
+
+          await page.evaluate(() => {
+            window.__portfolioFlowLongTasks = [];
+            window.__portfolioFlowShifts = [];
+            window.__portfolioFlowCollect = true;
+            window.__portfolioFlowClickStart = performance.now();
+          });
+          collectNetwork = true;
+          const before = await page.metrics();
+          const clickWallStart = Date.now();
+
+          await flow.startTimespan({stepName: 'Click Enter to site ready'});
+          await page.click('#boot-enter');
+          await page.waitForFunction(() => document.body.classList.contains('site-ready'), {timeout: 25000});
+          const siteReadyWall = Date.now();
+          await flow.endTimespan();
+
+          collectNetwork = false;
+          const after = await page.metrics();
+          const browserMetrics = await page.evaluate(() => {
+            window.__portfolioFlowCollect = false;
+            const tasks = window.__portfolioFlowLongTasks || [];
+            const shifts = window.__portfolioFlowShifts || [];
+            return {
+              longTaskCount: tasks.length,
+              longTaskDuration: tasks.reduce((sum, e) => sum + e.duration, 0),
+              interactionTBT: tasks.reduce((sum, e) => sum + Math.max(0, e.duration - 50), 0),
+              interactionCLS: shifts.reduce((sum, value) => sum + value, 0),
+              headState: window.__portfolioHeadState || null,
+              headVisible: document.getElementById('crt-head-feature')?.classList.contains('is-ready') || false,
+              loaderPresent: Boolean(document.getElementById('boot-loader')),
+            };
+          });
+
+          const metricDelta = key => Math.max(0, (after[key] ?? 0) - (before[key] ?? 0));
+          const custom = {
+            url,
+            device,
+            enterEnabledMs: enterEnabledWall - navWallStart,
+            clickToSiteReadyMs: siteReadyWall - clickWallStart,
+            navigationToSiteReadyMs: siteReadyWall - navWallStart,
+            postClickBytes,
+            taskDurationMs: metricDelta('TaskDuration') * 1000,
+            scriptDurationMs: metricDelta('ScriptDuration') * 1000,
+            layoutDurationMs: metricDelta('LayoutDuration') * 1000,
+            styleDurationMs: metricDelta('RecalcStyleDuration') * 1000,
+            ...browserMetrics,
+          };
+
+          const flowResult = await flow.createFlowResult();
+          fs.writeFileSync(`${prefix}-flow.json`, JSON.stringify(flowResult, null, 2));
+          fs.writeFileSync(`${prefix}-flow.html`, await flow.generateReport());
+          fs.writeFileSync(`${prefix}-custom.json`, JSON.stringify(custom, null, 2));
+          console.log(JSON.stringify(custom));
+          await browser.close();
+          NODE
+      - name: Run repeated mobile flows
+        run: |
+          for i in 1 2 3; do
+            node /tmp/portfolio-user-flow.mjs "$LIVE_URL" mobile "live-mobile-$i"
+            node /tmp/portfolio-user-flow.mjs "$PREVIEW_URL" mobile "preview-mobile-$i"
+          done
+      - name: Run repeated desktop flows
+        run: |
+          for i in 1 2 3; do
+            node /tmp/portfolio-user-flow.mjs "$LIVE_URL" desktop "live-desktop-$i"
+            node /tmp/portfolio-user-flow.mjs "$PREVIEW_URL" desktop "preview-desktop-$i"
+          done
+      - name: Summarize user-flow medians
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const keys = ['enterEnabledMs','clickToSiteReadyMs','navigationToSiteReadyMs','postClickBytes','taskDurationMs','scriptDurationMs','layoutDurationMs','styleDurationMs','longTaskCount','longTaskDuration','interactionTBT','interactionCLS'];
+          const read = f => JSON.parse(fs.readFileSync(f, 'utf8'));
+          const median = arr => {
+            const s = [...arr].sort((a,b) => a-b);
+            return s[Math.floor(s.length / 2)];
+          };
+          const summary = (prefix, device) => Object.fromEntries(keys.map(k => [k, median([1,2,3].map(i => read(`${prefix}-${device}-${i}-custom.json`)[k]).filter(Number.isFinite))]));
+          const pct = (a,b) => a ? ((b-a)/a)*100 : null;
+          for (const device of ['mobile','desktop']) {
+            const live = summary('live', device);
+            const preview = summary('preview', device);
+            console.log(`===== USER FLOW ${device.toUpperCase()} =====`);
+            console.log('LIVE='+JSON.stringify(live));
+            console.log('PREVIEW='+JSON.stringify(preview));
+            console.log('DELTA='+JSON.stringify(Object.fromEntries(keys.map(k => [k, preview[k]-live[k]])));
+            console.log('PCT='+JSON.stringify(Object.fromEntries(keys.map(k => [k, pct(live[k],preview[k])])));
+          }
+          NODE
+      - name: Upload user-flow reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-enter-user-flow
+          path: |
+            *-flow.json
+            *-flow.html
+            *-custom.json
+          retention-days: 7
