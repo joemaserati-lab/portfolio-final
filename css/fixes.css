@@ -147,14 +147,14 @@ body.content-panel-open .privacy-widget {
   }
 
   /* The hero title uses the full CRT safe width. The desktop already owns the
-     left/right safe-zone padding, so keeping this block at 100% makes both
-     outer margins identical. JS sets the final display size from this width. */
+     left/right safe-zone padding; this matching 4px inner inset mirrors the
+     project-title treatment and keeps both outer margins visually identical. */
   .hero-intro {
     box-sizing: border-box;
     width: 100%;
     max-width: none;
-    padding-left: 0;
-    padding-right: 0;
+    padding-left: 4px;
+    padding-right: 4px;
   }
 
   .hero-intro h1 {
