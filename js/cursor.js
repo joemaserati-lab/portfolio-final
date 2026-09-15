@@ -8,11 +8,12 @@
   cursor.setAttribute('aria-hidden', 'true');
   if (!cursor.isConnected) document.body.appendChild(cursor);
 
-  // Pixelarticons hotspots scaled from the original 32px grid to 80px (2.5x).
+  // Pixelarticons hotspots scaled from the original 32px grid to 68px (2.125x),
+  // keeping the pointer alignment identical after the 15% visual size reduction.
   const HOTSPOTS = {
-    default: { x: 10, y: 2.5 },   // 4,1 -> x2.5
-    pointer: { x: 30, y: 2.5 },   // 12,1 -> x2.5
-    text:    { x: 40, y: 40 }     // 16,16 -> x2.5
+    default: { x: 8.5, y: 2.125 },   // 4,1 -> x2.125
+    pointer: { x: 25.5, y: 2.125 },  // 12,1 -> x2.125
+    text:    { x: 34, y: 34 }        // 16,16 -> x2.125
   };
 
   const pointerSelector = [

@@ -91,6 +91,13 @@ body.content-panel-open .privacy-widget {
   background: var(--window-chrome-bg);
 }
 
+/* Reduce every custom cursor variant by 15% while preserving its artwork. */
+.pixelart-cursor {
+  width: 68px;
+  height: 68px;
+  background-size: 68px 68px;
+}
+
 /* Center window/tab titles on mobile independently from back/close controls. */
 @media (max-width: 720px) {
   .window-titlebar {
