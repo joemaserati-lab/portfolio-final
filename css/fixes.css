@@ -248,10 +248,18 @@ body.content-panel-open .privacy-widget {
 }
 
 @media (max-width: 560px) {
-  /* The home display title also needs to be sized against the CRT safe area. */
+  /* Keep the two-line home title inside the CRT's padded safe area. */
+  .hero-intro {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    padding-right: 10px;
+  }
+
   .hero-intro h1 {
-    max-width: calc(100% - 6px);
-    font-size: clamp(40px, 12.8vw, 60px);
+    width: 100%;
+    max-width: 100%;
+    font-size: clamp(36px, 11.6vw, 56px);
     overflow: visible;
     overflow-wrap: normal;
     word-break: keep-all;
