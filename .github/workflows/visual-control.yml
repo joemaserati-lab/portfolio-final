@@ -1,0 +1,92 @@
+name: Visual Control Baseline
+
+on:
+  push:
+    branches: ['perf/no-visual-change']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Prepare main
+        run: |
+          git fetch origin main
+          git worktree add /tmp/portfolio-main origin/main
+          python3 -m http.server 8080 --bind 127.0.0.1 >/tmp/opt-http.log 2>&1 &
+          (cd /tmp/portfolio-main && python3 -m http.server 8081 --bind 127.0.0.1 >/tmp/main-http.log 2>&1) &
+          sleep 2
+      - name: Install test dependencies
+        run: npm install --no-save puppeteer-core@24 pixelmatch@7 pngjs@7 >/dev/null 2>&1
+      - name: Compare main-main and main-optimized frames
+        run: |
+          export CHROME_BIN="$(which google-chrome || which chromium || which chromium-browser)"
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import puppeteer from 'puppeteer-core';
+          import pixelmatch from 'pixelmatch';
+          import { PNG } from 'pngjs';
+
+          const browser = await puppeteer.launch({
+            executablePath: process.env.CHROME_BIN,
+            headless: true,
+            args:['--no-sandbox','--disable-dev-shm-usage','--enable-webgl','--ignore-gpu-blocklist','--use-angle=swiftshader']
+          });
+
+          async function shot(url,path) {
+            const page=await browser.newPage();
+            await page.setViewport({width:1440,height:900,deviceScaleFactor:1});
+            await page.goto(url,{waitUntil:'networkidle0',timeout:30000});
+            await page.waitForFunction(()=>window.__portfolioHeadState?.settled===true,{timeout:10000}).catch(()=>{});
+            const state=await page.evaluate(()=>({
+              head:window.__portfolioHeadState,
+              feature:(()=>{const e=document.querySelector('#crt-head-feature'),r=e?.getBoundingClientRect();return r?{x:r.x,y:r.y,w:r.width,h:r.height}:null})()
+            }));
+            const style=await page.addStyleTag({content:`
+              .boot-loader,.crt-background-video,#crt-bg,#crt-fx,.noise,.scanlines,.screen-reflection,.edge-light,
+              .hero-intro,.desktop-icons,.language-toggle,.privacy-widget{visibility:hidden!important}
+              #crt-head-feature{visibility:visible!important;opacity:1!important;filter:none!important}
+            `});
+            const el=await page.$('#crt-head-feature');
+            await el.screenshot({path});
+            await style.evaluate(e=>e.remove());
+            await page.close();
+            return state;
+          }
+
+          function diff(aPath,bPath) {
+            const a=PNG.sync.read(fs.readFileSync(aPath)),b=PNG.sync.read(fs.readFileSync(bPath));
+            if(a.width!==b.width||a.height!==b.height) throw new Error('dimension mismatch');
+            const out=new PNG({width:a.width,height:a.height});
+            const n=pixelmatch(a.data,b.data,out.data,a.width,a.height,{threshold:.02,includeAA:true});
+            return n/(a.width*a.height);
+          }
+
+          const main1=await shot('http://127.0.0.1:8081/','/tmp/main1.png');
+          const main2=await shot('http://127.0.0.1:8081/','/tmp/main2.png');
+          const opt1=await shot('http://127.0.0.1:8080/','/tmp/opt1.png');
+          const opt2=await shot('http://127.0.0.1:8080/','/tmp/opt2.png');
+          const mm=diff('/tmp/main1.png','/tmp/main2.png');
+          const oo=diff('/tmp/opt1.png','/tmp/opt2.png');
+          const mo1=diff('/tmp/main1.png','/tmp/opt1.png');
+          const mo2=diff('/tmp/main2.png','/tmp/opt2.png');
+          console.log('MAIN_MAIN_VARIANCE', (mm*100).toFixed(5)+'%');
+          console.log('OPT_OPT_VARIANCE', (oo*100).toFixed(5)+'%');
+          console.log('MAIN_OPT_PAIR1', (mo1*100).toFixed(5)+'%');
+          console.log('MAIN_OPT_PAIR2', (mo2*100).toFixed(5)+'%');
+          console.log('MAIN_STATE',JSON.stringify(main1));
+          console.log('OPT_STATE',JSON.stringify(opt1));
+          if (JSON.stringify(main1.feature)!==JSON.stringify(opt1.feature)) throw new Error('3D container geometry differs');
+          if (main1.head?.ready!==opt1.head?.ready) throw new Error('3D ready state differs');
+          await browser.close();
+          NODE
