@@ -100,6 +100,15 @@ body.content-panel-open .privacy-widget {
   background: var(--window-chrome-bg);
 }
 
+/* Keep the Colorcopy proof editorial rather than dashboard-like. */
+.case-proof-v2 .case-story-copy {
+  grid-template-columns: 1fr;
+}
+
+.case-proof-v2 .case-story-copy p {
+  max-width: 72ch !important;
+}
+
 /* Reduce every custom cursor variant by 15% while preserving its artwork. */
 .pixelart-cursor {
   width: 68px;
