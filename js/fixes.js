@@ -4,24 +4,24 @@
       en: {
         label: 'IMPACT / RESULTS',
         eyebrow: '03 / PERFORMANCE',
-        text: 'A structured web, content and paid media strategy supported Colorcopy’s digital growth across multiple channels. Meta campaigns generated 1.7M+ impressions and reached 830K+ people with approximately €2K in media spend, while Google Ads delivered 4.7K+ clicks and 130+ conversions on approximately €5.5K in spend. Across the wider ecosystem, the website recorded 90K+ views, Instagram reached 135K+ accounts and LinkedIn generated 13K+ organic impressions.'
+        text: 'An integrated strategy across web, content and paid media strengthened Colorcopy’s digital presence across multiple channels. During the period analysed, Meta activity generated more than 1M impressions and reached hundreds of thousands of people, while Google Ads produced thousands of clicks and measurable conversions. At the same time, the website surpassed 90K views, Instagram reached more than 100K accounts and LinkedIn generated over 10K organic impressions.'
       },
       it: {
         label: 'IMPATTO / RISULTATI',
         eyebrow: '03 / PERFORMANCE',
-        text: 'Una strategia strutturata tra web, contenuti e paid media ha supportato la crescita digitale di Colorcopy su più canali. Le campagne Meta hanno generato 1,7M+ impression e raggiunto 830K+ persone con circa €2K di investimento media, mentre Google Ads ha prodotto 4,7K+ clic e 130+ conversioni con circa €5,5K di spesa. Nell’ecosistema complessivo, il sito ha registrato 90K+ visualizzazioni, Instagram ha raggiunto 135K+ account e LinkedIn ha generato 13K+ impression organiche.'
+        text: 'Una strategia integrata tra web, contenuti e paid media ha rafforzato la presenza digitale di Colorcopy su più canali. Nel periodo analizzato, le attività Meta hanno superato 1 milione di impression e raggiunto centinaia di migliaia di persone, mentre Google Ads ha generato migliaia di clic e conversioni tracciate. Parallelamente, il sito ha superato 90K visualizzazioni, Instagram oltre 100K account raggiunti e LinkedIn oltre 10K impression organiche.'
       }
     },
     'platinum-technologies': {
       en: {
         label: 'IMPACT / RESULTS',
         eyebrow: '03 / PERFORMANCE',
-        text: 'Platinum Technologies’ digital presence was developed as a connected ecosystem across website, social content and paid campaigns. The website recorded 150K+ views, Facebook generated 38K+ link clicks, Instagram reached 135K+ accounts and LinkedIn delivered 67K+ organic impressions. Paid activity helped extend that reach, with Meta campaigns reaching 1.2M+ people and Google Ads generating 5.5K+ clicks and 70+ conversions.'
+        text: 'Platinum Technologies’ digital presence was developed as a coordinated system across website, social content and paid media. During the period analysed, the website surpassed 150K views, Facebook generated tens of thousands of link clicks, Instagram reached more than 100K accounts and LinkedIn delivered over 60K organic impressions. Paid campaigns extended that distribution further, reaching more than 1M people on Meta and generating thousands of clicks through Google Ads.'
       },
       it: {
         label: 'IMPATTO / RISULTATI',
         eyebrow: '03 / PERFORMANCE',
-        text: 'La presenza digitale di Platinum Technologies è stata sviluppata come un ecosistema connesso tra sito web, contenuti social e campagne paid. Il sito ha registrato 150K+ visualizzazioni, Facebook ha generato 38K+ clic sui link, Instagram ha raggiunto 135K+ account e LinkedIn ha prodotto 67K+ impression organiche. Le attività paid hanno ampliato ulteriormente la portata, con le campagne Meta che hanno raggiunto 1,2M+ persone e Google Ads che ha generato 5,5K+ clic e 70+ conversioni.'
+        text: 'La presenza digitale di Platinum Technologies è stata sviluppata come un sistema coordinato tra sito web, contenuti social e paid media. Nel periodo analizzato, il sito ha superato 150K visualizzazioni, Facebook ha generato decine di migliaia di clic sui link, Instagram oltre 100K account raggiunti e LinkedIn oltre 60K impression organiche. Le campagne paid hanno ampliato ulteriormente la distribuzione, raggiungendo oltre 1 milione di persone su Meta e generando migliaia di clic tramite Google Ads.'
       }
     }
   };
