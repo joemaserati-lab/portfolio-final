@@ -113,8 +113,9 @@ jobs:
           await page.click('#boot-enter');
           await page.waitForFunction(() => document.body.classList.contains('site-ready'), {timeout: 25000});
           const siteReadyWall = Date.now();
-          await flow.endTimespan();
 
+          // Stop custom collection exactly when the portfolio reaches site-ready,
+          // before Lighthouse performs its own post-processing.
           collectNetwork = false;
           const after = await page.metrics();
           const browserMetrics = await page.evaluate(() => {
@@ -131,6 +132,8 @@ jobs:
               loaderPresent: Boolean(document.getElementById('boot-loader')),
             };
           });
+
+          await flow.endTimespan();
 
           const metricDelta = key => Math.max(0, (after[key] ?? 0) - (before[key] ?? 0));
           const custom = {
@@ -184,8 +187,8 @@ jobs:
             console.log(`===== USER FLOW ${device.toUpperCase()} =====`);
             console.log('LIVE='+JSON.stringify(live));
             console.log('PREVIEW='+JSON.stringify(preview));
-            console.log('DELTA='+JSON.stringify(Object.fromEntries(keys.map(k => [k, preview[k]-live[k]])));
-            console.log('PCT='+JSON.stringify(Object.fromEntries(keys.map(k => [k, pct(live[k],preview[k])])));
+            console.log('DELTA='+JSON.stringify(Object.fromEntries(keys.map(k => [k, preview[k]-live[k]]))));
+            console.log('PCT='+JSON.stringify(Object.fromEntries(keys.map(k => [k, pct(live[k],preview[k])]))));
           }
           NODE
       - name: Upload user-flow reports
