@@ -68,11 +68,27 @@ body.content-panel-open .privacy-widget {
   background: linear-gradient(180deg,#f0dcff,#7d4f9c);
 }
 
-/* Give every content window the same top breathing room used on mobile,
-   while keeping the title bar, name and controls unchanged. */
+/* Give every content window the same top breathing room, and visually extend
+   the title-bar chrome through that space on both desktop and mobile. */
 .os-window {
+  --window-chrome-bg: linear-gradient(90deg,rgba(209,181,233,.07),rgba(255,151,110,.045));
   box-sizing: border-box;
   padding-top: 18px;
+}
+
+.os-window::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 18px;
+  background: var(--window-chrome-bg);
+  pointer-events: none;
+}
+
+.os-window .window-titlebar {
+  background: var(--window-chrome-bg);
 }
 
 /* Center window/tab titles on mobile independently from back/close controls. */
