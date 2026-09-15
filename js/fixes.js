@@ -101,8 +101,7 @@
     '.project-tile-main strong',
     '.project-tile-details small',
     '.contact-link b',
-    '.archive-row b',
-    '.hero-intro h1'
+    '.archive-row b'
   ].join(',');
 
   const textProbe = document.createElement('span');
@@ -157,11 +156,45 @@
     });
   };
 
+  const fitHeroTitle = () => {
+    const title = document.querySelector('.hero-intro h1');
+    if (!title) return;
+
+    title.style.removeProperty('font-size');
+    if (!matchMedia('(max-width: 720px)').matches || !title.clientWidth) return;
+
+    const baseSize = parseFloat(getComputedStyle(title).fontSize);
+    if (!Number.isFinite(baseSize)) return;
+
+    const minSize = 28;
+    const safetyInset = 14;
+    const available = Math.max(1, title.clientWidth - safetyInset);
+    let size = baseSize;
+    let passes = 0;
+
+    while (title.scrollWidth > available && size > minSize && passes < 10) {
+      const used = Math.max(title.scrollWidth, available + 1);
+      const ratioSize = size * (available / used) * .97;
+      const nextSize = Math.max(minSize, Math.min(size - .5, ratioSize));
+      size = Math.floor(nextSize * 10) / 10;
+      title.style.fontSize = `${size}px`;
+      passes += 1;
+    }
+
+    while (title.scrollWidth > available && size > minSize) {
+      size = Math.max(minSize, size - .25);
+      title.style.fontSize = `${size}px`;
+    }
+  };
+
   let fitFrame = 0;
   const scheduleSafeTextFit = () => {
     cancelAnimationFrame(fitFrame);
     fitFrame = requestAnimationFrame(() => {
-      fitFrame = requestAnimationFrame(fitLongWords);
+      fitFrame = requestAnimationFrame(() => {
+        fitLongWords();
+        fitHeroTitle();
+      });
     });
   };
 
