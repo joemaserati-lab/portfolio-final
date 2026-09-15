@@ -135,6 +135,17 @@ body.content-panel-open .privacy-widget {
     pointer-events: none;
   }
 
+  /* Keep the homepage body copy readable without covering the CRT artwork. */
+  .hero-copy {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    text-shadow:
+      0 2px 4px rgba(0,0,0,.98),
+      0 0 10px rgba(0,0,0,.92),
+      0 0 22px rgba(0,0,0,.78);
+  }
+
   .privacy-actions button {
     flex: 1 1 calc(50% - 4px);
     min-width: 0;
