@@ -144,4 +144,71 @@ body.content-panel-open .privacy-widget {
   .projects-view::-webkit-scrollbar {
     width: 8px;
   }
+
+  /* Mobile text containment: viewport-based display sizes must respect the
+     narrower CRT safe area rather than the full device width. */
+  .projects-view,
+  .projects-index-v2,
+  .projects-index-head,
+  .projects-index-head > *,
+  .projects-grid-v2,
+  .project-tile-v2,
+  .project-tile-copy,
+  .project-tile-main,
+  .project-tile-details,
+  .case-study-v2,
+  .case-lead-v2,
+  .case-lead-v2 > *,
+  .case-title-v2,
+  .case-heading,
+  .window-body,
+  .window-body > *,
+  .resume-view,
+  .resume-row > *,
+  .contact-panel,
+  .contact-copy,
+  .meta-grid,
+  .meta-card {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .case-title-v2 h2,
+  .case-heading h2 {
+    width: 100%;
+    max-width: 100%;
+    font-size: clamp(36px, 11.5vw, 60px);
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  .projects-index-head h2 {
+    width: 100%;
+    max-width: 100%;
+    font-size: clamp(40px, 12.5vw, 64px);
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  .window-body h2,
+  .resume-header h2,
+  .resume-row h3,
+  .meta-card b,
+  .project-tile-main strong,
+  .project-tile-details small,
+  .contact-link b,
+  .archive-row b {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+}
+
+@media (max-width: 560px) {
+  /* The home display title also needs to be sized against the CRT safe area. */
+  .hero-intro h1 {
+    max-width: 100%;
+    font-size: clamp(48px, 15vw, 68px);
+    overflow-wrap: anywhere;
+  }
 }
