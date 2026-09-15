@@ -1,0 +1,37 @@
+/* Targeted UI fixes — 2026-09-15 */
+
+/* Keep the persistent language/privacy controls above the desktop, windows
+   and projects view while retaining their screen-relative positioning. */
+.language-toggle,
+.privacy-widget {
+  z-index: 100;
+  pointer-events: auto;
+}
+
+.language-toggle,
+.privacy-toggle,
+.privacy-panel,
+.privacy-actions,
+.privacy-actions button {
+  pointer-events: auto;
+}
+
+/* Center window/tab titles on mobile independently from back/close controls. */
+@media (max-width: 720px) {
+  .window-titlebar {
+    position: relative;
+  }
+
+  .window-titlebar > span {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(58%, 260px);
+    max-width: calc(100% - 120px);
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+}
