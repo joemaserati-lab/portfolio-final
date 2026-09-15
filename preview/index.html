@@ -23,6 +23,9 @@
   <link rel="stylesheet" href="css/fixes.css" />
   <link rel="preload" href="assets/font/VT323-Regular.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="assets/font/redaction-50-latin-400-normal.woff" as="font" type="font/woff" crossorigin />
+  <link rel="preload" as="image" href="assets/cursors/default-alt-amber.svg" type="image/svg+xml" />
+  <link rel="preload" as="image" href="assets/cursors/pointer-amber.svg" type="image/svg+xml" />
+  <link rel="preload" as="image" href="assets/cursors/text-amber.svg" type="image/svg+xml" />
   <link rel="preload" href="assets/models/human_head_reference3.glb" as="fetch" crossorigin />
   <script type="importmap">
   {
@@ -32,6 +35,7 @@
     }
   }
   </script>
+  <link rel="modulepreload" href="js/head3d.js" />
 </head>
 <body class="booting">
   <svg class="svg-defs" aria-hidden="true" width="0" height="0">
@@ -56,7 +60,7 @@
   <main class="shell">
     <div class="crt-stage" id="crt-stage">
       <section class="screen" id="screen" aria-label="Interactive multidisciplinary design portfolio">
-        <video class="crt-background-video" autoplay muted loop playsinline preload="auto" fetchpriority="high" aria-hidden="true">
+        <video class="crt-background-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
           <source src="assets/video/crt-ambient.webm" type="video/webm" />
         </video>
         <canvas id="crt-bg" aria-hidden="true"></canvas>
@@ -125,10 +129,7 @@
   <script defer src="js/cursor.js"></script>
   <script defer src="js/boot.js"></script>
   <script defer src="js/crt.js"></script>
-  <script defer src="js/content.js"></script>
-  <script defer src="js/fixes.js"></script>
   <script defer src="js/analytics.js"></script>
-  <script defer src="js/portfolio.js"></script>
   <script defer src="js/privacy.js"></script>
   <script type="module" src="js/head3d.js"></script>
 </body>

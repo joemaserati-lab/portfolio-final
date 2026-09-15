@@ -18,6 +18,7 @@
   let sequenceStarted = false;
   let resourcesReady = false;
   let headOk = false;
+  let applicationPromise = null;
 
   const rows = new Map();
   const rowOrder = [];
@@ -67,6 +68,43 @@
       gateNote.textContent = note;
       gateNote.hidden = !isTouchDevice() && /tilt|sensor/i.test(note);
     }
+  }
+
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const existing = document.querySelector(`script[data-app-src="${src}"]`);
+      if (existing?.dataset.loaded === 'true') {
+        resolve();
+        return;
+      }
+      if (existing) {
+        existing.addEventListener('load', resolve, { once: true });
+        existing.addEventListener('error', () => reject(new Error(`Failed to load ${src}`)), { once: true });
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = src;
+      script.async = true;
+      script.dataset.appSrc = src;
+      script.addEventListener('load', () => {
+        script.dataset.loaded = 'true';
+        resolve();
+      }, { once: true });
+      script.addEventListener('error', () => reject(new Error(`Failed to load ${src}`)), { once: true });
+      document.body.appendChild(script);
+    });
+  }
+
+  function loadApplication() {
+    if (applicationPromise) return applicationPromise;
+    applicationPromise = (async () => {
+      await loadScript('js/content.js');
+      await Promise.all([
+        loadScript('js/fixes.js'),
+        loadScript('js/portfolio.js')
+      ]);
+    })();
+    return applicationPromise;
   }
 
   if (gateNote) gateNote.hidden = !isTouchDevice();
@@ -257,7 +295,12 @@
   enter.addEventListener('click', async () => {
     if (!resourcesReady || sequenceStarted) return;
     enter.disabled = true;
-    try { await requestTiltBeforeEntry(); }
-    finally { startSequence(); }
+    const [tiltResult, appResult] = await Promise.allSettled([
+      requestTiltBeforeEntry(),
+      loadApplication()
+    ]);
+    if (tiltResult.status === 'rejected') console.warn('Tilt initialization failed.', tiltResult.reason);
+    if (appResult.status === 'rejected') console.error('Portfolio application failed to load.', appResult.reason);
+    startSequence();
   });
 })();
