@@ -35,6 +35,15 @@ body.content-panel-open .privacy-widget {
   background: rgba(12,6,16,.9);
 }
 
+/* Keep the consent actions usable when all controls are visible. */
+.privacy-actions {
+  flex-wrap: wrap;
+}
+
+.privacy-actions button[hidden] {
+  display: none;
+}
+
 /* Explicit custom scrollbar for every scrollable content panel. */
 .window-body,
 .projects-view {
@@ -115,6 +124,11 @@ body.content-panel-open .privacy-widget {
     text-overflow: ellipsis;
     white-space: nowrap;
     pointer-events: none;
+  }
+
+  .privacy-actions button {
+    flex: 1 1 calc(50% - 4px);
+    min-width: 0;
   }
 
   .window-body::-webkit-scrollbar,
