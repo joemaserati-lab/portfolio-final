@@ -254,10 +254,8 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
   root.position.y = 0.02;
   root.rotation.x = -0.015;
   scene.add(root);
-  // Deterministic optical-fit result for human_head_reference3.glb.
-  // These values are exactly what the former 17,566-vertex x 25-angle runtime pass produced.
-  const fitCenter = new THREE.Vector2(0, 0.05012886506467777);
-  const fitX = 0.22633514007910208, fitY = 0.27843615932888977;
+  const fitCenter = new THREE.Vector2();
+  let fitX = 1, fitY = 1;
 
   function destroy() {
     if (disposed) return;
@@ -401,7 +399,39 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
     originalTextures.forEach(texture => texture.dispose());
     root.add(model);
 
-    // Optical fit is precomputed above; preserve the exact neutral pose used previously.
+    // Fit the visible vertices, including the reference's full mouse rotation range.
+    const points = [], vertex = new THREE.Vector3();
+    model.updateMatrixWorld(true);
+    const inverseRoot = root.matrixWorld.clone().invert();
+    model.traverse(object => {
+      if (!object.isMesh) return;
+      const positions = object.geometry.attributes.position, bounds = object.geometry.boundingBox;
+      const matrix = inverseRoot.clone().multiply(object.matrixWorld);
+      const low = bounds.min.y + (bounds.max.y - bounds.min.y) * PRESET.fadeLow;
+      for (let i = 0; i < positions.count; i++) {
+        vertex.fromBufferAttribute(positions, i);
+        if (vertex.y >= low) points.push(vertex.clone().applyMatrix4(matrix));
+      }
+    });
+    if (!points.length) throw new Error('No visible head geometry.');
+    camera.updateMatrixWorld(true);
+    const projected = new THREE.Box2(), point = new THREE.Vector2(), matrix = new THREE.Matrix4();
+    for (const y of [-1, -0.5, 0, 0.5, 1]) {
+      for (const x of [-1, -0.5, 0, 0.5, 1]) {
+        const yaw = y * PRESET.mouseAmount, pitch = x * PRESET.mouseAmount * 0.40 - 0.015;
+        root.rotation.set(pitch, yaw, 0);
+        root.updateMatrixWorld(true);
+        matrix.multiplyMatrices(camera.matrixWorldInverse, root.matrixWorld);
+        for (const p of points) {
+          vertex.copy(p).applyMatrix4(matrix);
+          point.set(vertex.x / -vertex.z, vertex.y / -vertex.z);
+          projected.expandByPoint(point);
+        }
+      }
+    }
+    projected.getCenter(fitCenter);
+    fitX = (projected.max.x - projected.min.x) * 0.5;
+    fitY = (projected.max.y - projected.min.y) * 0.5;
     root.rotation.set(-0.015, 0, 0);
     root.updateMatrixWorld(true);
     loaded = true;
