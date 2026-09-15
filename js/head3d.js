@@ -209,7 +209,7 @@ if (feature && canvas && screenElement) {
     effect = mountHeadScanEffect({
       container: feature, canvas,
       modelUrl: new URL('../assets/models/human_head_reference3.glb', import.meta.url).href,
-      reducedMotion: false, onError: fail
+      reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches, onError: fail
     });
     addEventListener('pointermove', onPointerMove, { passive: true });
     document.addEventListener('visibilitychange', onVisibility);
