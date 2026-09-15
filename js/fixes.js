@@ -163,27 +163,30 @@
     title.style.removeProperty('font-size');
     if (!matchMedia('(max-width: 720px)').matches || !title.clientWidth) return;
 
-    const baseSize = parseFloat(getComputedStyle(title).fontSize);
-    if (!Number.isFinite(baseSize)) return;
+    const available = title.clientWidth;
+    const referenceSize = 100;
 
-    const minSize = 28;
-    const safetyInset = 14;
-    const available = Math.max(1, title.clientWidth - safetyInset);
-    let size = baseSize;
-    let passes = 0;
-
-    while (title.scrollWidth > available && size > minSize && passes < 10) {
-      const used = Math.max(title.scrollWidth, available + 1);
-      const ratioSize = size * (available / used) * .97;
-      const nextSize = Math.max(minSize, Math.min(size - .5, ratioSize));
-      size = Math.floor(nextSize * 10) / 10;
-      title.style.fontSize = `${size}px`;
-      passes += 1;
+    /* Measure the real two-line title at a known size, including the blinking
+       underscore. This lets the surname become the limiting line and scales the
+       whole title up to the CRT safe width instead of only shrinking on overflow. */
+    title.style.fontSize = `${referenceSize}px`;
+    const measured = title.scrollWidth;
+    if (!measured || !Number.isFinite(measured)) {
+      title.style.removeProperty('font-size');
+      return;
     }
 
-    while (title.scrollWidth > available && size > minSize) {
-      size = Math.max(minSize, size - .25);
-      title.style.fontSize = `${size}px`;
+    const minSize = 24;
+    const maxSize = 96;
+    let size = Math.max(minSize, Math.min(maxSize, referenceSize * (available / measured)));
+    size = Math.floor(size * 10) / 10;
+    title.style.fontSize = `${size}px`;
+
+    /* Protect against sub-pixel rounding and font rasterization differences on
+       mobile browsers without introducing a visible extra right margin. */
+    while (title.scrollWidth > title.clientWidth && size > minSize) {
+      size = Math.max(minSize, size - .1);
+      title.style.fontSize = `${Math.floor(size * 10) / 10}px`;
     }
   };
 
