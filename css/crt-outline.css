@@ -133,6 +133,46 @@ html[lang="it"] .project-tile-v2[data-project-slug="colorcopy-large-format"] .pr
   letter-spacing: 0;
 }
 
+/* Window chrome icons -------------------------------------------------------
+   Draw the symbols independently from the interface font so their optical
+   center stays fixed inside every control on desktop and mobile. */
+.window-back,
+.projects-back,
+.projects-close,
+.window-controls button[data-close] {
+  position: relative;
+  padding: 0 !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+}
+
+.window-back::before,
+.projects-back::before,
+.projects-close::before,
+.window-controls button[data-close]::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.window-back::before,
+.projects-back::before {
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 12H5M11 18l-6-6 6-6' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 12H5M11 18l-6-6 6-6' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='square' stroke-linejoin='miter'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.projects-close::before,
+.window-controls button[data-close]::before {
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 6l12 12M18 6L6 18' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='square'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 6l12 12M18 6L6 18' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='square'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
 @media (max-width: 720px) {
   body::before {
     background:
@@ -151,6 +191,14 @@ html[lang="it"] .project-tile-v2[data-project-slug="colorcopy-large-format"] .pr
   .project-cover-v2 {
     min-height: 0;
     aspect-ratio: 4 / 3;
+  }
+
+  .window-back::before,
+  .projects-back::before,
+  .projects-close::before,
+  .window-controls button[data-close]::before {
+    width: 17px;
+    height: 17px;
   }
 }
 
