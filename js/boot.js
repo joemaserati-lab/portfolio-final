@@ -276,7 +276,7 @@
     }
     try {
       await Promise.all([
-        document.fonts.load('400 20px "VT323"'),
+        document.fonts.load('500 20px "Doto"'),
         document.fonts.load('400 48px "Redaction 50"')
       ]);
       setRow('fonts', '03 TYPE', 'fonts ready', 'done');
