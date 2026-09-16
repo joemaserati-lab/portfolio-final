@@ -59,6 +59,33 @@ body::before {
   margin-top: 0;
 }
 
+/* Project index copy -------------------------------------------------------
+   Keep every line of project metadata on the same left edge. The project name
+   already identifies the client, so hide the duplicated client line here and
+   keep only the project type beneath the title. */
+.project-tile-copy {
+  display: block;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.project-tile-main,
+.project-tile-details {
+  width: 100%;
+  max-width: none;
+  text-align: left;
+  align-items: flex-start;
+}
+
+.project-tile-details {
+  justify-content: flex-start;
+  margin-top: 4px;
+}
+
+.project-tile-details small:first-child {
+  display: none;
+}
+
 @media (max-width: 720px) {
   body::before {
     background:
