@@ -2,9 +2,10 @@
   const loader = document.getElementById('boot-loader');
   const out = document.getElementById('boot-output');
   const enter = document.getElementById('boot-enter');
+  const gateTitle = document.querySelector('#boot-gate h2');
   const gateStatus = document.getElementById('boot-gate-status');
   const gateNote = document.getElementById('boot-gate-note');
-  if (!loader || !out || !enter || !gateStatus) return;
+  if (!loader || !out || !enter || !gateTitle || !gateStatus) return;
 
   const bootStart = performance.now();
   const MIN_VISIBLE_MS = 1300;
@@ -61,6 +62,11 @@
   function setRow(key, label, text, state = 'pending') {
     rowState.set(key, { label, text, state });
     if (sequenceStarted) addRow(key);
+  }
+
+  function setTitle(key) {
+    gateTitle.dataset.i18nHtml = key;
+    gateTitle.textContent = t(key);
   }
 
   function setGate(text, note) {
@@ -280,6 +286,7 @@
     const note = isTouchDevice()
       ? (isSecureContext ? t('boot.readyNote') : t('boot.readyNoteInsecure'))
       : t('boot.readyNoteDesktop');
+    setTitle('boot.readyTitle');
     setGate(t('boot.readyStatus'), note);
     loader.classList.add('is-ready');
     enter.disabled = false;
