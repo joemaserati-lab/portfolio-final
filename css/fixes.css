@@ -159,6 +159,49 @@ body.content-panel-open .privacy-widget {
 
 /* Center window/tab titles on mobile independently from back/close controls. */
 @media (max-width: 720px) {
+  /* Mobile loader: remove the duplicate ready status and visible enter CTA,
+     but keep the tilt-permission note. The whole gate remains tappable once
+     loading is complete. */
+  .boot-gate-status {
+    display: none !important;
+  }
+
+  .boot-enter {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0 !important;
+    background: transparent !important;
+    color: transparent !important;
+    font-size: 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: none;
+  }
+
+  .boot-loader.is-ready .boot-enter {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+
+  .boot-enter:hover,
+  .boot-enter:focus-visible {
+    background: transparent !important;
+    color: transparent !important;
+    outline: 0;
+  }
+
+  .boot-gate-note {
+    position: relative;
+    z-index: 6;
+    display: block;
+  }
+
   .window-titlebar {
     position: relative;
   }
