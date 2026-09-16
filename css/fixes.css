@@ -116,6 +116,47 @@ body.content-panel-open .privacy-widget {
   background-size: 68px 68px;
 }
 
+/* Desktop loader: keep only the large ready title visible. The enter button
+   becomes a transparent full-gate hit area so the interaction remains intact
+   without the duplicate status / instruction copy. */
+@media (min-width: 721px) {
+  .boot-gate-status,
+  .boot-gate-note {
+    display: none !important;
+  }
+
+  .boot-enter {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0 !important;
+    background: transparent !important;
+    color: transparent !important;
+    font-size: 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: none;
+    cursor: pointer;
+  }
+
+  .boot-loader.is-ready .boot-enter {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+
+  .boot-enter:hover,
+  .boot-enter:focus-visible {
+    background: transparent !important;
+    color: transparent !important;
+    outline: 0;
+  }
+}
+
 /* Center window/tab titles on mobile independently from back/close controls. */
 @media (max-width: 720px) {
   .window-titlebar {
