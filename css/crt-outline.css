@@ -1,55 +1,48 @@
 /* Persistent CRT silhouette -------------------------------------------------
-   The outline is an independent SVG stroke, so it remains visible during the
-   loader, the transition and the live portfolio. No animation or extra canvas. */
+   One fixed pseudo-element draws the CRT stroke independently from loader and
+   app state. No animation, no extra canvas and no additional DOM element. */
 html,
 body,
 .shell {
   background: #000 !important;
 }
 
-/* The older stage bloom intentionally escaped outside the CRT. Disable it so
-   the area beyond the silhouette stays pure black. */
+/* The previous stage bloom intentionally escaped outside the CRT. Disable it
+   so everything beyond the silhouette remains pure black. */
 .crt-stage::before {
   opacity: 0 !important;
   filter: none !important;
 }
 
-/* Superseded by the persistent SVG stroke below. */
+/* Superseded by the persistent outline below. */
 .crt-stage::after {
   display: none !important;
 }
 
-.crt-outline-fixed {
+body::before {
+  content: "";
   position: fixed;
   left: calc(var(--stage-gap) + var(--bezel-x));
   right: calc(var(--stage-gap) + var(--bezel-x));
   top: calc(var(--stage-gap) + var(--bezel-y));
   bottom: calc(var(--stage-gap) + var(--bezel-y));
-  width: auto;
-  height: auto;
   z-index: 140;
-  overflow: visible;
   pointer-events: none;
-}
-
-.crt-outline-fixed path {
-  fill: none;
-  stroke: rgba(255, 226, 192, .46);
-  stroke-width: 1.1;
-  vector-effect: non-scaling-stroke;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 1000' preserveAspectRatio='none'%3E%3Cpath d='M35 18 Q500 0 965 18 Q1000 500 965 982 Q500 1000 35 982 Q0 500 35 18 Z' fill='none' stroke='rgba(255,226,192,0.46)' stroke-width='1.1' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
   filter: drop-shadow(0 0 2.5px rgba(255, 181, 98, .22));
 }
 
 @media (max-width: 720px) {
-  .crt-outline-fixed path {
-    stroke: rgba(255, 226, 192, .40);
-    stroke-width: .9;
+  body::before {
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 1000' preserveAspectRatio='none'%3E%3Cpath d='M35 18 Q500 0 965 18 Q1000 500 965 982 Q500 1000 35 982 Q0 500 35 18 Z' fill='none' stroke='rgba(255,226,192,0.40)' stroke-width='0.9' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
     filter: drop-shadow(0 0 2px rgba(255, 181, 98, .18));
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .crt-outline-fixed path {
+  body::before {
     filter: none;
   }
 }
