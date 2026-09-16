@@ -134,28 +134,46 @@ html[lang="it"] .project-tile-v2[data-project-slug="colorcopy-large-format"] .pr
 }
 
 /* Window chrome glyph alignment --------------------------------------------
-   Keep the original Doto characters (← and ×), but compensate for their
-   optical metrics so they sit visually in the middle of each control. */
+   Keep the Doto characters as the visible icons, but position each glyph
+   independently so optical centering does not depend on font side bearings. */
 .window-back,
 .projects-back,
 .projects-close,
 .window-controls button[data-close] {
+  position: relative;
   display: grid;
   place-items: center;
+  padding: 0 !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  overflow: visible;
+}
+
+.window-back::before,
+.projects-back::before,
+.projects-close::before,
+.window-controls button[data-close]::before {
+  position: absolute;
+  left: 50%;
+  top: 50%;
   font-family: "Doto", "Courier New", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-weight: 500;
-  line-height: 1;
   font-size: 24px;
+  line-height: 1;
+  color: currentColor;
+  pointer-events: none;
 }
 
-.window-back,
-.projects-back {
-  padding: 0 0 2px 1px !important;
+.window-back::before,
+.projects-back::before {
+  content: "←";
+  transform: translate(-47%, -54%);
 }
 
-.projects-close,
-.window-controls button[data-close] {
-  padding: 0 0 2px 0 !important;
+.projects-close::before,
+.window-controls button[data-close]::before {
+  content: "×";
+  transform: translate(-50%, -56%);
 }
 
 @media (max-width: 720px) {
@@ -178,13 +196,13 @@ html[lang="it"] .project-tile-v2[data-project-slug="colorcopy-large-format"] .pr
     aspect-ratio: 4 / 3;
   }
 
-  .window-back {
+  .window-back::before {
     font-size: 22px;
   }
 
-  .projects-back,
-  .projects-close,
-  .window-controls button[data-close] {
+  .projects-back::before,
+  .projects-close::before,
+  .window-controls button[data-close]::before {
     font-size: 23px;
   }
 }
