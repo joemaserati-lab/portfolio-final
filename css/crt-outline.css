@@ -1,35 +1,55 @@
-/* Lightweight CRT silhouette accent.
-   A single static clipped layer sits 1px outside the live screen. No animation,
-   no extra canvas and only one short drop-shadow keep the cost negligible. */
+/* Persistent CRT silhouette -------------------------------------------------
+   The outline is an independent SVG stroke, so it remains visible during the
+   loader, the transition and the live portfolio. No animation or extra canvas. */
+html,
+body,
+.shell {
+  background: #000 !important;
+}
+
+/* The older stage bloom intentionally escaped outside the CRT. Disable it so
+   the area beyond the silhouette stays pure black. */
+.crt-stage::before {
+  opacity: 0 !important;
+  filter: none !important;
+}
+
+/* Superseded by the persistent SVG stroke below. */
 .crt-stage::after {
-  content: "";
-  display: block !important;
-  position: absolute;
-  left: calc(var(--bezel-x) - 1px);
-  right: calc(var(--bezel-x) - 1px);
-  top: calc(var(--bezel-y) - 1px);
-  bottom: calc(var(--bezel-y) - 1px);
-  z-index: 9;
+  display: none !important;
+}
+
+.crt-outline-fixed {
+  position: fixed;
+  left: calc(var(--stage-gap) + var(--bezel-x));
+  right: calc(var(--stage-gap) + var(--bezel-x));
+  top: calc(var(--stage-gap) + var(--bezel-y));
+  bottom: calc(var(--stage-gap) + var(--bezel-y));
+  width: auto;
+  height: auto;
+  z-index: 140;
+  overflow: visible;
   pointer-events: none;
-  clip-path: url(#crtScreenClip);
-  -webkit-clip-path: url(#crtScreenClip);
-  background: rgba(255, 224, 184, .34);
-  filter: drop-shadow(0 0 4px rgba(255, 177, 92, .22));
+}
+
+.crt-outline-fixed path {
+  fill: none;
+  stroke: rgba(255, 226, 192, .46);
+  stroke-width: 1.1;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 2.5px rgba(255, 181, 98, .22));
 }
 
 @media (max-width: 720px) {
-  .crt-stage::after {
-    left: calc(var(--bezel-x) - .75px);
-    right: calc(var(--bezel-x) - .75px);
-    top: calc(var(--bezel-y) - .75px);
-    bottom: calc(var(--bezel-y) - .75px);
-    background: rgba(255, 224, 184, .30);
-    filter: drop-shadow(0 0 3px rgba(255, 177, 92, .20));
+  .crt-outline-fixed path {
+    stroke: rgba(255, 226, 192, .40);
+    stroke-width: .9;
+    filter: drop-shadow(0 0 2px rgba(255, 181, 98, .18));
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .crt-stage::after {
+  .crt-outline-fixed path {
     filter: none;
   }
 }
