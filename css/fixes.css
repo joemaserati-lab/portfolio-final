@@ -17,8 +17,27 @@ select {
   font-weight: 500;
 }
 
+/* Doto has a much larger visual footprint than VT323. Rebuild the interface
+   scale around it instead of inheriting the former terminal proportions. */
+:root {
+  --type-micro: clamp(9px, calc(8.7px + .10vw), 11px);
+  --type-caption: clamp(10px, calc(9.4px + .14vw), 12px);
+  --type-small: clamp(11px, calc(10.2px + .18vw), 13.5px);
+  --type-ui: clamp(12px, calc(11px + .22vw), 14.5px);
+  --type-base: clamp(13px, calc(12px + .24vw), 15.5px);
+  --type-body: clamp(14px, calc(12.8px + .30vw), 17px);
+  --type-body-lg: clamp(15px, calc(13.8px + .34vw), 18.5px);
+  --type-lead: clamp(16px, calc(14.5px + .44vw), 21px);
+  --type-subhead: clamp(18px, calc(16px + .52vw), 24px);
+  --type-number: clamp(22px, calc(19px + .60vw), 30px);
+  --type-heading: clamp(27px, min(3.1vw, 6.6vh), 42px);
+  --type-boot: clamp(16px, min(1.65vw, 3.4vh), 25px);
+}
+
 body {
-  letter-spacing: .008em;
+  font-size: var(--type-base);
+  line-height: 1.28;
+  letter-spacing: 0;
 }
 
 .language-toggle,
@@ -34,10 +53,12 @@ body {
   font-weight: 500;
 }
 
-/* Doto already carries strong internal rhythm: slightly tighter tracking keeps
-   interface labels compact and prevents the new face from feeling dispersed. */
+/* Doto already carries strong internal rhythm: keep tracking restrained and
+   use size/spacing rather than letter-spacing to establish hierarchy. */
 .system-label {
-  letter-spacing: .08em;
+  font-size: var(--type-ui);
+  letter-spacing: .055em;
+  line-height: 1.2;
 }
 
 .primary-action,
@@ -52,7 +73,116 @@ body {
 .boot-enter,
 .language-toggle,
 .privacy-toggle {
-  letter-spacing: .035em;
+  letter-spacing: .025em;
+}
+
+.hero-copy {
+  max-width: 460px;
+  font-size: var(--type-body-lg);
+  line-height: 1.34;
+}
+
+.primary-action {
+  font-size: var(--type-body);
+  line-height: 1.1;
+  padding: 10px 13px;
+}
+
+.desktop-icon,
+.desktop-icon > span:nth-child(2) {
+  font-size: var(--type-body);
+  line-height: 1.08;
+}
+
+.desktop-icon small {
+  font-size: var(--type-caption);
+  line-height: 1.1;
+}
+
+.window-titlebar {
+  font-size: var(--type-ui);
+  line-height: 1;
+}
+
+.window-eyebrow,
+.resume-section-title,
+.case-meta dt,
+.case-copy-grid span,
+.project-cover-label {
+  font-size: var(--type-caption);
+}
+
+.window-body p,
+.case-intro,
+.case-story-copy p,
+.resume-row p,
+.projects-index-side p {
+  font-size: var(--type-body) !important;
+  line-height: 1.38 !important;
+}
+
+.window-body h2,
+.resume-header h2 {
+  font-size: var(--type-heading);
+  line-height: .98;
+}
+
+.meta-card b,
+.resume-row strong,
+.contact-link,
+.archive-row,
+.case-meta dd,
+.case-nav b {
+  font-size: var(--type-body);
+}
+
+.project-tile-main strong,
+.project-info strong,
+.resume-row h3 {
+  font-size: var(--type-subhead);
+  line-height: 1.06;
+}
+
+.project-tile-details small,
+.project-info small,
+.project-client,
+.project-open,
+.tags span,
+.case-nav small {
+  font-size: var(--type-small);
+  line-height: 1.16;
+}
+
+.projects-index-side {
+  font-size: var(--type-small);
+  line-height: 1.16;
+}
+
+.boot-loader {
+  font-size: var(--type-boot);
+}
+
+.boot-enter {
+  font-size: var(--type-body);
+  line-height: 1;
+}
+
+.boot-gate-note {
+  font-size: var(--type-small);
+  line-height: 1.3;
+}
+
+.language-toggle,
+.privacy-toggle,
+.privacy-actions button,
+.privacy-status {
+  font-size: var(--type-ui);
+  line-height: 1.05;
+}
+
+.privacy-panel p {
+  font-size: var(--type-body);
+  line-height: 1.35;
 }
 
 /* Targeted UI fixes — 2026-09-15 */
@@ -184,6 +314,21 @@ body.content-panel-open .privacy-widget {
 
 /* Center window/tab titles on mobile independently from back/close controls. */
 @media (max-width: 720px) {
+  :root {
+    --type-micro: clamp(8px, 2.15vw, 10px);
+    --type-caption: clamp(9px, 2.35vw, 11px);
+    --type-small: clamp(10px, 2.65vw, 12px);
+    --type-ui: clamp(11px, 2.9vw, 13px);
+    --type-base: clamp(12px, 3.05vw, 14px);
+    --type-body: clamp(12.5px, 3.3vw, 15px);
+    --type-body-lg: clamp(13.5px, 3.55vw, 16.5px);
+    --type-lead: clamp(14.5px, 3.8vw, 18px);
+    --type-subhead: clamp(16px, 4.4vw, 20px);
+    --type-number: clamp(20px, 5.6vw, 27px);
+    --type-heading: clamp(24px, 7vw, 34px);
+    --type-boot: clamp(15px, 4.1vw, 20px);
+  }
+
   /* Mobile loader: remove only the duplicate ready status. Keep both the
      visible enter button and the tilt-permission note. */
   .boot-gate-status {
@@ -194,18 +339,28 @@ body.content-panel-open .privacy-widget {
     position: relative;
     z-index: 6;
     display: block;
+    max-width: min(86vw, 300px);
+    font-size: var(--type-small);
+    line-height: 1.35;
+  }
+
+  .boot-enter {
+    width: min(100%, 270px);
+    font-size: var(--type-ui);
+    padding: 11px 13px;
   }
 
   .window-titlebar {
     position: relative;
+    font-size: var(--type-ui);
   }
 
   .window-titlebar > span {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    width: min(58%, 260px);
-    max-width: calc(100% - 120px);
+    width: min(52%, 220px);
+    max-width: calc(100% - 128px);
     text-align: center;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -213,8 +368,15 @@ body.content-panel-open .privacy-widget {
     pointer-events: none;
   }
 
+  .window-controls button {
+    font-size: var(--type-ui);
+  }
+
   /* Keep the homepage body copy readable without covering the CRT artwork. */
   .hero-copy {
+    max-width: min(92%, 380px);
+    font-size: var(--type-body-lg);
+    line-height: 1.36;
     background: transparent;
     border-color: transparent;
     box-shadow: none;
@@ -222,6 +384,27 @@ body.content-panel-open .privacy-widget {
       0 2px 4px rgba(0,0,0,.98),
       0 0 10px rgba(0,0,0,.92),
       0 0 22px rgba(0,0,0,.78);
+  }
+
+  .system-label {
+    font-size: var(--type-small);
+    letter-spacing: .045em;
+    margin-bottom: 12px;
+  }
+
+  .primary-action {
+    font-size: var(--type-ui);
+    padding: 9px 11px;
+  }
+
+  .desktop-icon,
+  .desktop-icon > span:nth-child(2) {
+    font-size: clamp(9.5px, 2.55vw, 11.5px);
+    line-height: 1.08;
+  }
+
+  .desktop-icon small {
+    font-size: clamp(8.5px, 2.25vw, 10px);
   }
 
   /* The hero title uses the full CRT safe width. The desktop already owns the
@@ -243,6 +426,17 @@ body.content-panel-open .privacy-widget {
     overflow-wrap: normal;
     word-break: keep-all;
     hyphens: none;
+  }
+
+  .privacy-toggle,
+  .language-toggle {
+    font-size: clamp(10px, 2.65vw, 12px);
+  }
+
+  .privacy-panel p,
+  .privacy-actions button,
+  .privacy-status {
+    font-size: var(--type-small);
   }
 
   .privacy-actions button {
@@ -327,21 +521,21 @@ body.content-panel-open .privacy-widget {
 
   .window-body h2,
   .resume-header h2 {
-    font-size: clamp(24px, 8.2vw, 44px);
+    font-size: var(--type-heading);
   }
 
-  .project-tile-main strong {
-    font-size: clamp(18px, 5.8vw, 28px);
+  .project-tile-main strong,
+  .resume-row h3 {
+    font-size: var(--type-subhead);
   }
 
-  .resume-row h3,
   .meta-card b,
   .contact-link b,
   .archive-row b {
-    font-size: clamp(15px, 4.8vw, 22px);
+    font-size: var(--type-body);
   }
 
   .project-tile-details small {
-    font-size: clamp(11px, 3.4vw, 15px);
+    font-size: var(--type-small);
   }
 }
