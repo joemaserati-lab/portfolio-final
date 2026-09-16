@@ -7,7 +7,8 @@
       description: 'Portfolio of Edoardo Rappanello, a multidisciplinary designer working across design, web and digital marketing.',
       'boot.label': 'Loading portfolio',
       'boot.kicker': '',
-      'boot.title': 'WELCOME TO MY PORTFOLIO',
+      'boot.title': 'LOADING',
+      'boot.readyTitle': 'PORTFOLIO READY',
       'boot.status': 'LOADING HEAD / TYPE / SIGNAL',
       'boot.enter': 'CLICK TO ENTER',
       'boot.note': 'Tilt interaction may request motion sensor access on mobile.',
@@ -96,7 +97,8 @@
       description: 'Portfolio di Edoardo Rappanello, designer multidisciplinare tra design, web e digital marketing.',
       'boot.label': 'Caricamento portfolio',
       'boot.kicker': '',
-      'boot.title': 'BENVENUTO NEL MIO PORTFOLIO',
+      'boot.title': 'CARICAMENTO',
+      'boot.readyTitle': 'PORTFOLIO PRONTO',
       'boot.status': 'CARICAMENTO HEAD / TYPE / SIGNAL',
       'boot.enter': 'CLICCA PER ENTRARE',
       'boot.note': 'L\'interazione tilt può richiedere l\'accesso ai sensori di movimento su mobile.',
@@ -239,6 +241,13 @@
     applyStatic,
     isTouchDevice: () => matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0
   };
+
+  window.addEventListener('portfolio:booted', () => {
+    const bootTitle = document.querySelector('#boot-gate h2');
+    if (!bootTitle) return;
+    bootTitle.removeAttribute('data-i18n-html');
+    bootTitle.textContent = t('boot.readyTitle');
+  }, { once: true });
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => applyStatic(), { once: true });
   else applyStatic();
