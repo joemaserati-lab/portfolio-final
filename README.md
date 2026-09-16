@@ -104,19 +104,19 @@ The CRT visual baseline, loader, curvature, safezone and fluid typography are un
 
 
 ## v25 Soft Glow
-- restored original VT323 typography from v23
+- restored the original terminal typography from v23
 - removed Silkscreen / IBM Plex Mono exploration
 - softened CRT outer halo: lower opacity, wider blur, no visible border
 
 
 ## v26 External Halo
-- Restored VT323 from v23/v25.
+- Restored the v23/v25 terminal typography.
 - Replaced the almost invisible radial halo with a true external curved drop-shadow halo.
 - No visible border: the screen covers the halo core, leaving only a soft amber bloom around the CRT silhouette.
 
 
 ## V4.5 — Redaction 50 display test + matched external bloom
-- VT323 is unchanged for all UI/system/body elements.
+- The system/interface typography is unchanged for all UI/system/body elements.
 - Redaction 50 is scoped to the main name, Selected Work heading and major case-study titles only.
 - The Redaction 50 test font loads remotely; no font binary is bundled in this package.
 - External CRT halo now uses an opaque hidden light source and a 4-stage warm bloom matched to the YOUR NAME phosphor glow.
