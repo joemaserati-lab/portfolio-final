@@ -127,7 +127,7 @@ html[lang="it"] .project-tile-v2[data-project-slug="colorcopy-large-format"] .pr
    editorial Redaction display face. */
 .case-title-v2 h2,
 .case-heading h2 {
-  font-family: "Doto", "VT323", "Courier New", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-family: "Doto", "Courier New", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-weight: 500;
   font-style: normal;
   letter-spacing: 0;
