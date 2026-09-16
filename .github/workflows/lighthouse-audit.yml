@@ -2,12 +2,18 @@ name: Lighthouse Audit
 
 on:
   workflow_dispatch:
+    inputs:
+      audit_url:
+        description: URL to audit
+        required: true
+        default: https://joemaserati-lab.github.io/portfolio-final/
+        type: string
 
 permissions:
   contents: read
 
 env:
-  AUDIT_URL: https://joemaserati-lab.github.io/portfolio-final/
+  AUDIT_URL: ${{ inputs.audit_url }}
 
 jobs:
   audit:
