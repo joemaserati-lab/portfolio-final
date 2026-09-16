@@ -59,31 +59,68 @@ body::before {
   margin-top: 0;
 }
 
-/* Project index copy -------------------------------------------------------
-   Keep every line of project metadata on the same left edge. The project name
-   already identifies the client, so hide the duplicated client line here and
-   keep only the project type beneath the title. */
+/* Project index ------------------------------------------------------------
+   Covers remain image-led and must never collapse in the two-column layout.
+   Keep the text deliberately minimal: year + project title. */
+.project-cover-v2 {
+  display: block !important;
+  width: 100%;
+  min-height: 180px;
+  aspect-ratio: 16 / 10;
+  flex: 0 0 auto;
+  align-self: stretch;
+}
+
+.project-cover-id,
+.project-cover-type,
+.project-tile-details {
+  display: none !important;
+}
+
 .project-tile-copy {
   display: block;
   padding-left: 0;
   padding-right: 0;
 }
 
-.project-tile-main,
-.project-tile-details {
+.project-tile-main {
   width: 100%;
   max-width: none;
   text-align: left;
   align-items: flex-start;
 }
 
-.project-tile-details {
-  justify-content: flex-start;
-  margin-top: 4px;
+/* The source string also contains the internal project number. Hide that
+   visually and expose only the year requested for the index. */
+.project-tile-main small {
+  font-size: 0 !important;
+  line-height: 1.16;
+  color: transparent !important;
 }
 
-.project-tile-details small:first-child {
-  display: none;
+.project-tile-main small::after {
+  display: block;
+  font-size: var(--type-small);
+  line-height: 1.16;
+  font-weight: 400;
+  color: var(--dim);
+  letter-spacing: .04em;
+}
+
+.project-tile-v2[data-project-slug="tovadu"] .project-tile-main small::after,
+.project-tile-v2[data-project-slug="pholia"] .project-tile-main small::after,
+.project-tile-v2[data-project-slug="sapy"] .project-tile-main small::after {
+  content: "2026";
+}
+
+html[lang="en"] .project-tile-v2[data-project-slug="platinum-technologies"] .project-tile-main small::after,
+html[lang="en"] .project-tile-v2[data-project-slug="colorcopy-large-format"] .project-tile-main small::after {
+  content: "ONGOING";
+}
+
+html[lang="it"] .project-tile-v2[data-project-slug="platinum-technologies"] .project-tile-main small::after,
+html[lang="it"] .project-tile-v2[data-project-slug="colorcopy-large-format"] .project-tile-main small::after {
+  content: "IN CORSO";
 }
 
 @media (max-width: 720px) {
@@ -99,6 +136,11 @@ body::before {
 
   .boot-loader.is-sequencing .boot-output {
     max-height: 42vh;
+  }
+
+  .project-cover-v2 {
+    min-height: 0;
+    aspect-ratio: 4 / 3;
   }
 }
 
