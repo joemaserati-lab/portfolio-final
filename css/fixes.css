@@ -539,3 +539,209 @@ body.content-panel-open .privacy-widget {
     font-size: var(--type-small);
   }
 }
+
+/* Short-height responsive calibration -------------------------------------
+   Doto keeps its hierarchy on laptops/tablets with limited vertical space;
+   spacing contracts alongside type so UI layers do not collide. */
+@media (max-height: 650px) and (min-width: 721px) {
+  :root {
+    --type-micro: clamp(8.5px, calc(8.2px + .08vw), 10.5px);
+    --type-caption: clamp(9.5px, calc(9px + .10vw), 11.5px);
+    --type-small: clamp(10.5px, calc(9.8px + .14vw), 12.5px);
+    --type-ui: clamp(11.5px, calc(10.7px + .16vw), 13.5px);
+    --type-base: clamp(12.5px, calc(11.5px + .18vw), 14.5px);
+    --type-body: clamp(13px, calc(12px + .22vw), 15.5px);
+    --type-body-lg: clamp(14px, calc(12.8px + .26vw), 17px);
+    --type-lead: clamp(15px, calc(13.5px + .32vw), 18.5px);
+    --type-subhead: clamp(17px, calc(15px + .38vw), 21px);
+    --type-number: clamp(20px, calc(18px + .45vw), 27px);
+    --type-heading: clamp(25px, min(2.8vw, 5.8vh), 38px);
+    --type-boot: clamp(15px, min(1.5vw, 3.1vh), 22px);
+  }
+
+  .hero-intro {
+    padding-top: 6px;
+  }
+
+  .system-label {
+    margin-bottom: 10px;
+  }
+
+  .hero-copy {
+    max-width: 430px;
+    margin: 14px 0 16px;
+    line-height: 1.28;
+  }
+
+  .primary-action {
+    padding: 8px 11px;
+  }
+
+  .desktop-icons {
+    gap: 10px 14px;
+  }
+
+  .desktop-icon {
+    gap: 4px;
+    padding: 5px 4px;
+  }
+
+  .window-titlebar {
+    height: 32px;
+    flex-basis: 32px;
+  }
+
+  .window-body {
+    padding: 18px;
+  }
+
+  .projects-index-v2,
+  .case-study-v2 {
+    padding-top: 16px;
+    padding-bottom: 20px;
+  }
+
+  .projects-index-head {
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+  }
+
+  .projects-grid-v2 {
+    gap: 14px;
+  }
+
+  .resume-view {
+    gap: 18px;
+  }
+
+  .resume-row {
+    padding-block: 10px;
+  }
+
+  .boot-gate {
+    gap: 10px;
+  }
+
+  .boot-enter {
+    padding: 9px 14px;
+  }
+}
+
+/* Phone/tablet landscape: preserve clear size steps while aggressively
+   reducing vertical density. This layer intentionally comes last. */
+@media (max-height: 520px) and (max-width: 900px) {
+  :root {
+    --type-micro: 8px;
+    --type-caption: clamp(8.5px, 1.7vw, 10px);
+    --type-small: clamp(9px, 1.9vw, 11px);
+    --type-ui: clamp(10px, 2.05vw, 12px);
+    --type-base: clamp(11px, 2.2vw, 13px);
+    --type-body: clamp(11.5px, 2.35vw, 14px);
+    --type-body-lg: clamp(12.5px, 2.55vw, 15px);
+    --type-lead: clamp(13.5px, 2.8vw, 16.5px);
+    --type-subhead: clamp(15px, 3.15vw, 18px);
+    --type-number: clamp(18px, 3.8vw, 24px);
+    --type-heading: clamp(21px, 4.8vw, 30px);
+    --type-boot: clamp(13px, 2.8vw, 17px);
+  }
+
+  .hero-intro {
+    padding-top: 2px;
+  }
+
+  .system-label {
+    margin-bottom: 6px;
+  }
+
+  .hero-copy {
+    max-width: min(48vw, 360px);
+    margin: 8px 0 10px;
+    line-height: 1.24;
+  }
+
+  .primary-action {
+    padding: 7px 9px;
+  }
+
+  .desktop-icons {
+    gap: 6px 10px;
+  }
+
+  .desktop-icon {
+    gap: 2px;
+    padding: 3px;
+  }
+
+  .desktop-icon > span:nth-child(2) {
+    font-size: var(--type-small);
+  }
+
+  .desktop-icon small {
+    font-size: var(--type-micro);
+  }
+
+  .window-titlebar {
+    height: 28px;
+    flex-basis: 28px;
+  }
+
+  .window-controls button {
+    height: 22px;
+  }
+
+  .window-body {
+    padding: 12px 14px 16px;
+  }
+
+  .projects-index-v2,
+  .case-study-v2 {
+    padding-top: 10px;
+    padding-bottom: 14px;
+  }
+
+  .projects-index-head {
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+  }
+
+  .projects-grid-v2 {
+    gap: 10px;
+  }
+
+  .project-tile-copy,
+  .project-tile-main,
+  .project-tile-details {
+    gap: 4px;
+  }
+
+  .resume-view {
+    gap: 12px;
+  }
+
+  .resume-section,
+  .resume-row {
+    gap: 8px;
+  }
+
+  .resume-row {
+    padding-block: 7px;
+  }
+
+  .boot-gate {
+    gap: 7px;
+  }
+
+  .boot-enter {
+    padding: 8px 11px;
+  }
+
+  .boot-gate-note {
+    max-width: 340px;
+    line-height: 1.22;
+  }
+
+  .privacy-panel {
+    max-height: calc(100vh - 18px);
+    overflow-y: auto;
+  }
+}
