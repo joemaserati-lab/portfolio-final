@@ -9,6 +9,10 @@
 
   const bootStart = performance.now();
   const MIN_VISIBLE_MS = 1300;
+  const MIN_LOADING_TITLE_MS = 2200;
+  const TITLE_SCRAMBLE_MS = 700;
+  const TITLE_SCRAMBLE_STEP_MS = 42;
+  const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&@';
   const READY_HOLD_MS = 220;
   const ROW_STEP_MS = 135;
   const HEAD_READY_TIMEOUT_MS = 6500;
@@ -67,6 +71,46 @@
   function setTitle(key) {
     gateTitle.dataset.i18nHtml = key;
     gateTitle.textContent = t(key);
+  }
+
+  function scrambleTitle(key) {
+    const target = t(key).toUpperCase();
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setTitle(key);
+      return Promise.resolve();
+    }
+
+    gateTitle.removeAttribute('data-i18n-html');
+    const revealAt = [...target].map(char => char === ' ' ? 0 : 0.2 + Math.random() * 0.72);
+
+    return new Promise(resolve => {
+      const start = performance.now();
+      let lastPaint = 0;
+
+      const paint = now => {
+        const progress = Math.min(1, (now - start) / TITLE_SCRAMBLE_MS);
+
+        if (progress === 1 || now - lastPaint >= TITLE_SCRAMBLE_STEP_MS) {
+          lastPaint = now;
+          gateTitle.textContent = [...target].map((char, index) => {
+            if (char === ' ') return ' ';
+            if (progress >= revealAt[index]) return char;
+            return SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+          }).join('');
+        }
+
+        if (progress < 1) {
+          requestAnimationFrame(paint);
+          return;
+        }
+
+        gateTitle.dataset.i18nHtml = key;
+        gateTitle.textContent = target;
+        resolve();
+      };
+
+      requestAnimationFrame(paint);
+    });
   }
 
   function setGate(text, note) {
@@ -281,12 +325,19 @@
     try { video.load(); } catch { done(false); }
   });
 
-  Promise.allSettled([domReady, fontsReady, pageReady, videoReady]).then(() => {
+  Promise.allSettled([domReady, fontsReady, pageReady, videoReady]).then(async () => {
+    const elapsed = performance.now() - bootStart;
+    const remainingLoadingTime = Math.max(0, MIN_LOADING_TITLE_MS - elapsed);
+    if (remainingLoadingTime) {
+      await new Promise(resolve => setTimeout(resolve, remainingLoadingTime));
+    }
+
+    await scrambleTitle('boot.readyTitle');
+
     resourcesReady = true;
     const note = isTouchDevice()
       ? (isSecureContext ? t('boot.readyNote') : t('boot.readyNoteInsecure'))
       : t('boot.readyNoteDesktop');
-    setTitle('boot.readyTitle');
     setGate(t('boot.readyStatus'), note);
     loader.classList.add('is-ready');
     enter.disabled = false;
