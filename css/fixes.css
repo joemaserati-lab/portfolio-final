@@ -1,3 +1,60 @@
+@font-face {
+  font-family: "Doto";
+  src: url("../assets/font/Doto-500.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+/* Doto becomes the operating-system/interface voice. Redaction 50 remains
+   untouched on the large editorial display headings defined in style.css. */
+body,
+button,
+input,
+textarea,
+select {
+  font-family: "Doto", "VT323", "Courier New", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 500;
+}
+
+body {
+  letter-spacing: .008em;
+}
+
+.language-toggle,
+.privacy-toggle,
+.privacy-panel,
+.privacy-actions button,
+.boot-loader,
+.terminal-toggle,
+.terminal-output,
+.prompt-row,
+#terminal-input {
+  font-family: "Doto", "VT323", "Courier New", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 500;
+}
+
+/* Doto already carries strong internal rhythm: slightly tighter tracking keeps
+   interface labels compact and prevents the new face from feeling dispersed. */
+.system-label {
+  letter-spacing: .08em;
+}
+
+.primary-action,
+.window-titlebar,
+.window-eyebrow,
+.project-cover-label,
+.project-open,
+.case-meta dt,
+.case-copy-grid span,
+.resume-section-title,
+.projects-index-side,
+.boot-enter,
+.language-toggle,
+.privacy-toggle {
+  letter-spacing: .035em;
+}
+
 /* Targeted UI fixes — 2026-09-15 */
 
 /* Keep the persistent language/privacy controls above the desktop when the
