@@ -7,10 +7,10 @@
       email: 'edoardo.rappanello@gmail.com',
       linkedin: 'https://www.linkedin.com/in/edoardorappanello/',
       intro: [
-        'My background combines design, communication and marketing. I studied Marketing and Communication before graduating with honours in Web Design & Artistic Communication for Business at the Academy of Fine Arts in Brescia.',
+        'My background combines graphic design, communication, web and marketing. I studied Marketing and Communication before graduating with honours in Web Design & Artistic Communication for Business at the Academy of Fine Arts in Brescia.',
         'Since 2022, I have worked with companies in the professional large-format printing industry. My role covers graphic design, corporate communication, websites, digital campaigns, analytics and online visibility.',
-        'Most projects move across more than one channel. A product launch can involve a web page, advertising, email, social content, printed material and event communication. Working across those stages made me interested in what happens to design after the mockup, when it has to function inside an actual company.',
-        'Alongside my main role, I work on independent web projects, from interface design and content structure to front-end implementation.',
+        'Most projects involve more than one channel. A product launch can include a web page, advertising, email, social content, printed materials, commercial presentations and event communication. Because of this, my work often moves between visual design, editorial, digital and physical applications, adapting the graphic language to different contexts while maintaining consistency.',
+        'I also work on independent web projects, from content structure and interface design to front-end implementation. This allows me to follow projects more completely, connecting content, design and development.',
         'I use AI tools when they are useful for production, prototyping or development. They are part of the process, not the direction.'
       ],
       focus: ['GRAPHIC DESIGN', 'WEB', 'DIGITAL MARKETING']
@@ -191,10 +191,10 @@
   Object.assign(IT.profile, {
     role: 'GRAPHIC DESIGNER & DIGITAL MARKETING SPECIALIST',
     intro: [
-      'Il mio percorso unisce design, comunicazione e marketing. Ho studiato Marketing e Comunicazione prima di laurearmi con lode in Web Design e Comunicazione Artistica per l\'Impresa all\'Accademia di Belle Arti di Brescia.',
+      'Il mio percorso unisce graphic design, comunicazione, web e marketing. Ho studiato Marketing e Comunicazione prima di laurearmi con lode in Web Design e Comunicazione Artistica per l\'Impresa all\'Accademia di Belle Arti di Brescia.',
       'Dal 2022 lavoro con aziende che operano nella stampa professionale di grande formato. Mi occupo di graphic design, comunicazione corporate, siti web, campagne digitali, analytics e visibilità online.',
-      'La maggior parte dei progetti coinvolge più di un canale. Il lancio di un prodotto può richiedere una pagina web, advertising, email, contenuti social, materiali stampati e comunicazione per eventi. Lavorare su più fasi dello stesso progetto mi ha portato a interessarmi soprattutto a ciò che succede al design quando esce dal mockup e deve funzionare dentro un\'azienda reale.',
-      'Parallelamente lavoro su progetti web indipendenti, dalla progettazione dell\'interfaccia e della struttura dei contenuti fino all\'implementazione front-end.',
+      'La maggior parte dei progetti coinvolge più di un canale. Il lancio di un prodotto può richiedere una pagina web, advertising, email, contenuti social, materiali stampati, presentazioni commerciali e comunicazione per eventi. Per questo il mio lavoro si muove spesso tra visual design, editorial, digital e applicazioni fisiche, adattando il linguaggio grafico al contesto senza perdere coerenza.',
+      'Mi occupo anche di progetti web indipendenti, dalla struttura dei contenuti alla progettazione dell\'interfaccia fino all\'implementazione front-end. Questa parte del lavoro mi permette di seguire un progetto in modo più completo, collegando contenuto, design e sviluppo.',
       'Utilizzo strumenti AI quando sono utili per produzione, prototipazione o sviluppo. Fanno parte del processo, non della direzione del progetto.'
     ],
     focus: ['GRAPHIC DESIGN', 'WEB', 'DIGITAL MARKETING']
