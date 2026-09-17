@@ -2,21 +2,23 @@
   const EN = {
     profile: {
       name: 'EDOARDO RAPPANELLO',
-      role: 'MULTIDISCIPLINARY DESIGNER',
+      role: 'GRAPHIC DESIGNER & DIGITAL MARKETING SPECIALIST',
       experience: '4+ YEARS',
       email: 'edoardo.rappanello@gmail.com',
       linkedin: 'https://www.linkedin.com/in/edoardorappanello/',
       intro: [
-        'My background sits at the intersection of design, communication and marketing. I studied Marketing and Communication before graduating with honours in Web Design & Artistic Communication for Business at the Academy of Fine Arts.',
-        'Over the past four years, I\'ve worked as a graphic designer and digital marketing specialist for companies operating in the large-format digital printing industry. My role has grown across different areas: from graphic design and corporate communication to website management, digital campaigns, analytics and online visibility.',
-        'Today, I work with Adobe Creative Suite and digital marketing tools alongside advanced AI workflows for image and video generation, prototyping and vibe coding. I\'m interested in using technology as part of the creative process, without separating visual quality from purpose, usability and business objectives.'
+        'My background combines design, communication and marketing. I studied Marketing and Communication before graduating with honours in Web Design & Artistic Communication for Business at the Academy of Fine Arts in Brescia.',
+        'Since 2022, I have worked with companies in the professional large-format printing industry. My role covers graphic design, corporate communication, websites, digital campaigns, analytics and online visibility.',
+        'Most projects move across more than one channel. A product launch can involve a web page, advertising, email, social content, printed material and event communication. Working across those stages made me interested in what happens to design after the mockup, when it has to function inside an actual company.',
+        'Alongside my main role, I work on independent web projects, from interface design and content structure to front-end implementation.',
+        'I use AI tools when they are useful for production, prototyping or development. They are part of the process, not the direction.'
       ],
-      focus: ['DESIGN', 'WEB', 'DIGITAL MARKETING']
+      focus: ['GRAPHIC DESIGN', 'WEB', 'DIGITAL MARKETING']
     },
 
     resume: {
       title: 'RESUME',
-      intro: 'Selected experience, education, capabilities and tools across design, web and digital marketing.',
+      intro: 'Selected experience, education and tools used across graphic design, web and digital marketing.',
       experience: [
         {
           period: '2023-NOW',
@@ -24,52 +26,52 @@
           company: 'COLORCOPY LARGE FORMAT / PLATINUM TECHNOLOGIES',
           location: 'ITALY',
           description: [
-            'Visual communication across print and digital, website management and development, advertising campaigns, SEO, analytics and corporate communication.',
-            'Projects include websites, brochures, catalogues, advertising, social content, trade-show communication, 3D exhibition layouts and AI-assisted creative workflows.'
+            'Graphic design and digital communication for companies operating in professional large-format printing.',
+            'My work includes websites, product launches, advertising, editorial content, newsletters, social communication, printed material, trade-show graphics, SEO and analytics.'
           ]
         },
         {
           period: '2026',
           role: 'FREELANCE WEB DESIGN & DEVELOPMENT',
-          company: 'PHOLIA.IT / TOVADU.COM / SAPY.IT',
+          company: 'PHOLIÀ / TOVADÙ / SAPY',
           location: 'ITALY',
-          description: 'Freelance design and development of digital experiences from visual concept to implementation, combining interface design, front-end workflows and modern AI-assisted development.'
+          description: 'Design and development of independent websites, covering information structure, interface design and front-end implementation.'
         },
         {
           period: '2022',
           role: 'GRAPHIC DESIGNER',
           company: 'SWS PRINTING',
-          location: 'BRESCIA, IT',
+          location: 'BRESCIA, ITALY',
           description: 'Graphic design and production for print and visual communication.'
         },
         {
           period: '2021',
           role: 'UI DESIGNER - INTERNSHIP',
           company: 'BBS SOFTWARE',
-          location: 'BRESCIA, IT',
-          description: 'Interface design and digital product support.'
+          location: 'BRESCIA, ITALY',
+          description: 'Interface design and visual support for software products.'
         },
         {
           period: '2018',
           role: 'GRAPHIC DESIGNER - INTERNSHIP',
           company: 'COVERSTORE',
-          location: 'BRESCIA, IT',
+          location: 'BRESCIA, ITALY',
           description: 'Graphic design and production support.'
         },
         {
           period: '2018',
           role: 'GRAPHIC DESIGNER & SOCIAL MEDIA - INTERNSHIP',
           company: 'BRANDITY LAB',
-          location: 'BRESCIA, IT',
-          description: 'Graphic design, digital content and social media communication.'
+          location: 'BRESCIA, ITALY',
+          description: 'Graphic design and social content production.'
         }
       ],
       education: [
         {
           period: '2019-2022',
           course: 'WEB DESIGN & ARTISTIC COMMUNICATION FOR BUSINESS',
-          school: 'ACADEMY OF FINE ARTS - BRESCIA, IT',
-          description: '110/110 CUM LAUDE. Focus on web design, visual communication and digital media. Final thesis on blockchain and NFTs and their impact on the internet.'
+          school: 'ACADEMY OF FINE ARTS - BRESCIA, ITALY',
+          description: '110/110 CUM LAUDE. Studies focused on web design, visual communication and digital media. Final thesis on blockchain, NFTs and their effect on the internet.'
         },
         {
           period: '2016-2018',
@@ -78,244 +80,216 @@
           description: 'Marketing, communication and business fundamentals.'
         }
       ],
-      capabilities: ['GRAPHIC & VISUAL DESIGN','WEB DESIGN','DIGITAL MARKETING','DIGITAL ADVERTISING','CORPORATE COMMUNICATION','SEO','ANALYTICS','3D VISUALIZATION','AI-ASSISTED CREATIVE WORKFLOWS'],
-      tools: ['ADOBE CREATIVE CLOUD','WORDPRESS / ELEMENTOR','HTML / CSS / JAVASCRIPT','GOOGLE ADS','META ADS','GOOGLE ANALYTICS 4','GOOGLE SEARCH CONSOLE','3D DESIGN TOOLS','AI IMAGE & VIDEO GENERATION','AI-ASSISTED DEVELOPMENT / VIBE CODING']
+      capabilities: ['GRAPHIC & VISUAL DESIGN','WEB DESIGN','DIGITAL MARKETING','DIGITAL ADVERTISING','CORPORATE COMMUNICATION','SEO','ANALYTICS','3D VISUALIZATION','AI-ASSISTED PRODUCTION'],
+      tools: ['ADOBE CREATIVE CLOUD','WORDPRESS / ELEMENTOR','HTML / CSS / JAVASCRIPT','GOOGLE ADS','META ADS','GOOGLE ANALYTICS 4','GOOGLE SEARCH CONSOLE','3D DESIGN TOOLS','GENERATIVE AI TOOLS']
     },
 
     projects: [
       {
         id:'01', slug:'tovadu', title:'TOVADÙ', displayTitle:'TOVADÙ', type:'Digital Experience', year:'2026', client:'Tovadù',
         role:'Web Design / Development', deliverables:'Website / UX / UI / Development',
-        intro:'A B2B website designed to make a complex digital consulting offer clearer, more accessible and easier to navigate.',
-        context:'Tovadu works with companies approaching digital transformation and business technology projects. The website needed to communicate technical expertise and a structured consulting approach without making the experience feel overly complex or distant.',
-        direction:'The project was developed around a clear information hierarchy, balancing technical content with a more direct and contemporary visual language. The goal was to guide users from the business problem to the services and expertise behind the company, keeping the experience simple, structured and credible.',
+        intro:'A B2B website for a consulting company working on digital transformation and business technology.',
+        context:'Tovadù deals with services that become technical very quickly. The website had to explain what the company does without forcing visitors to understand its internal terminology first.',
+        direction:'I structured the content around the problems a potential client is likely to recognise before introducing services and technical expertise. The interface follows the same logic: information is divided into clear levels so users can understand the offer before moving into detail.',
         tags:['WEB DESIGN','UI / UX','DIGITAL DESIGN','WEB DEVELOPMENT','B2B COMMUNICATION'],
         media:[
           {type:'hero',label:'WEBSITE / UX / UI / DEVELOPMENT'},
           {type:'landscape',label:'INFORMATION ARCHITECTURE'},
           {type:'portrait',label:'DIGITAL DESIGN'},
           {type:'portrait',label:'B2B COMMUNICATION'},
-          {type:'wide',label:'FRONT-END WORKFLOW'}
+          {type:'wide',label:'FRONT-END IMPLEMENTATION'}
         ]
       },
       {
         id:'02', slug:'pholia', title:'PHOLIÀ', displayTitle:'PHOLIÀ', type:'Digital Experience', year:'2026', client:'Pholià',
         role:'Web Design / Development', deliverables:'Website / UX / UI / Development',
-        intro:'A digital presence designed to translate an innovative and multidisciplinary business model into a clear and contemporary web experience.',
-        context:'Pholia operates in a space where innovation, strategy and intangible assets come together. The challenge was to present a complex offer to different audiences while keeping the website understandable, distinctive and far from the conventions of a traditional corporate site.',
-        direction:'The experience was built around modular content, strong visual hierarchy and a flexible digital identity. Information is progressively structured to make complex topics easier to explore while maintaining a contemporary and recognizable visual language.',
+        intro:'A website for a company working across innovation, strategy and intangible assets.',
+        context:'Pholià brings together subjects that normally belong to different professional areas. The website therefore had to explain each one separately without making the company look like a collection of unrelated services.',
+        direction:'I designed the site around a modular content structure. Each area has enough space to develop its own subject while remaining part of the same visual and navigational system. The hierarchy introduces the company first and lets users move into more specialised content when needed.',
         tags:['WEB DESIGN','UI / UX','DIGITAL DESIGN','WEB DEVELOPMENT','VISUAL SYSTEMS'],
         media:[
           {type:'hero',label:'WEBSITE / UX / UI / DEVELOPMENT'},
           {type:'landscape',label:'MODULAR CONTENT'},
           {type:'portrait',label:'VISUAL SYSTEMS'},
           {type:'portrait',label:'DIGITAL IDENTITY'},
-          {type:'wide',label:'CONTEMPORARY WEB EXPERIENCE'}
+          {type:'wide',label:'FRONT-END IMPLEMENTATION'}
         ]
       },
       {
         id:'03', slug:'sapy', title:'SAPY', displayTitle:'SAPY', type:'Digital Experience', year:'2026', client:'Sapy',
         role:'Web Design / Development', deliverables:'Website / UX / UI / Development',
-        intro:'A digital platform designed to introduce artificial intelligence to education through a clear, accessible and human-centered experience.',
-        context:'Sapy explores the use of artificial intelligence as a tool to support teachers and educational activities. The project needed to communicate an emerging technology while keeping the experience approachable and building trust around a subject that can easily become technical or abstract.',
-        direction:'The website was structured around simplicity, clarity and accessibility. Product information, editorial content and the broader vision behind the project are separated into a clear information architecture, allowing the technology to remain understandable without oversimplifying it.',
+        intro:'A digital project built around the use of artificial intelligence in education.',
+        context:'Sapy introduces AI as a tool for teachers. The website needed to explain what the product does before asking users to understand the technology behind it.',
+        direction:'I separated product information, editorial content and the broader project into distinct parts of the site. The interface keeps the technology visible without making it the subject of every page. The priority is understanding what users can actually do with the platform.',
         tags:['WEB DESIGN','UI / UX','DIGITAL DESIGN','WEB DEVELOPMENT','AI / EDTECH'],
         media:[
           {type:'hero',label:'WEBSITE / UX / UI / DEVELOPMENT'},
           {type:'landscape',label:'AI / EDTECH'},
-          {type:'portrait',label:'ACCESSIBLE EXPERIENCE'},
           {type:'portrait',label:'PRODUCT INFORMATION'},
-          {type:'wide',label:'HUMAN-CENTERED PLATFORM'}
+          {type:'portrait',label:'EDITORIAL CONTENT'},
+          {type:'wide',label:'FRONT-END IMPLEMENTATION'}
         ]
       },
       {
         id:'04', slug:'platinum-technologies', title:'PLATINUM TECHNOLOGIES', displayTitle:'PLATINUM\nTECHNOLOGIES', type:'Corporate Communication', year:'ONGOING', client:'Platinum Technologies',
         role:'Graphic Design / Digital Marketing / Web Management', deliverables:'Corporate Design / Web / Campaigns / Editorial / Events',
-        intro:'An ongoing communication system developed across graphic design, web, digital marketing, editorial content and industry events.',
-        context:'Platinum Technologies operates in the professional large-format digital printing market, where communication needs to combine technical information, brand positioning and commercial objectives. Products, technologies, events, editorial content and marketing campaigns all need to remain part of the same recognizable brand while addressing different audiences and purposes.',
-        direction:'My work covers different stages of the communication process: from visual design and corporate materials to website management, digital campaigns, editorial content and event communication. The objective is to maintain a consistent visual language while adapting each output to its specific channel, audience and business goal. The result is not a single project, but an evolving communication system built across multiple touchpoints.',
-        tags:['GRAPHIC DESIGN','DIGITAL MARKETING','WEB MANAGEMENT','EDITORIAL DESIGN','CAMPAIGN DESIGN','EVENT COMMUNICATION','SOCIAL CONTENT','SEO & ANALYTICS'],
+        intro:'Ongoing communication work for a company operating in industrial large-format printing.',
+        context:'Platinum Technologies communicates machines, applications and technical subjects to different audiences. The same product can appear in a technical article, a campaign, a trade-show graphic, a landing page or a sales presentation. Each format needs a different amount of information while still belonging to the same brand.',
+        direction:'My work covers several parts of that system: graphic design, websites, advertising, editorial content and event communication. The objective is practical consistency. Product information, visual identity and commercial priorities have to remain recognisable when the format changes.',
+        tags:['GRAPHIC DESIGN','DIGITAL MARKETING','WEB MANAGEMENT','EDITORIAL DESIGN','ADVERTISING','EVENT COMMUNICATION','SEO & ANALYTICS'],
         outputs:[
-          {title:'CORPORATE COMMUNICATION',description:'Visual materials supporting the corporate identity across presentations, brochures, advertising and commercial communication.'},
-          {title:'EDITORIAL / PLATINUM INSIDE',description:'An editorial format developed to bring together product news, applications, case studies, market topics and technical content within a consistent visual and digital system.'},
-          {title:'WEB',description:'Ongoing management and development of digital content, landing pages, product pages and editorial experiences across the corporate website.'},
-          {title:'CAMPAIGNS',description:'Digital campaigns developed across social advertising, search, email marketing and dedicated landing experiences.'},
-          {title:'EVENTS',description:'Visual communication and materials for trade shows, open houses and industry events, including digital assets, printed materials and 3D exhibition layouts.'}
+          {title:'CORPORATE COMMUNICATION',description:'Brochures, presentations, advertising and materials used across corporate and commercial communication.'},
+          {title:'PLATINUM INSIDE',description:'An editorial format covering products, applications, case studies and technical subjects.'},
+          {title:'WEB',description:'Product pages, landing pages and editorial content for the corporate website.'},
+          {title:'CAMPAIGNS',description:'Creative material and landing experiences for paid media and direct communication.'},
+          {title:'EVENTS',description:'Digital, printed and physical communication for trade shows, open houses and technical events.'}
         ],
         media:[
           {type:'hero',label:'CORPORATE DESIGN / WEB / CAMPAIGNS'},
           {type:'landscape',label:'EDITORIAL SYSTEM'},
           {type:'portrait',label:'EVENT COMMUNICATION'},
-          {type:'portrait',label:'SEO & ANALYTICS'},
-          {type:'wide',label:'ONGOING COMMUNICATION SYSTEM'}
+          {type:'portrait',label:'DIGITAL CAMPAIGNS'},
+          {type:'wide',label:'ONGOING COMMUNICATION'}
         ]
       },
       {
         id:'05', slug:'colorcopy-large-format', title:'COLORCOPY LARGE FORMAT', displayTitle:'COLORCOPY\nLARGE FORMAT', type:'Corporate Communication', year:'ONGOING', client:'Colorcopy Large Format',
         role:'Graphic Design / Digital Marketing / Web Management', deliverables:'Graphic Design / Web / Advertising / Social / Print / Events',
-        intro:'A multidisciplinary communication ecosystem developed across graphic design, web, advertising and digital marketing.',
-        context:'Colorcopy Large Format operates across multiple brands, technologies and product categories within the professional printing market. Communication therefore needs to manage a broad portfolio, different customer profiles and frequent commercial activities without losing clarity or visual consistency.',
-        direction:'My role combines graphic design, website management and digital marketing across the company\'s communication ecosystem. Product launches, advertising, web content, social communication, newsletters and event materials are developed as parts of the same system, while adapting the message and visual approach to different commercial objectives. This multidisciplinary workflow makes it possible to connect visual communication with the channels used to distribute, promote and measure it.',
+        intro:'Ongoing visual and digital communication for a company selling professional printing technologies from different manufacturers.',
+        context:'Colorcopy manages a broad range of products, brands and customer profiles. Communication changes constantly between product launches, commercial campaigns, events and technical content. The challenge is keeping the company recognisable without forcing every manufacturer or technology into the same visual format.',
+        direction:'I work across the different channels used by the company: website, advertising, email, social communication, printed material and events. Each output responds to a specific commercial need, while typography, structure and recurring visual elements keep the communication connected.',
         tags:['GRAPHIC DESIGN','WEB DESIGN','WEB MANAGEMENT','DIGITAL MARKETING','ADVERTISING','SOCIAL CONTENT','PRINT DESIGN','EVENT COMMUNICATION','SEO & ANALYTICS'],
         outputs:[
-          {title:'PRODUCT COMMUNICATION',description:'Visual assets, brochures, catalogues and promotional materials developed for products and technologies across different brands.'},
-          {title:'WEB',description:'Website management, product pages, landing pages and digital content designed to support both information and lead generation.'},
-          {title:'ADVERTISING',description:'Campaign assets developed for paid social and search activities, connecting creative execution with specific marketing objectives.'},
-          {title:'SOCIAL / CONTENT',description:'Visual and editorial content designed for ongoing communication, product launches, events and corporate activities.'},
-          {title:'EMAIL MARKETING',description:'Newsletters and direct email campaigns developed around products, events and commercial initiatives.'},
-          {title:'EVENTS',description:'Communication materials for trade shows, open houses and customer events across digital, printed and physical applications.'}
+          {title:'PRODUCT COMMUNICATION',description:'Brochures, catalogues and promotional material for different products and manufacturers.'},
+          {title:'WEB',description:'Product pages, landing pages and content designed for information and lead generation.'},
+          {title:'ADVERTISING',description:'Creative material for paid social and search campaigns.'},
+          {title:'SOCIAL / CONTENT',description:'Visual and editorial content for product launches, events and ongoing company communication.'},
+          {title:'EMAIL MARKETING',description:'Newsletters and direct campaigns for products, events and commercial initiatives.'},
+          {title:'EVENTS',description:'Digital and printed material for trade shows, open houses and customer events.'}
         ],
         media:[
           {type:'hero',label:'GRAPHIC DESIGN / WEB / ADVERTISING'},
           {type:'landscape',label:'PRODUCT COMMUNICATION'},
           {type:'portrait',label:'SOCIAL / CONTENT'},
           {type:'portrait',label:'EMAIL MARKETING'},
-          {type:'wide',label:'MULTIDISCIPLINARY ECOSYSTEM'}
+          {type:'wide',label:'ONGOING COMMUNICATION'}
         ]
       }
     ],
 
     archive: {
       title: 'ARCHIVE',
-      eyebrow: 'SELF-INITIATED WORK / CONCEPTS / EXPERIMENTS',
-      description: 'A space for independent projects, visual studies and ideas developed outside client work.',
-      status: ['CURRENTLY IN PROGRESS.', 'NEW WORK WILL BE ADDED SOON.']
+      eyebrow: 'SELF-INITIATED WORK / STUDIES / EXPERIMENTS',
+      description: 'Independent work, visual studies and experiments that do not belong in the main project selection.',
+      status: ['CURRENTLY BEING ORGANISED.']
     }
   };
 
   const clone = value => JSON.parse(JSON.stringify(value));
   const IT = clone(EN);
+
   Object.assign(IT.profile, {
-    role: 'DESIGNER MULTIDISCIPLINARE',
+    role: 'GRAPHIC DESIGNER & DIGITAL MARKETING SPECIALIST',
     intro: [
-      'Il mio percorso nasce all\'incrocio tra design, comunicazione e marketing. Ho studiato Marketing e Comunicazione prima di laurearmi con lode in Web Design e Comunicazione Artistica per l\'Impresa all\'Accademia di Belle Arti.',
-      'Negli ultimi quattro anni ho lavorato come graphic designer e digital marketing specialist per aziende attive nella stampa digitale di grande formato. Il mio ruolo è cresciuto tra grafica, comunicazione corporate, gestione siti web, campagne digitali, analytics e visibilità online.',
-      'Oggi lavoro con Adobe Creative Suite e strumenti di digital marketing, integrando workflow AI per immagini, video, prototipazione e vibe coding. Mi interessa usare la tecnologia dentro il processo creativo, senza separare qualità visiva, usabilità e obiettivi di business.'
+      'Il mio percorso unisce design, comunicazione e marketing. Ho studiato Marketing e Comunicazione prima di laurearmi con lode in Web Design e Comunicazione Artistica per l\'Impresa all\'Accademia di Belle Arti di Brescia.',
+      'Dal 2022 lavoro con aziende che operano nella stampa professionale di grande formato. Mi occupo di graphic design, comunicazione corporate, siti web, campagne digitali, analytics e visibilità online.',
+      'La maggior parte dei progetti coinvolge più di un canale. Il lancio di un prodotto può richiedere una pagina web, advertising, email, contenuti social, materiali stampati e comunicazione per eventi. Lavorare su più fasi dello stesso progetto mi ha portato a interessarmi soprattutto a ciò che succede al design quando esce dal mockup e deve funzionare dentro un\'azienda reale.',
+      'Parallelamente lavoro su progetti web indipendenti, dalla progettazione dell\'interfaccia e della struttura dei contenuti fino all\'implementazione front-end.',
+      'Utilizzo strumenti AI quando sono utili per produzione, prototipazione o sviluppo. Fanno parte del processo, non della direzione del progetto.'
     ],
-    focus: ['DESIGN', 'WEB', 'DIGITAL MARKETING']
+    focus: ['GRAPHIC DESIGN', 'WEB', 'DIGITAL MARKETING']
   });
+
   Object.assign(IT.resume, {
     title: 'CV',
-    intro: 'Una sintesi di esperienza, formazione, competenze e strumenti tra design, web e digital marketing.',
-    capabilities: ['GRAPHIC & VISUAL DESIGN','WEB DESIGN','DIGITAL MARKETING','DIGITAL ADVERTISING','COMUNICAZIONE DI BRAND','SEO','ANALYTICS','VISUALIZZAZIONE 3D','WORKFLOW CREATIVI AI-ASSISTED'],
-    tools: ['ADOBE CREATIVE CLOUD','WORDPRESS / ELEMENTOR','HTML / CSS / JAVASCRIPT','GOOGLE ADS','META ADS','GOOGLE ANALYTICS 4','GOOGLE SEARCH CONSOLE','STRUMENTI 3D','GENERAZIONE AI IMMAGINI & VIDEO','SVILUPPO AI-ASSISTED / VIBE CODING']
+    intro: 'Esperienza, formazione e strumenti utilizzati tra graphic design, web e digital marketing.',
+    capabilities: ['GRAPHIC & VISUAL DESIGN','WEB DESIGN','DIGITAL MARKETING','DIGITAL ADVERTISING','COMUNICAZIONE CORPORATE','SEO','ANALYTICS','VISUALIZZAZIONE 3D','PRODUZIONE AI-ASSISTED'],
+    tools: ['ADOBE CREATIVE CLOUD','WORDPRESS / ELEMENTOR','HTML / CSS / JAVASCRIPT','GOOGLE ADS','META ADS','GOOGLE ANALYTICS 4','GOOGLE SEARCH CONSOLE','STRUMENTI DI DESIGN 3D','STRUMENTI DI AI GENERATIVA']
   });
+
   IT.resume.experience[0].description = [
-    'Comunicazione visiva tra stampa e digitale, gestione e sviluppo siti web, campagne advertising, SEO, analytics e comunicazione corporate.',
-    'I progetti includono siti web, brochure, cataloghi, advertising, contenuti social, comunicazione fieristica, layout espositivi 3D e workflow creativi assistiti da AI.'
+    'Graphic design e comunicazione digitale per aziende che operano nella stampa professionale di grande formato.',
+    'Il mio lavoro comprende siti web, lanci prodotto, advertising, contenuti editoriali, newsletter, social, materiali stampati, comunicazione fieristica, SEO e analytics.'
   ];
-  IT.resume.experience[1].role = 'FREELANCE WEB DESIGN & SVILUPPO';
-  IT.resume.experience[1].description = 'Design e sviluppo freelance di esperienze digitali dal concept visivo all\'implementazione, combinando interface design, workflow front-end e sviluppo moderno AI-assisted.';
+  IT.resume.experience[1].role = 'FREELANCE WEB DESIGN & DEVELOPMENT';
+  IT.resume.experience[1].description = 'Design e sviluppo di siti web indipendenti, dalla struttura dei contenuti alla progettazione dell\'interfaccia e all\'implementazione front-end.';
   IT.resume.experience[2].description = 'Graphic design e produzione per stampa e comunicazione visiva.';
-  IT.resume.experience[3].description = 'Interface design e supporto a prodotti digitali.';
+  IT.resume.experience[3].role = 'UI DESIGNER - STAGE';
+  IT.resume.experience[3].description = 'Progettazione di interfacce e supporto visuale per prodotti software.';
+  IT.resume.experience[4].role = 'GRAPHIC DESIGNER - STAGE';
   IT.resume.experience[4].description = 'Graphic design e supporto alla produzione.';
-  IT.resume.experience[5].description = 'Graphic design, contenuti digitali e comunicazione social.';
-  IT.resume.education[0].course = 'WEB DESIGN & COMUNICAZIONE ARTISTICA PER L\'IMPRESA';
-  IT.resume.education[0].description = '110/110 E LODE. Focus su web design, comunicazione visiva e media digitali. Tesi finale su blockchain, NFT e il loro impatto su internet.';
+  IT.resume.experience[5].role = 'GRAPHIC DESIGNER & SOCIAL MEDIA - STAGE';
+  IT.resume.experience[5].description = 'Graphic design e produzione di contenuti social.';
+  IT.resume.education[0].course = 'WEB DESIGN E COMUNICAZIONE ARTISTICA PER L\'IMPRESA';
+  IT.resume.education[0].school = 'ACCADEMIA DI BELLE ARTI - BRESCIA';
+  IT.resume.education[0].description = '110/110 E LODE. Percorso dedicato a web design, comunicazione visiva e media digitali. Tesi finale su blockchain, NFT e il loro impatto su Internet.';
   IT.resume.education[1].course = 'MARKETING & COMUNICAZIONE';
-  IT.resume.education[1].description = 'Marketing, comunicazione e basi aziendali.';
+  IT.resume.education[1].description = 'Fondamenti di marketing, comunicazione e gestione d\'impresa.';
+
+  Object.assign(IT.projects[0], {
+    type:'Digital Experience',
+    intro:'Un sito B2B per una società di consulenza che lavora su trasformazione digitale e tecnologie per le imprese.',
+    context:'I servizi di Tovadù diventano rapidamente tecnici. Il sito doveva spiegare cosa fa l\'azienda senza chiedere all\'utente di conoscere prima la terminologia utilizzata internamente.',
+    direction:'Ho strutturato i contenuti partendo dai problemi che un potenziale cliente può riconoscere, introducendo servizi e competenze tecniche solo in un secondo momento. L\'interfaccia segue la stessa logica: le informazioni sono organizzate su più livelli per permettere di comprendere l\'offerta prima di entrare nel dettaglio.',
+    tags:['WEB DESIGN','UI / UX','DIGITAL DESIGN','WEB DEVELOPMENT','COMUNICAZIONE B2B']
+  });
+
+  Object.assign(IT.projects[1], {
+    type:'Digital Experience',
+    intro:'Un sito per una realtà che opera tra innovazione, strategia e asset intangibili.',
+    context:'Pholià riunisce temi che normalmente appartengono ad aree professionali diverse. Il sito doveva quindi spiegare ogni ambito senza trasformare l\'azienda in una semplice raccolta di servizi scollegati.',
+    direction:'Ho costruito il sito su una struttura modulare. Ogni area dispone dello spazio necessario per sviluppare il proprio tema, restando però all\'interno dello stesso sistema visivo e di navigazione. La gerarchia presenta prima l\'azienda e permette poi di approfondire i contenuti più specialistici.',
+    tags:['WEB DESIGN','UI / UX','DIGITAL DESIGN','WEB DEVELOPMENT','VISUAL SYSTEMS']
+  });
+
+  Object.assign(IT.projects[2], {
+    type:'Digital Experience',
+    intro:'Un progetto digitale dedicato all\'utilizzo dell\'intelligenza artificiale nella didattica.',
+    context:'Sapy propone l\'AI come strumento di supporto per gli insegnanti. Il sito doveva spiegare prima cosa permette di fare il prodotto e solo successivamente la tecnologia che lo rende possibile.',
+    direction:'Ho separato informazioni sul prodotto, contenuti editoriali e visione generale del progetto in aree distinte. L\'AI rimane visibile, ma non diventa il soggetto di ogni pagina. La priorità è far capire cosa può fare concretamente l\'utente con la piattaforma.',
+    tags:['WEB DESIGN','UI / UX','DIGITAL DESIGN','WEB DEVELOPMENT','AI / EDTECH']
+  });
+
+  Object.assign(IT.projects[3], {
+    type:'Corporate Communication',
+    intro:'Attività continuativa di comunicazione per un\'azienda che opera nella stampa industriale di grande formato.',
+    context:'Platinum Technologies comunica macchine, applicazioni e contenuti tecnici a pubblici differenti. Lo stesso prodotto può comparire in un articolo tecnico, una campagna, una grafica fieristica, una landing page o una presentazione commerciale. Ogni formato richiede un diverso livello di approfondimento, mantenendo però una riconoscibilità comune.',
+    direction:'Il mio lavoro comprende diverse parti di questo sistema: graphic design, web, advertising, contenuti editoriali e comunicazione per eventi. L\'obiettivo è mantenere una coerenza concreta tra informazioni di prodotto, identità visiva ed esigenze commerciali anche quando cambia il formato.',
+    tags:['GRAPHIC DESIGN','DIGITAL MARKETING','WEB MANAGEMENT','EDITORIAL DESIGN','ADVERTISING','EVENT COMMUNICATION','SEO & ANALYTICS'],
+    outputs:[
+      {title:'CORPORATE COMMUNICATION',description:'Brochure, presentazioni, advertising e materiali utilizzati nella comunicazione corporate e commerciale.'},
+      {title:'PLATINUM INSIDE',description:'Formato editoriale dedicato a prodotti, applicazioni, case history e contenuti tecnici.'},
+      {title:'WEB',description:'Pagine prodotto, landing page e contenuti editoriali per il sito corporate.'},
+      {title:'CAMPAIGNS',description:'Creatività e landing dedicate ad attività paid e comunicazione diretta.'},
+      {title:'EVENTS',description:'Materiali digitali, stampati e fisici per fiere, open house ed eventi tecnici.'}
+    ]
+  });
+
+  Object.assign(IT.projects[4], {
+    type:'Corporate Communication',
+    intro:'Attività continuativa di comunicazione visiva e digitale per un\'azienda che commercializza tecnologie di stampa professionale di diversi produttori.',
+    context:'Colorcopy gestisce un catalogo ampio, composto da tecnologie, marchi e tipologie di cliente differenti. La comunicazione cambia continuamente tra lanci prodotto, attività commerciali, eventi e contenuti tecnici. Il problema è mantenere riconoscibile Colorcopy senza obbligare ogni marchio o tecnologia a utilizzare lo stesso linguaggio visivo.',
+    direction:'Lavoro sui diversi canali utilizzati dall\'azienda: sito web, advertising, email, social, materiale stampato ed eventi. Ogni output risponde a una necessità commerciale specifica, mentre tipografia, struttura e alcuni elementi visuali ricorrenti mantengono collegata la comunicazione.',
+    tags:['GRAPHIC DESIGN','WEB DESIGN','WEB MANAGEMENT','DIGITAL MARKETING','ADVERTISING','SOCIAL CONTENT','PRINT DESIGN','EVENT COMMUNICATION','SEO & ANALYTICS'],
+    outputs:[
+      {title:'PRODUCT COMMUNICATION',description:'Brochure, cataloghi e materiali promozionali per prodotti e marchi differenti.'},
+      {title:'WEB',description:'Pagine prodotto, landing page e contenuti destinati all\'informazione e alla lead generation.'},
+      {title:'ADVERTISING',description:'Creatività per campagne paid social e search.'},
+      {title:'SOCIAL / CONTENT',description:'Contenuti visuali ed editoriali per lanci prodotto, eventi e comunicazione continuativa.'},
+      {title:'EMAIL MARKETING',description:'Newsletter e DEM dedicate a prodotti, eventi e iniziative commerciali.'},
+      {title:'EVENTS',description:'Materiali digitali e stampati per fiere, open house ed eventi rivolti ai clienti.'}
+    ]
+  });
 
   Object.assign(IT.archive, {
     title: 'ARCHIVIO',
-    eyebrow: 'PROGETTI PERSONALI / CONCEPT / ESPERIMENTI',
-    description: 'Uno spazio per progetti indipendenti, studi visivi e idee sviluppate al di fuori del lavoro per i clienti.',
-    status: ['ATTUALMENTE IN LAVORAZIONE.', 'NUOVI LAVORI SARANNO AGGIUNTI PRESTO.']
+    eyebrow: 'PROGETTI PERSONALI / STUDI / ESPERIMENTI',
+    description: 'Progetti indipendenti, studi visuali ed esperimenti che non fanno parte della selezione principale.',
+    status: ['ARCHIVIO IN PREPARAZIONE.']
   });
 
-  const projectCopy = {
-    tovadu: {
-      type:'Esperienza Digitale', role:'Web Design / Sviluppo', deliverables:'Sito web / UX / UI / Sviluppo',
-      intro:'Un sito B2B progettato per rendere una proposta di consulenza digitale complessa più chiara, accessibile e facile da navigare.',
-      context:'Tovadu lavora con aziende che affrontano progetti di trasformazione digitale e tecnologia per il business. Il sito doveva comunicare competenza tecnica e approccio consulenziale strutturato senza risultare distante o troppo complesso.',
-      direction:'Il progetto è stato sviluppato attorno a una gerarchia informativa chiara, bilanciando contenuti tecnici e linguaggio visivo diretto e contemporaneo. L\'obiettivo era guidare l\'utente dal problema di business ai servizi e alle competenze dell\'azienda, mantenendo un\'esperienza semplice, strutturata e credibile.',
-      tags:['WEB DESIGN','UI / UX','DIGITAL DESIGN','WEB DEVELOPMENT','COMUNICAZIONE B2B'],
-      media:[
-        {type:'hero',label:'SITO WEB / UX / UI / SVILUPPO'},
-        {type:'landscape',label:'ARCHITETTURA INFORMATIVA'},
-        {type:'portrait',label:'DIGITAL DESIGN'},
-        {type:'portrait',label:'COMUNICAZIONE B2B'},
-        {type:'wide',label:'WORKFLOW FRONT-END'}
-      ]
-    },
-    pholia: {
-      type:'Esperienza Digitale', role:'Web Design / Sviluppo', deliverables:'Sito web / UX / UI / Sviluppo',
-      intro:'Una presenza digitale pensata per trasformare un modello di business innovativo e multidisciplinare in un\'esperienza web chiara e contemporanea.',
-      context:'Pholia opera in uno spazio dove innovazione, strategia e asset intangibili si incontrano. La sfida era presentare un\'offerta complessa a pubblici diversi mantenendo il sito comprensibile, riconoscibile e lontano dalle convenzioni corporate tradizionali.',
-      direction:'L\'esperienza è stata costruita su contenuti modulari, gerarchia visiva forte e identità digitale flessibile. Le informazioni sono organizzate in modo progressivo per rendere temi complessi più facili da esplorare senza perdere un linguaggio visivo contemporaneo.',
-      tags:['WEB DESIGN','UI / UX','DIGITAL DESIGN','WEB DEVELOPMENT','SISTEMI VISIVI'],
-      media:[
-        {type:'hero',label:'SITO WEB / UX / UI / SVILUPPO'},
-        {type:'landscape',label:'CONTENUTI MODULARI'},
-        {type:'portrait',label:'SISTEMI VISIVI'},
-        {type:'portrait',label:'IDENTITÀ DIGITALE'},
-        {type:'wide',label:'ESPERIENZA WEB CONTEMPORANEA'}
-      ]
-    },
-    sapy: {
-      type:'Esperienza Digitale', role:'Web Design / Sviluppo', deliverables:'Sito web / UX / UI / Sviluppo',
-      intro:'Una piattaforma digitale pensata per introdurre l\'intelligenza artificiale nella scuola con un\'esperienza chiara, accessibile e human-centered.',
-      context:'Sapy esplora l\'uso dell\'intelligenza artificiale come strumento di supporto per insegnanti e attività educative. Il progetto doveva comunicare una tecnologia emergente restando accessibile e costruendo fiducia attorno a un tema spesso tecnico o astratto.',
-      direction:'Il sito è stato strutturato su semplicità, chiarezza e accessibilità. Informazioni di prodotto, contenuti editoriali e visione del progetto sono separati in un\'architettura chiara, per rendere la tecnologia comprensibile senza semplificarla eccessivamente.',
-      tags:['WEB DESIGN','UI / UX','DIGITAL DESIGN','WEB DEVELOPMENT','AI / EDTECH'],
-      media:[
-        {type:'hero',label:'SITO WEB / UX / UI / SVILUPPO'},
-        {type:'landscape',label:'AI / EDTECH'},
-        {type:'portrait',label:'ESPERIENZA ACCESSIBILE'},
-        {type:'portrait',label:'INFORMAZIONI DI PRODOTTO'},
-        {type:'wide',label:'PIATTAFORMA HUMAN-CENTERED'}
-      ]
-    },
-    'platinum-technologies': {
-      type:'Comunicazione Corporate', role:'Graphic Design / Digital Marketing / Web Management', deliverables:'Corporate Design / Web / Campagne / Editorial / Eventi',
-      intro:'Un sistema di comunicazione continuativo sviluppato tra graphic design, web, digital marketing, contenuti editoriali ed eventi di settore.',
-      context:'Platinum Technologies opera nel mercato professionale della stampa digitale di grande formato, dove la comunicazione deve unire informazioni tecniche, posizionamento di brand e obiettivi commerciali. Prodotti, tecnologie, eventi, contenuti editoriali e campagne devono restare parte dello stesso linguaggio riconoscibile, pur rivolgendosi a pubblici e obiettivi diversi.',
-      direction:'Il mio lavoro copre diverse fasi del processo comunicativo: dai materiali visivi e corporate alla gestione del sito, campagne digitali, contenuti editoriali e comunicazione per eventi. L\'obiettivo è mantenere un linguaggio visivo coerente adattando ogni output al canale, al pubblico e all\'obiettivo di business.',
-      tags:['GRAPHIC DESIGN','DIGITAL MARKETING','WEB MANAGEMENT','EDITORIAL DESIGN','CAMPAIGN DESIGN','COMUNICAZIONE EVENTI','CONTENUTI SOCIAL','SEO & ANALYTICS'],
-      outputs:[
-        {title:'COMUNICAZIONE CORPORATE',description:'Materiali visivi a supporto dell\'identità corporate tra presentazioni, brochure, advertising e comunicazione commerciale.'},
-        {title:'EDITORIAL / PLATINUM INSIDE',description:'Un format editoriale sviluppato per unire novità prodotto, applicazioni, case study, temi di mercato e contenuti tecnici in un sistema visivo e digitale coerente.'},
-        {title:'WEB',description:'Gestione e sviluppo continuativo di contenuti digitali, landing page, pagine prodotto ed esperienze editoriali sul sito corporate.'},
-        {title:'CAMPAGNE',description:'Campagne digitali sviluppate tra social advertising, search, email marketing e landing experience dedicate.'},
-        {title:'EVENTI',description:'Comunicazione visiva e materiali per fiere, open house ed eventi di settore, inclusi asset digitali, materiali stampati e layout espositivi 3D.'}
-      ],
-      media:[
-        {type:'hero',label:'CORPORATE DESIGN / WEB / CAMPAGNE'},
-        {type:'landscape',label:'SISTEMA EDITORIALE'},
-        {type:'portrait',label:'COMUNICAZIONE EVENTI'},
-        {type:'portrait',label:'SEO & ANALYTICS'},
-        {type:'wide',label:'SISTEMA DI COMUNICAZIONE CONTINUATIVO'}
-      ]
-    },
-    'colorcopy-large-format': {
-      type:'Comunicazione Corporate', role:'Graphic Design / Digital Marketing / Web Management', deliverables:'Graphic Design / Web / Advertising / Social / Stampa / Eventi',
-      intro:'Un ecosistema di comunicazione multidisciplinare sviluppato tra graphic design, web, advertising e digital marketing.',
-      context:'Colorcopy Large Format lavora con più brand, tecnologie e categorie prodotto nel mercato della stampa professionale. La comunicazione deve quindi gestire un portfolio ampio, profili cliente diversi e attività commerciali frequenti senza perdere chiarezza o coerenza visiva.',
-      direction:'Il mio ruolo combina graphic design, gestione sito e digital marketing nell\'ecosistema comunicativo aziendale. Lanci prodotto, advertising, contenuti web, social, newsletter e materiali evento vengono sviluppati come parti dello stesso sistema, adattando messaggio e approccio visivo a obiettivi commerciali differenti.',
-      tags:['GRAPHIC DESIGN','WEB DESIGN','WEB MANAGEMENT','DIGITAL MARKETING','ADVERTISING','CONTENUTI SOCIAL','PRINT DESIGN','COMUNICAZIONE EVENTI','SEO & ANALYTICS'],
-      outputs:[
-        {title:'COMUNICAZIONE PRODOTTO',description:'Asset visivi, brochure, cataloghi e materiali promozionali sviluppati per prodotti e tecnologie di brand diversi.'},
-        {title:'WEB',description:'Gestione sito, pagine prodotto, landing page e contenuti digitali progettati per supportare informazione e lead generation.'},
-        {title:'ADVERTISING',description:'Asset di campagna sviluppati per paid social e search, collegando esecuzione creativa e obiettivi marketing specifici.'},
-        {title:'SOCIAL / CONTENT',description:'Contenuti visivi ed editoriali progettati per comunicazione continuativa, lanci prodotto, eventi e attività corporate.'},
-        {title:'EMAIL MARKETING',description:'Newsletter e campagne email dirette sviluppate attorno a prodotti, eventi e iniziative commerciali.'},
-        {title:'EVENTI',description:'Materiali di comunicazione per fiere, open house ed eventi cliente tra applicazioni digitali, stampate e fisiche.'}
-      ],
-      media:[
-        {type:'hero',label:'GRAPHIC DESIGN / WEB / ADVERTISING'},
-        {type:'landscape',label:'COMUNICAZIONE PRODOTTO'},
-        {type:'portrait',label:'SOCIAL / CONTENT'},
-        {type:'portrait',label:'EMAIL MARKETING'},
-        {type:'wide',label:'ECOSISTEMA MULTIDISCIPLINARE'}
-      ]
-    }
-  };
-  IT.projects.forEach(project => Object.assign(project, projectCopy[project.slug] || {}));
-
-  const dictionaries = { en: EN, it: IT };
-  function syncData() {
-    const lang = window.PortfolioI18n?.lang === 'it' ? 'it' : 'en';
-    window.PORTFOLIO_DATA = clone(dictionaries[lang]);
-  }
-  syncData();
-  addEventListener('portfolio:langchange', syncData);
+  const current = () => (window.PortfolioI18n?.lang === 'it' ? IT : EN);
+  const sync = () => { window.PORTFOLIO_DATA = current(); };
+  sync();
+  window.addEventListener('portfolio:langchange', sync);
 })();
