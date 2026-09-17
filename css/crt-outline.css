@@ -1,9 +1,40 @@
 @import url("crt-outline-base.css");
 @import url("project-covers.css");
 
+/* Give ABOUT / PROFILE its own visual language instead of reusing the CV file
+   glyph. The existing inline SVG stays in the markup as a fallback. */
+.desktop-icon[data-open="about"] .icon-glyph svg {
+  display: none;
+}
+
+.desktop-icon[data-open="about"] .icon-glyph::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 18%;
+  width: 22%;
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+}
+
+.desktop-icon[data-open="about"] .icon-glyph::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 13%;
+  width: 48%;
+  height: 31%;
+  transform: translateX(-50%);
+  border: 1.5px solid currentColor;
+  border-bottom: 0;
+  border-radius: 999px 999px 0 0;
+}
+
 /* Responsive desktop icon layout — 2026-09-17
    Move the navigation away from the hero before the compact desktop/tablet
-   range can collide with text. Keep mobile to a maximum of four icons per row. */
+   range can collide with text. */
 @media (min-width: 721px) and (max-width: 1024px) {
   .desktop-icons {
     left: calc(var(--screen-safe-left) + 4px);
@@ -36,12 +67,15 @@
 }
 
 @media (max-width: 720px) {
+  /* Reserve the lower control strip for language/privacy. The icon block ends
+     above it, so neither the glyphs nor their labels can overlap the controls. */
   .desktop-icons {
     left: var(--screen-safe-left);
     right: var(--screen-safe-right);
     top: auto;
-    bottom: calc(var(--screen-safe-bottom) + 18px);
+    bottom: calc(var(--screen-safe-bottom) + 48px);
     grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(2, auto);
     column-gap: 4px;
     row-gap: 7px;
   }
@@ -52,12 +86,34 @@
     padding: 4px 2px;
   }
 
+  /* PROJECTS is always the only item on row one and anchored to the right. */
   .desktop-icon:first-child {
-    grid-column: 1 / -1;
-    justify-self: center;
-    width: 25%;
-    min-width: 72px;
-    max-width: 94px;
+    grid-column: 4;
+    grid-row: 1;
+    justify-self: stretch;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .desktop-icon:nth-child(2) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .desktop-icon:nth-child(3) {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .desktop-icon:nth-child(4) {
+    grid-column: 3;
+    grid-row: 2;
+  }
+
+  .desktop-icon:nth-child(5) {
+    grid-column: 4;
+    grid-row: 2;
   }
 
   .desktop-icon > span:nth-child(2) {
@@ -74,10 +130,22 @@
     height: 35px;
     font-size: 18px;
   }
+
+  /* Keep both persistent controls in a separate, collision-free bottom strip. */
+  .language-toggle {
+    left: calc(var(--screen-safe-left) + 2px);
+    bottom: calc(var(--screen-safe-bottom) + 2px);
+  }
+
+  .privacy-widget {
+    left: calc(var(--screen-safe-left) + 54px);
+    right: calc(var(--screen-safe-right) + 2px);
+    bottom: calc(var(--screen-safe-bottom) + 2px);
+  }
 }
 
-/* Very short phone landscape keeps the same 1 + 4 row structure, but reduces
-   vertical density so the icon block cannot climb into the hero copy. */
+/* Very short phone landscape keeps the same 1 + 4 structure and the reserved
+   bottom control strip, while reducing vertical density above it. */
 @media (max-width: 720px) and (max-height: 520px) {
   .hero-intro h1 {
     font-size: clamp(48px, 14vh, 64px);
@@ -94,7 +162,7 @@
   }
 
   .desktop-icons {
-    bottom: calc(var(--screen-safe-bottom) + 6px);
+    bottom: calc(var(--screen-safe-bottom) + 42px);
     row-gap: 2px;
   }
 
