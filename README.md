@@ -184,3 +184,18 @@ V31.5 update:
 - first hidden 3D warm-up frame added before the loader releases
 - reduced-motion mode bypasses the entrance choreography
 - project-level navigation still opens without degauss; degauss remains reserved for PROJECTS.DIR
+
+
+## V31.6 — responsive UI / purple system / 404 refinement
+- desktop icon navigation now switches to a lower responsive strip before it can collide with hero copy on compact desktop/tablet widths
+- mobile navigation uses a `1 + 4` layout: PROJECTS occupies the first row at the far right; ABOUT, RESUME, ARCHIVE and CONTACT occupy the second row
+- language and privacy controls have a dedicated lower strip to avoid collisions with navigation icons
+- ABOUT now uses a dedicated profile-card SVG icon instead of sharing the RESUME document icon
+- active UI accents were consolidated onto the approved lilac/violet palette; remaining visible amber/peach hover states were removed
+- `css/purple-theme.css` centralizes the active purple overrides while legacy amber declarations remain in the historical base styles
+- 404 page now uses the same purple visual system as the main site
+- the `404` numeral uses Redaction 50; body copy and actions use the same Doto type scale as the rest of the interface
+- redundant `ROUTE ERROR` label removed from the 404 page
+- 404 page now loads the shared custom cursor system (`js/cursor.js`)
+- project cover CSS is wired to real assets under `assets/images/projects/`
+- Colorcopy is the first project being migrated from placeholder artwork to supplied real project imagery; asset integrity is being verified before applying the same process to the remaining projects
