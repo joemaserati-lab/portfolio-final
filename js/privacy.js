@@ -1,17 +1,14 @@
 (() => {
-  const CONSENT_KEY = 'analyticsConsent';
+  const STORAGE_KEY = 'portfolio-analytics-consent';
   const panel = document.getElementById('privacy-panel');
   const toggle = document.getElementById('privacy-toggle');
-  const status = document.getElementById('privacy-status');
+  const close = document.getElementById('privacy-close');
   const accept = document.getElementById('privacy-accept');
   const reject = document.getElementById('privacy-reject');
   const revoke = document.getElementById('privacy-revoke');
-  const close = document.getElementById('privacy-close');
+  const status = document.getElementById('privacy-status');
 
-  if (!panel || !toggle || !status || !accept || !reject || !revoke || !close) return;
-
-  const i18n = window.PortfolioI18n;
-  const lang = () => i18n?.lang === 'it' ? 'it' : 'en';
+  if (!panel || !toggle || !close || !accept || !reject || !revoke || !status) return;
 
   const labels = {
     en: {
@@ -26,73 +23,86 @@
     }
   };
 
+  const currentLang = () => window.PortfolioI18n?.lang === 'it' ? 'it' : 'en';
+  const label = key => labels[currentLang()][key] || labels.en[key];
+
   const readConsent = () => {
-    try { return localStorage.getItem(CONSENT_KEY); }
+    try { return localStorage.getItem(STORAGE_KEY); }
     catch { return null; }
   };
 
-  const writeConsent = value => {
-    try { localStorage.setItem(CONSENT_KEY, value); }
+  const saveConsent = value => {
+    try { localStorage.setItem(STORAGE_KEY, value); }
     catch {}
   };
 
-  const getLabel = state => labels[lang()][state] || labels.en[state];
+  const emitConsent = value => {
+    window.dispatchEvent(new CustomEvent('portfolio:analytics-consent', { detail: { consent: value } }));
+  };
 
-  function updateState() {
+  function sync() {
     const consent = readConsent();
     if (consent === 'granted') {
-      status.textContent = getLabel('granted');
+      status.textContent = label('granted');
       accept.hidden = true;
       reject.hidden = true;
       revoke.hidden = false;
       return;
     }
     if (consent === 'denied') {
-      status.textContent = getLabel('denied');
+      status.textContent = label('denied');
       accept.hidden = false;
       reject.hidden = true;
       revoke.hidden = false;
       return;
     }
-    status.textContent = getLabel('unset');
+    status.textContent = label('unset');
     accept.hidden = false;
     reject.hidden = false;
     revoke.hidden = true;
   }
 
-  function setOpen(open) {
-    panel.hidden = !open;
-    toggle.setAttribute('aria-expanded', String(open));
+  function openPanel() {
+    panel.hidden = false;
+    toggle.setAttribute('aria-expanded', 'true');
+    close.focus({ preventScroll: true });
   }
 
-  toggle.addEventListener('click', () => setOpen(panel.hidden));
-  close.addEventListener('click', () => setOpen(false));
+  function closePanel() {
+    panel.hidden = true;
+    toggle.setAttribute('aria-expanded', 'false');
+  }
+
+  toggle.addEventListener('click', () => panel.hidden ? openPanel() : closePanel());
+  close.addEventListener('click', () => {
+    closePanel();
+    toggle.focus({ preventScroll: true });
+  });
 
   accept.addEventListener('click', () => {
-    writeConsent('granted');
-    window.dispatchEvent(new CustomEvent('portfolio:analytics-consent', { detail: { consent: 'granted' } }));
-    updateState();
+    saveConsent('granted');
+    emitConsent('granted');
+    sync();
   });
 
   reject.addEventListener('click', () => {
-    writeConsent('denied');
-    window.dispatchEvent(new CustomEvent('portfolio:analytics-consent', { detail: { consent: 'denied' } }));
-    updateState();
+    saveConsent('denied');
+    emitConsent('denied');
+    sync();
   });
 
   revoke.addEventListener('click', () => {
-    writeConsent('denied');
-    window.dispatchEvent(new CustomEvent('portfolio:analytics-consent', { detail: { consent: 'denied' } }));
-    updateState();
+    saveConsent('denied');
+    emitConsent('denied');
+    sync();
   });
 
   document.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && !panel.hidden) {
-      setOpen(false);
-      toggle.focus({ preventScroll: true });
-    }
+    if (event.key !== 'Escape' || panel.hidden) return;
+    closePanel();
+    toggle.focus({ preventScroll: true });
   });
 
-  window.addEventListener('portfolio:langchange', updateState);
-  updateState();
+  window.addEventListener('portfolio:langchange', sync);
+  sync();
 })();
