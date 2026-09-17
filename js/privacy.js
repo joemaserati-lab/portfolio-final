@@ -1,108 +1,98 @@
 (() => {
-  const ACK_KEY = 'portfolioPrivacyAck';
-  const i18n = () => window.PortfolioI18n;
-  const analytics = () => window.PortfolioAnalytics;
+  const CONSENT_KEY = 'analyticsConsent';
   const panel = document.getElementById('privacy-panel');
   const toggle = document.getElementById('privacy-toggle');
-  const close = document.getElementById('privacy-close');
+  const status = document.getElementById('privacy-status');
   const accept = document.getElementById('privacy-accept');
   const reject = document.getElementById('privacy-reject');
   const revoke = document.getElementById('privacy-revoke');
-  const status = document.getElementById('privacy-status');
-  const langToggle = document.getElementById('language-toggle');
-  if (!panel || !toggle || !close || !accept || !reject || !revoke || !status || !langToggle) return;
+  const close = document.getElementById('privacy-close');
 
-  const TEXT = {
+  if (!panel || !toggle || !status || !accept || !reject || !revoke || !close) return;
+
+  const i18n = window.PortfolioI18n;
+  const lang = () => i18n?.lang === 'it' ? 'it' : 'en';
+
+  const labels = {
     en: {
-      reject: 'REJECT ANALYTICS',
-      revoke: 'REVOKE CONSENT',
       unset: 'ANALYTICS: NOT SET',
-      granted: 'ANALYTICS: ACCEPTED',
-      denied: 'ANALYTICS: REJECTED'
+      granted: 'ANALYTICS: ENABLED',
+      denied: 'ANALYTICS: DISABLED'
     },
     it: {
-      reject: 'RIFIUTA ANALYTICS',
-      revoke: 'REVOCA CONSENSO',
-      unset: 'ANALYTICS: NON IMPOSTATI',
-      granted: 'ANALYTICS: ACCETTATI',
-      denied: 'ANALYTICS: RIFIUTATI'
+      unset: 'ANALYTICS: NON IMPOSTATO',
+      granted: 'ANALYTICS: ATTIVO',
+      denied: 'ANALYTICS: DISATTIVATO'
     }
   };
 
-  const hasAck = () => {
-    try { return localStorage.getItem(ACK_KEY) === '1'; }
-    catch { return false; }
+  const readConsent = () => {
+    try { return localStorage.getItem(CONSENT_KEY); }
+    catch { return null; }
   };
 
-  const setAck = () => {
-    try { localStorage.setItem(ACK_KEY, '1'); }
+  const writeConsent = value => {
+    try { localStorage.setItem(CONSENT_KEY, value); }
     catch {}
   };
 
-  function currentText() {
-    return TEXT[i18n()?.lang === 'it' ? 'it' : 'en'];
+  const getLabel = state => labels[lang()][state] || labels.en[state];
+
+  function updateState() {
+    const consent = readConsent();
+    if (consent === 'granted') {
+      status.textContent = getLabel('granted');
+      accept.hidden = true;
+      reject.hidden = true;
+      revoke.hidden = false;
+      return;
+    }
+    if (consent === 'denied') {
+      status.textContent = getLabel('denied');
+      accept.hidden = false;
+      reject.hidden = true;
+      revoke.hidden = false;
+      return;
+    }
+    status.textContent = getLabel('unset');
+    accept.hidden = false;
+    reject.hidden = false;
+    revoke.hidden = true;
   }
 
-  function renderState() {
-    const text = currentText();
-    const state = analytics()?.consentState || 'unset';
-
-    reject.textContent = text.reject;
-    revoke.textContent = text.revoke;
-    status.textContent = text[state] || text.unset;
-
-    accept.hidden = state === 'granted';
-    reject.hidden = state === 'denied' || state === 'granted';
-    revoke.hidden = state !== 'granted';
+  function setOpen(open) {
+    panel.hidden = !open;
+    toggle.setAttribute('aria-expanded', String(open));
   }
 
-  const open = () => {
-    renderState();
-    panel.hidden = false;
-    toggle.setAttribute('aria-expanded', 'true');
-    panel.querySelector('.privacy-actions button:not([hidden])')?.focus({ preventScroll: true });
-  };
-
-  const hide = () => {
-    panel.hidden = true;
-    toggle.setAttribute('aria-expanded', 'false');
-  };
-
-  toggle.addEventListener('click', () => panel.hidden ? open() : hide());
-  close.addEventListener('click', hide);
+  toggle.addEventListener('click', () => setOpen(panel.hidden));
+  close.addEventListener('click', () => setOpen(false));
 
   accept.addEventListener('click', () => {
-    setAck();
-    analytics()?.grant?.();
-    renderState();
-    hide();
+    writeConsent('granted');
+    window.dispatchEvent(new CustomEvent('portfolio:analytics-consent', { detail: { consent: 'granted' } }));
+    updateState();
   });
 
   reject.addEventListener('click', () => {
-    setAck();
-    analytics()?.deny?.();
-    renderState();
-    hide();
+    writeConsent('denied');
+    window.dispatchEvent(new CustomEvent('portfolio:analytics-consent', { detail: { consent: 'denied' } }));
+    updateState();
   });
 
   revoke.addEventListener('click', () => {
-    setAck();
-    analytics()?.revoke?.();
-    renderState();
+    writeConsent('denied');
+    window.dispatchEvent(new CustomEvent('portfolio:analytics-consent', { detail: { consent: 'denied' } }));
+    updateState();
   });
 
-  langToggle.addEventListener('click', () => i18n()?.toggle());
-  addEventListener('keydown', event => { if (event.key === 'Escape' && !panel.hidden) hide(); });
-  addEventListener('portfolio:langchange', () => {
-    i18n()?.applyStatic(panel);
-    renderState();
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !panel.hidden) {
+      setOpen(false);
+      toggle.focus({ preventScroll: true });
+    }
   });
 
-  const prompt = () => {
-    renderState();
-    if (!hasAck()) setTimeout(open, 900);
-  };
-
-  if (document.body.classList.contains('booting')) addEventListener('portfolio:booted', prompt, { once: true });
-  else prompt();
+  window.addEventListener('portfolio:langchange', updateState);
+  updateState();
 })();
