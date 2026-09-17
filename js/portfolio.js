@@ -24,6 +24,7 @@
   const projectById = id => projects.find(p => p.id === String(id).padStart(2,'0'));
   const projectBySlug = slug => projects.find(p => p.slug === slug);
   const isTouchDevice = () => coarsePointer.matches || navigator.maxTouchPoints > 0;
+  const backGlyph = '<span aria-hidden="true" style="display:inline-block;line-height:1;transform:translate(1px,-1px)">&lt;</span>';
 
   let degaussSwap=null, degaussEnd=null;
   let mobileProjectObserver=null;
@@ -225,7 +226,7 @@
 
   function projectShell(inner,{caseView=false}={}){
     return `<div class="projects-chrome" aria-label="${esc(t('window.projects'))}">
-      <button class="projects-back" data-projects-back aria-label="${esc(t('window.backLabel'))}" title="${esc(t('window.back'))}">←</button>
+      <button class="projects-back" data-projects-back aria-label="${esc(t('window.backLabel'))}" title="${esc(t('window.back'))}">${backGlyph}</button>
       <button class="projects-close" data-projects-close aria-label="${esc(t('window.closeLabel'))}" title="${esc(t('window.close'))}">×</button>
     </div>${inner}`;
   }
@@ -288,7 +289,7 @@
     const titleId=`window-title-${kind}`;
     win.setAttribute('aria-labelledby',titleId);
     win.__returnFocus=lastLauncher;
-    win.innerHTML=`<div class="window-titlebar"><button class="window-back" data-window-back aria-label="${esc(t('window.backLabel'))}" title="${esc(t('window.back'))}">←</button><span id="${titleId}">${title}</span><div class="window-controls"><button data-close aria-label="${esc(t('window.closeLabel'))}" title="${esc(t('window.close'))}">×</button></div></div><div class="window-body"></div>`;
+    win.innerHTML=`<div class="window-titlebar"><button class="window-back" data-window-back aria-label="${esc(t('window.backLabel'))}" title="${esc(t('window.back'))}">${backGlyph}</button><span id="${titleId}">${title}</span><div class="window-controls"><button data-close aria-label="${esc(t('window.closeLabel'))}" title="${esc(t('window.close'))}">×</button></div></div><div class="window-body"></div>`;
     layer.appendChild(win);
     if(!responsiveWindows.matches){
       placeWindowRandomly(win);
@@ -417,7 +418,7 @@
     body.innerHTML=`
       <article class="case-study-v2">
         <div class="case-topline">
-          <button class="case-back-v2" data-back-projects>← ${esc(t('portfolio.selectedWorkText'))}</button>
+          <button class="case-back-v2" data-back-projects>${backGlyph} ${esc(t('portfolio.selectedWorkText'))}</button>
           <span>${String(index+1).padStart(2,'0')} / ${String(projects.length).padStart(2,'0')}</span>
         </div>
 
@@ -486,7 +487,7 @@
     projectsView.innerHTML=projectShell(`
       <article class="case-study-v2">
         <div class="case-topline">
-          <button class="case-back-v2" data-back-projects>← ${esc(t('portfolio.selectedWorkText'))}</button>
+          <button class="case-back-v2" data-back-projects>${backGlyph} ${esc(t('portfolio.selectedWorkText'))}</button>
           <span>${String(index+1).padStart(2,'0')} / ${String(projects.length).padStart(2,'0')}</span>
         </div>
         <header class="case-lead-v2">
