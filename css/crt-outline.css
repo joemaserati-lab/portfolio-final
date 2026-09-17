@@ -1,46 +1,15 @@
 @import url("crt-outline-base.css");
 @import url("project-covers.css");
 
-/* Give ABOUT / PROFILE its own visual language instead of reusing the CV file
-   glyph. The existing inline SVG stays in the markup as a fallback. */
-.desktop-icon[data-open="about"] .icon-glyph svg {
-  display: none;
-}
-
-.desktop-icon[data-open="about"] .icon-glyph::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 18%;
-  width: 22%;
-  aspect-ratio: 1;
-  transform: translateX(-50%);
-  border: 1.5px solid currentColor;
-  border-radius: 50%;
-}
-
-.desktop-icon[data-open="about"] .icon-glyph::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: 13%;
-  width: 48%;
-  height: 31%;
-  transform: translateX(-50%);
-  border: 1.5px solid currentColor;
-  border-bottom: 0;
-  border-radius: 999px 999px 0 0;
-}
-
 /* Responsive desktop icon layout — 2026-09-17
-   Move the navigation away from the hero before the compact desktop/tablet
-   range can collide with text. */
+   Move navigation into a dedicated strip before it can collide with hero copy
+   or the persistent language/privacy controls. */
 @media (min-width: 721px) and (max-width: 1024px) {
   .desktop-icons {
     left: calc(var(--screen-safe-left) + 4px);
     right: calc(var(--screen-safe-right) + 4px);
     top: auto;
-    bottom: calc(var(--screen-safe-bottom) + 28px);
+    bottom: calc(var(--screen-safe-bottom) + 62px);
     grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 6px;
   }
@@ -63,6 +32,15 @@
   .icon-glyph {
     width: 44px;
     height: 38px;
+  }
+
+  /* Keep the persistent controls inside their own lower strip. */
+  .language-toggle {
+    bottom: calc(var(--screen-safe-bottom) + 8px);
+  }
+
+  .privacy-widget {
+    bottom: calc(var(--screen-safe-bottom) + 8px);
   }
 }
 
