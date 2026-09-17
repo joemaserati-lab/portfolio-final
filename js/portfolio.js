@@ -25,6 +25,7 @@
   const projectBySlug = slug => projects.find(p => p.slug === slug);
   const isTouchDevice = () => coarsePointer.matches || navigator.maxTouchPoints > 0;
   const backGlyph = '<span aria-hidden="true" style="display:inline-block;line-height:1;transform:translate(1px,-1px)">&lt;</span>';
+  const projectImage = p => p.cover ? `<img class="project-cover-img" src="${esc(p.cover)}" alt="${esc(p.title)}" loading="lazy" decoding="async">` : '<span class="project-cover-art" aria-hidden="true"></span>';
 
   let degaussSwap=null, degaussEnd=null;
   let mobileProjectObserver=null;
@@ -158,7 +159,7 @@
               <span class="project-cover-v2">
                 <span class="project-cover-id">${esc(p.id)}</span>
                 <span class="project-cover-type">${esc(p.type.toUpperCase())}</span>
-                <span class="project-cover-art" aria-hidden="true"></span>
+                ${projectImage(p)}
                 <span class="project-cover-open">${esc(t('portfolio.viewProject'))} ↗</span>
               </span>
               <span class="project-tile-copy">
@@ -390,8 +391,9 @@
     const cls={hero:'case-media-hero-v2',landscape:'case-media-landscape-v2',portrait:'case-media-portrait-v2',wide:'case-media-wide-v2'}[media.type]||'';
     const variant=((projects.indexOf(project)+index-1)%4)+1;
     const bentoClass=galleryIndex===null ? '' : ` bento-slot-${galleryIndex%4}${galleryCount%2===1 && galleryIndex===galleryCount-1 ? ' bento-full' : ''}`;
+    const image=media.type==='hero' && project.cover ? `<img class="case-media-img" src="${esc(project.cover)}" alt="${esc(project.title)}" loading="lazy" decoding="async">` : '<div class="case-media-surface" aria-hidden="true"></div>';
     return `<figure class="case-media-v2 ${cls} media-visual-${variant}${bentoClass}">
-      <div class="case-media-surface" aria-hidden="true"></div>
+      ${image}
       <figcaption><span>${String(index).padStart(2,'0')}</span><span>${esc(media.label)}</span></figcaption>
     </figure>`;
   }
