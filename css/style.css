@@ -1534,6 +1534,31 @@ body.site-entering .desktop-icons .desktop-icon:nth-child(5){animation-delay:.58
 .boot-gate h2{margin:0;color:var(--bright);font-family:"Redaction 50","Doto",monospace;font-size:clamp(42px,min(6vw,11vh),88px);font-weight:400;line-height:.88;letter-spacing:-.035em;text-shadow:0 0 8px rgba(242,228,255,.24),0 0 22px rgba(184,142,219,.14)}
 .boot-gate-status{min-height:1.2em;font-size:var(--type-body)}
 .boot-gate-note{max-width:520px;font-size:var(--type-ui);letter-spacing:.06em;text-transform:none;color:#9f78b2}
+.boot-progress{
+  position:absolute;
+  z-index:5;
+  left:0;
+  right:0;
+  bottom:0;
+  height:1px;
+  overflow:hidden;
+  background:rgba(212,184,236,.08);
+  opacity:1;
+  visibility:visible;
+  transition:opacity .24s ease,visibility .24s ease;
+}
+.boot-progress span{
+  display:block;
+  width:100%;
+  height:100%;
+  transform:scaleX(0);
+  transform-origin:left center;
+  background:#d4b8ec;
+  box-shadow:0 0 10px rgba(212,184,236,.62);
+  will-change:transform;
+}
+.boot-loader.is-loaded .boot-progress,
+.boot-loader.is-ready .boot-progress{opacity:0;visibility:hidden}
 .boot-enter{
   margin-top:8px;
   border:1px solid var(--line-strong);
