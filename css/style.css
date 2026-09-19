@@ -1539,10 +1539,10 @@ body.site-entering .desktop-icons .desktop-icon:nth-child(5){animation-delay:.58
   z-index:5;
   left:0;
   right:0;
-  bottom:0;
-  height:1px;
+  top:calc(50% + 56px);
+  height:2px;
   overflow:hidden;
-  background:rgba(212,184,236,.08);
+  background:rgba(212,184,236,.10);
   opacity:1;
   visibility:visible;
   transition:opacity .24s ease,visibility .24s ease;
