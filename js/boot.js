@@ -5,18 +5,19 @@
   const gateTitle = document.querySelector('#boot-gate h2');
   const gateStatus = document.getElementById('boot-gate-status');
   const gateNote = document.getElementById('boot-gate-note');
-  if (!loader || !out || !enter || !gateTitle || !gateStatus) return;
+  const progress = document.getElementById('boot-progress');
+  const progressBar = document.getElementById('boot-progress-bar');
+  if (!loader || !out || !enter || !gateTitle || !gateStatus || !progress || !progressBar) return;
 
   const bootStart = performance.now();
   const MIN_VISIBLE_MS = 1300;
-  const MIN_LOADING_TITLE_MS = 2200;
   const TITLE_SCRAMBLE_MS = 700;
   const TITLE_SCRAMBLE_STEP_MS = 42;
   const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&@';
   const READY_HOLD_MS = 220;
   const ROW_STEP_MS = 135;
-  const HEAD_READY_TIMEOUT_MS = 6500;
-  const SCRIPT_LOAD_TIMEOUT_MS = 8000;
+  const HEAD_READY_TIMEOUT_MS = 12000;
+  const SCRIPT_LOAD_TIMEOUT_MS = 12000;
   const i18n = window.PortfolioI18n;
   const t = key => i18n?.t?.(key) || key;
   const isTouchDevice = () => Boolean(i18n?.isTouchDevice?.()) || matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
@@ -27,6 +28,21 @@
   let applicationPromise = null;
   let headPromise = null;
   let fatalLoadError = false;
+
+  const progressWeights = new Map([
+    ['dom', 5],
+    ['fonts', 10],
+    ['page', 5],
+    ['video', 5],
+    ['app', 15],
+    ['covers', 10],
+    ['head', 50]
+  ]);
+  const completedProgressTasks = new Set();
+  let progressTarget = 0;
+  let progressValue = 0;
+  let progressRaf = 0;
+  let progressDoneResolve = null;
 
   const rows = new Map();
   const rowOrder = [];
@@ -123,6 +139,76 @@
     }
   }
 
+  function renderProgress() {
+    progressBar.style.transform = `scaleX(${Math.max(0, Math.min(1, progressValue / 100))})`;
+  }
+
+  function animateProgress() {
+    const delta = progressTarget - progressValue;
+    if (Math.abs(delta) <= 0.12) {
+      progressValue = progressTarget;
+      renderProgress();
+      progressRaf = 0;
+      if (progressValue >= 100 && progressDoneResolve) {
+        const resolve = progressDoneResolve;
+        progressDoneResolve = null;
+        resolve();
+      }
+      return;
+    }
+    progressValue += delta * 0.24;
+    renderProgress();
+    progressRaf = requestAnimationFrame(animateProgress);
+  }
+
+  function setProgressTarget(value) {
+    progressTarget = Math.max(progressTarget, Math.min(100, value));
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      progressValue = progressTarget;
+      renderProgress();
+      if (progressValue >= 100 && progressDoneResolve) {
+        const resolve = progressDoneResolve;
+        progressDoneResolve = null;
+        resolve();
+      }
+      return;
+    }
+    if (!progressRaf) progressRaf = requestAnimationFrame(animateProgress);
+  }
+
+  function completeProgressTask(key) {
+    if (completedProgressTasks.has(key)) return;
+    completedProgressTasks.add(key);
+    let total = 0;
+    completedProgressTasks.forEach(task => {
+      total += progressWeights.get(task) || 0;
+    });
+    setProgressTarget(Math.min(96, total));
+  }
+
+  function trackProgress(key, promise) {
+    return Promise.resolve(promise).then(
+      value => {
+        completeProgressTask(key);
+        return value;
+      },
+      error => {
+        completeProgressTask(key);
+        throw error;
+      }
+    );
+  }
+
+  function finishProgress() {
+    setProgressTarget(100);
+    if (progressValue >= 99.88) return Promise.resolve();
+    return new Promise(resolve => {
+      progressDoneResolve = resolve;
+    });
+  }
+
+  setProgressTarget(1.5);
+
   function loadScript(src) {
     return new Promise((resolve, reject) => {
       const selector = `script[data-app-src="${src}"]`;
@@ -198,6 +284,39 @@
       throw error;
     });
     return applicationPromise;
+  }
+
+  function preloadImage(src) {
+    return new Promise(resolve => {
+      const image = new Image();
+      image.decoding = 'async';
+      const done = async ok => {
+        image.onload = null;
+        image.onerror = null;
+        if (ok && typeof image.decode === 'function') {
+          try { await image.decode(); } catch {}
+        }
+        resolve({ ok, src });
+      };
+      image.onload = () => done(true);
+      image.onerror = () => done(false);
+      image.src = src;
+      if (image.complete) done(image.naturalWidth > 0);
+    });
+  }
+
+  async function preloadPortfolioImages() {
+    const covers = [...new Set(
+      (window.PORTFOLIO_DATA?.projects || [])
+        .map(project => project?.cover)
+        .filter(Boolean)
+    )];
+    if (!covers.length) return { ok: true, count: 0 };
+    const results = await Promise.all(covers.map(preloadImage));
+    return {
+      ok: results.every(result => result.ok),
+      count: results.length
+    };
   }
 
   function primeTiltPermission() {
@@ -325,13 +444,45 @@
     try { video.load(); } catch { done(false); }
   });
 
-  Promise.allSettled([domReady, fontsReady, pageReady, videoReady]).then(async () => {
-    const elapsed = performance.now() - bootStart;
-    const remainingLoadingTime = Math.max(0, MIN_LOADING_TITLE_MS - elapsed);
-    if (remainingLoadingTime) {
-      await new Promise(resolve => setTimeout(resolve, remainingLoadingTime));
+  const trackedDomReady = trackProgress('dom', domReady);
+  const trackedFontsReady = trackProgress('fonts', fontsReady);
+  const trackedPageReady = trackProgress('page', pageReady);
+  const trackedVideoReady = trackProgress('video', videoReady);
+
+  // Start the real application work immediately, behind the opaque loader.
+  // The enter button is enabled only after the interface, project covers and
+  // 3D pipeline have settled, so the terminal boot remains purely scenic.
+  const applicationReady = trackProgress('app', loadApplication());
+  const coversReady = trackProgress(
+    'covers',
+    applicationReady
+      .then(() => preloadPortfolioImages())
+      .catch(error => ({ ok: false, skipped: true, error }))
+  );
+  const headReady = trackProgress('head', loadHead());
+
+  (async () => {
+    try {
+      await applicationReady;
+    } catch (error) {
+      recoverApplicationLoad(error);
+      return;
     }
 
+    await Promise.allSettled([
+      trackedDomReady,
+      trackedFontsReady,
+      trackedPageReady,
+      trackedVideoReady,
+      coversReady,
+      headReady
+    ]);
+
+    await finishProgress();
+    loader.classList.add('is-loaded');
+
+    // Let the completed bar disappear before changing the loader copy.
+    await new Promise(resolve => setTimeout(resolve, 180));
     await scrambleTitle('boot.readyTitle');
 
     resourcesReady = true;
@@ -342,7 +493,7 @@
     loader.classList.add('is-ready');
     enter.disabled = false;
     enter.focus({ preventScroll: true });
-  });
+  })();
 
   async function requestTiltBeforeEntry() {
     const tilt = window.PortfolioTilt;
@@ -451,31 +602,19 @@
     }
     if (!resourcesReady || sequenceStarted) return;
     enter.disabled = true;
+
+    // Permission requests that require a user gesture start synchronously here.
+    // All heavy application/model work has already completed before this click.
+    const permissionPromise = primeTiltPermission();
     if (!beginSequence()) return;
 
-    // On iOS the permission request must begin synchronously inside the user
-    // gesture. The result is cached and consumed by head3d once its module loads.
-    const permissionPromise = primeTiltPermission();
-    const headWork = loadHead();
-    const appWork = loadApplication();
-
-    try {
-      await appWork;
-    } catch (error) {
-      recoverApplicationLoad(error);
-      return;
+    const permissionResult = await Promise.resolve(permissionPromise).then(
+      value => ({ status: 'fulfilled', value }),
+      reason => ({ status: 'rejected', reason })
+    );
+    if (permissionResult.status === 'rejected') {
+      console.warn('Tilt permission initialization failed.', permissionResult.reason);
     }
-
-    const [headResult, permissionResult] = await Promise.allSettled([
-      headWork,
-      permissionPromise
-    ]);
-
-    if (headResult.status === 'rejected') {
-      console.error('3D head initialization failed.', headResult.reason);
-      setRow('head', '06 MODEL', '3D fallback active', 'warn');
-    }
-    if (permissionResult.status === 'rejected') console.warn('Tilt permission initialization failed.', permissionResult.reason);
 
     if (!headOk) setGate(t('boot.fallbackStatus'), t('boot.fallbackNote'));
 
