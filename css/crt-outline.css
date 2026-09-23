@@ -1,7 +1,3 @@
-@import url("crt-outline-base.css");
-@import url("project-covers.css");
-@import url("purple-theme.css");
-
 /* Responsive desktop icon layout — 2026-09-17
    Move navigation into a dedicated strip before it can collide with hero copy
    or the persistent language/privacy controls. */
@@ -11,7 +7,7 @@
     right: calc(var(--screen-safe-right) + 4px);
     top: auto;
     bottom: calc(var(--screen-safe-bottom) + 62px);
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 6px;
   }
 
