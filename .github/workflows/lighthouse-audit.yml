@@ -1,6 +1,8 @@
 name: Lighthouse Audit
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       audit_url:
@@ -31,6 +33,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+
+      - name: Wait for Pages deployment
+        if: ${{ github.event_name == 'push' }}
+        run: sleep 35
 
       - name: Verify live site
         run: |
