@@ -3,7 +3,6 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
-import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
 const PRESET = Object.freeze({
   // V31.4-A — organic iridescent flow over the existing contour-line geometry.
@@ -22,10 +21,20 @@ const PRESET = Object.freeze({
 });
 
 const PERFORMANCE = Object.freeze({
-  desktopMaxDpr: 1.5,
-  touchMaxDpr: 1.2,
-  desktopTargetFps: 45,
-  touchTargetFps: 30
+  // Keep GPU cost bounded by rendered pixels, not by the physical display size.
+  // This is what makes the same composition scale from laptop screens to 4K/5K displays.
+  largeSurfaceThreshold: 3500000,
+  quality: Object.freeze([
+    Object.freeze({ name: 'high',     maxPixels: 2600000, maxDpr: 1.25, fps: 60 }),
+    Object.freeze({ name: 'balanced', maxPixels: 1800000, maxDpr: 1.00, fps: 60 }),
+    Object.freeze({ name: 'low',      maxPixels: 1200000, maxDpr: 0.85, fps: 30 })
+  ]),
+  touchMaxPixels: 1200000,
+  touchMaxDpr: 0.90,
+  touchFps: 30,
+  slowFrameFactor: 1.42,
+  slowFrameFloor: 24,
+  slowFramesToDegrade: 24
 });
 
 
@@ -238,12 +247,50 @@ function disposeModel(model) {
 // V31.4-A contour-line shader with multi-scale domain-warped organic iridescent colour flow.
 export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion = false, onError } = {}) {
   if (!container || !canvas) throw new Error('Head scan requires its container and canvas.');
-  let renderer, composer, bloomPass, outputPass, resizeObserver, model;
+  let renderer, composer, outputPass, resizeObserver, model;
   let disposed = false, loaded = false, paused = true, raf = 0, lastTime = null, elapsed = 0;
-  let lastFrameStamp = 0;
+  let lastFrameStamp = 0, lastRafStamp = 0, slowFrameStreak = 0;
   let shaderFailed = false;
   const coarsePointer = matchMedia('(pointer: coarse)').matches;
-  const targetFrameMs = 1000 / (coarsePointer ? PERFORMANCE.touchTargetFps : PERFORMANCE.desktopTargetFps);
+  const estimateSurfacePixels = () => {
+    const width = Math.max(container.clientWidth, 1);
+    const height = Math.max(container.clientHeight, 1);
+    const dpr = Math.min(devicePixelRatio || 1, 1.5);
+    return width * height * dpr * dpr;
+  };
+  let qualityIndex = coarsePointer ? 1 : (estimateSurfacePixels() > PERFORMANCE.largeSurfaceThreshold ? 1 : 0);
+  const quality = () => PERFORMANCE.quality[qualityIndex];
+  const targetFps = () => coarsePointer ? PERFORMANCE.touchFps : quality().fps;
+  const targetFrameMs = () => 1000 / targetFps();
+
+  function syncPerformanceClass() {
+    const estimated = estimateSurfacePixels();
+    document.body.classList.toggle('perf-large-surface', estimated > PERFORMANCE.largeSurfaceThreshold);
+    document.body.classList.toggle('perf-constrained', qualityIndex >= 2);
+    document.body.dataset.renderQuality = coarsePointer ? 'touch' : quality().name;
+  }
+
+  function degradeQuality() {
+    if (coarsePointer || qualityIndex >= PERFORMANCE.quality.length - 1) return false;
+    qualityIndex += 1;
+    slowFrameStreak = 0;
+    syncPerformanceClass();
+    resize();
+    return true;
+  }
+
+  function sampleFramePacing(now) {
+    if (!lastRafStamp) {
+      lastRafStamp = now;
+      return;
+    }
+    const delta = now - lastRafStamp;
+    lastRafStamp = now;
+    const slowThreshold = Math.max(PERFORMANCE.slowFrameFloor, targetFrameMs() * PERFORMANCE.slowFrameFactor);
+    if (delta > slowThreshold) slowFrameStreak += 1;
+    else slowFrameStreak = Math.max(0, slowFrameStreak - 2);
+    if (slowFrameStreak >= PERFORMANCE.slowFramesToDegrade) degradeQuality();
+  }
   const materials = [];
   const pointer = new THREE.Vector2(), targetPointer = new THREE.Vector2();
   const scene = new THREE.Scene();
@@ -265,7 +312,6 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
     removeEventListener('resize', resize);
     canvas.removeEventListener('webglcontextlost', onContextLost);
     disposeModel(model);
-    bloomPass?.dispose();
     outputPass?.dispose();
     composer?.dispose();
     renderer?.dispose();
@@ -296,7 +342,11 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
   function animate(now) {
     raf = 0;
     if (disposed || paused || !loaded) return;
-    if (!lastFrameStamp || now - lastFrameStamp >= targetFrameMs) {
+    sampleFramePacing(now);
+    const frameBudget = targetFrameMs();
+    // Small tolerance prevents a nominal 60 fps stream from being accidentally
+    // halved to 30 fps because rAF timestamps land a fraction below 16.67 ms.
+    if (!lastFrameStamp || now - lastFrameStamp >= frameBudget - 1.0) {
       lastFrameStamp = now;
       render(now);
     }
@@ -307,6 +357,8 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
     raf = 0;
     lastTime = null;
     lastFrameStamp = 0;
+    lastRafStamp = 0;
+    slowFrameStreak = 0;
     if (disposed || paused || !loaded) return;
     render(performance.now());
     raf = requestAnimationFrame(animate);
@@ -314,7 +366,13 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
   function resize() {
     if (disposed || !composer) return;
     const width = Math.max(container.clientWidth, 1), height = Math.max(container.clientHeight, 1);
-    const pixelRatio = Math.min(devicePixelRatio || 1, coarsePointer ? PERFORMANCE.touchMaxDpr : PERFORMANCE.desktopMaxDpr);
+    const q = quality();
+    const maxPixels = coarsePointer ? PERFORMANCE.touchMaxPixels : q.maxPixels;
+    const maxDpr = coarsePointer ? PERFORMANCE.touchMaxDpr : q.maxDpr;
+    const nativeDpr = Math.min(devicePixelRatio || 1, maxDpr);
+    const budgetDpr = Math.sqrt(maxPixels / Math.max(1, width * height));
+    const pixelRatio = Math.max(0.38, Math.min(nativeDpr, budgetDpr));
+    syncPerformanceClass();
     renderer.setPixelRatio(pixelRatio);
     renderer.setSize(width, height, false);
     composer.setPixelRatio(pixelRatio);
@@ -331,7 +389,7 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
   }
 
   try {
-    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, premultipliedAlpha: true, powerPreference: coarsePointer ? 'low-power' : 'default' });
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, premultipliedAlpha: true, powerPreference: coarsePointer ? 'low-power' : 'high-performance' });
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.NeutralToneMapping;
     renderer.toneMappingExposure = 1.00;
@@ -343,8 +401,8 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
     };
     composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
-    bloomPass = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.012, 0.035, 1.55);
-    composer.addPass(bloomPass);
+    // Bloom was visually negligible at the approved 0.012 strength but still
+    // required another full-resolution post-processing pass on every frame.
     outputPass = new OutputPass();
     // Preserve the reference RGB over black, but make its black signal transparent.
     // The canvas consumes premultiplied RGB, so alpha must be at least max(R,G,B).
