@@ -23,6 +23,7 @@
   const i18n = window.PortfolioI18n;
   const t = key => i18n?.t?.(key) || key;
   const isTouchDevice = () => Boolean(i18n?.isTouchDevice?.()) || matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
+  const touchDevice = isTouchDevice();
   let finished = false;
   let sequenceStarted = false;
   let resourcesReady = false;
@@ -434,7 +435,26 @@
       .then(() => preloadPortfolioImages())
       .catch(error => ({ ok: false, skipped: true, error }))
   );
-  const headReady = trackProgress('head', loadHead());
+  // Desktop keeps the 3D head eagerly warmed behind the loader.
+  // Touch devices defer Three.js/model work until after the initial experience
+  // is interactive, removing it from the mobile critical rendering path.
+  const eagerHead = !touchDevice;
+  const headReady = eagerHead
+    ? trackProgress('head', loadHead())
+    : Promise.resolve({ ok: true, deferred: true });
+
+  if (!eagerHead) setRow('head', '06 MODEL', 'deferred until entry', 'done');
+
+  function scheduleDeferredHead() {
+    if (eagerHead || headPromise) return;
+    const start = () => {
+      loadHead()
+        .then(() => window.PortfolioTilt?.enableFallback?.())
+        .catch(error => console.warn('Deferred 3D head load failed.', error));
+    };
+    if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 1800 });
+    else setTimeout(start, 650);
+  }
 
   (async () => {
     try {
@@ -458,8 +478,9 @@
     resourcesReady = true;
 
     if (returningVisit) {
-      await enableTouchFallbackBeforeEntry();
       launch(true);
+      if (touchDevice) scheduleDeferredHead();
+      else await enableTouchFallbackBeforeEntry();
       return;
     }
 
@@ -568,9 +589,17 @@
 
     if (!beginSequence()) return;
 
-    if (!headOk) setGate(t('boot.fallbackStatus'), t('boot.fallbackNote'));
-
-    await enableTouchFallbackBeforeEntry();
+    if (touchDevice && !headPromise) {
+      // Start the expensive mobile 3D path only after the user has chosen to enter.
+      // It warms while the terminal sequence is already playing.
+      loadHead()
+        .then(() => window.PortfolioTilt?.enableFallback?.())
+        .catch(error => console.warn('Mobile 3D head load failed.', error));
+      setRow('ready', '07 READY', 'touch mode / launching sequence', 'done');
+    } else {
+      if (!headOk && eagerHead) setGate(t('boot.fallbackStatus'), t('boot.fallbackNote'));
+      await enableTouchFallbackBeforeEntry();
+    }
 
     if ((rowState.get('ready')?.state || 'pending') === 'pending') {
       setRow('ready', '07 READY', 'portfolio environment online', 'done');
