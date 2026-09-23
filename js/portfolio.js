@@ -398,6 +398,11 @@
     </figure>`;
   }
 
+  function liveSiteLink(p){
+    if(!p.liveUrl) return '';
+    return `<a class="case-live-link" href="${esc(p.liveUrl)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(t('case.visitLive'))} ${esc(p.title)}">${esc(t('case.visitLive'))}</a>`;
+  }
+
   function renderCase(win,p){
     const index=projects.indexOf(p);
     const prev=projects[(index-1+projects.length)%projects.length];
@@ -439,6 +444,8 @@
           <div><dt>${esc(t('case.deliverables'))}</dt><dd>${esc(p.deliverables)}</dd></div>
           <div><dt>${esc(t('case.year'))}</dt><dd>${esc(p.year)}</dd></div>
         </dl>
+        ${liveSiteLink(p)}
+        ${liveSiteLink(p)}
 
         <section class="case-story-v2">
           <div class="case-story-label">${esc(t('case.notes'))}</div>
