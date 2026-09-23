@@ -86,12 +86,18 @@
 
     projects: [
       {
-        id:'01', slug:'tovadu', title:'TOVADÙ', displayTitle:'TOVADÙ', type:'Digital Experience', year:'2026', client:'Tovadù', cover:'assets/images/Tovadu.webp',
+        id:'01', slug:'tovadu', title:'TOVADÙ', displayTitle:'TOVADÙ', type:'Digital Experience', year:'2026', client:'Tovadù', cover:'assets/images/Tovadu.webp', liveUrl:'https://tovadu.com/',
         role:'Web Design / Development', deliverables:'Website / UX / UI / Development',
         intro:'A B2B website for a consulting company working on digital transformation and business technology.',
         context:'Tovadù deals with services that become technical very quickly. The website had to explain what the company does without forcing visitors to understand its internal terminology first.',
         direction:'I structured the content around the problems a potential client is likely to recognise before introducing services and technical expertise. The interface follows the same logic: information is divided into clear levels so users can understand the offer before moving into detail.',
         tags:['WEB DESIGN','UI / UX','DIGITAL DESIGN','WEB DEVELOPMENT','B2B COMMUNICATION'],
+        outputs:[
+          {title:'INFORMATION ARCHITECTURE',description:'Content structure and hierarchy designed around the needs and questions of potential B2B clients.'},
+          {title:'UI SYSTEM',description:'Responsive interface system translating the positioning into a clear and consistent digital language.'},
+          {title:'FRONT-END',description:'Responsive front-end implementation and interaction behaviour across desktop and mobile.'},
+          {title:'PRODUCTION WEBSITE',description:'Complete website prepared for real-world publishing, content management and ongoing use.'}
+        ],
         media:[
           {type:'hero',label:'WEBSITE / UX / UI / DEVELOPMENT'},
           {type:'landscape',label:'INFORMATION ARCHITECTURE'},
@@ -101,12 +107,18 @@
         ]
       },
       {
-        id:'02', slug:'pholia', title:'PHOLIÀ', displayTitle:'PHOLIÀ', type:'Digital Experience', year:'2026', client:'Pholià', cover:'assets/images/Pholia.webp',
+        id:'02', slug:'pholia', title:'PHOLIÀ', displayTitle:'PHOLIÀ', type:'Digital Experience', year:'2026', client:'Pholià', cover:'assets/images/Pholia.webp', liveUrl:'https://pholia.it/',
         role:'Web Design / Development', deliverables:'Website / UX / UI / Development',
         intro:'A website for a company working across innovation, strategy and intangible assets.',
         context:'Pholià brings together subjects that normally belong to different professional areas. The website therefore had to explain each one separately without making the company look like a collection of unrelated services.',
         direction:'I designed the site around a modular content structure. Each area has enough space to develop its own subject while remaining part of the same visual and navigational system. The hierarchy introduces the company first and lets users move into more specialised content when needed.',
         tags:['WEB DESIGN','UI / UX','DIGITAL DESIGN','WEB DEVELOPMENT','VISUAL SYSTEMS'],
+        outputs:[
+          {title:'CONTENT SYSTEM',description:'Modular information structure connecting different business areas inside one coherent experience.'},
+          {title:'UI SYSTEM',description:'Responsive visual system with reusable interface patterns and consistent hierarchy.'},
+          {title:'FRONT-END',description:'Responsive front-end implementation, motion and interaction behaviour.'},
+          {title:'PRODUCTION WEBSITE',description:'Complete website delivered as a working digital product, ready for editorial growth.'}
+        ],
         media:[
           {type:'hero',label:'WEBSITE / UX / UI / DEVELOPMENT'},
           {type:'landscape',label:'MODULAR CONTENT'},
@@ -116,12 +128,18 @@
         ]
       },
       {
-        id:'03', slug:'sapy', title:'SAPY', displayTitle:'SAPY', type:'Digital Experience', year:'2026', client:'Sapy', cover:'assets/images/Sapy.webp',
+        id:'03', slug:'sapy', title:'SAPY', displayTitle:'SAPY', type:'Digital Experience', year:'2026', client:'Sapy', cover:'assets/images/Sapy.webp', liveUrl:'https://www.sapy.it/',
         role:'Web Design / Development', deliverables:'Website / UX / UI / Development',
         intro:'A digital project built around the use of artificial intelligence in education.',
         context:'Sapy introduces AI as a tool for teachers. The website needed to explain what the product does before asking users to understand the technology behind it.',
         direction:'I separated product information, editorial content and the broader project into distinct parts of the site. The interface keeps the technology visible without making it the subject of every page. The priority is understanding what users can actually do with the platform.',
         tags:['WEB DESIGN','UI / UX','DIGITAL DESIGN','WEB DEVELOPMENT','AI / EDTECH'],
+        outputs:[
+          {title:'CONTENT ARCHITECTURE',description:'Separation of product, editorial and project information into a navigable structure.'},
+          {title:'UI SYSTEM',description:'Responsive interface designed to make an AI-based product understandable without overloading the user.'},
+          {title:'FRONT-END',description:'Responsive front-end implementation and interaction behaviour across devices.'},
+          {title:'PRODUCTION WEBSITE',description:'Complete public-facing website delivered for the project launch and ongoing communication.'}
+        ],
         media:[
           {type:'hero',label:'WEBSITE / UX / UI / DEVELOPMENT'},
           {type:'landscape',label:'AI / EDTECH'},
@@ -131,7 +149,7 @@
         ]
       },
       {
-        id:'04', slug:'platinum-technologies', title:'PLATINUM TECHNOLOGIES', displayTitle:'PLATINUM\nTECHNOLOGIES', type:'Corporate Communication', year:'ONGOING', client:'Platinum Technologies', cover:'assets/images/PlatinumTechnologies.webp',
+        id:'04', slug:'platinum-technologies', title:'PLATINUM TECHNOLOGIES', displayTitle:'PLATINUM\nTECHNOLOGIES', type:'Corporate Communication', year:'ONGOING', client:'Platinum Technologies', cover:'assets/images/PlatinumTechnologies.webp', liveUrl:'https://liyuprinter.it/',
         role:'Graphic Design / Digital Marketing / Web Management', deliverables:'Corporate Design / Web / Campaigns / Editorial / Events',
         intro:'Ongoing communication work for a company operating in industrial large-format printing.',
         context:'Platinum Technologies communicates machines, applications and technical subjects to different audiences. The same product can appear in a technical article, a campaign, a trade-show graphic, a landing page or a sales presentation. Each format needs a different amount of information while still belonging to the same brand.',
@@ -153,7 +171,7 @@
         ]
       },
       {
-        id:'05', slug:'colorcopy-large-format', title:'COLORCOPY LARGE FORMAT', displayTitle:'COLORCOPY\nLARGE FORMAT', type:'Corporate Communication', year:'ONGOING', client:'Colorcopy Large Format', cover:'assets/images/ColorcopyLargeFormat.webp',
+        id:'05', slug:'colorcopy-large-format', title:'COLORCOPY LARGE FORMAT', displayTitle:'COLORCOPY\nLARGE FORMAT', type:'Corporate Communication', year:'ONGOING', client:'Colorcopy Large Format', cover:'assets/images/ColorcopyLargeFormat.webp', liveUrl:'https://colorcopy.it/',
         role:'Graphic Design / Digital Marketing / Web Management', deliverables:'Graphic Design / Web / Advertising / Social / Print / Events',
         intro:'Ongoing visual and digital communication for a company selling professional printing technologies from different manufacturers.',
         context:'Colorcopy manages a broad range of products, brands and customer profiles. Communication changes constantly between product launches, commercial campaigns, events and technical content. The challenge is keeping the company recognisable without forcing every manufacturer or technology into the same visual format.',
@@ -241,6 +259,12 @@
       context:'I servizi di Tovadù diventano rapidamente tecnici. Il sito doveva spiegare cosa fa l\'azienda senza chiedere all\'utente di conoscere prima la terminologia utilizzata internamente.',
       direction:'Ho strutturato i contenuti partendo dai problemi che un potenziale cliente può riconoscere, introducendo servizi e competenze tecniche solo in un secondo momento. L\'interfaccia segue la stessa logica: le informazioni sono organizzate su più livelli per permettere di comprendere l\'offerta prima di entrare nel dettaglio.',
       tags:['WEB DESIGN','UI / UX','DIGITAL DESIGN','WEB DEVELOPMENT','COMUNICAZIONE B2B'],
+      outputs:[
+        {title:'ARCHITETTURA INFORMATIVA',description:'Struttura e gerarchia dei contenuti costruite sulle esigenze e sulle domande dei potenziali clienti B2B.'},
+        {title:'SISTEMA UI',description:'Interfaccia responsive che traduce il posizionamento in un linguaggio digitale chiaro e coerente.'},
+        {title:'FRONT-END',description:'Implementazione front-end responsive e comportamento delle interazioni su desktop e mobile.'},
+        {title:'SITO IN PRODUZIONE',description:'Sito completo predisposto per pubblicazione reale, gestione dei contenuti e utilizzo continuativo.'}
+      ],
       media:[
         {type:'hero',label:'SITO WEB / UX / UI / SVILUPPO'},
         {type:'landscape',label:'ARCHITETTURA INFORMATIVA'},
@@ -257,6 +281,12 @@
       context:'Pholià riunisce temi che normalmente appartengono ad aree professionali diverse. Il sito doveva quindi spiegare ogni ambito senza trasformare l\'azienda in una semplice raccolta di servizi scollegati.',
       direction:'Ho costruito il sito su una struttura modulare. Ogni area dispone dello spazio necessario per sviluppare il proprio tema, restando però all\'interno dello stesso sistema visivo e di navigazione. La gerarchia presenta prima l\'azienda e permette poi di approfondire i contenuti più specialistici.',
       tags:['WEB DESIGN','UI / UX','DIGITAL DESIGN','WEB DEVELOPMENT','SISTEMI VISIVI'],
+      outputs:[
+        {title:'SISTEMA DEI CONTENUTI',description:'Struttura informativa modulare che collega aree di business diverse all’interno di un’unica esperienza coerente.'},
+        {title:'SISTEMA UI',description:'Sistema visuale responsive con pattern di interfaccia riutilizzabili e gerarchia coerente.'},
+        {title:'FRONT-END',description:'Implementazione front-end responsive, motion e comportamento delle interazioni.'},
+        {title:'SITO IN PRODUZIONE',description:'Sito completo consegnato come prodotto digitale funzionante e pronto alla crescita editoriale.'}
+      ],
       media:[
         {type:'hero',label:'SITO WEB / UX / UI / SVILUPPO'},
         {type:'landscape',label:'CONTENUTI MODULARI'},
@@ -273,6 +303,12 @@
       context:'Sapy propone l\'AI come strumento di supporto per gli insegnanti. Il sito doveva spiegare prima cosa permette di fare il prodotto e solo successivamente la tecnologia che lo rende possibile.',
       direction:'Ho separato informazioni sul prodotto, contenuti editoriali e visione generale del progetto in aree distinte. L\'AI rimane visibile, ma non diventa il soggetto di ogni pagina. La priorità è far capire cosa può fare concretamente l\'utente con la piattaforma.',
       tags:['WEB DESIGN','UI / UX','DIGITAL DESIGN','WEB DEVELOPMENT','AI / EDTECH'],
+      outputs:[
+        {title:'ARCHITETTURA DEI CONTENUTI',description:'Separazione di prodotto, contenuti editoriali e progetto in una struttura navigabile.'},
+        {title:'SISTEMA UI',description:'Interfaccia responsive progettata per rendere comprensibile un prodotto basato sull’AI senza sovraccaricare l’utente.'},
+        {title:'FRONT-END',description:'Implementazione front-end responsive e comportamento delle interazioni sui diversi dispositivi.'},
+        {title:'SITO IN PRODUZIONE',description:'Sito pubblico completo realizzato per il lancio del progetto e la comunicazione continuativa.'}
+      ],
       media:[
         {type:'hero',label:'SITO WEB / UX / UI / SVILUPPO'},
         {type:'landscape',label:'AI / EDTECH'},
