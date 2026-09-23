@@ -445,7 +445,6 @@
           <div><dt>${esc(t('case.year'))}</dt><dd>${esc(p.year)}</dd></div>
         </dl>
         ${liveSiteLink(p)}
-        ${liveSiteLink(p)}
 
         <section class="case-story-v2">
           <div class="case-story-label">${esc(t('case.notes'))}</div>
@@ -510,6 +509,7 @@
           <div><dt>${esc(t('case.deliverables'))}</dt><dd>${esc(p.deliverables)}</dd></div>
           <div><dt>${esc(t('case.year'))}</dt><dd>${esc(p.year)}</dd></div>
         </dl>
+        ${liveSiteLink(p)}
         <section class="case-story-v2">
           <div class="case-story-label">${esc(t('case.notes'))}</div>
           <div class="case-story-copy">
