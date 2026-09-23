@@ -33,10 +33,10 @@
   <link rel="stylesheet" href="css/crt-outline.css" />
   <link rel="preload" href="assets/font/Doto-500.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="assets/font/redaction-50-latin-400-normal.woff" as="font" type="font/woff" crossorigin />
-  <link rel="preload" as="image" href="assets/cursors/default-alt-amber.svg" type="image/svg+xml" />
-  <link rel="preload" as="image" href="assets/cursors/pointer-amber.svg" type="image/svg+xml" />
-  <link rel="preload" as="image" href="assets/cursors/text-amber.svg" type="image/svg+xml" />
-  <link rel="preload" href="assets/models/human_head_reference3.glb" as="fetch" crossorigin />
+  <link rel="preload" as="image" href="assets/cursors/default-alt-amber.svg" type="image/svg+xml" media="(hover:hover) and (pointer:fine)" />
+  <link rel="preload" as="image" href="assets/cursors/pointer-amber.svg" type="image/svg+xml" media="(hover:hover) and (pointer:fine)" />
+  <link rel="preload" as="image" href="assets/cursors/text-amber.svg" type="image/svg+xml" media="(hover:hover) and (pointer:fine)" />
+  <link rel="preload" href="assets/models/human_head_reference3.glb" as="fetch" crossorigin media="(hover:hover) and (pointer:fine)" />
   <script type="importmap">
   {
     "imports": {
@@ -45,7 +45,7 @@
     }
   }
   </script>
-  <link rel="modulepreload" href="js/head3d.js" />
+  <link rel="modulepreload" href="js/head3d.js" media="(hover:hover) and (pointer:fine)" />
 </head>
 <body class="booting">
   <svg class="svg-defs" aria-hidden="true" width="0" height="0">
