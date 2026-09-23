@@ -8,15 +8,19 @@ on:
         required: true
         default: https://joemaserati-lab.github.io/portfolio-final/
         type: string
+  workflow_run:
+    workflows: ["pages build and deployment"]
+    types: [completed]
 
 permissions:
   contents: read
 
 env:
-  AUDIT_URL: ${{ inputs.audit_url }}
+  AUDIT_URL: ${{ inputs.audit_url || 'https://joemaserati-lab.github.io/portfolio-final/' }}
 
 jobs:
   audit:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -36,7 +40,8 @@ jobs:
         run: |
           npx --yes lighthouse@latest "$AUDIT_URL" \
             --output=json \
-            --output-path=./lighthouse-mobile.json \
+            --output=html \
+            --output-path=./lighthouse-mobile \
             --only-categories=performance,accessibility,best-practices,seo \
             --chrome-flags='--headless --no-sandbox --disable-dev-shm-usage'
 
@@ -45,7 +50,8 @@ jobs:
           npx --yes lighthouse@latest "$AUDIT_URL" \
             --preset=desktop \
             --output=json \
-            --output-path=./lighthouse-desktop.json \
+            --output=html \
+            --output-path=./lighthouse-desktop \
             --only-categories=performance,accessibility,best-practices,seo \
             --chrome-flags='--headless --no-sandbox --disable-dev-shm-usage'
 
@@ -54,8 +60,8 @@ jobs:
           node <<'NODE'
           const fs = require('fs');
           const files = [
-            ['MOBILE', 'lighthouse-mobile.json'],
-            ['DESKTOP', 'lighthouse-desktop.json']
+            ['MOBILE', 'lighthouse-mobile.report.json'],
+            ['DESKTOP', 'lighthouse-desktop.report.json']
           ];
           const metrics = [
             ['first-contentful-paint','FCP'],
@@ -94,6 +100,8 @@ jobs:
         with:
           name: lighthouse-reports
           path: |
-            lighthouse-mobile.json
-            lighthouse-desktop.json
+            lighthouse-mobile.report.json
+            lighthouse-mobile.report.html
+            lighthouse-desktop.report.json
+            lighthouse-desktop.report.html
           retention-days: 14
