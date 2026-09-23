@@ -1531,9 +1531,12 @@ body.site-entering .desktop-icons .desktop-icon:nth-child(5){animation-delay:.58
 .boot-gate-status,
 .boot-gate-note{margin:0;color:var(--dim);letter-spacing:.14em;text-transform:uppercase}
 .boot-gate-kicker{font-size:var(--type-ui)}
-.boot-gate h2{margin:0;color:var(--bright);font-family:"Redaction 50","Doto",monospace;font-size:clamp(42px,min(6vw,11vh),88px);font-weight:400;line-height:.88;letter-spacing:-.035em;text-shadow:0 0 8px rgba(242,228,255,.24),0 0 22px rgba(184,142,219,.14)}
-.boot-gate-status{min-height:1.2em;font-size:var(--type-body)}
-.boot-gate-note{max-width:520px;font-size:var(--type-ui);letter-spacing:.06em;text-transform:none;color:#9f78b2}
+.boot-gate h2{width:min(100%,780px);min-height:.92em;margin:0;color:var(--bright);font-family:"Redaction 50","Doto",monospace;font-size:clamp(42px,min(6vw,11vh),88px);font-weight:400;line-height:.88;letter-spacing:-.035em;text-align:center;text-shadow:0 0 8px rgba(242,228,255,.24),0 0 22px rgba(184,142,219,.14)}
+.boot-gate-status{width:min(100%,760px);min-height:1.2em;font-size:var(--type-body);text-align:center}
+.boot-gate-note{width:min(100%,520px);min-height:1.2em;font-size:var(--type-ui);letter-spacing:.06em;text-transform:none;text-align:center;color:#9f78b2}
+@media (hover:hover) and (pointer:fine){
+  .boot-gate-note{visibility:hidden}
+}
 .boot-progress{
   position:absolute;
   z-index:5;
