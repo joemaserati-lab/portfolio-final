@@ -10,9 +10,10 @@ on:
         required: true
         default: https://joemaserati-lab.github.io/portfolio-final/
         type: string
-  workflow_run:
-    workflows: ["pages build and deployment"]
-    types: [completed]
+
+concurrency:
+  group: lighthouse-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -22,7 +23,6 @@ env:
 
 jobs:
   audit:
-    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -36,7 +36,7 @@ jobs:
 
       - name: Wait for Pages deployment
         if: ${{ github.event_name == 'push' }}
-        run: sleep 35
+        run: sleep 45
 
       - name: Verify live site
         run: |
