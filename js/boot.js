@@ -319,33 +319,6 @@
     };
   }
 
-  function primeTiltPermission() {
-    if (!isTouchDevice() || !isSecureContext || !('DeviceOrientationEvent' in window)) {
-      return Promise.resolve(null);
-    }
-    if (typeof DeviceOrientationEvent.requestPermission !== 'function') {
-      return Promise.resolve(null);
-    }
-    if (window.__portfolioTiltPermissionPromise) return window.__portfolioTiltPermissionPromise;
-    try {
-      const requested = DeviceOrientationEvent.requestPermission();
-      window.__portfolioTiltPermissionPromise = Promise.resolve(requested).then(
-        permission => {
-          window.__portfolioTiltPermission = permission;
-          return permission;
-        },
-        error => {
-          window.__portfolioTiltPermission = 'error';
-          return 'error';
-        }
-      );
-    } catch (error) {
-      window.__portfolioTiltPermission = 'error';
-      window.__portfolioTiltPermissionPromise = Promise.resolve('error');
-    }
-    return window.__portfolioTiltPermissionPromise;
-  }
-
   function loadHead() {
     if (headPromise) return headPromise;
     setRow('head', '06 MODEL', 'loading 3D model / shaders', 'pending');
@@ -487,7 +460,7 @@
 
     resourcesReady = true;
     const note = isTouchDevice()
-      ? (isSecureContext ? t('boot.readyNote') : t('boot.readyNoteInsecure'))
+      ? t('boot.readyNote')
       : t('boot.readyNoteDesktop');
     setGate(t('boot.readyStatus'), note);
     loader.classList.add('is-ready');
@@ -495,45 +468,18 @@
     enter.focus({ preventScroll: true });
   })();
 
-  async function requestTiltBeforeEntry() {
-    const tilt = window.PortfolioTilt;
-    if (!tilt) return;
-    const enableFallback = () => Boolean(tilt.enableFallback?.());
-    const status = tilt.getStatus?.() || (tilt.canRequest?.() ? 'ready' : 'unavailable');
-    if (status !== 'ready') {
-      const fallback = enableFallback();
-      const messages = {
-        active: ['tilt already active / launching sequence', 'done'],
-        listening: ['tilt listening / launching sequence', 'done'],
-        'not-touch': ['desktop pointer mode / launching sequence', 'done'],
-        'insecure-context': ['tilt needs HTTPS / launching sequence', 'warn'],
-        unsupported: ['tilt unsupported / launching sequence', 'warn'],
-        unavailable: ['tilt unavailable / launching sequence', 'warn']
-      };
-      if (fallback) {
-        setRow('ready', '07 READY', 'touch + ambient motion enabled', 'done');
-        return;
-      }
-      const [text, state] = messages[status] || messages.unavailable;
-      setRow('ready', '07 READY', text, state);
+  async function enableTouchFallbackBeforeEntry() {
+    if (!isTouchDevice()) {
+      setRow('ready', '07 READY', 'desktop pointer mode / launching sequence', 'done');
       return;
     }
-    setGate(t('boot.requestTilt'), t('boot.requestTiltNote'));
-    const result = await tilt.request();
-    const messages = {
-      granted: ['tilt enabled / launching sequence', 'done'],
-      active: ['tilt enabled / launching sequence', 'done'],
-      listening: ['tilt listening / launching sequence', 'done'],
-      denied: ['touch + ambient motion enabled', 'done'],
-      'touch-fallback': ['touch + ambient motion enabled', 'done'],
-      'blocked-or-private-browser': ['touch + ambient motion enabled', 'done'],
-      'insecure-context': ['tilt needs HTTPS / launching sequence', 'warn'],
-      unsupported: ['tilt unsupported / launching sequence', 'warn'],
-      error: ['touch + ambient motion enabled', 'done'],
-      unavailable: ['tilt unavailable / launching sequence', 'warn']
-    };
-    const [text, state] = messages[result] || messages.unavailable;
-    setRow('ready', '07 READY', text, state);
+    const enabled = Boolean(window.PortfolioTilt?.enableFallback?.());
+    setRow(
+      'ready',
+      '07 READY',
+      enabled ? 'touch + ambient motion enabled' : 'touch mode / launching sequence',
+      enabled ? 'done' : 'warn'
+    );
   }
 
   function beginSequence() {
@@ -603,26 +549,11 @@
     if (!resourcesReady || sequenceStarted) return;
     enter.disabled = true;
 
-    // Permission requests that require a user gesture start synchronously here.
-    // All heavy application/model work has already completed before this click.
-    const permissionPromise = primeTiltPermission();
     if (!beginSequence()) return;
-
-    const permissionResult = await Promise.resolve(permissionPromise).then(
-      value => ({ status: 'fulfilled', value }),
-      reason => ({ status: 'rejected', reason })
-    );
-    if (permissionResult.status === 'rejected') {
-      console.warn('Tilt permission initialization failed.', permissionResult.reason);
-    }
 
     if (!headOk) setGate(t('boot.fallbackStatus'), t('boot.fallbackNote'));
 
-    try {
-      await requestTiltBeforeEntry();
-    } catch (error) {
-      console.warn('Tilt initialization failed.', error);
-    }
+    await enableTouchFallbackBeforeEntry();
 
     if ((rowState.get('ready')?.state || 'pending') === 'pending') {
       setRow('ready', '07 READY', 'portfolio environment online', 'done');
