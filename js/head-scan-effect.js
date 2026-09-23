@@ -265,8 +265,14 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
 
   function syncPerformanceClass() {
     const estimated = estimateSurfacePixels();
-    document.body.classList.toggle('perf-large-surface', estimated > PERFORMANCE.largeSurfaceThreshold);
+    document.body.classList.toggle('perf-head-large', estimated > PERFORMANCE.largeSurfaceThreshold);
     document.body.classList.toggle('perf-constrained', qualityIndex >= 2);
+    document.body.classList.toggle(
+      'perf-large-surface',
+      document.body.classList.contains('perf-head-large') ||
+      document.body.classList.contains('perf-crt-large') ||
+      qualityIndex >= 2
+    );
     document.body.dataset.renderQuality = coarsePointer ? 'touch' : quality().name;
   }
 
