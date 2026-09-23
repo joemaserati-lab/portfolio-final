@@ -30,6 +30,7 @@
   let headOk = false;
   let applicationPromise = null;
   let headPromise = null;
+  let crtPromise = null;
   let fatalLoadError = false;
 
   const progressWeights = new Map([
@@ -273,6 +274,16 @@
     });
   }
 
+  function loadCrtRuntime() {
+    if (crtPromise) return crtPromise;
+    crtPromise = loadScript('js/crt.js').catch(error => {
+      crtPromise = null;
+      console.warn('CRT runtime failed to load.', error);
+      return { ok: false, error };
+    });
+    return crtPromise;
+  }
+
   function loadApplication() {
     if (applicationPromise) return applicationPromise;
     applicationPromise = (async () => {
@@ -478,6 +489,7 @@
     resourcesReady = true;
 
     if (returningVisit) {
+      loadCrtRuntime();
       launch(true);
       if (touchDevice) scheduleDeferredHead();
       else await enableTouchFallbackBeforeEntry();
@@ -588,6 +600,10 @@
     enter.disabled = true;
 
     if (!beginSequence()) return;
+
+    // Start the CRT while the terminal sequence is already covering the shell.
+    // The expensive runtime is no longer executed during initial page load.
+    loadCrtRuntime();
 
     if (touchDevice && !headPromise) {
       // Start the expensive mobile 3D path only after the user has chosen to enter.
