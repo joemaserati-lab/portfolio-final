@@ -1810,3 +1810,15 @@ body.perf-constrained #crt-fx{
 @media(prefers-reduced-motion:reduce){
   .case-live-link{transition:none}
 }
+
+
+/* V31.9 / RETURNING SESSION BOOT */
+html.returning-visit .boot-loader{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+}
+html.returning-visit body.booting .shell{
+  visibility:visible;
+  opacity:0;
+}
