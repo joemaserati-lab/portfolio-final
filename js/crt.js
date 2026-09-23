@@ -11,7 +11,9 @@
     nextJitter: performance.now() + 900,
     reduced: matchMedia('(prefers-reduced-motion: reduce)').matches,
     frameHandle: 0,
-    lastDraw: 0
+    lastDraw: 0,
+    largeSurface: false,
+    contentOpen: false
   };
 
   const PRESETS = {
@@ -71,17 +73,36 @@
   if (!bgP || !fxP) return;
   fxP.gl.enable(fxP.gl.BLEND); fxP.gl.blendFunc(fxP.gl.SRC_ALPHA,fxP.gl.ONE);
 
-  const TARGET_FPS = 30;
-  const FRAME_MS = 1000 / TARGET_FPS;
+  const PERFORMANCE = Object.freeze({
+    largeSurfaceThreshold: 3000000,
+    maxPixels: 1500000,
+    largeMaxPixels: 1000000,
+    maxDpr: 1.0,
+    normalFps: 30,
+    largeFps: 24,
+    contentFps: 12
+  });
 
-  function resizeOne(canvas, P, width, height){
-    const dpr=Math.min(devicePixelRatio||1,1.25);
+  function currentFps(){
+    if(state.contentOpen) return PERFORMANCE.contentFps;
+    return state.largeSurface ? PERFORMANCE.largeFps : PERFORMANCE.normalFps;
+  }
+
+  function resizeOne(canvas, P, width, height, maxPixels){
+    const nativeDpr=Math.min(devicePixelRatio||1,PERFORMANCE.maxDpr);
+    const budgetDpr=Math.sqrt(maxPixels/Math.max(1,width*height));
+    const dpr=Math.max(0.34,Math.min(nativeDpr,budgetDpr));
     canvas.width=Math.max(1,Math.round(width*dpr)); canvas.height=Math.max(1,Math.round(height*dpr));
     P.gl.viewport(0,0,canvas.width,canvas.height); P.gl.useProgram(P.pr); P.gl.uniform2f(P.uniforms.r,canvas.width,canvas.height);
   }
   function resize(){
-    const width=screen.clientWidth, height=screen.clientHeight;
-    resizeOne(bg,bgP,width,height); resizeOne(fx,fxP,width,height);
+    const width=Math.max(screen.clientWidth,1), height=Math.max(screen.clientHeight,1);
+    const estimated=width*height*Math.pow(Math.min(devicePixelRatio||1,1.5),2);
+    state.largeSurface=estimated>PERFORMANCE.largeSurfaceThreshold;
+    const maxPixels=state.largeSurface?PERFORMANCE.largeMaxPixels:PERFORMANCE.maxPixels;
+    document.body.classList.toggle('perf-large-surface',state.largeSurface || document.body.classList.contains('perf-constrained'));
+    resizeOne(bg,bgP,width,height,maxPixels); resizeOne(fx,fxP,width,height,maxPixels);
+    state.lastDraw=0;
   }
   addEventListener('resize',resize,{passive:true});
   if('ResizeObserver' in window) new ResizeObserver(resize).observe(screen);
@@ -117,7 +138,8 @@
   function animate(now){
     state.frameHandle = requestAnimationFrame(animate);
     if(document.hidden) return;
-    if(!state.lastDraw || now - state.lastDraw >= FRAME_MS){
+    const frameMs=1000/currentFps();
+    if(!state.lastDraw || now - state.lastDraw >= frameMs - 1.0){
       state.lastDraw = now;
       draw(now);
     }
@@ -128,6 +150,13 @@
     state.lastDraw = 0;
     draw(performance.now());
   }, {passive:true});
+
+  const syncContentState=()=>{
+    state.contentOpen=document.body.classList.contains('content-panel-open') || document.body.classList.contains('projects-open');
+    state.lastDraw=0;
+  };
+  new MutationObserver(syncContentState).observe(document.body,{attributes:true,attributeFilter:['class']});
+  syncContentState();
 
   state.frameHandle = requestAnimationFrame(animate);
 })();
