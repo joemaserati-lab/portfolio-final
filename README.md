@@ -199,3 +199,15 @@ V31.5 update:
 - 404 page now loads the shared custom cursor system (`js/cursor.js`)
 - project cover CSS is wired to real assets under `assets/images/projects/`
 - Colorcopy is the first project being migrated from placeholder artwork to supplied real project imagery; asset integrity is being verified before applying the same process to the remaining projects
+
+
+## V31.7 — performance-adaptive rendering
+- 3D head rendering now uses a hard pixel budget instead of scaling directly with monitor resolution
+- normal desktop targets 60 FPS; large displays reduce internal render resolution before reducing frame rate
+- sustained poor frame pacing automatically degrades the decorative 3D layer to a lower-cost tier
+- fixed the previous 45 FPS throttle behavior that could effectively fall to about 30 FPS on 60 Hz displays
+- removed the negligible UnrealBloom pass from the head post-processing stack
+- procedural head FBM reduced from four to three octaves to lower fragment-shader cost while preserving the approved flow
+- CRT background/effect canvases now have independent pixel budgets and reduce update frequency on large displays or while content panels are open
+- high-resolution displays receive cheaper halo/noise compositing without changing layout, typography, content or interaction
+- performance state is recalculated on resize, including when the browser window is moved between displays
