@@ -1,8 +1,6 @@
 name: Lighthouse Audit
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
     inputs:
       audit_url:
@@ -10,7 +8,9 @@ on:
         required: true
         default: https://joemaserati-lab.github.io/portfolio-final/
         type: string
-
+  workflow_run:
+    workflows: ["pages build and deployment"]
+    types: [completed]
 concurrency:
   group: lighthouse-${{ github.ref }}
   cancel-in-progress: true
@@ -23,6 +23,7 @@ env:
 
 jobs:
   audit:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -33,10 +34,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-
-      - name: Wait for Pages deployment
-        if: ${{ github.event_name == 'push' }}
-        run: sleep 45
 
       - name: Verify live site
         run: |
