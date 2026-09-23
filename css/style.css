@@ -1774,3 +1774,39 @@ body.perf-constrained .crt-stage::after{
 body.perf-constrained #crt-fx{
   opacity:.88;
 }
+
+
+/* V31.8 / CASE LIVE LINK */
+.case-live-link{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:max-content;
+  max-width:100%;
+  margin:18px 0 6px;
+  padding:10px 13px 9px;
+  border:1px solid rgba(240,220,255,.30);
+  background:rgba(74,36,102,.24);
+  color:#fff6fb;
+  font-family:"Doto",monospace;
+  font-size:clamp(13px,1vw,16px);
+  line-height:1;
+  letter-spacing:.05em;
+  text-decoration:none;
+  text-shadow:0 0 7px rgba(226,202,246,.20);
+  transition:transform .16s ease,background .16s ease,border-color .16s ease,box-shadow .16s ease;
+}
+.case-live-link:hover,.case-live-link:focus-visible{
+  transform:translateY(-1px);
+  background:rgba(93,49,124,.50);
+  border-color:rgba(240,220,255,.52);
+  box-shadow:0 0 18px rgba(178,132,214,.10);
+  outline:1px dashed rgba(240,220,255,.42);
+  outline-offset:4px;
+}
+@media(max-width:720px){
+  .case-live-link{width:100%;min-height:44px;margin-top:14px}
+}
+@media(prefers-reduced-motion:reduce){
+  .case-live-link{transition:none}
+}
