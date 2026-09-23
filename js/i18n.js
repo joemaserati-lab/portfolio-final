@@ -201,9 +201,11 @@
   const detectLang = () => {
     const stored = readStoredLang();
     if (stored === 'it' || stored === 'en') return stored;
-    const languages = [navigator.language || navigator.userLanguage || '', ...(navigator.languages || [])].map(lang => String(lang).toLowerCase());
-    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    return languages.some(lang => lang.startsWith('it')) || timeZone === 'Europe/Rome' ? 'it' : FALLBACK_LANG;
+    const languages = [navigator.language || navigator.userLanguage || '', ...(navigator.languages || [])]
+      .map(lang => String(lang).toLowerCase());
+    // Browser language is enough here. Initialising Intl.DateTimeFormat solely
+    // to inspect the timezone is disproportionately expensive on throttled mobile CPUs.
+    return languages.some(lang => lang.startsWith('it')) ? 'it' : FALLBACK_LANG;
   };
 
   let currentLang = detectLang();
