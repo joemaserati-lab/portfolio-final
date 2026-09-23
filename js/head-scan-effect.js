@@ -25,12 +25,12 @@ const PERFORMANCE = Object.freeze({
   // This is what makes the same composition scale from laptop screens to 4K/5K displays.
   largeSurfaceThreshold: 3500000,
   quality: Object.freeze([
-    Object.freeze({ name: 'high',     maxPixels: 2600000, maxDpr: 1.25, fps: 60 }),
-    Object.freeze({ name: 'balanced', maxPixels: 1800000, maxDpr: 1.00, fps: 60 }),
-    Object.freeze({ name: 'low',      maxPixels: 1200000, maxDpr: 0.85, fps: 30 })
+    Object.freeze({ name: 'high',     maxPixels: 2200000, maxDpr: 1.25, fps: 60 }),
+    Object.freeze({ name: 'balanced', maxPixels: 1400000, maxDpr: 1.00, fps: 60 }),
+    Object.freeze({ name: 'low',      maxPixels: 850000,  maxDpr: 0.80, fps: 30 })
   ]),
-  touchMaxPixels: 1200000,
-  touchMaxDpr: 0.90,
+  touchMaxPixels: 850000,
+  touchMaxDpr: 0.85,
   touchFps: 30,
   slowFrameFactor: 1.42,
   slowFrameFloor: 24,
@@ -97,7 +97,9 @@ const fragmentShader = /* glsl */`
   float fbm(vec3 p) {
     float value = 0.0;
     float amplitude = 0.52;
-    for (int i = 0; i < 4; i++) {
+    // Three octaves retain the broad organic flow while cutting a quarter of
+    // the procedural noise work executed for every rendered head pixel.
+    for (int i = 0; i < 3; i++) {
       value += amplitude * noise3(p);
       p = p * 2.03 + vec3(7.13, 11.71, 5.37);
       amplitude *= 0.50;
