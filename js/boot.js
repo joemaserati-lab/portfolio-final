@@ -431,18 +431,14 @@
       .then(() => preloadPortfolioImages())
       .catch(error => ({ ok: false, skipped: true, error }))
   );
-  // Desktop keeps the 3D head eagerly warmed behind the loader.
-  // Touch devices defer Three.js/model work until after the initial experience
-  // is interactive, removing it from the mobile critical rendering path.
-  const eagerHead = !touchDevice;
-  const headReady = eagerHead
-    ? trackProgress('head', loadHead())
-    : Promise.resolve({ ok: true, deferred: true });
-
-  if (!eagerHead) setRow('head', '06 MODEL', 'deferred until entry', 'done');
+  // The 3D head is an enhancement, not a prerequisite for first paint.
+  // Load it only when the user signals intent to enter the portfolio.
+  const eagerHead = false;
+  const headReady = Promise.resolve({ ok: true, deferred: true });
+  setRow('head', '06 MODEL', 'deferred until entry', 'done');
 
   function scheduleDeferredHead() {
-    if (eagerHead || headPromise) return;
+    if (headPromise) return;
     const start = () => {
       loadHead()
         .then(() => window.PortfolioTilt?.enableFallback?.())
@@ -477,8 +473,7 @@
       startAmbientVideo();
       loadCrtRuntime();
       launch(true);
-      if (touchDevice) scheduleDeferredHead();
-      else await enableTouchFallbackBeforeEntry();
+      scheduleDeferredHead();
       return;
     }
 
@@ -577,6 +572,14 @@
     }, holdBeforeRelease);
   }
 
+  // Desktop users usually hover before clicking: use that moment to warm the
+  // expensive visual layer without putting it back in the critical path.
+  enter.addEventListener('pointerenter', () => {
+    if (touchDevice) return;
+    loadCrtRuntime();
+    loadHead().catch(error => console.warn('3D prewarm failed.', error));
+  }, { once: true, passive: true });
+
   enter.addEventListener('click', async () => {
     if (fatalLoadError) {
       location.reload();
@@ -592,16 +595,19 @@
     startAmbientVideo();
     loadCrtRuntime();
 
-    if (touchDevice && !headPromise) {
-      // Start the expensive mobile 3D path only after the user has chosen to enter.
-      // It warms while the terminal sequence is already playing.
+    if (!headPromise) {
+      // Warm the expensive 3D path only after explicit user intent.
       loadHead()
-        .then(() => window.PortfolioTilt?.enableFallback?.())
-        .catch(error => console.warn('Mobile 3D head load failed.', error));
+        .then(() => {
+          if (touchDevice) window.PortfolioTilt?.enableFallback?.();
+        })
+        .catch(error => console.warn('3D head load failed.', error));
+    }
+
+    if (touchDevice) {
       setRow('ready', '07 READY', 'touch mode / launching sequence', 'done');
     } else {
-      if (!headOk && eagerHead) setGate(t('boot.fallbackStatus'), t('boot.fallbackNote'));
-      await enableTouchFallbackBeforeEntry();
+      setRow('ready', '07 READY', 'desktop pointer mode / launching sequence', 'done');
     }
 
     if ((rowState.get('ready')?.state || 'pending') === 'pending') {
