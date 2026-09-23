@@ -364,7 +364,7 @@
     return headPromise;
   }
 
-  if (gateNote) gateNote.hidden = !isTouchDevice();
+  if (gateNote && !touchDevice) gateNote.setAttribute('aria-hidden', 'true');
 
   const domReady = new Promise(resolve => {
     if (document.readyState === 'loading') {
