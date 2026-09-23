@@ -1735,3 +1735,42 @@ body.booting .privacy-widget{opacity:0;visibility:hidden;pointer-events:none}
   .projects-chrome{padding:calc(var(--screen-safe-top) + 4px) var(--screen-safe-right) 8px var(--screen-safe-left)}
   .projects-back,.projects-close{width:42px;height:38px;font-size:23px}
 }
+
+/* V31.7 / PERFORMANCE-ADAPTIVE LARGE DISPLAY OVERRIDES */
+/*
+   High-resolution external displays must not pay full-screen filter costs
+   proportional to their physical pixel count. These overrides preserve the
+   approved CRT language while reducing the most expensive compositing layers.
+*/
+body.perf-large-surface .crt-stage::before{
+  opacity:.56;
+  filter:
+    blur(.8px)
+    drop-shadow(0 0 6px rgba(240,223,255,.34))
+    drop-shadow(0 0 16px rgba(179,131,214,.16))
+    drop-shadow(0 0 34px rgba(255,154,107,.07));
+}
+body.perf-large-surface .crt-stage::after{
+  opacity:.10;
+  filter:blur(22px) saturate(1.02) brightness(1.02);
+}
+body.perf-large-surface .noise{
+  animation:none;
+  opacity:.035;
+}
+body.perf-large-surface .hero-intro h1{
+  filter:drop-shadow(0 0 4px rgba(249,236,255,.30)) drop-shadow(0 0 9px rgba(184,142,219,.11));
+}
+body.perf-constrained .crt-stage::before{
+  opacity:.48;
+  filter:
+    blur(.6px)
+    drop-shadow(0 0 5px rgba(240,223,255,.30))
+    drop-shadow(0 0 13px rgba(179,131,214,.13));
+}
+body.perf-constrained .crt-stage::after{
+  display:none;
+}
+body.perf-constrained #crt-fx{
+  opacity:.88;
+}
