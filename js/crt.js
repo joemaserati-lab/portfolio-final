@@ -75,8 +75,8 @@
 
   const PERFORMANCE = Object.freeze({
     largeSurfaceThreshold: 3000000,
-    maxPixels: 1500000,
-    largeMaxPixels: 1000000,
+    maxPixels: 1200000,
+    largeMaxPixels: 800000,
     maxDpr: 1.0,
     normalFps: 30,
     largeFps: 24,
