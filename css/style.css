@@ -212,7 +212,7 @@ button{color:inherit}
   .desktop{height:100%;padding:var(--screen-safe-top) var(--screen-safe-right) var(--screen-safe-bottom) var(--screen-safe-left)}
    .hero-intro h1{font-size:76px}
   .system-label,.hero-copy, .primary-action{font-size:18px}
-  .desktop-icons{left:var(--screen-safe-left);right:var(--screen-safe-right);top:auto;bottom:calc(var(--screen-safe-bottom) + 42px);grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+  .desktop-icons{left:var(--screen-safe-left);right:var(--screen-safe-right);top:auto;bottom:calc(var(--screen-safe-bottom) + 42px);grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
   .desktop-icon>span:nth-child(2){font-size:12px}
   .desktop-icon small{display:none}
   .icon-glyph{width:36px;height:31px;font-size:17px}
