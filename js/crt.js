@@ -100,7 +100,13 @@
     const estimated=width*height*Math.pow(Math.min(devicePixelRatio||1,1.5),2);
     state.largeSurface=estimated>PERFORMANCE.largeSurfaceThreshold;
     const maxPixels=state.largeSurface?PERFORMANCE.largeMaxPixels:PERFORMANCE.maxPixels;
-    document.body.classList.toggle('perf-large-surface',state.largeSurface || document.body.classList.contains('perf-constrained'));
+    document.body.classList.toggle('perf-crt-large',state.largeSurface);
+    document.body.classList.toggle(
+      'perf-large-surface',
+      document.body.classList.contains('perf-head-large') ||
+      document.body.classList.contains('perf-crt-large') ||
+      document.body.classList.contains('perf-constrained')
+    );
     resizeOne(bg,bgP,width,height,maxPixels); resizeOne(fx,fxP,width,height,maxPixels);
     state.lastDraw=0;
   }
