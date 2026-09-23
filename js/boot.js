@@ -401,35 +401,20 @@
     return value;
   });
 
-  const videoReady = new Promise(resolve => {
-    const video = document.querySelector('.crt-background-video');
-    if (!video) {
-      setRow('video', '05 SIGNAL', 'ambient layer unavailable', 'warn');
-      resolve({ ok: false });
-      return;
-    }
-    if (video.readyState >= 2) {
-      setRow('video', '05 SIGNAL', 'signal ready', 'done');
-      resolve({ ok: true });
-      return;
-    }
-    let settled = false;
-    const done = ok => {
-      if (settled) return;
-      settled = true;
-      video.removeEventListener('loadeddata', onReady);
-      video.removeEventListener('canplay', onReady);
-      video.removeEventListener('error', onError);
-      setRow('video', '05 SIGNAL', ok ? 'signal ready' : 'CRT layer unavailable', ok ? 'done' : 'warn');
-      resolve({ ok });
-    };
-    const onReady = () => done(true);
-    const onError = () => done(false);
-    video.addEventListener('loadeddata', onReady, { once: true });
-    video.addEventListener('canplay', onReady, { once: true });
-    video.addEventListener('error', onError, { once: true });
-    try { video.load(); } catch { done(false); }
+  const ambientVideo = document.querySelector('.crt-background-video');
+  const videoReady = Promise.resolve({ ok: true, deferred: true }).then(value => {
+    setRow('video', '05 SIGNAL', 'deferred until entry', 'done');
+    return value;
   });
+
+  function startAmbientVideo() {
+    if (!ambientVideo) return;
+    try {
+      ambientVideo.preload = 'auto';
+      const playing = ambientVideo.play();
+      if (playing?.catch) playing.catch(() => {});
+    } catch {}
+  }
 
   const trackedDomReady = trackProgress('dom', domReady);
   const trackedFontsReady = trackProgress('fonts', fontsReady);
@@ -489,6 +474,7 @@
     resourcesReady = true;
 
     if (returningVisit) {
+      startAmbientVideo();
       loadCrtRuntime();
       launch(true);
       if (touchDevice) scheduleDeferredHead();
@@ -601,8 +587,9 @@
 
     if (!beginSequence()) return;
 
-    // Start the CRT while the terminal sequence is already covering the shell.
-    // The expensive runtime is no longer executed during initial page load.
+    // Start decorative media only after the user has chosen to enter.
+    // They warm while the terminal sequence is already covering the shell.
+    startAmbientVideo();
     loadCrtRuntime();
 
     if (touchDevice && !headPromise) {
