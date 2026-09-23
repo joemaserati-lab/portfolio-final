@@ -10,6 +10,8 @@
   if (!loader || !out || !enter || !gateTitle || !gateStatus || !progress || !progressBar) return;
 
   const bootStart = performance.now();
+  const BOOT_SEEN_KEY = 'portfolioBootSeen';
+  const returningVisit = document.documentElement.classList.contains('returning-visit');
   const MIN_VISIBLE_MS = 1300;
   const TITLE_SCRAMBLE_MS = 700;
   const TITLE_SCRAMBLE_STEP_MS = 42;
@@ -453,12 +455,18 @@
 
     await finishProgress();
     loader.classList.add('is-loaded');
+    resourcesReady = true;
+
+    if (returningVisit) {
+      await enableTouchFallbackBeforeEntry();
+      launch(true);
+      return;
+    }
 
     // Let the completed bar disappear before changing the loader copy.
     await new Promise(resolve => setTimeout(resolve, 180));
     await scrambleTitle('boot.readyTitle');
 
-    resourcesReady = true;
     const note = isTouchDevice()
       ? t('boot.readyNote')
       : t('boot.readyNoteDesktop');
@@ -513,7 +521,7 @@
     requestAnimationFrame(() => enter.focus({ preventScroll: true }));
   }
 
-  function launch() {
+  function launch(fast = false) {
     if (finished) return;
     finished = true;
 
@@ -521,11 +529,20 @@
     const rowSequenceFloor = 120 + (rowDefs.length - 1) * ROW_STEP_MS + 180;
     const remainingToMinimum = Math.max(0, MIN_VISIBLE_MS - elapsed);
     const remainingToRows = Math.max(0, rowSequenceFloor);
-    const holdBeforeRelease = Math.max(remainingToMinimum, remainingToRows) + READY_HOLD_MS;
+    const holdBeforeRelease = fast ? 0 : Math.max(remainingToMinimum, remainingToRows) + READY_HOLD_MS;
 
     setTimeout(() => {
-      document.body.classList.add('site-entering');
       document.body.classList.remove('booting');
+
+      if (fast) {
+        document.body.classList.add('site-ready');
+        window.dispatchEvent(new CustomEvent('portfolio:booted'));
+        loader.classList.add('done');
+        setTimeout(() => loader.remove(), 500);
+        return;
+      }
+
+      document.body.classList.add('site-entering');
       window.dispatchEvent(new CustomEvent('portfolio:booted'));
 
       requestAnimationFrame(() => {
@@ -558,6 +575,7 @@
     if ((rowState.get('ready')?.state || 'pending') === 'pending') {
       setRow('ready', '07 READY', 'portfolio environment online', 'done');
     }
+    try { sessionStorage.setItem(BOOT_SEEN_KEY, '1'); } catch {}
     launch();
   });
 })();
