@@ -1822,3 +1822,17 @@ html.returning-visit body.booting .shell{
   visibility:visible;
   opacity:0;
 }
+
+
+/* V31.10 / BOOT CPU GUARD */
+/* The shell is visually hidden during first boot, so its decorative animation
+   should not consume CPU/GPU before the user enters. */
+body.booting .noise,
+body.booting .scanlines,
+body.booting .screen-reflection,
+body.booting .edge-light{
+  animation-play-state:paused!important;
+}
+body.booting .crt-background-video{
+  visibility:hidden;
+}
