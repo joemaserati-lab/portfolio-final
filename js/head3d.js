@@ -1,6 +1,6 @@
 
 window.__portfolioHeadState = window.__portfolioHeadState || { settled:false, ready:false };
-window.PortfolioTilt = window.PortfolioTilt || { canRequest: () => false, getStatus: () => 'unavailable', request: async () => 'unavailable' };
+window.PortfolioMotion = window.PortfolioMotion || { getStatus: () => 'unavailable', recenter: () => {}, enableTouchFallback: () => false };
 function settleHead(ready, error=null) {
   window.__portfolioHeadState = { settled:true, ready, error: error ? String(error?.message || error) : null };
   window.dispatchEvent(new CustomEvent('portfolio:head-settled', { detail: window.__portfolioHeadState }));
@@ -35,11 +35,11 @@ if (feature && canvas && screenElement) {
     const y = (event.clientY - rect.top) / Math.max(rect.height, 1) * 2 - 1;
     effect?.setPointer(x, y);
   }
-  function getTiltStatus() {
+  function getMotionStatus() {
     if (disposed) return 'unavailable';
     return touch ? 'touch-fallback' : 'not-touch';
   }
-  function recenterTilt() {
+  function recenterMotion() {
     fallbackX = 0;
     fallbackY = 0;
     fallbackTargetX = 0;
@@ -82,7 +82,7 @@ if (feature && canvas && screenElement) {
     effect?.setPointer(fallbackX, fallbackY);
     fallbackRaf = requestAnimationFrame(animateFallback);
   }
-  function enableFallbackMotion() {
+  function enableTouchFallback() {
     if (disposed || fallbackActive || !touch) return false;
     fallbackActive = true;
     fallbackPointerId = null;
@@ -98,15 +98,10 @@ if (feature && canvas && screenElement) {
     fallbackRaf = requestAnimationFrame(animateFallback);
     return true;
   }
-  async function requestTilt() {
-    if (!touch) return 'not-touch';
-    enableFallbackMotion();
-    return 'touch-fallback';
-  }
   function onVisibility() { pageVisible = !document.hidden; sync(); }
   function onBooted() {
     booted = true;
-    if (touch) enableFallbackMotion();
+    if (touch) enableTouchFallback();
     sync();
   }
   function onPageHide(event) {
@@ -149,12 +144,10 @@ if (feature && canvas && screenElement) {
     addEventListener('portfolio:booted', onBooted, { once: true });
     addEventListener('pagehide', onPageHide);
     addEventListener('pageshow', onPageShow);
-    window.PortfolioTilt = {
-      canRequest: () => false,
-      getStatus: getTiltStatus,
-      request: requestTilt,
-      recenter: recenterTilt,
-      enableFallback: enableFallbackMotion
+    window.PortfolioMotion = {
+      getStatus: getMotionStatus,
+      recenter: recenterMotion,
+      enableTouchFallback
     };
     if (windowLayer) {
       observer = new MutationObserver(sync);
