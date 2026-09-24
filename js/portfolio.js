@@ -352,23 +352,12 @@
     return true;
   }
 
-  function renderDirectory(win){
-    win.classList.remove('case-mode');
-    win.dataset.view='directory';
-    win.querySelector('.window-titlebar > span').textContent=t('window.projects');
-    const body=win.querySelector('.window-body');
-    body.innerHTML=contents.projects(); body.scrollTop=0; bindProjectLinks(body);
-  }
-
   function openWindow(kind,{updateRoute=false}={}){
     if(kind==='projects') return renderProjectsDirectory();
     const labels={projects:t('window.projects'),about:t('window.about'),contact:t('window.contact'),resume:t('window.resume')};
     const win=createWindow(kind,labels[kind]||kind.toUpperCase());
-    if(kind==='projects') renderDirectory(win);
-    else {
-      win.classList.remove('case-mode');
-      win.querySelector('.window-body').innerHTML=contents[kind]();
-    }
+    win.classList.remove('case-mode');
+    win.querySelector('.window-body').innerHTML=contents[kind]();
     applyResponsiveState(win);
     bringFront(win);
     focusWindow(win);
@@ -392,76 +381,6 @@
   function liveSiteLink(p){
     if(!p.liveUrl) return '';
     return `<a class="case-live-link" href="${esc(p.liveUrl)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(t('case.visitLive'))} ${esc(p.title)}">${esc(t('case.visitLive'))}</a>`;
-  }
-
-  function renderCase(win,p){
-    const index=projects.indexOf(p);
-    const prev=projects[(index-1+projects.length)%projects.length];
-    const next=projects[(index+1)%projects.length];
-    win.classList.add('case-mode');
-    win.dataset.view='case'; win.dataset.project=p.slug;
-    win.querySelector('.window-titlebar > span').textContent=`${t('window.work')} / ${p.id} / ${p.slug.toUpperCase()}`;
-    const body=win.querySelector('.window-body');
-    const media=p.media||[];
-    const hero=media[0] ? mediaPlaceholder(media[0],1,p) : '';
-    const galleryMedia=media.slice(1);
-    const gallery=galleryMedia.map((m,i)=>mediaPlaceholder(m,i+2,p,{galleryIndex:i,galleryCount:galleryMedia.length})).join('');
-    const outputs=(p.outputs||[]).length ? `
-        <section class="case-outputs-v2">
-          <div class="case-story-label">${esc(t('case.outputs'))}</div>
-          <div class="case-output-list">
-            ${p.outputs.map(item=>`<article><h3>${esc(item.title)}</h3><p>${esc(item.description)}</p></article>`).join('')}
-          </div>
-        </section>` : '';
-    body.innerHTML=`
-      <article class="case-study-v2">
-        <div class="case-topline">
-          <button class="case-back-v2" data-back-projects>${backGlyph} ${esc(t('portfolio.selectedWorkText'))}</button>
-          <span>${String(index+1).padStart(2,'0')} / ${String(projects.length).padStart(2,'0')}</span>
-        </div>
-
-        <header class="case-lead-v2">
-          <div class="case-title-v2">
-            <h2>${esc(p.displayTitle || p.title).replace(/\n/g,'<br>')}</h2>
-          </div>
-          <p>${esc(p.intro)}</p>
-        </header>
-
-        ${hero}
-
-        <dl class="case-facts-v2">
-          <div><dt>${esc(t('case.client'))}</dt><dd>${esc(p.client)}</dd></div>
-          <div><dt>${esc(t('case.role'))}</dt><dd>${esc(p.role)}</dd></div>
-          <div><dt>${esc(t('case.deliverables'))}</dt><dd>${esc(p.deliverables)}</dd></div>
-          <div><dt>${esc(t('case.year'))}</dt><dd>${esc(p.year)}</dd></div>
-        </dl>
-        ${liveSiteLink(p)}
-
-        <section class="case-story-v2">
-          <div class="case-story-label">${esc(t('case.notes'))}</div>
-          <div class="case-story-copy">
-            <article><span>01 / ${esc(t('case.context'))}</span><p>${esc(p.context)}</p></article>
-            <article><span>02 / ${esc(t('case.direction'))}</span><p>${esc(p.direction)}</p></article>
-          </div>
-        </section>
-
-        <section class="case-gallery-v2" aria-label="${esc(t('case.gallery'))}">${gallery}</section>
-
-        <section class="case-tags-v2">
-          <span>${esc(t('case.disciplines'))}</span>
-          ${tagList(p.tags)}
-        </section>
-
-        ${outputs}
-
-        <nav class="case-nav-v2" aria-label="${esc(t('case.nav'))}">
-          <button data-project-slug="${esc(prev.slug)}"><small>${esc(t('case.previous'))}</small><b>← ${esc(prev.title)}</b></button>
-          <button data-project-slug="${esc(next.slug)}"><small>${esc(t('case.next'))}</small><b>${esc(next.title)} →</b></button>
-        </nav>
-      </article>`;
-    body.scrollTop=0;
-    body.querySelector('[data-back-projects]').addEventListener('click',()=>navigateProjects());
-    bindProjectLinks(body); bringFront(win);
   }
 
   function renderProjectCase(p){
