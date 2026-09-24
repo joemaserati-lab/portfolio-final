@@ -130,9 +130,7 @@ body {
 .meta-card b,
 .resume-row strong,
 .contact-link,
-.archive-row,
-.case-meta dd,
-.case-nav b {
+.archive-row {
   font-size: var(--type-body);
 }
 
@@ -489,7 +487,6 @@ body.content-panel-open .privacy-widget {
   }
 
   .case-title-v2 h2,
-  .case-heading h2,
   .projects-index-head h2,
   .window-body h2,
   .resume-header h2,
