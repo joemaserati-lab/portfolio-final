@@ -418,7 +418,6 @@ body.booting .shell{visibility:hidden}
    to viewport height so short laptop screens do not inherit oversized type.
 */
 :root{
-  --type-micro:clamp(11px,calc(10.2px + .18vw),14px);
   --type-caption:clamp(12px,calc(11px + .2vw),15px);
   --type-small:clamp(13px,calc(12px + .26vw),17px);
   --type-ui:clamp(14px,calc(13px + .3vw),18px);
@@ -427,11 +426,8 @@ body.booting .shell{visibility:hidden}
   --type-body-lg:clamp(18px,calc(16.4px + .45vw),25px);
   --type-lead:clamp(19px,calc(17px + .6vw),28px);
   --type-subhead:clamp(22px,calc(19px + .72vw),30px);
-  --type-number:clamp(26px,calc(22px + .68vw),34px);
   --type-heading:clamp(34px,min(4vw,8vh),58px);
-  --type-case-heading:clamp(42px,min(6.5vw,12vh),96px);
   --type-display:clamp(60px,min(8.2vw,16vh),128px);
-  --type-media-display:clamp(58px,min(11vw,18vh),180px);
   --type-boot:clamp(20px,min(2.2vw,4.5vh),36px);
 }
 
@@ -480,7 +476,6 @@ body{font-size:var(--type-base)}
 @media(max-height:650px) and (min-width:721px){
   :root{
     --type-display:clamp(56px,14vh,96px);
-    --type-case-heading:clamp(40px,10.5vh,72px);
     --type-heading:clamp(32px,7vh,48px);
     --type-boot:clamp(18px,4vh,28px);
   }
@@ -899,8 +894,8 @@ body{font-size:var(--type-base)}
    only in large editorial display moments. */
 .hero-intro h1,
 .projects-index-head h2,
-.case-title-v2 h2,
-.case-heading h2{
+.case-title-v2 h2
+{
   font-family:"Redaction 50", Georgia, "Times New Roman", serif;
   font-weight:400;
   font-style:normal;
@@ -912,7 +907,7 @@ body{font-size:var(--type-base)}
   filter:drop-shadow(0 0 4px rgba(255,196,110,.50)) drop-shadow(0 0 13px rgba(255,126,17,.26));
 }
 .projects-index-head h2{line-height:.78;letter-spacing:-.045em;}
-.case-title-v2 h2,.case-heading h2{line-height:.78;letter-spacing:-.045em;}
+.case-title-v2 h2{line-height:.78;letter-spacing:-.045em;}
 
 
 /* V4.6 / stronger ambient halo + Redaction secondary titles -------------
@@ -971,10 +966,8 @@ body{font-size:var(--type-base)}
 
 .window-body h2,
 .resume-header h2,
-.directory-header h2,
 .projects-index-head h2,
 .case-title-v2 h2,
-.case-heading h2,
 .hero-intro h1{
   font-family:"Redaction 50", Georgia, "Times New Roman", serif;
   font-weight:400;
@@ -982,8 +975,7 @@ body{font-size:var(--type-base)}
   text-transform:none;
 }
 .window-body h2,
-.resume-header h2,
-.directory-header h2{
+.resume-header h2{
   line-height:.84;
   letter-spacing:-.04em;
 }
@@ -1080,7 +1072,7 @@ body{font-size:var(--type-base)}
 
 /* Keep editorial lines distinct even with CRT bloom and fallback fonts. */
 .hero-intro h1{line-height:.82}
-.projects-index-head h2,.case-title-v2 h2,.case-heading h2{line-height:.9}
+.projects-index-head h2,.case-title-v2 h2{line-height:.9}
 .project-tile-main strong,.contact-link b{overflow-wrap:anywhere}
 .contact-link{gap:18px;align-items:baseline}
 .desktop-icon{gap:14px}
@@ -1684,7 +1676,6 @@ body.booting .crt-background-video{
    floating inside excess empty space. */
 @media (min-width:1921px) and (min-height:1081px){
   :root{
-    --type-micro:min(.729167vw,1.296296vh);
     --type-caption:min(.78125vw,1.388889vh);
     --type-small:min(.885417vw,1.574074vh);
     --type-ui:min(.9375vw,1.666667vh);
@@ -1693,11 +1684,8 @@ body.booting .crt-background-video{
     --type-body-lg:min(1.302083vw,2.314815vh);
     --type-lead:min(1.458333vw,2.592593vh);
     --type-subhead:min(1.5625vw,2.777778vh);
-    --type-number:min(1.770833vw,3.148148vh);
     --type-heading:min(3.020833vw,5.37037vh);
-    --type-case-heading:min(5vw,8.888889vh);
     --type-display:min(6.666667vw,11.851852vh);
-    --type-media-display:min(9.375vw,16.666667vh);
     --type-boot:min(1.875vw,3.333333vh);
 
     --screen-safe-top:min(2.1875vw,3.888889vh);
