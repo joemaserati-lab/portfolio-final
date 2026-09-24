@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://joemaserati-lab.github.io/portfolio-final/sitemap.xml

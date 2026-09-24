@@ -1,0 +1,50 @@
+/* Real project cover artwork ---------------------------------------------- */
+.project-cover-v2 {
+  aspect-ratio: 16 / 9 !important;
+}
+
+.project-tile-v2 .project-cover-art {
+  inset: 0 !important;
+  border: 0 !important;
+  transform: none !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+}
+
+.project-tile-v2[data-project-slug="tovadu"] .project-cover-art {
+  background-image: url("../assets/images/projects/tovadu.webp") !important;
+}
+
+.project-tile-v2[data-project-slug="colorcopy-large-format"] .project-cover-art {
+  background-image: url("../assets/images/projects/colorcopy-large-format.webp") !important;
+}
+
+.project-tile-v2[data-project-slug="pholia"] .project-cover-art {
+  background-image: url("../assets/images/projects/pholia.webp") !important;
+}
+
+.project-tile-v2[data-project-slug="platinum-technologies"] .project-cover-art {
+  background-image: url("../assets/images/projects/platinum-technologies.webp") !important;
+}
+
+.project-tile-v2[data-project-slug="sapy"] .project-cover-art {
+  background-image: url("../assets/images/projects/sapy.webp") !important;
+}
+
+.project-tile-v2:hover .project-cover-art,
+.project-tile-v2:focus-visible .project-cover-art,
+.project-tile-v2.project-visual-3:hover .project-cover-art,
+.project-tile-v2.project-visual-3:focus-visible .project-cover-art,
+.project-tile-v2.mobile-signal .project-cover-art,
+.project-tile-v2.is-pressed .project-cover-art,
+.project-tile-v2.project-visual-3.mobile-signal .project-cover-art,
+.project-tile-v2.project-visual-3.is-pressed .project-cover-art {
+  transform: scale(1.025) !important;
+}
+
+@media (max-width: 720px) {
+  .project-cover-v2 {
+    aspect-ratio: 16 / 9 !important;
+  }
+}

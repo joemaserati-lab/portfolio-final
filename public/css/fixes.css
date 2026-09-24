@@ -1,0 +1,726 @@
+@font-face {
+  font-family: "Doto";
+  src: url("../assets/font/Doto-500.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+/* Doto becomes the operating-system/interface voice. Redaction 50 remains
+   untouched on the large editorial display headings defined in style.css. */
+body,
+button,
+input,
+textarea,
+select {
+  font-family: "Doto", "Courier New", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 500;
+}
+
+/* Doto has a larger visual footprint than the previous interface typeface.
+   Rebuild the interface scale around it instead of inheriting the former terminal proportions. */
+:root {
+  --type-micro: clamp(9px, calc(8.7px + .10vw), 11px);
+  --type-caption: clamp(10px, calc(9.4px + .14vw), 12px);
+  --type-small: clamp(11px, calc(10.2px + .18vw), 13.5px);
+  --type-ui: clamp(12px, calc(11px + .22vw), 14.5px);
+  --type-base: clamp(13px, calc(12px + .24vw), 15.5px);
+  --type-body: clamp(14px, calc(12.8px + .30vw), 17px);
+  --type-body-lg: clamp(15px, calc(13.8px + .34vw), 18.5px);
+  --type-lead: clamp(16px, calc(14.5px + .44vw), 21px);
+  --type-subhead: clamp(18px, calc(16px + .52vw), 24px);
+  --type-number: clamp(22px, calc(19px + .60vw), 30px);
+  --type-heading: clamp(27px, min(3.1vw, 6.6vh), 42px);
+  --type-boot: clamp(16px, min(1.65vw, 3.4vh), 25px);
+}
+
+body {
+  font-size: var(--type-base);
+  line-height: 1.28;
+  letter-spacing: 0;
+}
+
+.language-toggle,
+.privacy-toggle,
+.privacy-panel,
+.privacy-actions button,
+.boot-loader,
+.terminal-toggle,
+.terminal-output,
+.prompt-row,
+#terminal-input {
+  font-family: "Doto", "Courier New", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 500;
+}
+
+/* Doto already carries strong internal rhythm: keep tracking restrained and
+   use size/spacing rather than letter-spacing to establish hierarchy. */
+.system-label {
+  font-size: var(--type-ui);
+  letter-spacing: .055em;
+  line-height: 1.2;
+}
+
+.primary-action,
+.window-titlebar,
+.window-eyebrow,
+.resume-section-title,
+.projects-index-side,
+.boot-enter,
+.language-toggle,
+.privacy-toggle {
+  letter-spacing: .025em;
+}
+
+.hero-copy {
+  max-width: 460px;
+  font-size: var(--type-body-lg);
+  line-height: 1.34;
+}
+
+.primary-action {
+  font-size: var(--type-body);
+  line-height: 1.1;
+  padding: 10px 13px;
+}
+
+.desktop-icon,
+.desktop-icon > span:nth-child(2) {
+  font-size: var(--type-body);
+  line-height: 1.08;
+}
+
+.desktop-icon small {
+  font-size: var(--type-caption);
+  line-height: 1.1;
+}
+
+.window-titlebar {
+  font-size: var(--type-ui);
+  line-height: 1;
+}
+
+.window-eyebrow,
+.resume-section-title {
+  font-size: var(--type-caption);
+}
+
+.window-body p,
+.case-story-copy p,
+.resume-row p,
+.projects-index-side p {
+  font-size: var(--type-body) !important;
+  line-height: 1.38 !important;
+}
+
+.window-body h2,
+.resume-header h2 {
+  font-size: var(--type-heading);
+  line-height: .98;
+}
+
+.meta-card b,
+.resume-row strong,
+.contact-link {
+  font-size: var(--type-body);
+}
+
+.project-tile-main strong,
+.resume-row h3 {
+  font-size: var(--type-subhead);
+  line-height: 1.06;
+}
+
+.project-tile-details small,
+.tags span {
+  font-size: var(--type-small);
+  line-height: 1.16;
+}
+
+.projects-index-side {
+  font-size: var(--type-small);
+  line-height: 1.16;
+}
+
+.boot-loader {
+  font-size: var(--type-boot);
+}
+
+.boot-enter {
+  font-size: var(--type-body);
+  line-height: 1;
+}
+
+.boot-gate-note {
+  font-size: var(--type-small);
+  line-height: 1.3;
+}
+
+.language-toggle,
+.privacy-toggle,
+.privacy-actions button,
+.privacy-status {
+  font-size: var(--type-ui);
+  line-height: 1.05;
+}
+
+.privacy-panel p {
+  font-size: var(--type-body);
+  line-height: 1.35;
+}
+
+/* Targeted UI fixes — 2026-09-15 */
+
+/* Keep the persistent language/privacy controls above the desktop when the
+   home screen is active. */
+.language-toggle,
+.privacy-widget {
+  z-index: 100;
+  pointer-events: auto;
+  transition: opacity .14s ease, visibility .14s ease;
+}
+
+.language-toggle,
+.privacy-toggle,
+.privacy-panel,
+.privacy-actions,
+.privacy-actions button {
+  pointer-events: auto;
+}
+
+/* Global controls must not cover window/project content. */
+body.content-panel-open .language-toggle,
+body.content-panel-open .privacy-widget {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Match the hero copy treatment with a dark backing surface. */
+.primary-action {
+  background: rgba(5,3,8,.74);
+}
+
+.primary-action:hover,
+.primary-action:focus-visible {
+  background: rgba(12,6,16,.9);
+}
+
+/* Keep the consent actions usable when all controls are visible. */
+.privacy-actions {
+  flex-wrap: wrap;
+}
+
+.privacy-actions button[hidden] {
+  display: none;
+}
+
+/* Explicit custom scrollbar for every scrollable content panel. */
+.window-body,
+.projects-view {
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: #b187c4 #120818;
+}
+
+.window-body::-webkit-scrollbar,
+.projects-view::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.window-body::-webkit-scrollbar-track,
+.projects-view::-webkit-scrollbar-track {
+  background: #120818;
+  border-left: 1px solid rgba(240,220,255,.14);
+}
+
+.window-body::-webkit-scrollbar-thumb,
+.projects-view::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg,#b187c4,#5f397a);
+  border: 2px solid #120818;
+  min-height: 36px;
+}
+
+.window-body::-webkit-scrollbar-thumb:hover,
+.projects-view::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg,#f0dcff,#7d4f9c);
+}
+
+/* Give every content window the same top breathing room, and visually extend
+   the title-bar chrome through that space on both desktop and mobile. */
+.os-window {
+  --window-chrome-bg: linear-gradient(90deg,rgba(209,181,233,.07),rgba(255,151,110,.045));
+  box-sizing: border-box;
+  padding-top: 18px;
+}
+
+.os-window::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 18px;
+  background: var(--window-chrome-bg);
+  pointer-events: none;
+}
+
+.os-window .window-titlebar {
+  background: var(--window-chrome-bg);
+}
+
+/* Keep the Colorcopy proof editorial rather than dashboard-like. */
+.case-proof-v2 .case-story-copy {
+  grid-template-columns: 1fr;
+}
+
+.case-proof-v2 .case-story-copy p {
+  max-width: 72ch !important;
+}
+
+/* Reduce every custom cursor variant by 15% while preserving its artwork. */
+.pixelart-cursor {
+  width: 68px;
+  height: 68px;
+  background-size: 68px 68px;
+}
+
+/* Desktop loader: remove only the duplicate ready status and auxiliary note.
+   Keep the original visible CLICK TO ENTER button. */
+@media (min-width: 721px) {
+  .boot-gate-status,
+  .boot-gate-note {
+    display: none !important;
+  }
+}
+
+/* Center window/tab titles on mobile independently from back/close controls. */
+@media (max-width: 720px) {
+  :root {
+    --type-micro: clamp(8px, 2.15vw, 10px);
+    --type-caption: clamp(9px, 2.35vw, 11px);
+    --type-small: clamp(10px, 2.65vw, 12px);
+    --type-ui: clamp(11px, 2.9vw, 13px);
+    --type-base: clamp(12px, 3.05vw, 14px);
+    --type-body: clamp(12.5px, 3.3vw, 15px);
+    --type-body-lg: clamp(13.5px, 3.55vw, 16.5px);
+    --type-lead: clamp(14.5px, 3.8vw, 18px);
+    --type-subhead: clamp(16px, 4.4vw, 20px);
+    --type-number: clamp(20px, 5.6vw, 27px);
+    --type-heading: clamp(24px, 7vw, 34px);
+    --type-boot: clamp(15px, 4.1vw, 20px);
+  }
+
+  /* Mobile loader: remove only the duplicate ready status. Keep both the
+     visible enter button and the mobile interaction note. */
+  .boot-gate-status {
+    display: none !important;
+  }
+
+  .boot-gate-note {
+    position: relative;
+    z-index: 6;
+    display: block;
+    max-width: min(86vw, 300px);
+    font-size: var(--type-small);
+    line-height: 1.35;
+  }
+
+  .boot-enter {
+    width: min(100%, 270px);
+    font-size: var(--type-ui);
+    padding: 11px 13px;
+  }
+
+  .window-titlebar {
+    position: relative;
+    font-size: var(--type-ui);
+  }
+
+  .window-titlebar > span {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(52%, 220px);
+    max-width: calc(100% - 128px);
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .window-controls button {
+    font-size: var(--type-ui);
+  }
+
+  /* Keep the homepage body copy readable without covering the CRT artwork. */
+  .hero-copy {
+    max-width: min(92%, 380px);
+    font-size: var(--type-body-lg);
+    line-height: 1.36;
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    text-shadow:
+      0 2px 4px rgba(0,0,0,.98),
+      0 0 10px rgba(0,0,0,.92),
+      0 0 22px rgba(0,0,0,.78);
+  }
+
+  .system-label {
+    font-size: var(--type-small);
+    letter-spacing: .045em;
+    margin-bottom: 12px;
+  }
+
+  .primary-action {
+    font-size: var(--type-ui);
+    padding: 9px 11px;
+  }
+
+  .desktop-icon,
+  .desktop-icon > span:nth-child(2) {
+    font-size: clamp(9.5px, 2.55vw, 11.5px);
+    line-height: 1.08;
+  }
+
+  .desktop-icon small {
+    font-size: clamp(8.5px, 2.25vw, 10px);
+  }
+
+  /* The hero title uses the full CRT safe width. The desktop already owns the
+     left/right safe-zone padding; this matching 4px inner inset mirrors the
+     project-title treatment and keeps both outer margins visually identical. */
+  .hero-intro {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: none;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .hero-intro h1 {
+    width: 100%;
+    max-width: none;
+    white-space: nowrap;
+    overflow: visible;
+    overflow-wrap: normal;
+    word-break: keep-all;
+    hyphens: none;
+  }
+
+  .privacy-toggle,
+  .language-toggle {
+    font-size: clamp(10px, 2.65vw, 12px);
+  }
+
+  .privacy-panel p,
+  .privacy-actions button,
+  .privacy-status {
+    font-size: var(--type-small);
+  }
+
+  .privacy-actions button {
+    flex: 1 1 calc(50% - 4px);
+    min-width: 0;
+  }
+
+  .window-body::-webkit-scrollbar,
+  .projects-view::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  /* Every full-screen project view is constrained to the actual CRT safe area.
+     The extra 4px inset protects the final glyph from the curved screen mask. */
+  .projects-view .projects-index-v2,
+  .projects-view .case-study-v2 {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    padding-left: calc(var(--screen-safe-left) + 4px);
+    padding-right: calc(var(--screen-safe-right) + 4px);
+  }
+
+  /* Mobile text containment: keep every word intact and let responsive type
+     sizing absorb long labels instead of breaking them mid-word. */
+  .projects-view,
+  .projects-index-v2,
+  .projects-index-head,
+  .projects-index-head > *,
+  .projects-grid-v2,
+  .project-tile-v2,
+  .project-tile-copy,
+  .project-tile-main,
+  .project-tile-details,
+  .case-study-v2,
+  .case-lead-v2,
+  .case-lead-v2 > *,
+  .case-title-v2,
+  .window-body,
+  .window-body > *,
+  .resume-view,
+  .resume-row > *,
+  .contact-panel,
+  .contact-copy,
+  .meta-grid,
+  .meta-card {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .case-title-v2 h2,
+  .projects-index-head h2,
+  .window-body h2,
+  .resume-header h2,
+  .resume-row h3,
+  .meta-card b,
+  .project-tile-main strong,
+  .project-tile-details small,
+  .contact-link b {
+    max-width: calc(100% - 6px);
+    overflow: visible;
+    overflow-wrap: normal;
+    word-break: keep-all;
+    hyphens: none;
+  }
+
+  .case-title-v2 h2 {
+    width: 100%;
+    font-size: clamp(24px, 8.4vw, 46px);
+    text-wrap: balance;
+  }
+
+  .projects-index-head h2 {
+    width: 100%;
+    font-size: clamp(30px, 9.8vw, 52px);
+    text-wrap: balance;
+  }
+
+  .window-body h2,
+  .resume-header h2 {
+    font-size: var(--type-heading);
+  }
+
+  .project-tile-main strong,
+  .resume-row h3 {
+    font-size: var(--type-subhead);
+  }
+
+  .meta-card b,
+  .contact-link b {
+    font-size: var(--type-body);
+  }
+
+  .project-tile-details small {
+    font-size: var(--type-small);
+  }
+}
+
+/* Short-height responsive calibration -------------------------------------
+   Doto keeps its hierarchy on laptops/tablets with limited vertical space;
+   spacing contracts alongside type so UI layers do not collide. */
+@media (max-height: 650px) and (min-width: 721px) {
+  :root {
+    --type-micro: clamp(8.5px, calc(8.2px + .08vw), 10.5px);
+    --type-caption: clamp(9.5px, calc(9px + .10vw), 11.5px);
+    --type-small: clamp(10.5px, calc(9.8px + .14vw), 12.5px);
+    --type-ui: clamp(11.5px, calc(10.7px + .16vw), 13.5px);
+    --type-base: clamp(12.5px, calc(11.5px + .18vw), 14.5px);
+    --type-body: clamp(13px, calc(12px + .22vw), 15.5px);
+    --type-body-lg: clamp(14px, calc(12.8px + .26vw), 17px);
+    --type-lead: clamp(15px, calc(13.5px + .32vw), 18.5px);
+    --type-subhead: clamp(17px, calc(15px + .38vw), 21px);
+    --type-number: clamp(20px, calc(18px + .45vw), 27px);
+    --type-heading: clamp(25px, min(2.8vw, 5.8vh), 38px);
+    --type-boot: clamp(15px, min(1.5vw, 3.1vh), 22px);
+  }
+
+  .hero-intro {
+    padding-top: 6px;
+  }
+
+  .system-label {
+    margin-bottom: 10px;
+  }
+
+  .hero-copy {
+    max-width: 430px;
+    margin: 14px 0 16px;
+    line-height: 1.28;
+  }
+
+  .primary-action {
+    padding: 8px 11px;
+  }
+
+  .desktop-icons {
+    gap: 10px 14px;
+  }
+
+  .desktop-icon {
+    gap: 4px;
+    padding: 5px 4px;
+  }
+
+  .window-titlebar {
+    height: 32px;
+    flex-basis: 32px;
+  }
+
+  .window-body {
+    padding: 18px;
+  }
+
+  .projects-index-v2,
+  .case-study-v2 {
+    padding-top: 16px;
+    padding-bottom: 20px;
+  }
+
+  .projects-index-head {
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+  }
+
+  .projects-grid-v2 {
+    gap: 14px;
+  }
+
+  .resume-view {
+    gap: 18px;
+  }
+
+  .resume-row {
+    padding-block: 10px;
+  }
+
+  .boot-gate {
+    gap: 10px;
+  }
+
+  .boot-enter {
+    padding: 9px 14px;
+  }
+}
+
+/* Phone/tablet landscape: preserve clear size steps while aggressively
+   reducing vertical density. This layer intentionally comes last. */
+@media (max-height: 520px) and (max-width: 900px) {
+  :root {
+    --type-micro: 8px;
+    --type-caption: clamp(8.5px, 1.7vw, 10px);
+    --type-small: clamp(9px, 1.9vw, 11px);
+    --type-ui: clamp(10px, 2.05vw, 12px);
+    --type-base: clamp(11px, 2.2vw, 13px);
+    --type-body: clamp(11.5px, 2.35vw, 14px);
+    --type-body-lg: clamp(12.5px, 2.55vw, 15px);
+    --type-lead: clamp(13.5px, 2.8vw, 16.5px);
+    --type-subhead: clamp(15px, 3.15vw, 18px);
+    --type-number: clamp(18px, 3.8vw, 24px);
+    --type-heading: clamp(21px, 4.8vw, 30px);
+    --type-boot: clamp(13px, 2.8vw, 17px);
+  }
+
+  .hero-intro {
+    padding-top: 2px;
+  }
+
+  .system-label {
+    margin-bottom: 6px;
+  }
+
+  .hero-copy {
+    max-width: min(48vw, 360px);
+    margin: 8px 0 10px;
+    line-height: 1.24;
+  }
+
+  .primary-action {
+    padding: 7px 9px;
+  }
+
+  .desktop-icons {
+    gap: 6px 10px;
+  }
+
+  .desktop-icon {
+    gap: 2px;
+    padding: 3px;
+  }
+
+  .desktop-icon > span:nth-child(2) {
+    font-size: var(--type-small);
+  }
+
+  .desktop-icon small {
+    font-size: var(--type-micro);
+  }
+
+  .window-titlebar {
+    height: 28px;
+    flex-basis: 28px;
+  }
+
+  .window-controls button {
+    height: 22px;
+  }
+
+  .window-body {
+    padding: 12px 14px 16px;
+  }
+
+  .projects-index-v2,
+  .case-study-v2 {
+    padding-top: 10px;
+    padding-bottom: 14px;
+  }
+
+  .projects-index-head {
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+  }
+
+  .projects-grid-v2 {
+    gap: 10px;
+  }
+
+  .project-tile-copy,
+  .project-tile-main,
+  .project-tile-details {
+    gap: 4px;
+  }
+
+  .resume-view {
+    gap: 12px;
+  }
+
+  .resume-section,
+  .resume-row {
+    gap: 8px;
+  }
+
+  .resume-row {
+    padding-block: 7px;
+  }
+
+  .boot-gate {
+    gap: 7px;
+  }
+
+  .boot-enter {
+    padding: 8px 11px;
+  }
+
+  .boot-gate-note {
+    max-width: 340px;
+    line-height: 1.22;
+  }
+
+  .privacy-panel {
+    max-height: calc(100vh - 18px);
+    overflow-y: auto;
+  }
+}

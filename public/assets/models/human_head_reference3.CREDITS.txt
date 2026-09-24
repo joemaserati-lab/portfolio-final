@@ -1,0 +1,9 @@
+human_head_reference3.glb
+
+Source: user-supplied reference3_threejs_v1_clean/assets/human_head.glb.
+Copied without modification for the Reference3 integration.
+SHA256: 9DDB57AC9382381B7F67C8E0FB064D702D16838A51D80B59C6B284A355935C27
+
+The supplied package and GLB metadata do not include author or license details.
+Confirm attribution and redistribution terms before public distribution.
+The separate CREDITS.txt applies to the previous human_head.glb asset.

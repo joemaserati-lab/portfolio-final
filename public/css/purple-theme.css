@@ -1,0 +1,184 @@
+/* Purple-only active color layer — 2026-09-17
+   The original CRT stylesheet still contains amber-era values. This layer
+   removes the remaining visible amber/peach accents without rewriting the
+   legacy base CSS. */
+
+:root {
+  --bg:#040106;
+  --panel:#09050d;
+  --phosphor:#e8c6f6;
+  --phosphor-2:#f3ddff;
+  --bright:#fbf2ff;
+  --dim:#b187c4;
+  --line:rgba(213,184,235,.18);
+  --line-strong:rgba(240,219,255,.34);
+  --glass:rgba(9,5,13,.95);
+  --shadow:rgba(179,129,214,.14);
+}
+
+/* Interactive states ------------------------------------------------------ */
+.primary-action:hover,
+.primary-action:focus-visible,
+.boot-enter:hover,
+.boot-enter:focus-visible,
+.language-toggle:hover,
+.language-toggle:focus-visible,
+.privacy-toggle:hover,
+.privacy-toggle:focus-visible,
+.privacy-actions button:hover,
+.privacy-actions button:focus-visible,
+.window-controls button:hover,
+.contact-link:hover,
+.case-nav-v2 button:hover,
+.not-found-actions a:hover,
+.not-found-actions a:focus-visible {
+  background:rgba(83,45,111,.54);
+  color:#fff6fb;
+}
+
+.primary-action:hover,
+.primary-action:focus-visible {
+  box-shadow:0 0 18px rgba(178,132,214,.18);
+}
+
+.boot-enter:hover,
+.boot-enter:focus-visible,
+.language-toggle:hover,
+.language-toggle:focus-visible,
+.privacy-toggle:hover,
+.privacy-toggle:focus-visible,
+.privacy-actions button:hover,
+.privacy-actions button:focus-visible,
+.not-found-actions a:hover,
+.not-found-actions a:focus-visible {
+  outline-color:rgba(240,220,255,.48);
+}
+
+/* Residual CRT / window glow --------------------------------------------- */
+.os-window {
+  box-shadow:0 22px 70px rgba(0,0,0,.80),0 0 24px rgba(178,132,214,.08),inset 0 0 54px rgba(178,132,214,.035);
+}
+
+.phosphor-ghost {
+  box-shadow:0 0 18px rgba(181,136,218,.045),inset 0 0 22px rgba(181,136,218,.025);
+}
+
+.screen.crt-degauss::after {
+  box-shadow:0 0 8px rgba(255,234,246,.92),0 0 24px rgba(194,158,229,.30),0 0 64px rgba(181,136,218,.16);
+}
+
+.crt-stage::before {
+  filter:drop-shadow(0 0 6px rgba(240,223,255,.42)) drop-shadow(0 0 17px rgba(179,131,214,.22)) drop-shadow(0 0 42px rgba(181,136,218,.10)) drop-shadow(0 0 80px rgba(178,132,214,.08));
+}
+
+/* Project cover accents -------------------------------------------------- */
+.project-visual-1 .project-cover-art,
+.media-visual-1 .case-media-surface {
+  background:
+    linear-gradient(118deg,transparent 0 38%,rgba(181,136,218,.12) 38.2% 38.5%,transparent 38.7% 100%),
+    radial-gradient(circle at 68% 42%,rgba(193,161,236,.16),transparent 0 18%,rgba(212,184,236,.04) 18.4% 31%,transparent 31.4%),
+    repeating-linear-gradient(90deg,rgba(212,184,236,.038) 0 1px,transparent 1px 8%);
+}
+
+.project-visual-2 .project-cover-art,
+.media-visual-2 .case-media-surface {
+  background:
+    linear-gradient(32deg,transparent 0 45%,rgba(212,184,236,.11) 45.2% 45.55%,transparent 45.8%),
+    linear-gradient(148deg,transparent 0 54%,rgba(181,136,218,.08) 54.2% 54.6%,transparent 54.8%),
+    repeating-linear-gradient(0deg,rgba(212,184,236,.036) 0 1px,transparent 1px 34px);
+}
+
+.project-visual-3 .project-cover-art,
+.media-visual-3 .case-media-surface {
+  background:linear-gradient(90deg,transparent 49.8%,rgba(212,184,236,.11) 50%,transparent 50.2%),linear-gradient(0deg,transparent 49.8%,rgba(181,136,218,.11) 50%,transparent 50.2%);
+}
+
+.project-visual-4 .project-cover-art,
+.media-visual-4 .case-media-surface {
+  background:repeating-linear-gradient(72deg,transparent 0 8%,rgba(212,184,236,.045) 8.2% 8.5%,transparent 8.7% 16%),radial-gradient(ellipse at 40% 58%,rgba(181,136,218,.11),transparent 0 26%,transparent 26%);
+}
+
+.project-cover-v2::after {
+  background:linear-gradient(to bottom,transparent,rgba(181,136,218,.08),rgba(240,220,255,.10),transparent);
+}
+
+/* 404 -------------------------------------------------------------------- */
+.not-found-body {
+  background:#000;
+  color:var(--phosphor);
+}
+
+.not-found-screen {
+  background:radial-gradient(circle at 50% 46%,rgba(46,28,60,.60),rgba(15,8,21,.94) 38%,rgba(4,1,6,.99) 80%);
+  text-shadow:0 0 7px rgba(178,132,214,.34);
+}
+
+.not-found-screen::before {
+  background:repeating-linear-gradient(to bottom,rgba(230,208,247,.014) 0 1px,transparent 1px 2px,rgba(0,0,0,.72) 3px 4px);
+}
+
+.not-found-panel {
+  border-color:var(--line-strong);
+  background:rgba(9,5,13,.94);
+  padding:clamp(24px,4vw,44px);
+  box-shadow:0 22px 70px rgba(0,0,0,.76),inset 0 0 80px rgba(178,132,214,.07);
+}
+
+.not-found-panel h1 {
+  margin:0 0 18px;
+  font-family:"Redaction 50", Georgia, serif;
+  font-size:clamp(72px,min(12vw,20vh),132px);
+  line-height:.8;
+  letter-spacing:-.045em;
+  font-weight:400;
+  color:var(--bright);
+}
+
+.not-found-panel p {
+  max-width:48ch;
+  margin:0;
+  color:#d7b8e5;
+  font-size:var(--type-body-lg);
+  line-height:1.36;
+}
+
+.not-found-actions {
+  gap:10px;
+  margin-top:22px;
+}
+
+.not-found-actions a {
+  border-color:var(--line-strong);
+  background:rgba(212,184,236,.05);
+  color:var(--bright);
+  font-size:var(--type-body);
+  line-height:1.1;
+  letter-spacing:.025em;
+  padding:10px 13px;
+}
+
+@media(max-width:720px) {
+  .not-found-panel {
+    padding:22px;
+  }
+
+  .not-found-panel h1 {
+    font-size:clamp(64px,24vw,104px);
+    margin-bottom:16px;
+  }
+
+  .not-found-actions {
+    margin-top:18px;
+  }
+
+  .not-found-actions a {
+    font-size:var(--type-ui);
+    padding:9px 11px;
+  }
+}
+
+@media(max-width:900px) {
+  .crt-stage::before {
+    filter:drop-shadow(0 0 5px rgba(240,223,255,.38)) drop-shadow(0 0 14px rgba(179,131,214,.18)) drop-shadow(0 0 30px rgba(181,136,218,.08)) drop-shadow(0 0 60px rgba(178,132,214,.06));
+  }
+}

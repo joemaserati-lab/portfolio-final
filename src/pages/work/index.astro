@@ -1,0 +1,20 @@
+---
+import PortfolioShell from '../../layouts/PortfolioShell.astro';
+import { sections, projects } from '../../data/routes.mjs';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: sections.work.title,
+  mainEntity: {
+    '@type': 'ItemList',
+    itemListElement: projects.map((project, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: project.name,
+      url: `work/${project.slug}/`
+    }))
+  }
+};
+---
+<PortfolioShell {...sections.work} canonicalPath={sections.work.path} jsonLd={jsonLd} />

@@ -1,0 +1,30 @@
+---
+import PortfolioShell from '../../../layouts/PortfolioShell.astro';
+import { profile, projects } from '../../../data/routes.mjs';
+
+export function getStaticPaths() {
+  return projects.map(project => ({
+    params: { slug: project.slug },
+    props: { project }
+  }));
+}
+
+const { project } = Astro.props;
+const canonicalPath = `work/${project.slug}/`;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  name: project.name,
+  description: project.description,
+  image: project.image,
+  author: { '@type': 'Person', name: profile.name }
+};
+---
+<PortfolioShell
+  title={project.title}
+  description={project.description}
+  canonicalPath={canonicalPath}
+  ogImage={project.image}
+  ogType="article"
+  jsonLd={jsonLd}
+/>

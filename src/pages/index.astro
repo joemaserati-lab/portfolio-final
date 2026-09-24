@@ -1,0 +1,17 @@
+---
+import PortfolioShell from '../layouts/PortfolioShell.astro';
+import { profile } from '../data/routes.mjs';
+
+const person = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: profile.name
+};
+---
+<PortfolioShell
+  title={profile.defaultTitle}
+  description={profile.defaultDescription}
+  canonicalPath=""
+  ogImage={profile.defaultImage}
+  jsonLd={person}
+/>

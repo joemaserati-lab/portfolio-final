@@ -1,0 +1,12 @@
+---
+import PortfolioShell from '../../layouts/PortfolioShell.astro';
+import { profile, sections } from '../../data/routes.mjs';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfilePage',
+  name: sections.about.title,
+  mainEntity: { '@type': 'Person', name: profile.name }
+};
+---
+<PortfolioShell {...sections.about} canonicalPath={sections.about.path} jsonLd={jsonLd} />

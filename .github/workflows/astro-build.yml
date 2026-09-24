@@ -1,0 +1,59 @@
+name: Astro Build Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'package.json'
+      - 'astro.config.mjs'
+      - '.github/workflows/astro-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Astro
+        run: npm install --no-package-lock --no-audit --no-fund
+
+      - name: Build static site
+        run: npm run build
+
+      - name: Verify generated routes
+        run: |
+          test -f dist/index.html
+          test -f dist/about/index.html
+          test -f dist/resume/index.html
+          test -f dist/contact/index.html
+          test -f dist/work/index.html
+          test -f dist/work/tovadu/index.html
+          test -f dist/work/pholia/index.html
+          test -f dist/work/sapy/index.html
+          test -f dist/work/platinum-technologies/index.html
+          test -f dist/work/colorcopy-large-format/index.html
+          test -f dist/sitemap.xml
+          test -f dist/404.html
+          test -f dist/js/portfolio.js
+          test -f dist/css/crt-outline.css
+          test -f dist/assets/models/human_head_reference3.glb
+
+      - name: Upload Astro dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: astro-dist
+          path: dist/
+          retention-days: 7
