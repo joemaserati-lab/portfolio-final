@@ -193,14 +193,7 @@
           {type:'wide',label:'ONGOING COMMUNICATION'}
         ]
       }
-    ],
-
-    archive: {
-      title: 'ARCHIVE',
-      eyebrow: 'SELF-INITIATED WORK / STUDIES / EXPERIMENTS',
-      description: 'Independent work, visual studies and experiments that do not belong in the main project selection.',
-      status: ['CURRENTLY BEING ORGANISED.']
-    }
+    ]
   };
 
   const clone = value => JSON.parse(JSON.stringify(value));
@@ -368,13 +361,6 @@
     }
   };
   IT.projects.forEach(project => Object.assign(project, projectCopy[project.slug] || {}));
-
-  Object.assign(IT.archive, {
-    title: 'ARCHIVIO',
-    eyebrow: 'PROGETTI PERSONALI / STUDI / ESPERIMENTI',
-    description: 'Progetti indipendenti, studi visuali ed esperimenti che non fanno parte della selezione principale.',
-    status: ['ARCHIVIO IN PREPARAZIONE.']
-  });
 
   const dictionaries = { en: EN, it: IT };
   function syncData() {
