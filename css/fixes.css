@@ -64,10 +64,6 @@ body {
 .primary-action,
 .window-titlebar,
 .window-eyebrow,
-.project-cover-label,
-.project-open,
-.case-meta dt,
-.case-copy-grid span,
 .resume-section-title,
 .projects-index-side,
 .boot-enter,
@@ -105,15 +101,11 @@ body {
 }
 
 .window-eyebrow,
-.resume-section-title,
-.case-meta dt,
-.case-copy-grid span,
-.project-cover-label {
+.resume-section-title {
   font-size: var(--type-caption);
 }
 
 .window-body p,
-.case-intro,
 .case-story-copy p,
 .resume-row p,
 .projects-index-side p {
@@ -129,24 +121,18 @@ body {
 
 .meta-card b,
 .resume-row strong,
-.contact-link,
-.archive-row {
+.contact-link {
   font-size: var(--type-body);
 }
 
 .project-tile-main strong,
-.project-info strong,
 .resume-row h3 {
   font-size: var(--type-subhead);
   line-height: 1.06;
 }
 
 .project-tile-details small,
-.project-info small,
-.project-client,
-.project-open,
-.tags span,
-.case-nav small {
+.tags span {
   font-size: var(--type-small);
   line-height: 1.16;
 }
