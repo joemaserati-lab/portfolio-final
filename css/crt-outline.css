@@ -171,190 +171,10 @@
   }
 }
 
-
-/* V31.12 / COLLISION-PROOF SAFE AREA --------------------------------------
-   Add the physical device safe area (notches / rounded corners / home
-   indicator) to the CRT safe zone. This file loads last, so these rules are
-   the final geometry authority for responsive controls. */
-:root{
-  --device-safe-top:env(safe-area-inset-top,0px);
-  --device-safe-right:env(safe-area-inset-right,0px);
-  --device-safe-bottom:env(safe-area-inset-bottom,0px);
-  --device-safe-left:env(safe-area-inset-left,0px);
-  --ui-safe-top:calc(var(--screen-safe-top) + var(--device-safe-top));
-  --ui-safe-right:calc(var(--screen-safe-right) + var(--device-safe-right));
-  --ui-safe-bottom:calc(var(--screen-safe-bottom) + var(--device-safe-bottom));
-  --ui-safe-left:calc(var(--screen-safe-left) + var(--device-safe-left));
-}
-
-@supports(height:100dvh){
-  html,body,.shell,.screen{height:100dvh;min-height:100dvh}
-}
-
-.desktop{
-  padding:var(--ui-safe-top) var(--ui-safe-right) var(--ui-safe-bottom) var(--ui-safe-left);
-}
-
-.window-layer{
-  inset:var(--ui-safe-top) var(--ui-safe-right) calc(var(--ui-safe-bottom) + 26px) var(--ui-safe-left);
-}
-
-.projects-view .projects-index-v2,
-.projects-view .case-study-v2{
-  padding-left:calc(var(--ui-safe-left) + 4px);
-  padding-right:calc(var(--ui-safe-right) + 4px);
-  padding-bottom:var(--ui-safe-bottom);
-}
-
-.projects-chrome{
-  padding:calc(var(--ui-safe-top) + 4px) var(--ui-safe-right) 8px var(--ui-safe-left);
-}
-
-.language-toggle{
-  left:calc(var(--ui-safe-left) + 12px);
-  bottom:calc(var(--ui-safe-bottom) + 8px);
-}
-.privacy-widget{
-  right:calc(var(--ui-safe-right) + 12px);
-  bottom:calc(var(--ui-safe-bottom) + 8px);
-}
-
-/* The content UI owns the screen while a window or project view is open.
-   Persistent home controls are hidden instead of being allowed to compete for
-   the same lower safe-zone space. */
-body.content-panel-open .language-toggle,
-body.content-panel-open .privacy-widget{
-  opacity:0;
-  visibility:hidden;
-  pointer-events:none;
-}
-
-/* Tablet navigation is a dedicated row above the persistent control strip. */
-@media (min-width:721px) and (max-width:1024px){
-  .desktop-icons{
-    left:calc(var(--ui-safe-left) + 4px);
-    right:calc(var(--ui-safe-right) + 4px);
-    bottom:calc(var(--ui-safe-bottom) + 62px);
-  }
-  .language-toggle{bottom:calc(var(--ui-safe-bottom) + 8px)}
-  .privacy-widget{bottom:calc(var(--ui-safe-bottom) + 8px)}
-}
-
-/* Mobile controls use non-overlapping grid tracks. The title can shrink and
-   ellipsize, but it can never occupy the back/close button tracks. */
-@media (max-width:720px){
-  .desktop-icons{
-    left:var(--ui-safe-left);
-    right:var(--ui-safe-right);
-    bottom:calc(var(--ui-safe-bottom) + 48px);
-  }
-
-  .desktop-icon{
-    overflow:hidden;
-  }
-  .desktop-icon > span:nth-child(2){
-    display:block;
-    width:100%;
-    max-width:100%;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-    text-align:center;
-  }
-
-  .language-toggle{
-    left:calc(var(--ui-safe-left) + 2px);
-    bottom:calc(var(--ui-safe-bottom) + 2px);
-  }
-  .privacy-widget{
-    left:calc(var(--ui-safe-left) + 54px);
-    right:calc(var(--ui-safe-right) + 2px);
-    bottom:calc(var(--ui-safe-bottom) + 2px);
-    min-width:0;
-  }
-  .privacy-toggle{
-    width:100%;
-    min-width:0;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-  }
-
-  .window-titlebar{
-    display:grid;
-    grid-template-columns:40px minmax(0,1fr) 44px;
-    align-items:center;
-    gap:6px;
-    padding:4px;
-    min-width:0;
-  }
-  .window-back{
-    grid-column:1;
-    width:40px;
-    height:38px;
-  }
-  .window-titlebar > span{
-    grid-column:2;
-    position:static;
-    transform:none;
-    width:auto;
-    max-width:100%;
-    min-width:0;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-    text-align:center;
-  }
-  .window-controls{
-    grid-column:3;
-    position:static;
-    justify-self:end;
-    display:flex;
-    gap:0;
-    min-width:0;
-  }
-  .window-controls button{
-    width:44px;
-    height:38px;
-    min-width:44px;
-  }
-
-  .projects-chrome{
-    padding:calc(var(--ui-safe-top) + 4px) var(--ui-safe-right) 8px var(--ui-safe-left);
-  }
-}
-
-/* Extra guard for genuinely narrow phones. Preserve separation even if labels
-   have to become smaller rather than allowing neighboring launchers to touch. */
-@media (max-width:359px){
-  .desktop-icons{column-gap:2px}
-  .desktop-icon{padding-inline:1px}
-  .desktop-icon > span:nth-child(2){font-size:clamp(8.5px,2.8vw,10px)}
-  .icon-glyph{width:36px;height:32px}
-  .privacy-widget{left:calc(var(--ui-safe-left) + 50px)}
-  .language-toggle{min-width:38px}
-}
-
-/* Very short landscape keeps the home copy and launcher row in separate
-   vertical bands. */
-@media (max-width:900px) and (max-height:430px){
-  .hero-intro h1{font-size:clamp(42px,13vh,56px)}
-  .hero-copy{
-    max-width:min(46vw,300px);
-    margin:5px 0 7px;
-    line-height:1.16;
-  }
-  .primary-action{padding:5px 7px}
-  .desktop-icons{bottom:calc(var(--ui-safe-bottom) + 38px)}
-  .icon-glyph{width:30px;height:27px}
-  .desktop-icon{gap:1px;padding-block:1px}
-}
-
-
-/* V31.13 / MOBILE CRT GEOMETRY --------------------------------------------
-   One final geometry layer for the physical CRT viewport. Full-screen content
-   paints edge-to-edge inside .screen; only interactive content is inset from
-   the curved corners / device cutouts. */
+/* V31.14 / CANONICAL CRT SAFE VIEWPORT -------------------------------------
+   Final geometry authority. The CRT surface always paints edge-to-edge.
+   Interactive/content regions use a protected inner viewport that stays clear
+   of the curved mask, device cutouts and the lower CRT falloff. */
 :root{
   --device-screen-top:max(0px,calc(env(safe-area-inset-top,0px) - var(--stage-gap) - var(--bezel-y)));
   --device-screen-right:max(0px,calc(env(safe-area-inset-right,0px) - var(--stage-gap) - var(--bezel-x)));
@@ -366,14 +186,22 @@ body.content-panel-open .privacy-widget{
   --ui-safe-left:max(var(--screen-safe-left),var(--device-screen-left));
 }
 
-/* Full-screen surfaces must cover the whole visible CRT. Safe areas belong to
-   their inner content, never to the surface itself. */
+@supports(height:100dvh){
+  html,body,.shell{height:100dvh;min-height:100dvh}
+}
+
+/* Home content is inset; full-screen application surfaces are not. */
+.desktop{
+  padding:var(--ui-safe-top) var(--ui-safe-right) var(--ui-safe-bottom) var(--ui-safe-left);
+}
+
 .window-layer{
   inset:0!important;
   width:100%;
   height:100%;
   overflow:hidden;
 }
+
 .os-window.is-maximized,
 .os-window.is-responsive-fullscreen{
   position:absolute!important;
@@ -386,17 +214,20 @@ body.content-panel-open .privacy-widget{
   transform:none!important;
   border:0!important;
 }
+
 .projects-view{
   inset:0!important;
   width:100%;
   height:100%;
   max-width:none;
   max-height:none;
+  box-sizing:border-box;
   overflow-x:hidden;
   overflow-y:auto;
   overscroll-behavior:contain;
   scroll-padding-top:var(--ui-safe-top);
-  scroll-padding-bottom:calc(var(--ui-safe-bottom) + 24px);
+  scroll-padding-bottom:var(--ui-safe-bottom);
+  padding-bottom:var(--ui-safe-bottom)!important;
 }
 
 .projects-view .projects-index-v2,
@@ -407,38 +238,78 @@ body.content-panel-open .privacy-widget{
   min-height:100%;
   padding-left:calc(var(--ui-safe-left) + 4px)!important;
   padding-right:calc(var(--ui-safe-right) + 4px)!important;
-  padding-bottom:calc(var(--ui-safe-bottom) + 32px)!important;
+  padding-bottom:32px!important;
 }
 
-/* Loader occupies exactly the CRT surface. The gate owns its own safe padding,
-   avoiding the previous double inset. */
+.projects-chrome{
+  box-sizing:border-box;
+  padding:calc(var(--ui-safe-top) + 4px) var(--ui-safe-right) 8px var(--ui-safe-left)!important;
+}
+
+body.content-panel-open .language-toggle,
+body.content-panel-open .privacy-widget{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+}
+
+/* Loader surface matches the CRT. Its content gets the safe viewport. */
 .boot-loader{
   padding:0!important;
 }
 .boot-gate{
-  padding:var(--ui-safe-top) var(--ui-safe-right) var(--ui-safe-bottom) var(--ui-safe-left);
+  box-sizing:border-box;
+  width:100%;
+  height:100%;
+  min-height:0;
   max-width:100%;
   max-height:100%;
-  overflow:hidden;
+  padding:var(--ui-safe-top) var(--ui-safe-right) var(--ui-safe-bottom) var(--ui-safe-left);
+  overflow:auto;
+  overscroll-behavior:contain;
 }
-.boot-loader.is-sequencing .boot-output{
-  left:var(--ui-safe-left);
-  right:var(--ui-safe-right);
-}
+.boot-loader.is-sequencing .boot-output,
 .boot-loader.is-sequencing .boot-prompt{
   left:var(--ui-safe-left);
   right:var(--ui-safe-right);
 }
 
+/* Tablet keeps launchers and persistent controls in separate bands. */
+@media (min-width:721px) and (max-width:1024px){
+  .desktop-icons{
+    left:calc(var(--ui-safe-left) + 4px);
+    right:calc(var(--ui-safe-right) + 4px);
+    top:auto;
+    bottom:calc(var(--ui-safe-bottom) + 62px);
+  }
+  .language-toggle{
+    left:calc(var(--ui-safe-left) + 8px);
+    bottom:calc(var(--ui-safe-bottom) + 8px);
+  }
+  .privacy-widget{
+    right:calc(var(--ui-safe-right) + 8px);
+    bottom:calc(var(--ui-safe-bottom) + 8px);
+  }
+}
+
+/* Phones need a larger protected bottom band than the old 26px box because
+   the physical CRT mask curves upward before the mathematical viewport ends. */
 @media (max-width:720px){
   :root{
+    --screen-safe-top:clamp(32px,5.5vh,44px);
+    --screen-safe-right:clamp(26px,7vw,36px);
+    --screen-safe-bottom:clamp(44px,7vh,64px);
+    --screen-safe-left:clamp(26px,7vw,36px);
     --mobile-control-height:34px;
     --mobile-control-width:46px;
     --mobile-control-gap:8px;
+    --ui-safe-top:max(var(--screen-safe-top),var(--device-screen-top));
+    --ui-safe-right:max(var(--screen-safe-right),var(--device-screen-right));
+    --ui-safe-bottom:max(var(--screen-safe-bottom),var(--device-screen-bottom));
+    --ui-safe-left:max(var(--screen-safe-left),var(--device-screen-left));
   }
 
-  /* Home controls: one shared baseline, one shared height, always inside the
-     CRT safe rectangle. */
+  /* Persistent controls: one baseline, exact shared height, no overlap. */
   .language-toggle{
     left:var(--ui-safe-left)!important;
     right:auto!important;
@@ -446,10 +317,11 @@ body.content-panel-open .privacy-widget{
     width:var(--mobile-control-width);
     min-width:var(--mobile-control-width);
     height:var(--mobile-control-height);
-    padding:0;
+    padding:0!important;
     display:grid;
     place-items:center;
   }
+
   .privacy-widget{
     left:calc(var(--ui-safe-left) + var(--mobile-control-width) + var(--mobile-control-gap))!important;
     right:var(--ui-safe-right)!important;
@@ -460,6 +332,7 @@ body.content-panel-open .privacy-widget{
     max-width:none;
     display:block;
   }
+
   .privacy-toggle{
     width:100%;
     height:100%;
@@ -469,9 +342,10 @@ body.content-panel-open .privacy-widget{
     align-items:center;
     justify-content:center;
     overflow:hidden;
-    text-overflow:ellipsis;
     white-space:nowrap;
+    font-size:clamp(9px,2.55vw,12px);
   }
+
   .privacy-panel{
     position:absolute;
     left:0;
@@ -479,23 +353,38 @@ body.content-panel-open .privacy-widget{
     bottom:calc(100% + 8px);
     width:100%;
     max-width:none;
-    max-height:min(62dvh,420px);
+    max-height:min(58dvh,400px);
     overflow:auto;
   }
 
-  /* Launcher row lives above the persistent controls; its bottom edge is
-     derived from the exact control height instead of a magic offset. */
   .desktop-icons{
     left:var(--ui-safe-left)!important;
     right:var(--ui-safe-right)!important;
     bottom:calc(var(--ui-safe-bottom) + var(--mobile-control-height) + 14px)!important;
   }
 
-  /* Mobile windows paint the entire CRT, while chrome/content respect the
-     inner safe rectangle. */
+  .desktop-icon{
+    min-width:0;
+    overflow:hidden;
+  }
+
+  .desktop-icon>span:nth-child(2){
+    display:block;
+    width:100%;
+    max-width:100%;
+    overflow:hidden;
+    white-space:nowrap;
+    text-align:center;
+    font-size:clamp(9px,2.65vw,11px);
+  }
+
+  /* Full CRT background, protected scroll viewport. The margin-bottom is
+     outside the scrolling body itself, so content physically cannot sit under
+     the curved lower edge. */
   .os-window{
     padding-top:0!important;
   }
+
   .os-window.is-maximized .window-titlebar,
   .os-window.is-responsive-fullscreen .window-titlebar{
     box-sizing:border-box;
@@ -505,15 +394,17 @@ body.content-panel-open .privacy-widget{
     gap:6px;
     height:calc(var(--ui-safe-top) + 46px);
     min-height:calc(var(--ui-safe-top) + 46px);
-    flex-basis:calc(var(--ui-safe-top) + 46px);
+    flex:0 0 calc(var(--ui-safe-top) + 46px);
     padding:var(--ui-safe-top) var(--ui-safe-right) 4px var(--ui-safe-left)!important;
   }
+
   .window-back{
     grid-column:1;
     align-self:end;
     width:40px;
     height:38px;
   }
+
   .window-titlebar>span{
     grid-column:2;
     align-self:center;
@@ -525,9 +416,10 @@ body.content-panel-open .privacy-widget{
     min-width:0;
     text-align:center;
     overflow:hidden;
-    text-overflow:ellipsis;
     white-space:nowrap;
+    font-size:clamp(10px,3vw,13px)!important;
   }
+
   .window-controls{
     grid-column:3;
     align-self:end;
@@ -538,32 +430,72 @@ body.content-panel-open .privacy-widget{
     display:flex;
     gap:0;
   }
+
   .window-controls button{
     width:44px;
     min-width:44px;
     height:38px;
   }
+
   .os-window.is-maximized .window-body,
   .os-window.is-responsive-fullscreen .window-body{
     box-sizing:border-box;
-    padding:16px var(--ui-safe-right) calc(var(--ui-safe-bottom) + 20px) var(--ui-safe-left)!important;
+    min-height:0;
+    overflow-x:hidden;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    margin-bottom:var(--ui-safe-bottom)!important;
+    padding:14px var(--ui-safe-right) 24px var(--ui-safe-left)!important;
+    scroll-padding-bottom:24px;
   }
 
-  /* Project chrome follows the same inner rectangle. The project background
-     itself still extends to every CRT edge. */
+  /* Long content must wrap inside the protected width instead of escaping. */
+  .window-body,
+  .window-body *,
+  .projects-view,
+  .projects-view *{
+    min-width:0;
+  }
+
+  .window-body p,
+  .window-body b,
+  .window-body strong,
+  .window-body a,
+  .window-body dd,
+  .projects-view p,
+  .projects-view b,
+  .projects-view strong,
+  .projects-view a,
+  .projects-view dd{
+    max-width:100%;
+    overflow-wrap:anywhere;
+    word-break:normal;
+  }
+
   .projects-chrome{
-    box-sizing:border-box;
     padding:var(--ui-safe-top) var(--ui-safe-right) 8px var(--ui-safe-left)!important;
   }
 
-  /* Loader gate: progress participates in grid flow on mobile, so it can never
-     cross the title, enter button or explanatory note. */
+  /* Projects/cases get a real scroll spacer after the last element, not just
+     padding on a child that can visually disappear into the CRT mask. */
+  .projects-view::after{
+    content:"";
+    display:block;
+    width:100%;
+    height:24px;
+    flex:0 0 24px;
+    pointer-events:none;
+  }
+
+  /* Loader: all pre-entry controls are normal grid-flow items. */
   .boot-gate{
     place-content:center;
     justify-items:center;
     grid-auto-flow:row;
-    gap:10px;
+    gap:9px;
+    overflow:auto;
   }
+
   .boot-progress{
     position:relative!important;
     left:auto!important;
@@ -573,58 +505,89 @@ body.content-panel-open .privacy-widget{
     height:2px;
     margin:2px 0;
   }
+
   .boot-gate h2{
     max-width:100%;
     min-height:0;
     margin:0;
+    font-size:clamp(34px,11vw,52px);
   }
+
   .boot-enter{
-    margin-top:2px;
+    width:min(100%,270px);
     max-width:100%;
+    margin-top:2px;
   }
+
   .boot-gate-note{
-    max-width:min(100%,300px);
+    max-width:min(100%,290px);
     margin:0;
   }
 
+  /* Terminal phase is bounded by both top and bottom safe edges, so additional
+     boot lines can never overlap the prompt or leave the CRT. */
   .boot-loader.is-sequencing{
-    --boot-terminal-bottom:calc(var(--ui-safe-bottom) + 4px);
+    --boot-terminal-bottom:calc(var(--ui-safe-bottom) + 2px);
   }
+
   .boot-loader.is-sequencing .boot-output{
-    bottom:calc(var(--boot-terminal-bottom) + 1.75em);
-    max-height:min(44dvh,15em);
+    top:var(--ui-safe-top)!important;
+    bottom:calc(var(--boot-terminal-bottom) + 1.8em)!important;
+    max-height:none!important;
+    overflow:hidden;
   }
+
   .boot-loader.is-sequencing .boot-prompt{
-    bottom:var(--boot-terminal-bottom);
+    bottom:var(--boot-terminal-bottom)!important;
   }
 }
 
-/* Very narrow portrait screens keep controls usable without crossing the CRT
-   side safe zones. */
 @media (max-width:359px){
   :root{
+    --screen-safe-right:24px;
+    --screen-safe-left:24px;
     --mobile-control-height:32px;
     --mobile-control-width:42px;
     --mobile-control-gap:6px;
   }
-  .privacy-toggle{padding-inline:5px;font-size:9px}
+  .privacy-toggle{padding-inline:5px;font-size:8.5px}
   .desktop-icons{column-gap:2px!important}
+  .icon-glyph{width:34px;height:30px}
 }
 
-/* Short landscape: prioritize collision-free geometry over auxiliary copy. */
+/* Short mobile landscape gets a compact but still protected geometry. */
 @media (max-width:900px) and (max-height:430px){
   :root{
+    --screen-safe-top:26px;
+    --screen-safe-bottom:32px;
+    --screen-safe-right:28px;
+    --screen-safe-left:28px;
     --mobile-control-height:30px;
   }
-  .boot-gate{gap:6px}
+
+  .boot-gate{
+    gap:5px;
+    padding-top:var(--ui-safe-top);
+    padding-bottom:var(--ui-safe-bottom);
+  }
+
   .boot-gate-note{display:none!important}
-  .boot-gate h2{font-size:clamp(32px,11vh,46px)}
+  .boot-gate h2{font-size:clamp(28px,10vh,42px)}
   .boot-enter{padding:7px 10px}
+
   .desktop-icons{
     bottom:calc(var(--ui-safe-bottom) + var(--mobile-control-height) + 8px)!important;
   }
-  .projects-view .projects-index-v2,
-  .projects-view .case-study-v2{
-    padding-bottom:calc(var(--ui-safe-bottom) + 20px)!important;
+
+  .os-window.is-maximized .window-body,
+  .os-window.is-responsive-fullscreen .window-body{
+    margin-bottom:var(--ui-safe-bottom)!important;
+    padding-top:10px!important;
+    padding-bottom:16px!important;
+  }
+
+  .projects-view{
+    padding-bottom:var(--ui-safe-bottom)!important;
   }
 }
+
