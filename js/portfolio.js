@@ -417,7 +417,7 @@
     if(!projectsView) return false;
     projectsView.hidden=false;
     projectsView.classList.add('is-open');
-    document.body.classList.add('projects-open');
+    document.body.classList.add('projects-open','content-panel-open');
     return true;
   }
 
@@ -429,6 +429,7 @@
     delete projectsView.dataset.view;
     delete projectsView.dataset.project;
     document.body.classList.remove('projects-open');
+    if(!document.querySelector('.os-window')) document.body.classList.remove('content-panel-open');
   }
 
   function clearWindowsExcept(kind=null){
@@ -437,6 +438,9 @@
       leavePhosphorGhost(win);
       win.remove();
     });
+    const hasWindow=Boolean(document.querySelector('.os-window'));
+    const hasProjects=Boolean(projectsView && !projectsView.hidden);
+    document.body.classList.toggle('content-panel-open',hasWindow || hasProjects);
   }
   function renderProjectsDirectory(){
     if(!openProjectsView()) return false;
@@ -455,6 +459,7 @@
     if(kind==='projects') return renderProjectsDirectory();
     const labels={projects:t('window.projects'),about:t('window.about'),contact:t('window.contact'),resume:t('window.resume')};
     const win=createWindow(kind,labels[kind]||kind.toUpperCase());
+    document.body.classList.add('content-panel-open');
     win.classList.remove('case-mode');
     win.querySelector('.window-body').innerHTML=contents[kind]();
     applyResponsiveState(win);
@@ -621,6 +626,9 @@
     const returnFocus=win.__returnFocus;
     leavePhosphorGhost(win);
     win.remove();
+    const hasWindow=Boolean(document.querySelector('.os-window'));
+    const hasProjects=Boolean(projectsView && !projectsView.hidden);
+    document.body.classList.toggle('content-panel-open',hasWindow || hasProjects);
     if(returnFocus?.isConnected) returnFocus.focus({preventScroll:true});
   }
 
