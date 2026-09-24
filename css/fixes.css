@@ -473,7 +473,6 @@ body.content-panel-open .privacy-widget {
   .case-lead-v2,
   .case-lead-v2 > *,
   .case-title-v2,
-  .case-heading,
   .window-body,
   .window-body > *,
   .resume-view,
@@ -502,8 +501,7 @@ body.content-panel-open .privacy-widget {
     hyphens: none;
   }
 
-  .case-title-v2 h2,
-  .case-heading h2 {
+  .case-title-v2 h2 {
     width: 100%;
     font-size: clamp(24px, 8.4vw, 46px);
     text-wrap: balance;
