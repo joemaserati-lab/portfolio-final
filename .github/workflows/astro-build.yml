@@ -9,6 +9,7 @@ on:
       - 'package.json'
       - 'astro.config.mjs'
       - '.github/workflows/astro-build.yml'
+      - '.github/workflows/astro-pages.yml'
   workflow_dispatch:
 
 permissions:
