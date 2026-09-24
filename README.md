@@ -1,213 +1,338 @@
-# V31.1 — Enhanced Lines / Balanced Glow
+# Edoardo Rappanello — Portfolio
 
-Questa variante mantiene la palette iridescente e la logica a linee della V31-A, ma riduce bloom, halo ed esposizione per recuperare contrasto, neri e separazione cromatica.
+Interactive portfolio built as a static Astro site with a custom CRT / desktop-OS interface.
 
-Principali modifiche:
-- Bloom strength 0.40 → 0.16
-- Bloom radius 0.32 → 0.16
-- Bloom threshold 0.92 → 1.18
-- Tone-mapping exposure 1.16 → 1.00
-- Energia del core e degli aloni ridotta
-- Highlight bianchi più localizzati
-- Rim light ridotta
-- Opacità desktop 1.00 → 0.96
+**Live site:** https://joemaserati-lab.github.io/portfolio-final/
 
-La palette rimane volutamente satura: la correzione agisce sulla luce, non sulla cromia.
+The project is intentionally framework-light on the client. Astro is used as the build and routing layer, while the interactive experience remains based on vanilla JavaScript, CSS and Three.js.
 
-# V31-A — Enhanced Iridescent Lines
+## Current architecture
 
-Variant based on V30. Keeps the original 3D head scan/contour-line language, but increases chroma, core brightness, halo separation and perceived volume. Uses NeutralToneMapping, controlled UnrealBloom and full desktop opacity.
+```text
+Astro static build
+├── real SEO-friendly routes
+├── shared page shell
+├── generated project pages
+├── sitemap / metadata / structured data
+│
+└── client runtime
+    ├── vanilla JavaScript
+    ├── Three.js
+    ├── custom CRT effects
+    ├── OS-style windows
+    └── responsive safe-zone system
+```
 
-# V3.0 Foundation / v11
+No React, Vue or client-side framework hydration is used.
 
-Baseline: v10 Window Manager + v9 Fluid Type.
+## Stack
 
-Changes:
-- LAB removed and replaced by RESUME.TXT / CV.
-- ARCHIVE ONLINE removed from the footer; only HELP and FX remain.
-- Secondary windows use controlled random placement only on desktop (>1024px).
-- At tablet/mobile widths (<=1024px), ABOUT / RESUME / ARCHIVE / CONTACT automatically fill the CRT safezone.
-- PROJECTS remains fullscreen at every breakpoint.
-- Portfolio content moved to `js/content.js`; `portfolio.js` now manages rendering, routing and window behavior.
-- Resume data model and placeholder view added.
-- Terminal commands updated to `resume` / `cv`; LAB commands removed.
+- Astro 7
+- HTML / CSS
+- Vanilla JavaScript
+- Three.js
+- GitHub Pages
+- GitHub Actions
+- Lighthouse CI-style audit workflow
 
-The CRT visual baseline, loader, curvature, safezone and fluid typography are unchanged.
+Node.js 22 or newer is required for local development and CI.
 
+## Project structure
 
-## V3.1 — Projects redesign
-- selected work directory redesigned around large visual covers
-- removed explanatory UI copy from the index
-- case studies redesigned as image-led editorial pages
-- existing hash routing and full-safezone PROJECTS behavior preserved
-- placeholders remain intentionally abstract until real project assets are supplied
+```text
+.
+├── src/
+│   ├── data/
+│   │   └── routes.mjs
+│   ├── layouts/
+│   │   └── PortfolioShell.astro
+│   └── pages/
+│       ├── index.astro
+│       ├── about/
+│       │   └── index.astro
+│       ├── resume/
+│       │   └── index.astro
+│       ├── contact/
+│       │   └── index.astro
+│       ├── work/
+│       │   ├── index.astro
+│       │   └── [slug].astro
+│       ├── sitemap.xml.js
+│       └── 404.astro
+│
+├── public/
+│   ├── assets/
+│   ├── css/
+│   ├── js/
+│   ├── robots.txt
+│   └── .nojekyll
+│
+├── astro.config.mjs
+├── package.json
+└── .github/workflows/
+    ├── astro-build.yml
+    ├── astro-pages.yml
+    └── lighthouse-audit.yml
+```
 
+### Source of truth
 
-## V3.2 aesthetic polish
-- CRT degauss/power transition on Projects and case-study navigation
-- stronger project hover with scan sweep and OPEN PROJECT feedback
-- mobile replacement for hover via intersection-triggered signal animation + tap feedback
-- contextual micro-glitch on secondary window open/maximize/restore
-- custom pixelated amber cursor on fine-pointer desktop devices
-- respects prefers-reduced-motion
+The active Astro site is built from:
 
+- `src/` for pages, route data and shared markup
+- `public/` for runtime CSS, JavaScript, images, video, fonts and 3D assets
 
-## V3.3 aesthetic refine
-- degauss identico anche alla chiusura della finestra PROJECTS (X / Esc)
-- vibrazione contestuale delle finestre secondarie più marcata e ancora molto breve
-- nuovo cursor pixel-art con outline amber e interno scuro
+Legacy static files still present at repository root are temporary migration / rollback copies. They are not the primary source for the Astro production build.
 
+## Routes
 
-## v18 — balanced tremor
-- secondary windows return to CRT tremor feedback
-- intensity calibrated between v13 and v14: max ~3px, minimal vertical shift/skew
-- removed the prominent glitch line from the v14 window feedback
-- Projects keep the approved degauss/power transition
+Astro generates real static routes instead of hash-only navigation:
 
+```text
+/
+├── about/
+├── resume/
+├── contact/
+└── work/
+    ├── tovadu/
+    ├── pholia/
+    ├── sapy/
+    ├── platinum-technologies/
+    └── colorcopy-large-format/
+```
 
-## v19 — Pixelarticons cursor
-- Removed the previous locally drawn cursor assets.
-- Normal cursor: Pixelarticons `default-alt`.
-- Interactive cursor: Pixelarticons `pointer`.
-- Both render at 96×96 px (3× the original 32×32 cursor grid).
-- Custom cursor applies only to fine mouse pointers; touch/coarse pointer devices remain unaffected.
+The visual experience still behaves like one desktop application. Internal navigation uses the History API so opening windows or case studies updates the URL without a normal full-page reload.
 
+Direct visits to any route render the same CRT shell and automatically open the corresponding section.
 
-## v20 / Self-hosted amber cursors
-- Pixelarticons `default-alt` and `pointer` are now bundled locally under `assets/cursors/`.
-- Removed runtime cursor requests to pixelarticons.com.
-- Cursor artwork is adapted to the amber CRT palette (`#ffd08d`, `#f2a12f`, deep burnt-amber outline).
-- Visual cursor size reduced from 96x96 to 80x80 px.
-- Hotspots rescaled from the original 32x32 cursor grid to the 80px render size.
-- Pixelarticons MIT notice bundled in `assets/cursors/LICENSE-Pixelarticons.txt`.
+Legacy `#/projects` and `#/work/...` links are migrated by the runtime router.
 
+## Project pages
 
-## v21 Cursor system
-- Self-hosted Pixelarticons default-alt, pointer and text cursors in amber.
-- All three render at 80x80 px.
-- Cursor SVGs are preloaded and cursor.js initializes before the application scripts to eliminate the first-hover asset swap.
-- Static/non-clickable text uses the text cursor; clickable controls keep pointer.
-- Removed the FX: HIGH footer toggle.
+Project route metadata lives in:
 
-## v22 Precise text cursor
-- The amber `text` cursor now activates only over the rendered rectangles of actual text nodes.
-- Empty padding and surrounding areas inside small cards/windows remain on `default-alt`.
-- Clickable elements still always take priority and use the amber `pointer` cursor.
+```text
+src/data/routes.mjs
+```
 
+Individual case-study routes are generated by:
 
-## v23 Adaptive Bento Grid
-- Case-study galleries now use a dense 12-column bento system instead of isolated aspect-ratio tiles.
-- Desktop pattern closes every band at 7/5 and 5/7, eliminating empty grid areas.
-- Odd final media automatically becomes full-width.
-- Tablet reflows to two equal columns; mobile reflows to a single 4:3 column.
-- Hero media, routing, cursor system and CRT interactions are unchanged.
+```text
+src/pages/work/[slug].astro
+```
 
+Adding a new project route therefore does not require creating another standalone HTML file.
 
-## v25 Soft Glow
-- restored the original terminal typography from v23
-- removed Silkscreen / IBM Plex Mono exploration
-- softened CRT outer halo: lower opacity, wider blur, no visible border
+The interactive project content itself is still rendered from the existing portfolio runtime data under `public/js/`.
 
+## SEO
 
-## v26 External Halo
-- Restored the v23/v25 terminal typography.
-- Replaced the almost invisible radial halo with a true external curved drop-shadow halo.
-- No visible border: the screen covers the halo core, leaving only a soft amber bloom around the CRT silhouette.
+Every indexable route has its own static HTML document with:
 
+- page title
+- meta description
+- canonical URL
+- Open Graph metadata
+- Twitter metadata
+- JSON-LD where appropriate
 
-## V4.5 — Redaction 50 display test + matched external bloom
-- The system/interface typography is unchanged for all UI/system/body elements.
-- Redaction 50 is scoped to the main name, Selected Work heading and major case-study titles only.
-- The Redaction 50 test font loads remotely; no font binary is bundled in this package.
-- External CRT halo now uses an opaque hidden light source and a 4-stage warm bloom matched to the YOUR NAME phosphor glow.
+The sitemap is generated by Astro from the same route data used by the site.
 
+Current deployment base:
 
-## V30 — Iridescent head palette
-This variant keeps the V29 portfolio structure, GLB model, Three.js interaction, responsive fitting and lifecycle unchanged.
-Only the head shader treatment was revised to match the supplied visual reference: electric violet/periwinkle, lilac, warm peach/orange, cream and white chrome highlights. Scan bands are slightly wider and organically warped to make the palette read as fluid iridescence rather than the previous magenta/cyan treatment.
+```text
+https://joemaserati-lab.github.io/portfolio-final/
+```
 
-Main edited file: `js/head-scan-effect.js`.
+`astro.config.mjs` currently uses:
 
+```js
+site: 'https://joemaserati-lab.github.io',
+base: '/portfolio-final',
+output: 'static',
+trailingSlash: 'always'
+```
 
-Update v31.2:
-- glow and bloom reduced significantly
-- palette shifted from red/blue toward orange + lilac/violet
-- white highlights localized more tightly
+When the final custom domain is connected, `site` and `base` should be updated together.
 
+## CRT interface and runtime
 
-V31.3 update:
-- further reduced bloom and outer glow
-- palette shifted from blue/amber toward lilac/violet + orange
-- local iridescent palette distribution added to avoid simple left/right color split
-- highlights tightened and warmed toward cream
+The Astro migration was intentionally performed 1:1. The existing visual/runtime system was not rewritten into framework components.
 
+The browser still runs the established runtime:
 
-V31.4 update:
-- replaced regional colour fields with a multi-scale 3D domain-warped flow field
-- colours now cycle continuously through violet, lilac, cream, peach and orange across the full head
-- two warped samples plus micro-variation are blended to avoid discrete colour spots
-- slow procedural colour movement added while respecting reduced-motion mode
-- bloom and outer glow reduced again; brightness is concentrated inside the scan lines
+```text
+public/js/
+├── boot.js
+├── portfolio.js
+├── head3d.js
+├── crt.js
+├── i18n.js
+├── privacy.js
+├── analytics.js
+└── cursor.js
+```
 
+Main visual systems include:
 
-V31.5 update:
-- color-only site-wide UI harmonization
-- palette aligned to the head using restrained lilac/violet neutrals with soft peach accents
-- no structural, layout or motion changes
-- cursor SVGs recolored to match the new UI palette
+- CRT curved screen and mask
+- degauss / power transition
+- contextual micro-glitch feedback
+- interactive Three.js head
+- custom pixel cursor
+- OS-style windows
+- responsive project directory and case studies
+- English / Italian interface
+- consent-first analytics loading
+- reduced-motion support
 
+## Responsive / safe-zone system
 
-## V31.5-LW — lightweight runtime pass
-- same visual language and palette, focused on runtime optimization rather than design changes
-- head scan capped to lower effective DPR (desktop 1.5 / touch 1.2)
-- head scan render loop throttled to 45 FPS on desktop and 30 FPS on touch devices
-- CRT WebGL overlays throttled to 30 FPS
-- CRT overlay DPR capped to 1.25
-- page-hidden redraw suppression added
-- renderer power preference relaxed on non-desktop devices
+The CRT surface always fills the complete visible screen area. Content is then constrained to a protected internal viewport so controls and text stay clear of the curved CRT mask.
 
+The current canonical mobile geometry is defined in:
 
-## V31.5-LW2 — real loader + project transition cleanup
-- degauss/power transition removed from individual case-study opening and previous/next project navigation
-- degauss retained for opening PROJECTS.DIR
-- boot screen now waits for DOM, local/remote fonts, page load, CRT video and settled 3D model loading
-- model is preloaded in parallel with the rest of the page
-- boot includes a 15 s safety timeout and graceful fallbacks instead of hanging indefinitely
+```text
+public/css/crt-outline.css
+```
 
+under:
 
-## V31.5-LW3 — harmonized launch
-- resource-aware loader retained as the launch gate
-- loader rows now reveal progressively rather than appearing as an instant checklist
-- minimum boot presence calibrated to ~1.55 s, with a short READY hold before release
-- loader-to-site crossfade refined to ~0.86 s
-- initial page composition reveals in sequence: CRT/head, hero label/name/copy/CTA, then desktop icons
-- first hidden 3D warm-up frame added before the loader releases
-- reduced-motion mode bypasses the entrance choreography
-- project-level navigation still opens without degauss; degauss remains reserved for PROJECTS.DIR
+```text
+V31.14 / CANONICAL CRT SAFE VIEWPORT
+```
 
+It handles:
 
-## V31.6 — responsive UI / purple system / 404 refinement
-- desktop icon navigation now switches to a lower responsive strip before it can collide with hero copy on compact desktop/tablet widths
-- mobile navigation uses a `1 + 4` layout: PROJECTS occupies the first row at the far right; ABOUT, RESUME, ARCHIVE and CONTACT occupy the second row
-- language and privacy controls have a dedicated lower strip to avoid collisions with navigation icons
-- ABOUT now uses a dedicated profile-card SVG icon instead of sharing the RESUME document icon
-- active UI accents were consolidated onto the approved lilac/violet palette; remaining visible amber/peach hover states were removed
-- `css/purple-theme.css` centralizes the active purple overrides while legacy amber declarations remain in the historical base styles
-- 404 page now uses the same purple visual system as the main site
-- the `404` numeral uses Redaction 50; body copy and actions use the same Doto type scale as the rest of the interface
-- redundant `ROUTE ERROR` label removed from the 404 page
-- 404 page now loads the shared custom cursor system (`js/cursor.js`)
-- project cover CSS is wired to real assets under `assets/images/projects/`
-- Colorcopy is the first project being migrated from placeholder artwork to supplied real project imagery; asset integrity is being verified before applying the same process to the remaining projects
+- CRT safe zones
+- device safe-area insets
+- notch / Dynamic Island / home indicator compensation
+- full-screen windows
+- bounded scroll areas
+- bottom scroll clearance
+- mobile language/privacy alignment
+- launcher separation
+- short landscape layouts
+- very narrow phone layouts
 
+New responsive fixes should extend this final geometry layer rather than reintroducing competing safe-zone systems earlier in the cascade.
 
-## V31.7 — performance-adaptive rendering
-- 3D head rendering now uses a hard pixel budget instead of scaling directly with monitor resolution
-- normal desktop targets 60 FPS; large displays reduce internal render resolution before reducing frame rate
-- sustained poor frame pacing automatically degrades the decorative 3D layer to a lower-cost tier
-- fixed the previous 45 FPS throttle behavior that could effectively fall to about 30 FPS on 60 Hz displays
-- removed the negligible UnrealBloom pass from the head post-processing stack
-- procedural head FBM reduced from four to three octaves to lower fragment-shader cost while preserving the approved flow
-- CRT background/effect canvases now have independent pixel budgets and reduce update frequency on large displays or while content panels are open
-- high-resolution displays receive cheaper halo/noise compositing without changing layout, typography, content or interaction
-- performance state is recalculated on resize, including when the browser window is moved between displays
+## Local development
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the local Astro development server:
+
+```bash
+npm run dev
+```
+
+Create a production build:
+
+```bash
+npm run build
+```
+
+Preview the production build locally:
+
+```bash
+npm run preview
+```
+
+The generated static site is written to:
+
+```text
+dist/
+```
+
+## Build and deployment
+
+### Astro Build Check
+
+`.github/workflows/astro-build.yml`
+
+Runs on relevant changes and verifies that Astro successfully produces all required routes and critical runtime assets.
+
+The check includes the home page, section routes, all project routes, sitemap, 404 page, JavaScript, CSS and the 3D head model.
+
+### GitHub Pages
+
+`.github/workflows/astro-pages.yml`
+
+Builds Astro and deploys:
+
+```text
+dist/
+```
+
+through the official GitHub Pages artifact/deployment actions.
+
+Production publishing therefore uses the Astro build output, not the repository root HTML files.
+
+## Lighthouse
+
+A Lighthouse audit runs automatically after a successful Astro Pages deployment.
+
+Latest verified audit — **24 September 2026, V31.14**:
+
+| Metric | Mobile | Desktop |
+| --- | ---: | ---: |
+| Performance | **93** | **95** |
+| Accessibility | **100** | **100** |
+| Best Practices | **100** | **100** |
+| SEO | **100** | **100** |
+| FCP | 1.2 s | 0.4 s |
+| LCP | 1.7 s | 0.4 s |
+| TBT | 10 ms | 0 ms |
+| CLS | 0.132 | 0.142 |
+| TTI | 1.7 s | 0.4 s |
+| Total transfer | 160 KiB | 160 KiB |
+
+Current optimization targets are primarily CLS and removal/consolidation of unused legacy CSS. Runtime JavaScript cost is already low.
+
+## Performance principles
+
+The site intentionally avoids turning the interface into a heavy SPA.
+
+Current rules:
+
+- Astro renders static HTML at build time
+- interactive behavior stays in vanilla JavaScript
+- Three.js is loaded only for the decorative 3D head
+- expensive visual layers are deferred or throttled
+- 3D and CRT render resolution are capped on high-resolution displays
+- hidden/inactive rendering is reduced
+- touch devices receive lower-cost rendering paths
+- `prefers-reduced-motion` is respected
+
+## Deployment safety
+
+Before considering a visual/runtime change complete:
+
+1. `npm run build` must succeed.
+2. Generated routes must pass the Astro build workflow.
+3. GitHub Pages deployment must complete successfully.
+4. Mobile and desktop Lighthouse audits must complete.
+5. Responsive changes should be checked against narrow portrait, short landscape, tablet, 1080p, 1440p and large-display layouts.
+
+## Migration status
+
+The portfolio was migrated from a manually maintained static HTML/CSS/JS structure to Astro on 24 September 2026.
+
+The migration changed the development architecture, routing and build process while deliberately preserving the approved front-end experience and runtime effects.
+
+Current production architecture:
+
+```text
+Astro static output
++ vanilla JavaScript
++ Three.js
++ native CSS
++ GitHub Pages
+```
+
+The next structural cleanup can remove the remaining root-level legacy static copies once the Astro version has completed final cross-device validation and no rollback dependency remains.
