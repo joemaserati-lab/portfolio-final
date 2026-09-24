@@ -451,7 +451,7 @@
 
   function navigateToProject(slug){
     const p=projectBySlug(slug) || projectById(slug); if(!p) return;
-    // Case studies switch instantly: the CRT degauss is reserved for PROJECTS.DIR.
+    // Case studies switch instantly; the CRT degauss is reserved for desktop launchers.
     openProject(p.slug,{updateRoute:true});
   }
   function navigateProjects(){
@@ -459,6 +459,14 @@
       renderProjectsDirectory();
       if(location.hash !== '#/projects') location.hash='/projects';
     });
+  }
+
+  function openLauncher(kind){
+    if(kind==='projects'){
+      navigateProjects();
+      return;
+    }
+    degauss(()=>openWindow(kind));
   }
   function route(){
     if(!routeReady) return;
@@ -547,7 +555,7 @@
 
   document.querySelectorAll('[data-open]').forEach(el=>el.addEventListener('click',()=>{
     lastLauncher=el;
-    if(el.dataset.open==='projects') navigateProjects(); else openWindow(el.dataset.open);
+    openLauncher(el.dataset.open);
   }));
 
   addEventListener('hashchange',route);
