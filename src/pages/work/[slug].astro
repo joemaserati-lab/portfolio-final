@@ -1,6 +1,6 @@
 ---
-import PortfolioShell from '../../../layouts/PortfolioShell.astro';
-import { profile, projects } from '../../../data/routes.mjs';
+import PortfolioShell from '../../layouts/PortfolioShell.astro';
+import { profile, projects } from '../../data/routes.mjs';
 
 export function getStaticPaths() {
   return projects.map(project => ({
