@@ -17,7 +17,109 @@
   let z = 20;
   let routeReady = !document.body.classList.contains('booting');
   let lastLauncher = null;
-  let closingHistoryWindow = false;
+
+  const BASE_URL = new URL('.', document.baseURI);
+  const BASE_PATH = BASE_URL.pathname.endsWith('/') ? BASE_URL.pathname : `${BASE_URL.pathname}/`;
+  const SECTION_KINDS = new Set(['about','resume','contact']);
+
+  function normalizeLocalPath(){
+    let pathname = location.pathname;
+    if(pathname.startsWith(BASE_PATH)) pathname = pathname.slice(BASE_PATH.length);
+    else pathname = pathname.replace(/^\/+/, '');
+    return decodeURIComponent(pathname).replace(/^\/+|\/+$/g, '');
+  }
+
+  function parseRoute(){
+    const path = normalizeLocalPath();
+    if(!path) return {type:'home'};
+    if(SECTION_KINDS.has(path)) return {type:'section',kind:path};
+    if(path==='work') return {type:'work'};
+    const match=path.match(/^work\/([^/]+)$/);
+    if(match) return {type:'project',slug:match[1]};
+    return {type:'home'};
+  }
+
+  function routeKey(route){
+    if(route.type==='section') return `section:${route.kind}`;
+    if(route.type==='project') return `project:${route.slug}`;
+    return route.type;
+  }
+
+  function routePath(route){
+    let relative='';
+    if(route.type==='section') relative=`${route.kind}/`;
+    else if(route.type==='work') relative='work/';
+    else if(route.type==='project') relative=`work/${route.slug}/`;
+    return `${BASE_PATH}${relative}`;
+  }
+
+  function updateRouteMeta(route){
+    let title=t('title');
+    let description=t('description');
+    if(route.type==='section'){
+      if(route.kind==='about'){
+        title=`${t('window.about').replace(/\.TXT$/,'')} — Edoardo Rappanello`;
+        description=profile.intro?.[0] || description;
+      } else if(route.kind==='resume'){
+        title=`${t('window.resume').replace(/\.TXT$/,'')} — Edoardo Rappanello`;
+        description=resume.intro || description;
+      } else if(route.kind==='contact'){
+        title=`${t('window.contact').replace(/\.EXE$/,'')} — Edoardo Rappanello`;
+        description=t('portfolio.contactCopy');
+      }
+    } else if(route.type==='work'){
+      title=`${t('portfolio.selectedWorkText')} — Edoardo Rappanello`;
+      description=t('portfolio.selectedCopy');
+    } else if(route.type==='project'){
+      const project=projectBySlug(route.slug) || projectById(route.slug);
+      if(project){
+        title=`${project.title} — Edoardo Rappanello`;
+        description=project.intro || description;
+      }
+    }
+    document.title=title;
+    const canonical=new URL(routePath(route),location.origin).href;
+    const setMeta=(selector,value,attribute='content')=>{
+      const node=document.querySelector(selector);
+      if(node && value) node.setAttribute(attribute,value);
+    };
+    setMeta('meta[name="description"]',description);
+    setMeta('meta[property="og:title"]',title);
+    setMeta('meta[property="og:description"]',description);
+    setMeta('meta[property="og:url"]',canonical);
+    setMeta('meta[name="twitter:title"]',title);
+    setMeta('meta[name="twitter:description"]',description);
+    setMeta('link[rel="canonical"]',canonical,'href');
+  }
+
+  function commitRoute(route,{replace=false,from=parseRoute()}={}){
+    const state={portfolioRoute:routeKey(route),portfolioFrom:routeKey(from)};
+    history[replace?'replaceState':'pushState'](state,'',routePath(route));
+    route();
+  }
+
+  function returnToRoute(target){
+    if(history.state?.portfolioFrom===routeKey(target)){
+      history.back();
+      return;
+    }
+    commitRoute(target,{replace:true,from:target});
+  }
+
+  function migrateLegacyHash(){
+    const hash=location.hash || '';
+    if(hash==='#/projects'){
+      history.replaceState({portfolioRoute:'work'},'',routePath({type:'work'}));
+      return true;
+    }
+    const match=hash.match(/^#\/work\/([^/?#]+)/);
+    if(match){
+      const slug=decodeURIComponent(match[1]);
+      history.replaceState({portfolioRoute:`project:${slug}`},'',routePath({type:'project',slug}));
+      return true;
+    }
+    return false;
+  }
 
   const esc = s => String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
   const paragraphs = value => [].concat(value || []).map(text => `<p>${esc(text)}</p>`).join('');
@@ -226,10 +328,10 @@
 
   function bindProjectChrome(root){
     root.querySelector('[data-projects-back]')?.addEventListener('click',()=>{
-      if(projectsView?.dataset.view==='case') navigateProjects();
-      else closeProjectsView({updateRoute:true});
+      if(projectsView?.dataset.view==='case') navigateProjects({back:true});
+      else navigateHome({back:true});
     });
-    root.querySelector('[data-projects-close]')?.addEventListener('click',()=>closeProjectsView({updateRoute:true}));
+    root.querySelector('[data-projects-close]')?.addEventListener('click',()=>navigateHome({back:true}));
   }
 
   function updateWindowControls(win){
@@ -318,7 +420,7 @@
     return true;
   }
 
-  function closeProjectsView({updateRoute=false}={}){
+  function closeProjectsView(){
     if(!projectsView || projectsView.hidden) return;
     projectsView.hidden=true;
     projectsView.classList.remove('is-open','case-mode');
@@ -326,19 +428,15 @@
     delete projectsView.dataset.view;
     delete projectsView.dataset.project;
     document.body.classList.remove('projects-open');
-    if(updateRoute && /^#\/(projects|work\/)/.test(location.hash)) history.pushState(null,'',location.pathname+location.search);
   }
 
-  function pushMobileWindowState(win){
-    if(!isTouchDevice() || win.__historyManaged) return;
-    win.__historyManaged=true;
-    history.pushState({ portfolioWindow: win.dataset.kind }, '', location.href);
+  function clearWindowsExcept(kind=null){
+    document.querySelectorAll('.os-window').forEach(win=>{
+      if(kind && win.dataset.kind===kind) return;
+      leavePhosphorGhost(win);
+      win.remove();
+    });
   }
-
-  function topWindow(){
-    return [...document.querySelectorAll('.os-window')].sort((a,b)=>(+b.style.zIndex||0)-(+a.style.zIndex||0))[0];
-  }
-
   function renderProjectsDirectory(){
     if(!openProjectsView()) return false;
     projectsView.classList.remove('case-mode');
@@ -352,7 +450,7 @@
     return true;
   }
 
-  function openWindow(kind,{updateRoute=false}={}){
+  function openWindow(kind){
     if(kind==='projects') return renderProjectsDirectory();
     const labels={projects:t('window.projects'),about:t('window.about'),contact:t('window.contact'),resume:t('window.resume')};
     const win=createWindow(kind,labels[kind]||kind.toUpperCase());
@@ -361,9 +459,7 @@
     applyResponsiveState(win);
     bringFront(win);
     focusWindow(win);
-    pushMobileWindowState(win);
     if(kind!=='projects') microGlitch();
-    if(updateRoute && kind==='projects' && location.hash !== '#/projects') location.hash='/projects';
     return win;
   }
 
@@ -437,45 +533,74 @@
       </article>`,{caseView:true});
     projectsView.scrollTop=0;
     bindProjectChrome(projectsView);
-    projectsView.querySelector('[data-back-projects]').addEventListener('click',()=>navigateProjects());
+    projectsView.querySelector('[data-back-projects]').addEventListener('click',()=>navigateProjects({back:true}));
     bindProjectLinks(projectsView);
     return true;
   }
 
-  function openProject(slug,{updateRoute=false}={}){
-    const p=projectBySlug(slug) || projectById(slug); if(!p) return false;
-    renderProjectCase(p);
-    if(updateRoute && location.hash !== `#/work/${p.slug}`) location.hash=`/work/${p.slug}`;
-    return true;
+  function openProject(slug){
+    const p=projectBySlug(slug) || projectById(slug);
+    if(!p) return false;
+    return renderProjectCase(p);
   }
 
   function navigateToProject(slug){
-    const p=projectBySlug(slug) || projectById(slug); if(!p) return;
-    // Case studies switch instantly; the CRT degauss is reserved for desktop launchers.
-    openProject(p.slug,{updateRoute:true});
+    const p=projectBySlug(slug) || projectById(slug);
+    if(!p) return;
+    commitRoute({type:'project',slug:p.slug});
   }
-  function navigateProjects(){
+
+  function navigateProjects({back=false}={}){
     degauss(()=>{
-      renderProjectsDirectory();
-      if(location.hash !== '#/projects') location.hash='/projects';
+      const target={type:'work'};
+      if(back) returnToRoute(target);
+      else commitRoute(target);
     });
   }
 
-  function openLauncher(kind){
-    if(kind==='projects'){
-      navigateProjects();
-      return;
-    }
-    degauss(()=>openWindow(kind));
+  function navigateHome({back=false}={}){
+    const target={type:'home'};
+    if(back) returnToRoute(target);
+    else commitRoute(target);
   }
+
+  function openLauncher(kind){
+    const target=kind==='projects' ? {type:'work'} : {type:'section',kind};
+    degauss(()=>commitRoute(target));
+  }
+
   function route(){
     if(!routeReady) return;
     if(degaussSwap!==null) cancelDegauss();
-    const hash=location.hash || '';
-    const work=hash.match(/^#\/work\/([^/?#]+)/);
-    if(work){ openProject(decodeURIComponent(work[1])); return; }
-    if(hash==='#/projects'){ renderProjectsDirectory(); return; }
-    closeProjectsView();
+    const current=parseRoute();
+    updateRouteMeta(current);
+
+    if(current.type==='home'){
+      closeProjectsView();
+      clearWindowsExcept();
+      return;
+    }
+
+    if(current.type==='section'){
+      closeProjectsView();
+      clearWindowsExcept(current.kind);
+      openWindow(current.kind);
+      return;
+    }
+
+    clearWindowsExcept();
+    if(current.type==='work'){
+      renderProjectsDirectory();
+      return;
+    }
+
+    if(current.type==='project'){
+      if(openProject(current.slug)) return;
+      const work={type:'work'};
+      history.replaceState({portfolioRoute:'work'},'',routePath(work));
+      updateRouteMeta(work);
+      renderProjectsDirectory();
+    }
   }
 
   function leavePhosphorGhost(win){
@@ -487,12 +612,14 @@
   function bringFront(win){ win.style.zIndex=++z; }
   function closeWindow(win){
     if(!win) return;
-    if(isTouchDevice() && win.__historyManaged && !closingHistoryWindow){
-      history.back();
+    const current=parseRoute();
+    if(current.type==='section' && current.kind===win.dataset.kind){
+      returnToRoute({type:'home'});
       return;
     }
     const returnFocus=win.__returnFocus;
-    leavePhosphorGhost(win); win.remove();
+    leavePhosphorGhost(win);
+    win.remove();
     if(returnFocus?.isConnected) returnFocus.focus({preventScroll:true});
   }
 
@@ -558,25 +685,19 @@
     openLauncher(el.dataset.open);
   }));
 
-  addEventListener('hashchange',route);
-  addEventListener('popstate',()=>{
-    if(!isTouchDevice()) return;
-    const top=topWindow();
-    if(!top) return;
-    closingHistoryWindow=true;
-    closeWindow(top);
-    closingHistoryWindow=false;
-  });
+  addEventListener('popstate',route);
   addEventListener('keydown',e=>{
-    if(e.key==='Escape'){
-      const top=topWindow();
-      if(top) { cancelDegauss(); closeWindow(top); return; }
-      if(!projectsView?.hidden){
-        if(location.hash==='#/projects') history.pushState(null,'',location.pathname+location.search);
-        else location.hash='/projects';
-        route();
-      }
+    if(e.key!=='Escape') return;
+    const current=parseRoute();
+    if(current.type==='section'){
+      returnToRoute({type:'home'});
+      return;
     }
+    if(current.type==='project'){
+      navigateProjects({back:true});
+      return;
+    }
+    if(current.type==='work') navigateHome({back:true});
   });
 
   function syncLocalizedData(){
@@ -603,8 +724,17 @@
       updateWindowControls(win);
       setResizeControl(win);
     });
+    updateRouteMeta(parseRoute());
   });
 
-  const onReady=()=>{routeReady=true;route();};
+  const onReady=()=>{
+    routeReady=true;
+    migrateLegacyHash();
+    const current=parseRoute();
+    if(!history.state?.portfolioRoute){
+      history.replaceState({portfolioRoute:routeKey(current)},'',location.href);
+    }
+    route();
+  };
   if(document.body.classList.contains('booting')) window.addEventListener('portfolio:booted',onReady,{once:true}); else onReady();
 })();
