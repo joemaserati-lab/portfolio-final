@@ -2,7 +2,7 @@ name: Deploy Astro to Pages
 
 on:
   workflow_run:
-    workflows: ["Astro Build Check"]
+    workflows: ["Astro Build Check", "pages build and deployment"]
     types: [completed]
   workflow_dispatch:
 
@@ -21,10 +21,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Checkout verified commit
+      - name: Checkout latest main
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          ref: main
 
       - name: Setup Node
         uses: actions/setup-node@v4

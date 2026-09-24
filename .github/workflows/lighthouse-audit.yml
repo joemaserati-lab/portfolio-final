@@ -9,7 +9,7 @@ on:
         default: https://joemaserati-lab.github.io/portfolio-final/
         type: string
   workflow_run:
-    workflows: ["pages build and deployment"]
+    workflows: ["Deploy Astro to Pages"]
     types: [completed]
 concurrency:
   group: lighthouse-${{ github.ref }}
