@@ -114,7 +114,6 @@ button{color:inherit}
 .file-glyph{width:42px;font-size:15px}
 .file-glyph::after{content:"";position:absolute;right:-1px;top:-1px;border-style:solid;border-width:0 0 13px 13px;border-color:transparent transparent var(--line-strong) transparent}
 .disk-glyph{border-radius:50%;font-size:20px}
-.archive-glyph{font-weight:bold;letter-spacing:-2px}
 .mail-glyph{font-size:24px}
  .desktop-note{position:absolute;z-index:2;left:calc(var(--screen-safe-left) + 30px);bottom:calc(var(--screen-safe-bottom) + 16px);border-left:1px solid var(--line);padding-left:14px;font-size:18px;color:var(--dim)}
 .desktop-note span{color:var(--phosphor)}
@@ -150,9 +149,6 @@ button{color:inherit}
 .case-hero span{font-size:clamp(44px,8vw,96px);font-weight:400;letter-spacing:-.05em;color:rgba(255,219,162,.18)}
 .tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:18px}
  .tags span{border:1px solid var(--line);padding:5px 7px;font-size:16px;color:#e2a152}
- .archive-list{display:grid;gap:7px}
- .archive-row{display:grid;grid-template-columns:90px 1fr 150px;border-bottom:1px dashed var(--line);padding:9px 0;font-size:22px}
-.archive-row span:last-child{color:var(--dim)}
 .contact-panel{display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,32%);gap:24px;align-items:start}
 .contact-copy{min-width:0}
 .contact-links{display:grid;gap:9px;max-width:560px}
@@ -161,12 +157,6 @@ button{color:inherit}
 .contact-photo{position:relative;overflow:hidden;margin:0;border:1px solid var(--line-strong);background:rgba(214,185,236,.028);aspect-ratio:4/5;min-height:260px;box-shadow:inset 0 0 42px rgba(181,136,218,.06),0 0 18px rgba(181,136,218,.08)}
 .contact-photo img{display:block;width:100%;height:100%;object-fit:cover;filter:grayscale(.14) contrast(1.08) brightness(.88) saturate(.9)}
 .contact-photo::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(to bottom,rgba(230,208,247,.04),transparent 42%,rgba(0,0,0,.28)),repeating-linear-gradient(to bottom,rgba(255,255,255,.025) 0 1px,transparent 1px 4px);mix-blend-mode:screen}
-.experiment-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.experiment-tile{aspect-ratio:1;border:1px solid var(--line);display:grid;place-items:center;font-size:22px;position:relative;overflow:hidden;background:rgba(255,160,54,.025)}
-.experiment-tile::before{content:"";position:absolute;width:140%;height:1px;background:var(--phosphor);box-shadow:0 0 10px var(--phosphor);animation:sweep 2.5s linear infinite}
-.experiment-tile:nth-child(2)::before{transform:rotate(45deg)}
-.experiment-tile:nth-child(3)::before{width:65%;height:65%;border:1px solid var(--line-strong);background:transparent;animation:spin 5s linear infinite}
-.experiment-tile span{z-index:2;background:#120801;padding:5px}
 
 .terminal-dock{position:absolute;z-index:19;left:calc(var(--screen-safe-left) + 10px);right:calc(var(--screen-safe-right) + 10px);bottom:54px;pointer-events:none}
  .terminal-toggle{pointer-events:auto;position:absolute;right:0;bottom:0;border:1px solid var(--line);border-bottom:0;background:#140801;padding:7px 11px;cursor:pointer;font-size:17px;color:var(--dim)}
@@ -189,8 +179,6 @@ button{color:inherit}
 @keyframes blink{50%{opacity:0}}
 @keyframes noiseShift{0%{transform:translate(0)}25%{transform:translate(1%,-1%)}50%{transform:translate(-1%,1%)}75%{transform:translate(1%,1%)}100%{transform:translate(-1%,-1%)}}
 @keyframes windowIn{from{opacity:0;transform:translate(-50%,-47%) scale(.985)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
-@keyframes sweep{from{transform:translateY(-80px)}to{transform:translateY(80px)}}
-@keyframes spin{to{transform:rotate(360deg)}}
 
 @media(max-width:1024px){
   .window-caption{max-width:48vw}
@@ -204,7 +192,6 @@ button{color:inherit}
   .os-window{width:100%;height:100%}
   .project-grid{grid-template-columns:1fr}
   .meta-grid{grid-template-columns:1fr}
-  .experiment-grid{grid-template-columns:1fr 1fr}
 }
 @media(max-width:720px){
   body{font-size:18px}
@@ -216,7 +203,7 @@ button{color:inherit}
   .desktop-icon>span:nth-child(2){font-size:12px}
   .desktop-icon small{display:none}
   .icon-glyph{width:36px;height:31px;font-size:17px}
-  .window-titlebar,.window-body p,.archive-row,.contact-link,.project-info strong,.experiment-tile,.prompt-row,.terminal-output,#terminal-input{font-size:18px}
+  .window-titlebar,.window-body p,.contact-link,.project-info strong,.prompt-row,.terminal-output,#terminal-input{font-size:18px}
    .window-body h2{font-size:36px}
   .terminal-dock{left:var(--screen-safe-left);right:var(--screen-safe-right);bottom:48px}
   .terminal-dock.open .terminal-panel{height:160px}
@@ -372,8 +359,6 @@ body.booting .shell{visibility:hidden}
  .project-client{font-size:18px;color:var(--dim)}
  .project-open{margin-top:auto;padding-top:15px;color:var(--phosphor);font-size:16px;letter-spacing:.07em}
 .project-card:hover  .project-open{color:var(--bright)}
-.archive-project{width:100%;border-left:0;border-right:0;border-top:0;background:transparent;color:inherit;text-align:left;cursor:pointer}
-.archive-project:hover{color:var(--bright);background:rgba(255,160,54,.035)}
 
 /* Project case study: uses the whole usable safezone. */
 .os-window.case-mode{left:0!important;top:0!important;width:100%!important;height:100%!important;transform:none!important;animation:none}
@@ -598,9 +583,7 @@ body{font-size:var(--type-base)}
  .back-btn{font-size:var(--type-ui)}
 .case-hero span{font-size:var(--type-case-heading)}
  .tags span{font-size:var(--type-small)}
- .archive-row{font-size:var(--type-body)}
  .contact-link{font-size:var(--type-body-lg)}
-.experiment-tile{font-size:var(--type-body)}
 
  .terminal-toggle{font-size:var(--type-ui)}
  .terminal-output,.prompt-row,#terminal-input{font-size:var(--type-body)}
@@ -657,7 +640,6 @@ body{font-size:var(--type-base)}
 .os-window[data-kind="about"]{width:min(700px,68%);height:min(500px,70%)}
 .os-window[data-kind="contact"]{width:min(800px,76%);height:min(500px,70%)}
 .os-window[data-kind="resume"]{width:min(820px,76%);height:min(560px,76%)}
-.os-window[data-kind="archive"]{width:min(780px,72%);height:min(530px,74%)}
 
 .os-window.is-maximized{
   left:0!important;top:0!important;right:auto!important;bottom:auto!important;
@@ -829,7 +811,6 @@ body{font-size:var(--type-base)}
 .case-outputs-v2{display:grid;grid-template-columns:minmax(110px,.24fr) minmax(0,1fr);gap:clamp(24px,5vw,80px);border-top:1px solid var(--line);padding-top:clamp(20px,2.4vw,30px);margin:0 0 clamp(44px,6vw,84px)}
 .case-output-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(18px,2.6vw,36px)}
 .case-output-list article{border-top:1px dashed var(--line);padding-top:12px}.case-output-list h3{margin:0;color:var(--bright);font-size:var(--type-body-lg);font-weight:400}.case-output-list p{margin:8px 0 0!important;max-width:52ch!important;font-size:var(--type-body)!important;line-height:1.22!important}
-.archive-status{display:grid;gap:8px;margin-top:26px;border-top:1px solid var(--line);padding-top:18px;color:var(--bright);font-size:var(--type-body-lg);letter-spacing:.06em}
 .case-gallery-v2{display:grid;grid-template-columns:1.25fr .75fr;gap:clamp(10px,1.2vw,18px)}
 .case-media-landscape-v2{aspect-ratio:4/3;grid-row:span 2}.case-media-portrait-v2{aspect-ratio:3/4}.case-media-wide-v2{aspect-ratio:16/7;grid-column:1/-1;margin-top:clamp(6px,1vw,12px)}
 .case-tags-v2{display:grid;grid-template-columns:minmax(110px,.24fr) minmax(0,1fr);gap:clamp(24px,5vw,80px);align-items:start;border-top:1px solid var(--line);padding-top:clamp(20px,2.4vw,30px);margin:clamp(44px,6vw,84px) 0}
@@ -1240,7 +1221,7 @@ body{font-size:var(--type-base)}
 /* Keep editorial lines distinct even with CRT bloom and fallback fonts. */
 .hero-intro h1{line-height:.82}
 .projects-index-head h2,.case-title-v2 h2,.case-heading h2{line-height:.9}
-.project-tile-main strong,.archive-row b,.contact-link b{overflow-wrap:anywhere}
+.project-tile-main strong,.contact-link b{overflow-wrap:anywhere}
 .contact-link{gap:18px;align-items:baseline}
 .desktop-icon{gap:14px}
 .icon-glyph{flex-shrink:0}
@@ -1271,8 +1252,6 @@ body{font-size:var(--type-base)}
   .contact-panel{grid-template-columns:1fr;gap:16px}
   .contact-photo{min-height:0;max-height:260px;aspect-ratio:5/4;order:-1}
   .contact-link{display:grid;grid-template-columns:1fr;gap:2px}
-  .archive-row{grid-template-columns:64px minmax(0,1fr)}
-  .archive-row span:last-child{grid-column:2}
 }
 
 /* Head Scan Reference3 / V31.1-A BALANCED IRIDESCENT LINES ------------------------------------------
@@ -1364,7 +1343,7 @@ body{background:#000}
 .hero-copy,.window-body p,.project-info p{color:#d7b8e5}
 .system-label,.desktop-icon>span:nth-child(2),.window-eyebrow,.footerbar,.footerbar button,.desktop-note{color:var(--dim)}
 .hero-copy,.system-label,.desktop-icon>span:nth-child(2){text-shadow:0 0 3px rgba(208,180,232,.18)}
-.desktop-icon small,.archive-row span:last-child,.meta-card small{color:#9f78b2}
+.desktop-icon small,.meta-card small{color:#9f78b2}
 .primary-action{background:rgba(212,184,236,.05);border-color:rgba(240,219,255,.30)}
 .primary-action:hover{background:rgba(255,154,107,.10);color:#fff6f2;box-shadow:0 0 18px rgba(255,147,102,.10)}
 .desktop-icon:hover,.desktop-icon:focus-visible{outline-color:rgba(232,206,251,.34);background:rgba(212,184,236,.028)}
@@ -1376,13 +1355,11 @@ body{background:#000}
 .window-titlebar{background:linear-gradient(90deg,rgba(209,181,233,.07),rgba(255,151,110,.045))}
 .window-controls button{background:#07030a}
 .window-controls button:hover,.contact-link:hover{background:rgba(255,153,110,.11);color:#fff6f2}
-.meta-card,.project-card,.experiment-tile,.case-media,.case-nav button,.project-tile-v2:hover .project-cover-v2{background-color:rgba(214,185,236,.028)}
+.meta-card,.project-card,.case-media,.case-nav button,.project-tile-v2:hover .project-cover-v2{background-color:rgba(214,185,236,.028)}
 .project-card:hover{background:rgba(214,185,236,.05)}
 .tags span{color:#caa5d8}
-.archive-project:hover{background:rgba(214,185,236,.038)}
 .terminal-toggle{background:#09050d}
 .terminal-panel{background:rgba(6,3,9,.975)}
-.experiment-tile span{background:#09050d}
 .project-cover-v2,.case-media-v2{background-color:#050308;border-color:rgba(212,184,236,.16)}
 .project-cover-v2::before{background:linear-gradient(to bottom,rgba(212,184,236,.03),transparent 28%,transparent 70%,rgba(0,0,0,.18))}
 .project-visual-1 .project-cover-art,.media-visual-1 .case-media-surface{
@@ -1708,8 +1685,8 @@ body.booting .privacy-widget{opacity:0;visibility:hidden;pointer-events:none}
 .project-visual-4 .project-cover-art,.media-visual-4 .case-media-surface{
   background:repeating-linear-gradient(72deg,transparent 0 8%,rgba(151,113,181,.10) 8.2% 8.5%,transparent 8.7% 16%),radial-gradient(ellipse at 40% 58%,rgba(87,50,119,.42),transparent 0 26%,transparent 26%)
 }
-.case-nav-v2 button,.meta-card,.project-card,.experiment-tile{background-color:rgba(42,20,58,.34)}
-.case-nav-v2 button:hover,.project-card:hover,.archive-project:hover,.window-controls button:hover,.contact-link:hover,.primary-action:hover,.privacy-actions button:hover,.privacy-actions button:focus-visible{background:rgba(83,45,111,.54);color:#fff6fb}
+.case-nav-v2 button,.meta-card,.project-card{background-color:rgba(42,20,58,.34)}
+.case-nav-v2 button:hover,.project-card:hover,.window-controls button:hover,.contact-link:hover,.primary-action:hover,.privacy-actions button:hover,.privacy-actions button:focus-visible{background:rgba(83,45,111,.54);color:#fff6fb}
 
 .window-body,.projects-view,.terminal-output,.privacy-panel{
   scrollbar-width:thin;
