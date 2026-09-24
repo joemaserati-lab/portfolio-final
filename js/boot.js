@@ -139,7 +139,7 @@
     if (gateNote && note) {
       gateNote.removeAttribute('data-i18n');
       gateNote.textContent = note;
-      gateNote.hidden = !isTouchDevice() && /tilt|sensor/i.test(note);
+      gateNote.hidden = !note;
     }
   }
 
@@ -441,7 +441,7 @@
     if (headPromise) return;
     const start = () => {
       loadHead()
-        .then(() => window.PortfolioTilt?.enableFallback?.())
+        .then(() => window.PortfolioMotion?.enableTouchFallback?.())
         .catch(error => console.warn('Deferred 3D head load failed.', error));
     };
     if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 1800 });
@@ -495,7 +495,7 @@
       setRow('ready', '07 READY', 'desktop pointer mode / launching sequence', 'done');
       return;
     }
-    const enabled = Boolean(window.PortfolioTilt?.enableFallback?.());
+    const enabled = Boolean(window.PortfolioMotion?.enableTouchFallback?.());
     setRow(
       'ready',
       '07 READY',
@@ -599,7 +599,7 @@
       // Warm the expensive 3D path only after explicit user intent.
       loadHead()
         .then(() => {
-          if (touchDevice) window.PortfolioTilt?.enableFallback?.();
+          if (touchDevice) window.PortfolioMotion?.enableTouchFallback?.();
         })
         .catch(error => console.warn('3D head load failed.', error));
     }
