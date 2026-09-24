@@ -156,3 +156,23 @@
     font-size: 16px;
   }
 }
+
+
+/* Large-display cascade guard */
+@media (min-width:1921px) and (min-height:1081px) {
+  /* fixes.css loads after style.css, so restate the few dimensional properties
+     it intentionally pins at the 1920×1080 baseline. */
+  .hero-copy {
+    max-width:min(23.958333vw,42.592593vh);
+  }
+
+  .primary-action {
+    padding:min(.520833vw,.925926vh) min(.677083vw,1.203704vh);
+  }
+
+  .pixelart-cursor {
+    width:min(3.541667vw,6.296296vh);
+    height:min(3.541667vw,6.296296vh);
+    background-size:min(3.541667vw,6.296296vh) min(3.541667vw,6.296296vh);
+  }
+}
