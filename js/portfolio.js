@@ -5,7 +5,7 @@
     return;
   }
 
-  let { profile, resume, projects, archive } = DATA;
+  let { profile, resume, projects } = DATA;
   const i18n = window.PortfolioI18n;
   const t = key => i18n?.t?.(key) || key;
   const layer = document.getElementById('window-layer');
@@ -132,14 +132,6 @@
           <section><div class="resume-section-title">${esc(t('resume.tools'))}</div>${tagList(resume.tools)}</section>
         </div>
       </section>`,
-
-    archive:() => `
-      <h2>${esc(archive.title)}</h2>
-      <p class="window-eyebrow">${esc(archive.eyebrow)}</p>
-      <p>${esc(archive.description)}</p>
-      <div class="archive-status">
-        ${archive.status.map(line=>`<span>${esc(line)}</span>`).join('')}
-      </div>`,
 
     projects:() => `
       <section class="projects-index-v2">
@@ -370,13 +362,12 @@
 
   function openWindow(kind,{updateRoute=false}={}){
     if(kind==='projects') return renderProjectsDirectory();
-    const labels={projects:t('window.projects'),about:t('window.about'),contact:t('window.contact'),resume:t('window.resume'),archive:t('window.archive')};
+    const labels={projects:t('window.projects'),about:t('window.about'),contact:t('window.contact'),resume:t('window.resume')};
     const win=createWindow(kind,labels[kind]||kind.toUpperCase());
     if(kind==='projects') renderDirectory(win);
     else {
       win.classList.remove('case-mode');
       win.querySelector('.window-body').innerHTML=contents[kind]();
-      if(kind==='archive') bindProjectLinks(win);
     }
     applyResponsiveState(win);
     bringFront(win);
@@ -663,7 +654,7 @@
 
   function syncLocalizedData(){
     DATA = window.PORTFOLIO_DATA || DATA;
-    ({ profile, resume, projects, archive } = DATA);
+    ({ profile, resume, projects } = DATA);
   }
 
   addEventListener('portfolio:langchange',()=>{
@@ -679,7 +670,7 @@
     document.querySelectorAll('.os-window').forEach(win=>{
       const kind=win.dataset.kind;
       if(contents[kind]){
-        win.querySelector('.window-titlebar > span').textContent=({about:t('window.about'),contact:t('window.contact'),resume:t('window.resume'),archive:t('window.archive')}[kind]||kind.toUpperCase());
+        win.querySelector('.window-titlebar > span').textContent=({about:t('window.about'),contact:t('window.contact'),resume:t('window.resume')}[kind]||kind.toUpperCase());
         win.querySelector('.window-body').innerHTML=contents[kind]();
       }
       updateWindowControls(win);
