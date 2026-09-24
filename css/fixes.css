@@ -330,7 +330,7 @@ body.content-panel-open .privacy-widget {
   }
 
   /* Mobile loader: remove only the duplicate ready status. Keep both the
-     visible enter button and the tilt-permission note. */
+     visible enter button and the mobile interaction note. */
   .boot-gate-status {
     display: none !important;
   }
@@ -497,8 +497,7 @@ body.content-panel-open .privacy-widget {
   .meta-card b,
   .project-tile-main strong,
   .project-tile-details small,
-  .contact-link b,
-  .archive-row b {
+  .contact-link b {
     max-width: calc(100% - 6px);
     overflow: visible;
     overflow-wrap: normal;
@@ -530,8 +529,7 @@ body.content-panel-open .privacy-widget {
   }
 
   .meta-card b,
-  .contact-link b,
-  .archive-row b {
+  .contact-link b {
     font-size: var(--type-body);
   }
 
