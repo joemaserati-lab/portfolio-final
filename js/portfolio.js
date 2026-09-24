@@ -18,7 +18,8 @@
   let routeReady = !document.body.classList.contains('booting');
   let lastLauncher = null;
 
-  const BASE_URL = new URL('.', document.baseURI);
+  const SCRIPT_URL = new URL(document.currentScript?.src || 'js/portfolio.js', document.baseURI);
+  const BASE_URL = new URL('../', SCRIPT_URL);
   const BASE_PATH = BASE_URL.pathname.endsWith('/') ? BASE_URL.pathname : `${BASE_URL.pathname}/`;
   const SECTION_KINDS = new Set(['about','resume','contact']);
 
@@ -92,10 +93,10 @@
     setMeta('link[rel="canonical"]',canonical,'href');
   }
 
-  function commitRoute(route,{replace=false,from=parseRoute()}={}){
-    const state={portfolioRoute:routeKey(route),portfolioFrom:routeKey(from)};
-    history[replace?'replaceState':'pushState'](state,'',routePath(route));
-    route();
+  function commitRoute(nextRoute,{replace=false,from=parseRoute()}={}){
+    const state={portfolioRoute:routeKey(nextRoute),portfolioFrom:routeKey(from)};
+    history[replace?'replaceState':'pushState'](state,'',routePath(nextRoute));
+    route(nextRoute);
   }
 
   function returnToRoute(target){
@@ -569,10 +570,10 @@
     degauss(()=>commitRoute(target));
   }
 
-  function route(){
+  function route(requestedRoute=null){
     if(!routeReady) return;
     if(degaussSwap!==null) cancelDegauss();
-    const current=parseRoute();
+    const current=requestedRoute || parseRoute();
     updateRouteMeta(current);
 
     if(current.type==='home'){
