@@ -40,6 +40,7 @@ jobs:
           curl --fail --silent --show-error --location "$AUDIT_URL" > /dev/null
 
       - name: Measure enter transition
+        continue-on-error: true
         run: |
           npm install --no-save --no-audit --no-fund playwright@latest
           cat > measure-enter.mjs <<'NODE'

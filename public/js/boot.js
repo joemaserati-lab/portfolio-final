@@ -489,6 +489,14 @@
     loader.classList.add('is-ready');
     enter.disabled = false;
     enter.focus({ preventScroll: true });
+
+    // Touch has no hover prewarm. Use the ready-gate idle time to initialize
+    // the lighter CRT runtime before the click-to-enter transition begins.
+    if (isTouchDevice() && !crtPromise) {
+      const warmCrt = () => loadCrtRuntime();
+      if ('requestIdleCallback' in window) requestIdleCallback(warmCrt, { timeout: 700 });
+      else setTimeout(warmCrt, 220);
+    }
   })();
 
   async function enableTouchFallbackBeforeEntry() {
@@ -567,6 +575,8 @@
       setTimeout(() => {
         document.body.classList.remove('site-entering');
         document.body.classList.add('site-ready');
+        window.dispatchEvent(new CustomEvent('portfolio:site-ready'));
+        if (touchDevice) scheduleDeferredHead();
       }, 980);
 
       setTimeout(() => loader.remove(), 720);
@@ -596,17 +606,9 @@
     startAmbientVideo();
     loadCrtRuntime();
 
-    if (!headPromise) {
-      const warmHead = () => loadHead()
-        .then(() => {
-          if (touchDevice) window.PortfolioMotion?.enableTouchFallback?.();
-        })
+    if (!headPromise && !touchDevice) {
+      loadHead()
         .catch(error => console.warn('3D head load failed.', error));
-
-      // Touch devices have no hover prewarm. Avoid competing with the click,
-      // terminal transition and CRT startup on the same frame.
-      if (touchDevice) setTimeout(warmHead, 900);
-      else warmHead();
     }
 
     if (touchDevice) {
