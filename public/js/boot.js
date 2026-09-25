@@ -17,8 +17,8 @@
   const TITLE_SCRAMBLE_MS = 700;
   const TITLE_SCRAMBLE_STEP_MS = 42;
   const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&@';
-  const READY_HOLD_MS = 80;
-  const ROW_STEP_MS = 82;
+  const READY_HOLD_MS = 40;
+  const ROW_STEP_MS = 55;
   const HEAD_READY_TIMEOUT_MS = 12000;
   const SCRIPT_LOAD_TIMEOUT_MS = 12000;
   const i18n = window.PortfolioI18n;
@@ -449,6 +449,17 @@
     else setTimeout(start, 650);
   }
 
+  function scheduleDeferredTouchVisuals() {
+    const start = async () => {
+      await loadCrtRuntime();
+      // Give the browser a clean frame after CRT initialization before the
+      // heavier decorative 3D module begins its own idle-time startup.
+      requestAnimationFrame(() => requestAnimationFrame(scheduleDeferredHead));
+    };
+    if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 1200 });
+    else setTimeout(start, 700);
+  }
+
   (async () => {
     try {
       await applicationReady;
@@ -490,13 +501,6 @@
     enter.disabled = false;
     enter.focus({ preventScroll: true });
 
-    // Touch has no hover prewarm. Use the ready-gate idle time to initialize
-    // the lighter CRT runtime before the click-to-enter transition begins.
-    if (isTouchDevice() && !crtPromise) {
-      const warmCrt = () => loadCrtRuntime();
-      if ('requestIdleCallback' in window) requestIdleCallback(warmCrt, { timeout: 700 });
-      else setTimeout(warmCrt, 220);
-    }
   })();
 
   async function enableTouchFallbackBeforeEntry() {
@@ -576,10 +580,10 @@
         document.body.classList.remove('site-entering');
         document.body.classList.add('site-ready');
         window.dispatchEvent(new CustomEvent('portfolio:site-ready'));
-        if (touchDevice) scheduleDeferredHead();
-      }, 980);
+        if (touchDevice) scheduleDeferredTouchVisuals();
+      }, 760);
 
-      setTimeout(() => loader.remove(), 720);
+      setTimeout(() => loader.remove(), 640);
     }, holdBeforeRelease);
   }
 
@@ -604,7 +608,7 @@
     // Start decorative media only after the user has chosen to enter.
     // They warm while the terminal sequence is already covering the shell.
     startAmbientVideo();
-    loadCrtRuntime();
+    if (!touchDevice) loadCrtRuntime();
 
     if (!headPromise && !touchDevice) {
       loadHead()
