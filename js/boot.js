@@ -1,5 +1,5 @@
 (() => {
-  // Post-entry timing is verified by the Lighthouse workflow.
+  // Post-entry timing is verified by the Lighthouse workflow (click-scoped long-task measurement).
   const loader = document.getElementById('boot-loader');
   const out = document.getElementById('boot-output');
   const enter = document.getElementById('boot-enter');
