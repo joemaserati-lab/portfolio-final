@@ -16,8 +16,8 @@
   const TITLE_SCRAMBLE_MS = 700;
   const TITLE_SCRAMBLE_STEP_MS = 42;
   const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&@';
-  const READY_HOLD_MS = 220;
-  const ROW_STEP_MS = 135;
+  const READY_HOLD_MS = 80;
+  const ROW_STEP_MS = 82;
   const HEAD_READY_TIMEOUT_MS = 12000;
   const SCRIPT_LOAD_TIMEOUT_MS = 12000;
   const i18n = window.PortfolioI18n;
@@ -566,9 +566,9 @@
       setTimeout(() => {
         document.body.classList.remove('site-entering');
         document.body.classList.add('site-ready');
-      }, 1450);
+      }, 980);
 
-      setTimeout(() => loader.remove(), 1100);
+      setTimeout(() => loader.remove(), 720);
     }, holdBeforeRelease);
   }
 
@@ -596,12 +596,16 @@
     loadCrtRuntime();
 
     if (!headPromise) {
-      // Warm the expensive 3D path only after explicit user intent.
-      loadHead()
+      const warmHead = () => loadHead()
         .then(() => {
           if (touchDevice) window.PortfolioMotion?.enableTouchFallback?.();
         })
         .catch(error => console.warn('3D head load failed.', error));
+
+      // Touch devices have no hover prewarm. Avoid competing with the click,
+      // terminal transition and CRT startup on the same frame.
+      if (touchDevice) setTimeout(warmHead, 900);
+      else warmHead();
     }
 
     if (touchDevice) {

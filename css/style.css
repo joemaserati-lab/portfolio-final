@@ -1280,7 +1280,7 @@ body.booting .shell{
   transition:opacity .86s cubic-bezier(.22,.61,.36,1);
 }
 .boot-loader{
-  transition:opacity .86s cubic-bezier(.22,.61,.36,1),visibility .86s ease;
+  transition:opacity .58s cubic-bezier(.22,.61,.36,1),visibility .58s ease;
 }
 .boot-loader.done{
   opacity:0;
