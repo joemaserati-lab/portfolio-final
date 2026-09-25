@@ -29,8 +29,8 @@ const PERFORMANCE = Object.freeze({
     Object.freeze({ name: 'balanced', maxPixels: 1400000, maxDpr: 1.00, fps: 60 }),
     Object.freeze({ name: 'low',      maxPixels: 850000,  maxDpr: 0.80, fps: 30 })
   ]),
-  touchMaxPixels: 850000,
-  touchMaxDpr: 0.85,
+  touchMaxPixels: 1400000,
+  touchMaxDpr: 1.25,
   touchFps: 30,
   slowFrameFactor: 1.42,
   slowFrameFloor: 24,
@@ -397,7 +397,7 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
   }
 
   try {
-    renderer = new THREE.WebGLRenderer({ canvas, antialias: !coarsePointer, alpha: true, premultipliedAlpha: true, powerPreference: coarsePointer ? 'low-power' : 'high-performance' });
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, premultipliedAlpha: true, powerPreference: coarsePointer ? 'low-power' : 'high-performance' });
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.NeutralToneMapping;
     renderer.toneMappingExposure = 1.00;
