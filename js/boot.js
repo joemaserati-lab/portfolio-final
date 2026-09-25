@@ -458,10 +458,11 @@
   // task complete immediately and decode covers later during browser idle time.
   const coversReady = trackProgress('covers', Promise.resolve({ ok: true, deferred: true }));
 
-  // The head is part of the hero composition, so it must be fully initialized
-  // while the loader is still opaque. This guarantees the first visible hero
-  // frame already contains the WebGL head instead of popping it in afterwards.
-  const headReady = trackProgress('head', loadHead());
+  // The head belongs to the entry sequence, not the initial page critical path.
+  // It is initialized after explicit ENTER intent while the loader is still
+  // opaque, and the homepage is never revealed until that promise settles.
+  const headReady = Promise.resolve({ ok: true, gated: true });
+  setRow('head', '06 MODEL', 'waiting for entry', 'pending');
 
   function scheduleDeferredCovers() {
     const start = () => {
@@ -512,11 +513,15 @@
     resourcesReady = true;
 
     if (returningVisit) {
-      startAmbientVideo();
+      // The full loader stays hidden on repeat visits, but the shell remains
+      // unrevealed until the hero head is ready. Cached assets make this fast
+      // while preventing a visible late 3D pop-in.
+      await loadHead();
       if (touchDevice) {
         window.PortfolioMotion?.enableTouchFallback?.();
         scheduleDeferredTouchVisuals();
       } else {
+        startAmbientVideo();
         loadCrtRuntime();
       }
       launch(true);
@@ -626,6 +631,13 @@
     }, holdBeforeRelease);
   }
 
+  // Desktop hover can opportunistically warm the head, but it remains inside
+  // the loader lifecycle: no page reveal happens until loadHead() settles.
+  enter.addEventListener('pointerenter', () => {
+    if (touchDevice || headPromise) return;
+    loadHead().catch(error => console.warn('3D head prewarm failed.', error));
+  }, { once: true, passive: true });
+
   enter.addEventListener('click', async () => {
     if (fatalLoadError) {
       location.reload();
@@ -636,16 +648,16 @@
 
     if (!beginSequence()) return;
 
-    // Start decorative media only after the user has chosen to enter.
-    // They warm while the terminal sequence is already covering the shell.
-    if (!touchDevice) {
-      startAmbientVideo();
-      loadCrtRuntime();
-    }
+    // The loader/terminal remains visible while the 3D hero initializes.
+    // This keeps WebGL out of the initial page critical path without allowing
+    // the head to appear after the homepage has already been revealed.
+    await loadHead();
 
     if (touchDevice) {
       await enableTouchFallbackBeforeEntry();
     } else {
+      startAmbientVideo();
+      loadCrtRuntime();
       setRow('ready', '07 READY', 'desktop pointer mode / launching sequence', 'done');
     }
 
