@@ -34,17 +34,20 @@ jobs:
           expected_boot="$(sha256sum js/boot.js | awk '{print $1}')"
           expected_head="$(sha256sum js/head3d.js | awk '{print $1}')"
           expected_css="$(sha256sum css/style.css | awk '{print $1}')"
+          expected_portfolio="$(sha256sum js/portfolio.js | awk '{print $1}')"
 
           for attempt in $(seq 1 60); do
             curl -fsSL "$AUDIT_URL/js/boot.js?sha=$GITHUB_SHA" -o /tmp/live-boot.js || true
             curl -fsSL "$AUDIT_URL/js/head3d.js?sha=$GITHUB_SHA" -o /tmp/live-head3d.js || true
             curl -fsSL "$AUDIT_URL/css/style.css?sha=$GITHUB_SHA" -o /tmp/live-style.css || true
+            curl -fsSL "$AUDIT_URL/js/portfolio.js?sha=$GITHUB_SHA" -o /tmp/live-portfolio.js || true
 
             live_boot="$(sha256sum /tmp/live-boot.js 2>/dev/null | awk '{print $1}')"
             live_head="$(sha256sum /tmp/live-head3d.js 2>/dev/null | awk '{print $1}')"
             live_css="$(sha256sum /tmp/live-style.css 2>/dev/null | awk '{print $1}')"
+            live_portfolio="$(sha256sum /tmp/live-portfolio.js 2>/dev/null | awk '{print $1}')"
 
-            if [ "$live_boot" = "$expected_boot" ] && [ "$live_head" = "$expected_head" ] && [ "$live_css" = "$expected_css" ]; then
+            if [ "$live_boot" = "$expected_boot" ] && [ "$live_head" = "$expected_head" ] && [ "$live_css" = "$expected_css" ] && [ "$live_portfolio" = "$expected_portfolio" ]; then
               echo "Live assets match main."
               exit 0
             fi
@@ -86,7 +89,7 @@ jobs:
           await page.waitForFunction(() => {
             const button = document.querySelector('#boot-enter');
             return button && !button.disabled;
-          }, { timeout: 20000 });
+          }, null, { timeout: 20000 });
 
           const loaderState = await page.evaluate(() => {
             const title = document.querySelector('#boot-gate h2');
@@ -114,13 +117,13 @@ jobs:
               && state?.ready
               && feature?.classList.contains('is-ready')
               && !feature.classList.contains('is-failed');
-          }, { timeout: 5000 });
+          }, null, { timeout: 5000 });
 
           await page.click('.primary-action');
           await page.waitForFunction(() => {
             const view = document.querySelector('#projects-view');
             return view && !view.hidden;
-          }, { timeout: 5000 });
+          }, null, { timeout: 5000 });
 
           const openState = await page.evaluate(() => {
             const feature = document.querySelector('#crt-head-feature');
@@ -143,7 +146,7 @@ jobs:
           await page.waitForFunction(() => {
             const view = document.querySelector('#projects-view');
             return view && view.hidden;
-          }, { timeout: 5000 });
+          }, null, { timeout: 5000 });
 
           await page.waitForFunction(() => {
             const feature = document.querySelector('#crt-head-feature');
@@ -158,7 +161,7 @@ jobs:
               && Number.parseFloat(style.opacity) > 0.4
               && rect.width > 10
               && rect.height > 10;
-          }, { timeout: 5000 });
+          }, null, { timeout: 5000 });
 
           console.log('HEAD LIFECYCLE REGRESSION: PASS');
           await browser.close();
