@@ -585,6 +585,50 @@ body.content-panel-open .privacy-widget{
     bottom:calc(var(--ui-safe-bottom) + var(--mobile-control-height) + 8px)!important;
   }
 
+  /* Phones in short landscape use a left/right composition instead of stacking
+     the hero above a bottom launcher row. This prevents the PROJECTS launcher
+     from crossing the primary CTA on 667x375-class viewports. */
+  @media (max-width:720px){
+    .hero-intro{
+      max-width:50%!important;
+      padding:0!important;
+    }
+    .hero-intro h1{
+      font-size:clamp(34px,11.5vh,44px)!important;
+      line-height:.82!important;
+    }
+    .hero-copy{
+      max-width:100%!important;
+      margin:5px 0 7px!important;
+      font-size:clamp(11px,3.4vh,14px)!important;
+      line-height:1.12!important;
+    }
+    .primary-action{
+      padding:5px 7px!important;
+      font-size:clamp(10px,3.1vh,13px)!important;
+    }
+    .desktop-icons{
+      left:auto!important;
+      right:var(--ui-safe-right)!important;
+      top:var(--ui-safe-top)!important;
+      bottom:auto!important;
+      width:min(42vw,250px)!important;
+      grid-template-columns:repeat(2,minmax(0,1fr))!important;
+      gap:2px 4px!important;
+    }
+    .desktop-icon{
+      gap:1px!important;
+      padding:2px 1px!important;
+    }
+    .icon-glyph{
+      width:28px!important;
+      height:25px!important;
+    }
+    .desktop-icon>span:nth-child(2){
+      font-size:clamp(8px,2.1vw,10px)!important;
+    }
+  }
+
   .os-window.is-maximized .window-body,
   .os-window.is-responsive-fullscreen .window-body{
     margin-bottom:var(--ui-safe-bottom)!important;

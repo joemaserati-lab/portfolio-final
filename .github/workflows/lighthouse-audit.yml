@@ -285,12 +285,14 @@ jobs:
 
             for (const issue of home) failures.push(name + ' HOME: ' + issue);
 
-            await page.click('[data-open="projects"]');
+            const rootUrl = process.env.AUDIT_URL.endsWith('/') ? process.env.AUDIT_URL : process.env.AUDIT_URL + '/';
+            await page.goto(new URL('work/', rootUrl).href, { waitUntil: 'networkidle' });
+            await page.waitForFunction(() => document.body.classList.contains('site-ready'), { timeout: 20000 });
             await page.waitForFunction(() => {
               const el=document.querySelector('#projects-view');
               return el && !el.hidden;
             }, { timeout: 5000 });
-            await page.waitForTimeout(450);
+            await page.waitForTimeout(150);
 
             const projects = await page.evaluate(() => {
               const view=document.querySelector('#projects-view');
@@ -321,7 +323,6 @@ jobs:
             for (const issue of projects) failures.push(name + ' PROJECTS: ' + issue);
 
             const windows = [];
-            const rootUrl = process.env.AUDIT_URL.endsWith('/') ? process.env.AUDIT_URL : process.env.AUDIT_URL + '/';
 
             for (const kind of ['about','resume','contact']) {
               await page.goto(new URL(kind + '/', rootUrl).href, { waitUntil: 'networkidle' });
