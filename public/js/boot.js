@@ -1,4 +1,5 @@
 (() => {
+  // Post-entry timing is verified by the Lighthouse workflow.
   const loader = document.getElementById('boot-loader');
   const out = document.getElementById('boot-output');
   const enter = document.getElementById('boot-enter');
