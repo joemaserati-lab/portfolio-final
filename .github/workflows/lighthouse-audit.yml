@@ -138,6 +138,10 @@ jobs:
           console.log(`ENTER -> site-entering: ${entering} ms`);
           console.log(`ENTER -> site-ready: ${ready} ms`);
           console.log(`Post-load long tasks: ${longTasks.length}; max ${maxLongTask.toFixed(1)} ms`);
+          for (const task of longTasks.slice().sort((a,b) => b.duration - a.duration).slice(0,5)) {
+            const relativeStart = task.startTime - await page.evaluate(() => window.__portfolioClickMark || 0);
+            console.log(`LONG TASK +${relativeStart.toFixed(1)} ms / ${task.duration.toFixed(1)} ms`);
+          }
           if (entering > 1300) throw new Error(`Enter transition too slow: ${entering} ms`);
           if (maxLongTask > 250) throw new Error(`Long task too large: ${maxLongTask.toFixed(1)} ms`);
           await browser.close();

@@ -1880,3 +1880,34 @@ body.booting .crt-background-video{
     padding-top:min(1.5625vw,2.777778vh);
   }
 }
+
+/* V31.15 / MOBILE ENTRY COMPOSITING ---------------------------------------
+   Mobile keeps the approved reveal timing language without blur filters,
+   which are disproportionately expensive during the loader-to-site handoff. */
+@media (max-width:720px){
+  .shell{
+    transition:opacity .58s cubic-bezier(.22,.61,.36,1);
+  }
+  .boot-line{
+    filter:none!important;
+    transition:opacity .20s ease,transform .24s cubic-bezier(.22,.61,.36,1)!important;
+  }
+  body.site-entering .hero-intro > *,
+  body.site-entering .desktop-icons .desktop-icon{
+    animation:siteElementInMobile .54s cubic-bezier(.22,.61,.36,1) both;
+  }
+  body.site-entering .hero-intro .system-label{animation-delay:.06s}
+  body.site-entering .hero-intro h1{animation-delay:.11s}
+  body.site-entering .hero-intro .hero-copy{animation-delay:.17s}
+  body.site-entering .hero-intro .primary-action{animation-delay:.23s}
+  body.site-entering .desktop-icons .desktop-icon:nth-child(1){animation-delay:.28s}
+  body.site-entering .desktop-icons .desktop-icon:nth-child(2){animation-delay:.32s}
+  body.site-entering .desktop-icons .desktop-icon:nth-child(3){animation-delay:.36s}
+  body.site-entering .desktop-icons .desktop-icon:nth-child(4){animation-delay:.40s}
+  body.site-entering .desktop-icons .desktop-icon:nth-child(5){animation-delay:.44s}
+}
+@keyframes siteElementInMobile{
+  from{opacity:0;transform:translateY(6px)}
+  to{opacity:1;transform:translateY(0)}
+}
+

@@ -451,6 +451,7 @@
 
   function scheduleDeferredTouchVisuals() {
     const startCrt = () => {
+      startAmbientVideo();
       const run = async () => {
         await loadCrtRuntime();
 
@@ -626,8 +627,10 @@
 
     // Start decorative media only after the user has chosen to enter.
     // They warm while the terminal sequence is already covering the shell.
-    startAmbientVideo();
-    if (!touchDevice) loadCrtRuntime();
+    if (!touchDevice) {
+      startAmbientVideo();
+      loadCrtRuntime();
+    }
 
     if (!headPromise && !touchDevice) {
       loadHead()
