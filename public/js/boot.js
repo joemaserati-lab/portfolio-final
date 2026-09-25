@@ -104,18 +104,35 @@
     }
 
     gateTitle.removeAttribute('data-i18n-html');
+    gateTitle.setAttribute('aria-label', target);
+
+    // Keep the target text in normal flow as an invisible geometry anchor.
+    // The changing scramble string is absolutely positioned over it so every
+    // animation frame paints differently without causing layout shifts.
+    const anchor = document.createElement('span');
+    anchor.className = 'boot-title-anchor';
+    anchor.setAttribute('aria-hidden', 'true');
+    anchor.textContent = target;
+
+    const scramble = document.createElement('span');
+    scramble.className = 'boot-title-scramble';
+    scramble.setAttribute('aria-hidden', 'true');
+    scramble.textContent = target;
+
+    gateTitle.replaceChildren(anchor, scramble);
+
     const revealAt = [...target].map(char => char === ' ' ? 0 : 0.2 + Math.random() * 0.72);
 
     return new Promise(resolve => {
-      const start = performance.now();
+      const startTime = performance.now();
       let lastPaint = 0;
 
       const paint = now => {
-        const progress = Math.min(1, (now - start) / TITLE_SCRAMBLE_MS);
+        const progress = Math.min(1, (now - startTime) / TITLE_SCRAMBLE_MS);
 
         if (progress === 1 || now - lastPaint >= TITLE_SCRAMBLE_STEP_MS) {
           lastPaint = now;
-          gateTitle.textContent = [...target].map((char, index) => {
+          scramble.textContent = [...target].map((char, index) => {
             if (char === ' ') return ' ';
             if (progress >= revealAt[index]) return char;
             return SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
@@ -127,6 +144,7 @@
           return;
         }
 
+        gateTitle.removeAttribute('aria-label');
         gateTitle.dataset.i18nHtml = key;
         gateTitle.textContent = target;
         resolve();
