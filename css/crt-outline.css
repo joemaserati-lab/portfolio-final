@@ -508,8 +508,10 @@ body.content-panel-open .privacy-widget{
 
   .boot-gate h2{
     max-width:100%;
-    min-height:0;
+    min-height:2.6em;
     margin:0;
+    display:grid;
+    place-items:center;
     font-size:clamp(34px,11vw,52px);
   }
 
@@ -520,8 +522,12 @@ body.content-panel-open .privacy-widget{
   }
 
   .boot-gate-note{
+    width:min(100%,290px);
     max-width:min(100%,290px);
+    min-height:5em;
     margin:0;
+    display:grid;
+    place-items:center;
   }
 
   /* Terminal phase is bounded by both top and bottom safe edges, so additional

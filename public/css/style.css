@@ -210,7 +210,7 @@ body.fx-off #crt-fx,body.fx-off .noise,body.fx-off .scanlines{opacity:0!importan
 body.booting .shell{visibility:hidden}
  .boot-loader{position:fixed;z-index:100;left:calc(var(--stage-gap) + var(--bezel-x));right:calc(var(--stage-gap) + var(--bezel-x));top:calc(var(--stage-gap) + var(--bezel-y));bottom:calc(var(--stage-gap) + var(--bezel-y));overflow:hidden;clip-path:url(#crtScreenClip);-webkit-clip-path:url(#crtScreenClip);background:radial-gradient(circle at 50% 46%,rgba(64,27,5,.54),rgba(23,9,2,.9) 35%,rgba(6,2,0,.985) 78%);padding:var(--screen-safe-top) var(--screen-safe-right) var(--screen-safe-bottom) var(--screen-safe-left);color:var(--phosphor);text-shadow:0 0 5px rgba(255,157,37,.9),0 0 14px rgba(255,120,12,.35);font-size:clamp(22px,2.2vw,36px);line-height:1.08;transition:opacity .7s ease,visibility .7s ease}
 .boot-loader::before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0 2px,rgba(0,0,0,.48) 3px 4px);opacity:.5;mix-blend-mode:multiply}
-.boot-loader::after{content:"";position:absolute;left:0;right:0;height:14%;top:-16%;pointer-events:none;background:linear-gradient(to bottom,transparent,rgba(255,151,31,.09),transparent);animation:bootRoll 2.2s linear infinite}
+.boot-loader::after{content:"";position:absolute;left:0;right:0;height:14%;top:-16%;pointer-events:none;background:linear-gradient(to bottom,transparent,rgba(255,151,31,.09),transparent);transform:translate3d(0,0,0);will-change:transform;animation:bootRoll 2.2s linear infinite}
 .boot-output{position:relative;z-index:2;max-width:min(100%,1150px);white-space:pre-wrap}
 .boot-line{min-height:1.08em;animation:bootLineIn .06s steps(2,end) both}
 .boot-line .tag{color:var(--bright)}
@@ -220,7 +220,7 @@ body.booting .shell{visibility:hidden}
  .boot-skip{position:absolute;z-index:3;right:calc(var(--screen-safe-right) + 10px);bottom:calc(var(--screen-safe-bottom) - 6px);border:0;background:transparent;color:var(--dim);cursor:pointer;font-size:18px;letter-spacing:.06em}.boot-skip:hover{color:var(--bright)}
 .boot-loader.done{opacity:0;visibility:hidden;pointer-events:none}
 @keyframes bootLineIn{from{opacity:0;transform:translateY(2px)}to{opacity:1;transform:none}}
-@keyframes bootRoll{to{top:116%}}
+@keyframes bootRoll{to{transform:translate3d(0,943%,0)}}
 
 /* Vignette is now atmospheric only; it never blackens the corners. */
 .vignette{background:radial-gradient(ellipse at center,transparent 0 72%,rgba(72,26,3,.08) 88%,rgba(0,0,0,.14) 100%);z-index:32}
