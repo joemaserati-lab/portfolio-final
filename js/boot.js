@@ -450,14 +450,30 @@
   }
 
   function scheduleDeferredTouchVisuals() {
-    const start = async () => {
-      await loadCrtRuntime();
-      // Give the browser a clean frame after CRT initialization before the
-      // heavier decorative 3D module begins its own idle-time startup.
-      requestAnimationFrame(() => requestAnimationFrame(scheduleDeferredHead));
+    const startCrt = () => {
+      const run = async () => {
+        await loadCrtRuntime();
+
+        // Never chain the heavier 3D initialization directly after CRT.
+        // Wait for another stable idle window so user interaction wins.
+        setTimeout(() => {
+          if ('requestIdleCallback' in window) {
+            requestIdleCallback(() => scheduleDeferredHead(), { timeout: 6000 });
+          } else {
+            scheduleDeferredHead();
+          }
+        }, 900);
+      };
+
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(run, { timeout: 6000 });
+      } else {
+        run();
+      }
     };
-    if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 1200 });
-    else setTimeout(start, 700);
+
+    // Keep the entry/reveal completely free of decorative WebGL startup.
+    setTimeout(startCrt, 1400);
   }
 
   (async () => {
@@ -483,9 +499,12 @@
 
     if (returningVisit) {
       startAmbientVideo();
-      loadCrtRuntime();
       launch(true);
-      scheduleDeferredHead();
+      if (touchDevice) scheduleDeferredTouchVisuals();
+      else {
+        loadCrtRuntime();
+        scheduleDeferredHead();
+      }
       return;
     }
 
