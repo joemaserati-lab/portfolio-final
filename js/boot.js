@@ -457,22 +457,11 @@
   // Project covers are not required to enter the homepage. Mark the loader
   // task complete immediately and decode covers later during browser idle time.
   const coversReady = trackProgress('covers', Promise.resolve({ ok: true, deferred: true }));
-  // The 3D head is an enhancement, not a prerequisite for first paint.
-  // Load it only when the user signals intent to enter the portfolio.
-  const eagerHead = false;
-  const headReady = Promise.resolve({ ok: true, deferred: true });
-  setRow('head', '06 MODEL', 'deferred until entry', 'done');
 
-  function scheduleDeferredHead() {
-    if (headPromise) return;
-    const start = () => {
-      loadHead()
-        .then(() => window.PortfolioMotion?.enableTouchFallback?.())
-        .catch(error => console.warn('Deferred 3D head load failed.', error));
-    };
-    if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 1800 });
-    else setTimeout(start, 650);
-  }
+  // The head is part of the hero composition, so it must be fully initialized
+  // while the loader is still opaque. This guarantees the first visible hero
+  // frame already contains the WebGL head instead of popping it in afterwards.
+  const headReady = trackProgress('head', loadHead());
 
   function scheduleDeferredCovers() {
     const start = () => {
@@ -487,19 +476,7 @@
   function scheduleDeferredTouchVisuals() {
     const startCrt = () => {
       startAmbientVideo();
-      const run = async () => {
-        await loadCrtRuntime();
-
-        // Never chain the heavier 3D initialization directly after CRT.
-        // Wait for another stable idle window so user interaction wins.
-        setTimeout(() => {
-          if ('requestIdleCallback' in window) {
-            requestIdleCallback(() => scheduleDeferredHead(), { timeout: 6000 });
-          } else {
-            scheduleDeferredHead();
-          }
-        }, 900);
-      };
+      const run = () => loadCrtRuntime();
 
       if ('requestIdleCallback' in window) {
         requestIdleCallback(run, { timeout: 6000 });
@@ -508,8 +485,9 @@
       }
     };
 
-    // Keep the entry/reveal completely free of decorative WebGL startup.
-    setTimeout(startCrt, 1400);
+    // CRT noise/video may remain deferred on touch; the hero head itself is
+    // already ready before the page is revealed.
+    setTimeout(startCrt, 900);
   }
 
   (async () => {
@@ -535,12 +513,13 @@
 
     if (returningVisit) {
       startAmbientVideo();
-      launch(true);
-      if (touchDevice) scheduleDeferredTouchVisuals();
-      else {
+      if (touchDevice) {
+        window.PortfolioMotion?.enableTouchFallback?.();
+        scheduleDeferredTouchVisuals();
+      } else {
         loadCrtRuntime();
-        scheduleDeferredHead();
       }
+      launch(true);
       return;
     }
 
@@ -647,14 +626,6 @@
     }, holdBeforeRelease);
   }
 
-  // Desktop users usually hover before clicking: use that moment to warm the
-  // expensive visual layer without putting it back in the critical path.
-  enter.addEventListener('pointerenter', () => {
-    if (touchDevice) return;
-    loadCrtRuntime();
-    loadHead().catch(error => console.warn('3D prewarm failed.', error));
-  }, { once: true, passive: true });
-
   enter.addEventListener('click', async () => {
     if (fatalLoadError) {
       location.reload();
@@ -672,13 +643,8 @@
       loadCrtRuntime();
     }
 
-    if (!headPromise && !touchDevice) {
-      loadHead()
-        .catch(error => console.warn('3D head load failed.', error));
-    }
-
     if (touchDevice) {
-      setRow('ready', '07 READY', 'touch mode / launching sequence', 'done');
+      await enableTouchFallbackBeforeEntry();
     } else {
       setRow('ready', '07 READY', 'desktop pointer mode / launching sequence', 'done');
     }
