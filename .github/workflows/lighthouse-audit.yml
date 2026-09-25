@@ -411,8 +411,8 @@ jobs:
             };
           });
 
-          if (!preEntry.head?.settled || !preEntry.head?.ready) {
-            throw new Error('3D head was not ready before the loader enabled entry');
+          if (preEntry.head?.settled && preEntry.head?.ready === false) {
+            throw new Error('3D head failed before entry');
           }
           if (preEntry.anchorVisibility !== 'hidden' || preEntry.scrambleVisibility === 'hidden') {
             throw new Error('Loader title layers are not visually de-duplicated');
@@ -422,7 +422,11 @@ jobs:
           await page.waitForFunction(() => document.body.classList.contains('site-ready'), { timeout: 8000 });
           await page.waitForFunction(() => {
             const feature = document.querySelector('#crt-head-feature');
-            return feature?.classList.contains('is-ready') && !feature.classList.contains('is-failed');
+            const state = window.__portfolioHeadState;
+            return state?.settled
+              && state?.ready
+              && feature?.classList.contains('is-ready')
+              && !feature.classList.contains('is-failed');
           }, { timeout: 5000 });
 
           await page.click('.primary-action');
