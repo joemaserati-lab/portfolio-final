@@ -401,21 +401,19 @@ jobs:
           }, { timeout: 25000 });
 
           const preEntry = await page.evaluate(() => {
-            const anchor = document.querySelector('.boot-title-anchor');
-            const scramble = document.querySelector('.boot-title-scramble');
+            const title = document.querySelector('#boot-gate h2');
             return {
               head: window.__portfolioHeadState || null,
-              anchorVisibility: anchor ? getComputedStyle(anchor).visibility : null,
-              scrambleVisibility: scramble ? getComputedStyle(scramble).visibility : null,
-              titleText: document.querySelector('#boot-gate h2')?.innerText || ''
+              titleText: title?.innerText || '',
+              titleChildCount: title?.children.length ?? -1
             };
           });
 
           if (preEntry.head?.settled && preEntry.head?.ready === false) {
             throw new Error('3D head failed before entry');
           }
-          if (preEntry.anchorVisibility !== 'hidden' || preEntry.scrambleVisibility === 'hidden') {
-            throw new Error('Loader title layers are not visually de-duplicated');
+          if (preEntry.titleChildCount !== 0 || !preEntry.titleText.trim()) {
+            throw new Error('Loader title is not a single visible text layer');
           }
 
           await page.click('#boot-enter');
