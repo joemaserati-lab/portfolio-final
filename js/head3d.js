@@ -25,8 +25,10 @@ if (feature && canvas && screenElement) {
     if (disposed || !effect) return;
     const windowOpen = Boolean(windowLayer?.querySelector('.os-window')) || Boolean(projectsView && !projectsView.hidden);
     feature.classList.toggle('is-window-open', windowOpen);
-    effect.setPaused(!ready || !booted || !pageVisible || windowOpen);
-    if (ready && booted && pageVisible && !windowOpen) feature.classList.add('is-ready');
+
+    const shouldBeVisible = ready && booted && pageVisible;
+    feature.classList.toggle('is-ready', shouldBeVisible);
+    effect.setPaused(!shouldBeVisible || windowOpen);
   }
   function onPointerMove(event) {
     if (touch || event.pointerType !== 'mouse') return;
@@ -149,9 +151,14 @@ if (feature && canvas && screenElement) {
       recenter: recenterMotion,
       enableTouchFallback
     };
-    if (windowLayer) {
-      observer = new MutationObserver(sync);
-      observer.observe(windowLayer, { childList: true, subtree: true });
+    observer = new MutationObserver(sync);
+    if (windowLayer) observer.observe(windowLayer, { childList: true, subtree: true });
+    if (projectsView) {
+      observer.observe(projectsView, {
+        attributes: true,
+        attributeFilter: ['hidden', 'class'],
+        childList: true
+      });
     }
     effect.ready.then(() => {
       if (disposed || effect.disposed) return;
