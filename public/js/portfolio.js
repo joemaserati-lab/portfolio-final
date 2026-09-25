@@ -745,5 +745,7 @@
     }
     route();
   };
-  if(document.body.classList.contains('booting')) window.addEventListener('portfolio:booted',onReady,{once:true}); else onReady();
+  // The router is prepared behind the opaque loader so the reveal frame
+  // only has to animate already-initialized UI.
+  onReady();
 })();

@@ -426,12 +426,9 @@
   // The enter button is enabled only after the interface, project covers and
   // 3D pipeline have settled, so the terminal boot remains purely scenic.
   const applicationReady = trackProgress('app', loadApplication());
-  const coversReady = trackProgress(
-    'covers',
-    applicationReady
-      .then(() => preloadPortfolioImages())
-      .catch(error => ({ ok: false, skipped: true, error }))
-  );
+  // Project covers are not required to enter the homepage. Mark the loader
+  // task complete immediately and decode covers later during browser idle time.
+  const coversReady = trackProgress('covers', Promise.resolve({ ok: true, deferred: true }));
   // The 3D head is an enhancement, not a prerequisite for first paint.
   // Load it only when the user signals intent to enter the portfolio.
   const eagerHead = false;
@@ -447,6 +444,16 @@
     };
     if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 1800 });
     else setTimeout(start, 650);
+  }
+
+  function scheduleDeferredCovers() {
+    const start = () => {
+      preloadPortfolioImages().catch?.(() => {});
+    };
+    setTimeout(() => {
+      if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 6000 });
+      else start();
+    }, 900);
   }
 
   function scheduleDeferredTouchVisuals() {
@@ -600,6 +607,7 @@
         document.body.classList.remove('site-entering');
         document.body.classList.add('site-ready');
         window.dispatchEvent(new CustomEvent('portfolio:site-ready'));
+        scheduleDeferredCovers();
         if (touchDevice) scheduleDeferredTouchVisuals();
       }, 760);
 

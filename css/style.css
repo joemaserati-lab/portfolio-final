@@ -1911,3 +1911,22 @@ body.booting .crt-background-video{
   to{opacity:1;transform:translateY(0)}
 }
 
+/* V31.16 / MOBILE PREPAINT -------------------------------------------------
+   Keep the complete CRT workspace painted underneath the opaque boot loader.
+   This avoids paying the full shell rasterization cost on the exact frame the
+   loader starts fading away. */
+@media (max-width:720px){
+  body.booting .shell{
+    visibility:visible;
+    opacity:1;
+  }
+  .shell{
+    transition:none;
+  }
+  .boot-loader{
+    transform:translateZ(0);
+    backface-visibility:hidden;
+    will-change:opacity;
+  }
+}
+
