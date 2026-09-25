@@ -91,35 +91,44 @@
     if (sequenceStarted) addRow(key);
   }
 
+  function getStableTitleParts() {
+    let anchor = gateTitle.querySelector('.boot-title-anchor');
+    let scramble = gateTitle.querySelector('.boot-title-scramble');
+
+    if (!anchor || !scramble) {
+      anchor = document.createElement('span');
+      anchor.className = 'boot-title-anchor';
+      anchor.setAttribute('aria-hidden', 'true');
+
+      scramble = document.createElement('span');
+      scramble.className = 'boot-title-scramble';
+      scramble.setAttribute('aria-hidden', 'true');
+
+      gateTitle.replaceChildren(anchor, scramble);
+    }
+
+    return { anchor, scramble };
+  }
+
   function setTitle(key) {
-    gateTitle.dataset.i18nHtml = key;
-    gateTitle.textContent = t(key);
+    const target = t(key).toUpperCase();
+    const { anchor, scramble } = getStableTitleParts();
+    gateTitle.setAttribute('aria-label', target);
+    anchor.textContent = target;
+    scramble.textContent = target;
   }
 
   function scrambleTitle(key) {
     const target = t(key).toUpperCase();
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setTitle(key);
-      return Promise.resolve();
-    }
+    const { anchor, scramble } = getStableTitleParts();
 
-    gateTitle.removeAttribute('data-i18n-html');
     gateTitle.setAttribute('aria-label', target);
-
-    // Keep the target text in normal flow as an invisible geometry anchor.
-    // The changing scramble string is absolutely positioned over it so every
-    // animation frame paints differently without causing layout shifts.
-    const anchor = document.createElement('span');
-    anchor.className = 'boot-title-anchor';
-    anchor.setAttribute('aria-hidden', 'true');
     anchor.textContent = target;
 
-    const scramble = document.createElement('span');
-    scramble.className = 'boot-title-scramble';
-    scramble.setAttribute('aria-hidden', 'true');
-    scramble.textContent = target;
-
-    gateTitle.replaceChildren(anchor, scramble);
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      scramble.textContent = target;
+      return Promise.resolve();
+    }
 
     const revealAt = [...target].map(char => char === ' ' ? 0 : 0.2 + Math.random() * 0.72);
 
@@ -144,9 +153,7 @@
           return;
         }
 
-        gateTitle.removeAttribute('aria-label');
-        gateTitle.dataset.i18nHtml = key;
-        gateTitle.textContent = target;
+        scramble.textContent = target;
         resolve();
       };
 
@@ -231,6 +238,8 @@
       progressDoneResolve = resolve;
     });
   }
+
+  setTitle('boot.title');
 
   setProgressTarget(1.5);
 
