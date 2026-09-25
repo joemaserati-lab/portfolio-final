@@ -1911,18 +1911,37 @@ body.booting .crt-background-video{
   to{opacity:1;transform:translateY(0)}
 }
 
-/* V31.16 / MOBILE PREPAINT -------------------------------------------------
-   Keep the complete CRT workspace painted underneath the opaque boot loader.
-   This avoids paying the full shell rasterization cost on the exact frame the
-   loader starts fading away. */
+/* V31.17 / MOBILE CLICK-TIME PREWARM --------------------------------------
+   Rasterize the CRT workspace only after explicit entry intent, while the
+   terminal boot remains opaque. The actual reveal is then a compositor-only
+   loader fade rather than a full interface paint + stagger in one frame. */
 @media (max-width:720px){
-  body.booting .shell{
+  body.booting.entry-prewarm .shell{
+    visibility:visible;
+    opacity:.001;
+    transition:none!important;
+    will-change:opacity;
+  }
+  body.booting.site-entering .shell{
     visibility:visible;
     opacity:1;
+    transition:opacity .36s cubic-bezier(.22,.61,.36,1)!important;
   }
-  .shell{
-    transition:none;
+
+  /* The loader fade is the mobile entrance animation. Avoid starting a group
+     of descendant animations at the same moment. */
+  body.site-entering .hero-intro > *,
+  body.site-entering .desktop-icons .desktop-icon{
+    animation:none!important;
   }
+
+  /* Animated SVG turbulence is expensive on touch GPUs. Preserve the noise
+     texture but keep it static; the deferred CRT runtime supplies motion. */
+  .noise{
+    animation:none!important;
+    opacity:.04;
+  }
+
   .boot-loader{
     transform:translateZ(0);
     backface-visibility:hidden;

@@ -548,6 +548,7 @@
     if (sequenceStarted || finished) return false;
     sequenceStarted = true;
     loader.classList.add('is-sequencing');
+    if (touchDevice) document.body.classList.add('entry-prewarm');
     rowDefs.forEach(([key]) => addRow(key));
     return true;
   }
@@ -586,9 +587,10 @@
     const holdBeforeRelease = fast ? 0 : Math.max(remainingToMinimum, remainingToRows) + READY_HOLD_MS;
 
     setTimeout(() => {
-      document.body.classList.remove('booting');
+      if (!touchDevice) document.body.classList.remove('booting');
 
       if (fast) {
+        if (touchDevice) document.body.classList.remove('booting','entry-prewarm');
         document.body.classList.add('site-ready');
         window.dispatchEvent(new CustomEvent('portfolio:booted'));
         loader.classList.add('done');
@@ -597,7 +599,7 @@
       }
 
       document.body.classList.add('site-entering');
-      window.dispatchEvent(new CustomEvent('portfolio:booted'));
+      if (!touchDevice) window.dispatchEvent(new CustomEvent('portfolio:booted'));
 
       requestAnimationFrame(() => {
         requestAnimationFrame(() => loader.classList.add('done'));
@@ -605,7 +607,9 @@
 
       setTimeout(() => {
         document.body.classList.remove('site-entering');
+        if (touchDevice) document.body.classList.remove('booting','entry-prewarm');
         document.body.classList.add('site-ready');
+        if (touchDevice) window.dispatchEvent(new CustomEvent('portfolio:booted'));
         window.dispatchEvent(new CustomEvent('portfolio:site-ready'));
         scheduleDeferredCovers();
         if (touchDevice) scheduleDeferredTouchVisuals();
