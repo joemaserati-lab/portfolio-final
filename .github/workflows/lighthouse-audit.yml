@@ -378,6 +378,95 @@ jobs:
           node responsive-audit.mjs
 
 
+      - name: Head and loader lifecycle regression
+        continue-on-error: false
+        run: |
+          cat > head-lifecycle-audit.mjs <<'NODE'
+          import { chromium } from 'playwright';
+
+          const browser = await chromium.launch({
+            headless: true,
+            args: ['--use-gl=swiftshader', '--enable-webgl']
+          });
+          const context = await browser.newContext({
+            viewport: { width: 1440, height: 900 },
+            deviceScaleFactor: 1
+          });
+          const page = await context.newPage();
+
+          await page.goto(process.env.AUDIT_URL, { waitUntil: 'networkidle' });
+          await page.waitForFunction(() => {
+            const button = document.querySelector('#boot-enter');
+            return button && !button.disabled;
+          }, { timeout: 25000 });
+
+          const preEntry = await page.evaluate(() => {
+            const anchor = document.querySelector('.boot-title-anchor');
+            const scramble = document.querySelector('.boot-title-scramble');
+            return {
+              head: window.__portfolioHeadState || null,
+              anchorVisibility: anchor ? getComputedStyle(anchor).visibility : null,
+              scrambleVisibility: scramble ? getComputedStyle(scramble).visibility : null,
+              titleText: document.querySelector('#boot-gate h2')?.innerText || ''
+            };
+          });
+
+          if (!preEntry.head?.settled || !preEntry.head?.ready) {
+            throw new Error('3D head was not ready before the loader enabled entry');
+          }
+          if (preEntry.anchorVisibility !== 'hidden' || preEntry.scrambleVisibility === 'hidden') {
+            throw new Error('Loader title layers are not visually de-duplicated');
+          }
+
+          await page.click('#boot-enter');
+          await page.waitForFunction(() => document.body.classList.contains('site-ready'), { timeout: 8000 });
+          await page.waitForFunction(() => {
+            const feature = document.querySelector('#crt-head-feature');
+            return feature?.classList.contains('is-ready') && !feature.classList.contains('is-failed');
+          }, { timeout: 5000 });
+
+          await page.click('.primary-action');
+          await page.waitForFunction(() => {
+            const view = document.querySelector('#projects-view');
+            return view && !view.hidden;
+          }, { timeout: 5000 });
+
+          const openState = await page.evaluate(() => {
+            const feature = document.querySelector('#crt-head-feature');
+            return {
+              windowOpen: feature?.classList.contains('is-window-open'),
+              ready: feature?.classList.contains('is-ready')
+            };
+          });
+          if (!openState.windowOpen || !openState.ready) {
+            throw new Error('Head did not enter the expected project-overlay state');
+          }
+
+          await page.click('.projects-close');
+          await page.waitForFunction(() => {
+            const view = document.querySelector('#projects-view');
+            return view && view.hidden;
+          }, { timeout: 5000 });
+          await page.waitForFunction(() => {
+            const feature = document.querySelector('#crt-head-feature');
+            if (!feature) return false;
+            const style = getComputedStyle(feature);
+            const canvas = document.querySelector('#crt-head-canvas');
+            const rect = canvas?.getBoundingClientRect();
+            return feature.classList.contains('is-ready')
+              && !feature.classList.contains('is-window-open')
+              && !feature.classList.contains('is-failed')
+              && style.visibility === 'visible'
+              && Number.parseFloat(style.opacity) > 0.4
+              && rect && rect.width > 10 && rect.height > 10;
+          }, { timeout: 5000 });
+
+          console.log('Head/loader lifecycle audit: PASS');
+          await browser.close();
+          NODE
+          node head-lifecycle-audit.mjs
+
+
       - name: Upload Lighthouse reports
         uses: actions/upload-artifact@v4
         with:
