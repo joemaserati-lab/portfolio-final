@@ -442,7 +442,11 @@ jobs:
             throw new Error('Head did not enter the expected project-overlay state');
           }
 
-          await page.click('.projects-close');
+          await page.evaluate(() => {
+            const close = document.querySelector('.projects-close');
+            if (!close) throw new Error('Projects close control is missing');
+            close.click();
+          });
           await page.waitForFunction(() => {
             const view = document.querySelector('#projects-view');
             return view && view.hidden;
