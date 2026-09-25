@@ -641,3 +641,51 @@ body.content-panel-open .privacy-widget{
   }
 }
 
+
+/* V31.18 / SHORT-LANDSCAPE TWO-COLUMN HOME -------------------------------
+   721–900px wide landscape devices keep the same collision-free left/right
+   composition used by smaller phones instead of letting hero and launchers
+   occupy the same central area. */
+@media (min-width:721px) and (max-width:900px) and (max-height:430px){
+  .hero-intro{
+    max-width:50%!important;
+    padding:0!important;
+  }
+  .hero-intro h1{
+    font-size:clamp(36px,11.5vh,48px)!important;
+    line-height:.82!important;
+  }
+  .hero-copy{
+    max-width:100%!important;
+    margin:6px 0 8px!important;
+    font-size:clamp(12px,3.5vh,15px)!important;
+    line-height:1.12!important;
+  }
+  .primary-action{
+    padding:6px 8px!important;
+    font-size:clamp(11px,3.2vh,14px)!important;
+  }
+  .desktop-icons{
+    left:auto!important;
+    right:var(--ui-safe-right)!important;
+    top:var(--ui-safe-top)!important;
+    bottom:auto!important;
+    width:min(40vw,280px)!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:4px 6px!important;
+  }
+  .desktop-icon{
+    gap:2px!important;
+    padding:3px 2px!important;
+  }
+  .icon-glyph{
+    width:30px!important;
+    height:27px!important;
+  }
+  .desktop-icon>span:nth-child(2){
+    font-size:clamp(9px,1.45vw,11px)!important;
+  }
+  .desktop-icon small{
+    display:none!important;
+  }
+}
