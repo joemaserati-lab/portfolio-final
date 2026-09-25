@@ -1,0 +1,167 @@
+name: Head Lifecycle Regression
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'js/boot.js'
+      - 'js/head3d.js'
+      - 'js/portfolio.js'
+      - 'css/style.css'
+      - '.github/workflows/head-regression.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: head-regression-main
+  cancel-in-progress: true
+
+env:
+  AUDIT_URL: https://joemaserati-lab.github.io/portfolio-final/
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Wait until live assets match main
+        run: |
+          expected_boot="$(sha256sum js/boot.js | awk '{print $1}')"
+          expected_head="$(sha256sum js/head3d.js | awk '{print $1}')"
+          expected_css="$(sha256sum css/style.css | awk '{print $1}')"
+
+          for attempt in $(seq 1 60); do
+            curl -fsSL "$AUDIT_URL/js/boot.js?sha=$GITHUB_SHA" -o /tmp/live-boot.js || true
+            curl -fsSL "$AUDIT_URL/js/head3d.js?sha=$GITHUB_SHA" -o /tmp/live-head3d.js || true
+            curl -fsSL "$AUDIT_URL/css/style.css?sha=$GITHUB_SHA" -o /tmp/live-style.css || true
+
+            live_boot="$(sha256sum /tmp/live-boot.js 2>/dev/null | awk '{print $1}')"
+            live_head="$(sha256sum /tmp/live-head3d.js 2>/dev/null | awk '{print $1}')"
+            live_css="$(sha256sum /tmp/live-style.css 2>/dev/null | awk '{print $1}')"
+
+            if [ "$live_boot" = "$expected_boot" ] && [ "$live_head" = "$expected_head" ] && [ "$live_css" = "$expected_css" ]; then
+              echo "Live assets match main."
+              exit 0
+            fi
+
+            sleep 5
+          done
+
+          echo "Live assets did not match main before timeout."
+          exit 1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Playwright
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@latest
+          npx playwright install chromium
+
+      - name: Test loader and head lifecycle
+        run: |
+          cat > head-regression.mjs <<'NODE'
+          import { chromium } from 'playwright';
+
+          const browser = await chromium.launch({
+            headless: true,
+            args: ['--use-gl=swiftshader', '--enable-webgl']
+          });
+
+          const context = await browser.newContext({
+            viewport: { width: 1440, height: 900 },
+            deviceScaleFactor: 1
+          });
+
+          const page = await context.newPage();
+          await page.goto(process.env.AUDIT_URL, { waitUntil: 'networkidle' });
+
+          await page.waitForFunction(() => {
+            const button = document.querySelector('#boot-enter');
+            return button && !button.disabled;
+          }, { timeout: 20000 });
+
+          const loaderState = await page.evaluate(() => {
+            const title = document.querySelector('#boot-gate h2');
+            return {
+              text: title?.innerText || '',
+              childCount: title?.children.length ?? -1,
+              head: window.__portfolioHeadState || null
+            };
+          });
+
+          if (!loaderState.text.trim() || loaderState.childCount !== 0) {
+            throw new Error('Loader title is duplicated or structurally layered');
+          }
+          if (loaderState.head?.settled && loaderState.head?.ready === false) {
+            throw new Error('3D head failed before entry');
+          }
+
+          await page.click('#boot-enter');
+
+          await page.waitForFunction(() => document.body.classList.contains('site-ready'), { timeout: 15000 });
+          await page.waitForFunction(() => {
+            const feature = document.querySelector('#crt-head-feature');
+            const state = window.__portfolioHeadState;
+            return state?.settled
+              && state?.ready
+              && feature?.classList.contains('is-ready')
+              && !feature.classList.contains('is-failed');
+          }, { timeout: 5000 });
+
+          await page.click('.primary-action');
+          await page.waitForFunction(() => {
+            const view = document.querySelector('#projects-view');
+            return view && !view.hidden;
+          }, { timeout: 5000 });
+
+          const openState = await page.evaluate(() => {
+            const feature = document.querySelector('#crt-head-feature');
+            return {
+              ready: feature?.classList.contains('is-ready'),
+              windowOpen: feature?.classList.contains('is-window-open')
+            };
+          });
+
+          if (!openState.ready || !openState.windowOpen) {
+            throw new Error('Head did not enter the expected projects-open state');
+          }
+
+          await page.evaluate(() => {
+            const close = document.querySelector('.projects-close');
+            if (!close) throw new Error('Projects close control missing');
+            close.click();
+          });
+
+          await page.waitForFunction(() => {
+            const view = document.querySelector('#projects-view');
+            return view && view.hidden;
+          }, { timeout: 5000 });
+
+          await page.waitForFunction(() => {
+            const feature = document.querySelector('#crt-head-feature');
+            const canvas = document.querySelector('#crt-head-canvas');
+            if (!feature || !canvas) return false;
+            const style = getComputedStyle(feature);
+            const rect = canvas.getBoundingClientRect();
+            return feature.classList.contains('is-ready')
+              && !feature.classList.contains('is-window-open')
+              && !feature.classList.contains('is-failed')
+              && style.visibility === 'visible'
+              && Number.parseFloat(style.opacity) > 0.4
+              && rect.width > 10
+              && rect.height > 10;
+          }, { timeout: 5000 });
+
+          console.log('HEAD LIFECYCLE REGRESSION: PASS');
+          await browser.close();
+          NODE
+
+          node head-regression.mjs
