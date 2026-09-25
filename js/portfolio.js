@@ -566,6 +566,12 @@
 
   function navigateHome({back=false}={}){
     const target={type:'home'};
+
+    // Close the Projects surface synchronously before touching browser history.
+    // The 3D layer observes the hidden attribute and resumes immediately, even
+    // if a popstate is delayed or the history stack behaves differently.
+    closeProjectsView();
+
     if(back) returnToRoute(target);
     else commitRoute(target);
   }
