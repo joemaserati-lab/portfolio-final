@@ -197,6 +197,179 @@ jobs:
           node measure-enter.mjs
 
 
+      - name: Responsive geometry audit
+        continue-on-error: true
+        run: |
+          cat > responsive-audit.mjs <<'NODE'
+          import { chromium } from 'playwright';
+
+          const browser = await chromium.launch({ headless: true });
+          const viewports = [
+            ['phone-320', 320, 568, true],
+            ['phone-390', 390, 844, true],
+            ['phone-430', 430, 932, true],
+            ['landscape-667', 667, 375, true],
+            ['landscape-844', 844, 390, true],
+            ['tablet-768', 768, 1024, true],
+            ['tablet-1024', 1024, 768, true],
+            ['desktop-1366', 1366, 768, false],
+            ['desktop-1920', 1920, 1080, false],
+            ['desktop-2560', 2560, 1440, false]
+          ];
+
+          const failures = [];
+
+          for (const [name, width, height, touch] of viewports) {
+            const context = await browser.newContext({
+              viewport: { width, height },
+              isMobile: touch,
+              hasTouch: touch,
+              deviceScaleFactor: touch ? 3 : 1
+            });
+
+            await context.addInitScript(() => {
+              try { sessionStorage.setItem('portfolioBootSeen', '1'); } catch {}
+            });
+
+            const page = await context.newPage();
+            await page.goto(process.env.AUDIT_URL, { waitUntil: 'networkidle' });
+            await page.waitForFunction(() => document.body.classList.contains('site-ready'), { timeout: 20000 });
+
+            const home = await page.evaluate(() => {
+              const r = el => {
+                const x = el.getBoundingClientRect();
+                return { left:x.left, top:x.top, right:x.right, bottom:x.bottom, width:x.width, height:x.height };
+              };
+              const visible = el => {
+                if (!el) return false;
+                const s = getComputedStyle(el);
+                return s.display !== 'none' && s.visibility !== 'hidden' && Number(s.opacity) > 0.01;
+              };
+              const screen = document.querySelector('#screen');
+              const sr = r(screen);
+              const issues = [];
+              const inside = (name, el, tol=1) => {
+                if (!visible(el)) return;
+                const er = r(el);
+                if (er.left < sr.left-tol || er.right > sr.right+tol || er.top < sr.top-tol || er.bottom > sr.bottom+tol) {
+                  issues.push(name + ' outside CRT: ' + JSON.stringify(er) + ' screen=' + JSON.stringify(sr));
+                }
+              };
+
+              const lang = document.querySelector('.language-toggle');
+              const privacy = document.querySelector('.privacy-widget');
+              const icons = document.querySelector('.desktop-icons');
+              const hero = document.querySelector('.hero-intro');
+
+              inside('language', lang);
+              inside('privacy', privacy);
+              inside('icons', icons);
+              inside('hero', hero);
+
+              if (visible(lang) && visible(privacy)) {
+                const a=r(lang), b=r(privacy);
+                const overlap = Math.max(0,Math.min(a.right,b.right)-Math.max(a.left,b.left)) *
+                                Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top));
+                if (overlap > 1) issues.push('language/privacy overlap: ' + overlap.toFixed(1) + 'px2');
+              }
+
+              if (visible(hero) && visible(icons)) {
+                const a=r(hero), b=r(icons);
+                const overlap = Math.max(0,Math.min(a.right,b.right)-Math.max(a.left,b.left)) *
+                                Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top));
+                if (overlap > 4) issues.push('hero/icons overlap: ' + overlap.toFixed(1) + 'px2');
+              }
+
+              return issues;
+            });
+
+            for (const issue of home) failures.push(name + ' HOME: ' + issue);
+
+            await page.click('[data-open="projects"]');
+            await page.waitForFunction(() => {
+              const el=document.querySelector('#projects-view');
+              return el && !el.hidden;
+            }, { timeout: 5000 });
+            await page.waitForTimeout(450);
+
+            const projects = await page.evaluate(() => {
+              const view=document.querySelector('#projects-view');
+              const screen=document.querySelector('#screen');
+              const issues=[];
+              const vr=view.getBoundingClientRect(), sr=screen.getBoundingClientRect();
+              if (Math.abs(vr.left-sr.left)>1 || Math.abs(vr.right-sr.right)>1 ||
+                  Math.abs(vr.top-sr.top)>1 || Math.abs(vr.bottom-sr.bottom)>1) {
+                issues.push('projects surface != CRT');
+              }
+              if (view.scrollWidth > view.clientWidth + 1) {
+                issues.push('projects horizontal overflow: ' + view.scrollWidth + ' > ' + view.clientWidth);
+              }
+              view.scrollTop=view.scrollHeight;
+              const last=document.querySelector('.project-tile-v2:last-of-type');
+              if (last) {
+                const lr=last.getBoundingClientRect();
+                if (lr.left < sr.left-1 || lr.right > sr.right+1) {
+                  issues.push('last project escapes horizontally');
+                }
+                if (lr.bottom > sr.bottom-8) {
+                  issues.push('last project lacks bottom clearance: bottom=' + lr.bottom.toFixed(1) + ' CRT=' + sr.bottom.toFixed(1));
+                }
+              }
+              return issues;
+            });
+
+            for (const issue of projects) failures.push(name + ' PROJECTS: ' + issue);
+
+            await page.goto(process.env.AUDIT_URL, { waitUntil: 'networkidle' });
+            await page.waitForFunction(() => document.body.classList.contains('site-ready'), { timeout: 20000 });
+
+            for (const kind of ['about','resume','contact']) {
+              await page.click('[data-open="' + kind + '"]');
+              await page.waitForFunction(k => Boolean(document.querySelector('.os-window[data-kind="' + k + '"]')), kind, { timeout:5000 });
+            }
+
+            const windows = await page.evaluate(({ width }) => {
+              const screen=document.querySelector('#screen');
+              const sr=screen.getBoundingClientRect();
+              const issues=[];
+              for (const win of document.querySelectorAll('.os-window[data-kind]')) {
+                const wr=win.getBoundingClientRect();
+                const kind=win.dataset.kind;
+                if (wr.left < sr.left-1 || wr.right > sr.right+1 || wr.top < sr.top-1 || wr.bottom > sr.bottom+1) {
+                  issues.push(kind + ' window outside CRT');
+                }
+                if (width <= 1024 && (
+                    Math.abs(wr.left-sr.left)>1 || Math.abs(wr.right-sr.right)>1 ||
+                    Math.abs(wr.top-sr.top)>1 || Math.abs(wr.bottom-sr.bottom)>1)) {
+                  issues.push(kind + ' not fullscreen at <=1024');
+                }
+                const body=win.querySelector('.window-body');
+                if (body && body.scrollWidth > body.clientWidth + 1) {
+                  issues.push(kind + ' horizontal overflow: ' + body.scrollWidth + ' > ' + body.clientWidth);
+                }
+              }
+              return issues;
+            }, { width });
+
+            for (const issue of windows) failures.push(name + ' WINDOWS: ' + issue);
+
+            const count = home.length + projects.length + windows.length;
+            console.log(name + ' ' + width + 'x' + height + ': ' + (count ? 'ISSUES' : 'PASS'));
+            await context.close();
+          }
+
+          if (failures.length) {
+            console.log('\nRESPONSIVE GEOMETRY FAILURES:');
+            for (const item of failures) console.log('- ' + item);
+            throw new Error(failures.length + ' responsive geometry issue(s) detected');
+          }
+
+          console.log('\nResponsive geometry audit: PASS');
+          await browser.close();
+          NODE
+          node responsive-audit.mjs
+
+
       - name: Upload Lighthouse reports
         uses: actions/upload-artifact@v4
         with:

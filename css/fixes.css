@@ -1,11 +1,3 @@
-@font-face {
-  font-family: "Doto";
-  src: url("../assets/font/Doto-500.woff2") format("woff2");
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-}
-
 /* Doto becomes the operating-system/interface voice. Redaction 50 remains
    untouched on the large editorial display headings defined in style.css. */
 body,
