@@ -41,7 +41,8 @@ jobs:
 
       - name: Measure enter transition
         run: |
-          cat > /tmp/measure-enter.mjs <<'NODE'
+          npm install --no-save --no-audit --no-fund playwright@latest
+          cat > measure-enter.mjs <<'NODE'
           import { chromium } from 'playwright';
           const browser = await chromium.launch({ headless: true });
           const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
@@ -71,8 +72,8 @@ jobs:
           if (maxLongTask > 250) throw new Error(`Long task too large: ${maxLongTask.toFixed(1)} ms`);
           await browser.close();
           NODE
-          npx --yes playwright@latest install chromium
-          npx --yes -p playwright@latest node /tmp/measure-enter.mjs
+          npx playwright install chromium
+          node measure-enter.mjs
 
       - name: Lighthouse mobile
         run: |
