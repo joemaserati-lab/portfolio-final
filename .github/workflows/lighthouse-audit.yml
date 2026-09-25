@@ -114,17 +114,58 @@ jobs:
           const page = await context.newPage();
           await page.addInitScript(() => {
             window.__portfolioLongTasks = [];
+            window.__portfolioLayoutShifts = [];
+
+            const describeNode = node => {
+              if (!node || node.nodeType !== 1) return null;
+              const parts = [node.tagName.toLowerCase()];
+              if (node.id) parts.push('#' + node.id);
+              if (node.classList?.length) parts.push('.' + [...node.classList].slice(0,3).join('.'));
+              return {
+                selector: parts.join(''),
+                text: (node.textContent || '').replace(/\s+/g, ' ').trim().slice(0,80)
+              };
+            };
+
             new PerformanceObserver(list => {
               for (const e of list.getEntries()) {
                 window.__portfolioLongTasks.push({ startTime: e.startTime, duration: e.duration });
               }
             }).observe({ entryTypes: ['longtask'] });
+
+            new PerformanceObserver(list => {
+              for (const e of list.getEntries()) {
+                if (e.hadRecentInput) continue;
+                window.__portfolioLayoutShifts.push({
+                  startTime: e.startTime,
+                  value: e.value,
+                  sources: (e.sources || []).map(source => ({
+                    node: describeNode(source.node),
+                    previousRect: source.previousRect,
+                    currentRect: source.currentRect
+                  }))
+                });
+              }
+            }).observe({ type: 'layout-shift', buffered: true });
           });
           await page.goto(process.env.AUDIT_URL, { waitUntil: 'networkidle' });
           await page.waitForFunction(() => {
             const b = document.querySelector('#boot-enter');
             return b && !b.disabled;
           }, { timeout: 20000 });
+
+          const initialShifts = await page.evaluate(() => window.__portfolioLayoutShifts || []);
+          const initialCls = initialShifts.reduce((sum, item) => sum + item.value, 0);
+          console.log(`INITIAL OBSERVED CLS: ${initialCls.toFixed(4)} across ${initialShifts.length} shifts`);
+          for (const shift of initialShifts.slice().sort((a,b) => b.value - a.value).slice(0,12)) {
+            console.log(`CLS SHIFT +${shift.startTime.toFixed(1)} ms / ${shift.value.toFixed(5)}`);
+            for (const source of shift.sources.slice(0,5)) {
+              console.log(`  SOURCE ${source.node?.selector || 'unknown'} :: ${source.node?.text || ''}`);
+              console.log(`    PREV ${JSON.stringify(source.previousRect)}`);
+              console.log(`    CURR ${JSON.stringify(source.currentRect)}`);
+            }
+          }
+
           await page.evaluate(() => {
             window.__portfolioLongTasks = [];
             window.__portfolioClickMark = performance.now();

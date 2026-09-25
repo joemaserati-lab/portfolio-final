@@ -1,4 +1,5 @@
 (() => {
+  // Initial CLS sources are captured by the Playwright performance audit.
   // Touch entry timing is validated in CI with mobile/touch emulation.
   // Post-entry timing is verified by the Lighthouse workflow (click-scoped long-task measurement).
   const loader = document.getElementById('boot-loader');
