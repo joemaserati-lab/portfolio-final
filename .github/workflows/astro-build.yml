@@ -10,6 +10,7 @@ on:
       - 'astro.config.mjs'
       - '.github/workflows/astro-build.yml'
       - '.github/workflows/astro-pages.yml'
+      - '.github/workflows/lighthouse-audit.yml'
   workflow_dispatch:
 
 permissions:

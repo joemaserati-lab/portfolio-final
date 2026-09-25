@@ -320,36 +320,43 @@ jobs:
 
             for (const issue of projects) failures.push(name + ' PROJECTS: ' + issue);
 
-            await page.goto(process.env.AUDIT_URL, { waitUntil: 'networkidle' });
-            await page.waitForFunction(() => document.body.classList.contains('site-ready'), { timeout: 20000 });
+            const windows = [];
+            const rootUrl = process.env.AUDIT_URL.endsWith('/') ? process.env.AUDIT_URL : process.env.AUDIT_URL + '/';
 
             for (const kind of ['about','resume','contact']) {
-              await page.click('[data-open="' + kind + '"]');
+              await page.goto(new URL(kind + '/', rootUrl).href, { waitUntil: 'networkidle' });
+              await page.waitForFunction(() => document.body.classList.contains('site-ready'), { timeout: 20000 });
               await page.waitForFunction(k => Boolean(document.querySelector('.os-window[data-kind="' + k + '"]')), kind, { timeout:5000 });
-            }
 
-            const windows = await page.evaluate(({ width }) => {
-              const screen=document.querySelector('#screen');
-              const sr=screen.getBoundingClientRect();
-              const issues=[];
-              for (const win of document.querySelectorAll('.os-window[data-kind]')) {
+              const issues = await page.evaluate(({ width, kind }) => {
+                const screen=document.querySelector('#screen');
+                const win=document.querySelector('.os-window[data-kind="' + kind + '"]');
+                const body=win?.querySelector('.window-body');
+                const out=[];
+                if (!screen || !win) return [kind + ' route did not render expected window'];
+
+                const sr=screen.getBoundingClientRect();
                 const wr=win.getBoundingClientRect();
-                const kind=win.dataset.kind;
+
                 if (wr.left < sr.left-1 || wr.right > sr.right+1 || wr.top < sr.top-1 || wr.bottom > sr.bottom+1) {
-                  issues.push(kind + ' window outside CRT');
+                  out.push(kind + ' window outside CRT');
                 }
+
                 if (width <= 1024 && (
                     Math.abs(wr.left-sr.left)>1 || Math.abs(wr.right-sr.right)>1 ||
                     Math.abs(wr.top-sr.top)>1 || Math.abs(wr.bottom-sr.bottom)>1)) {
-                  issues.push(kind + ' not fullscreen at <=1024');
+                  out.push(kind + ' not fullscreen at <=1024');
                 }
-                const body=win.querySelector('.window-body');
+
                 if (body && body.scrollWidth > body.clientWidth + 1) {
-                  issues.push(kind + ' horizontal overflow: ' + body.scrollWidth + ' > ' + body.clientWidth);
+                  out.push(kind + ' horizontal overflow: ' + body.scrollWidth + ' > ' + body.clientWidth);
                 }
-              }
-              return issues;
-            }, { width });
+
+                return out;
+              }, { width, kind });
+
+              windows.push(...issues);
+            }
 
             for (const issue of windows) failures.push(name + ' WINDOWS: ' + issue);
 
