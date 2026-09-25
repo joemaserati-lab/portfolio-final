@@ -397,7 +397,7 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
   }
 
   try {
-    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, premultipliedAlpha: true, powerPreference: coarsePointer ? 'low-power' : 'high-performance' });
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: !coarsePointer, alpha: true, premultipliedAlpha: true, powerPreference: coarsePointer ? 'low-power' : 'high-performance' });
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.NeutralToneMapping;
     renderer.toneMappingExposure = 1.00;
@@ -429,7 +429,7 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
     throw error;
   }
 
-  const ready = new GLTFLoader().loadAsync(modelUrl).then(gltf => {
+  const ready = new GLTFLoader().loadAsync(modelUrl).then(async gltf => {
     if (disposed) { disposeModel(gltf.scene); return; }
     model = gltf.scene;
     model.updateMatrixWorld(true);
@@ -465,21 +465,36 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
     originalTextures.forEach(texture => texture.dispose());
     root.add(model);
 
-    // Fit the visible vertices, including the reference's full mouse rotation range.
+    // Fit the visible geometry across the full interaction range. The previous
+    // implementation projected every vertex at 25 rotations, which created a
+    // long main-thread task on mobile. A deterministic topology sample is
+    // visually equivalent for framing while bounding CPU work.
     const points = [], vertex = new THREE.Vector3();
+    const fitMeshes = [];
     model.updateMatrixWorld(true);
     const inverseRoot = root.matrixWorld.clone().invert();
     model.traverse(object => {
-      if (!object.isMesh) return;
+      if (object.isMesh) fitMeshes.push(object);
+    });
+    const fitSampleBudget = coarsePointer ? 2200 : 7000;
+    const perMeshBudget = Math.max(64, Math.floor(fitSampleBudget / Math.max(1, fitMeshes.length)));
+    for (const object of fitMeshes) {
       const positions = object.geometry.attributes.position, bounds = object.geometry.boundingBox;
+      if (!positions || !bounds) continue;
       const matrix = inverseRoot.clone().multiply(object.matrixWorld);
       const low = bounds.min.y + (bounds.max.y - bounds.min.y) * PRESET.fadeLow;
-      for (let i = 0; i < positions.count; i++) {
+      const stride = Math.max(1, Math.ceil(positions.count / perMeshBudget));
+      for (let i = 0; i < positions.count; i += stride) {
         vertex.fromBufferAttribute(positions, i);
         if (vertex.y >= low) points.push(vertex.clone().applyMatrix4(matrix));
       }
-    });
+    }
     if (!points.length) throw new Error('No visible head geometry.');
+
+    // Yield after model/material setup so loading cannot monopolize a full
+    // interaction frame on constrained devices.
+    await new Promise(resolve => requestAnimationFrame(() => resolve()));
+
     camera.updateMatrixWorld(true);
     const projected = new THREE.Box2(), point = new THREE.Vector2(), matrix = new THREE.Matrix4();
     for (const y of [-1, -0.5, 0, 0.5, 1]) {
@@ -494,6 +509,7 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
           projected.expandByPoint(point);
         }
       }
+      if (coarsePointer) await new Promise(resolve => requestAnimationFrame(() => resolve()));
     }
     projected.getCenter(fitCenter);
     fitX = (projected.max.x - projected.min.x) * 0.5;
@@ -502,8 +518,9 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
     root.updateMatrixWorld(true);
     loaded = true;
     resize();
-    // Compile the material/post stack while the boot loader still covers the shell.
-    // This avoids the first visible frame paying the shader compilation cost.
+    // Shader compilation can itself be expensive on mobile. Give layout and
+    // projection work a frame to settle before compiling the first render.
+    if (coarsePointer) await new Promise(resolve => requestAnimationFrame(() => resolve()));
     composer.render();
   }).catch(fail);
 
