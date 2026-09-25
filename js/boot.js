@@ -90,42 +90,18 @@
     if (sequenceStarted) addRow(key);
   }
 
-  function getStableTitleParts() {
-    let anchor = gateTitle.querySelector('.boot-title-anchor');
-    let scramble = gateTitle.querySelector('.boot-title-scramble');
-
-    if (!anchor || !scramble) {
-      anchor = document.createElement('span');
-      anchor.className = 'boot-title-anchor';
-      anchor.setAttribute('aria-hidden', 'true');
-
-      scramble = document.createElement('span');
-      scramble.className = 'boot-title-scramble';
-      scramble.setAttribute('aria-hidden', 'true');
-
-      gateTitle.replaceChildren(anchor, scramble);
-    }
-
-    return { anchor, scramble };
-  }
-
   function setTitle(key) {
     const target = t(key).toUpperCase();
-    const { anchor, scramble } = getStableTitleParts();
     gateTitle.setAttribute('aria-label', target);
-    anchor.textContent = target;
-    scramble.textContent = target;
+    gateTitle.textContent = target;
   }
 
   function scrambleTitle(key) {
     const target = t(key).toUpperCase();
-    const { anchor, scramble } = getStableTitleParts();
-
     gateTitle.setAttribute('aria-label', target);
-    anchor.textContent = target;
 
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      scramble.textContent = target;
+      gateTitle.textContent = target;
       return Promise.resolve();
     }
 
@@ -140,7 +116,7 @@
 
         if (progress === 1 || now - lastPaint >= TITLE_SCRAMBLE_STEP_MS) {
           lastPaint = now;
-          scramble.textContent = [...target].map((char, index) => {
+          gateTitle.textContent = [...target].map((char, index) => {
             if (char === ' ') return ' ';
             if (progress >= revealAt[index]) return char;
             return SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
@@ -152,7 +128,7 @@
           return;
         }
 
-        scramble.textContent = target;
+        gateTitle.textContent = target;
         resolve();
       };
 
