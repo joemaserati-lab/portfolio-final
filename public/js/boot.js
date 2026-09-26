@@ -432,15 +432,64 @@
   });
 
   const ambientVideo = document.querySelector('.crt-background-video');
-  const videoReady = Promise.resolve({ ok: true, deferred: true }).then(value => {
-    setRow('video', '05 SIGNAL', 'deferred until entry', 'done');
-    return value;
+
+  function preloadAmbientVideo() {
+    return new Promise(resolve => {
+      if (!ambientVideo) {
+        resolve({ ok: false, unavailable: true });
+        return;
+      }
+      if (ambientVideo.readyState >= 2) {
+        resolve({ ok: true });
+        return;
+      }
+
+      let settled = false;
+      let timer = null;
+      const cleanup = () => {
+        if (timer) clearTimeout(timer);
+        ambientVideo.removeEventListener('loadeddata', onReady);
+        ambientVideo.removeEventListener('canplay', onReady);
+        ambientVideo.removeEventListener('error', onError);
+      };
+      const done = ok => {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        resolve({ ok });
+      };
+      const onReady = () => done(true);
+      const onError = () => done(false);
+
+      ambientVideo.preload = 'auto';
+      ambientVideo.addEventListener('loadeddata', onReady, { once: true });
+      ambientVideo.addEventListener('canplay', onReady, { once: true });
+      ambientVideo.addEventListener('error', onError, { once: true });
+      timer = setTimeout(() => done(ambientVideo.readyState >= 2), 4000);
+
+      try { ambientVideo.load(); }
+      catch { done(false); }
+    });
+  }
+
+  const videoReady = Promise.all([
+    preloadAmbientVideo(),
+    loadCrtRuntime()
+  ]).then(([video, crt]) => {
+    const crtOk = crt?.ok !== false;
+    const videoOk = Boolean(video?.ok);
+    setRow(
+      'video',
+      '05 SIGNAL',
+      crtOk && videoOk ? 'CRT + ambient buffer ready' : (crtOk ? 'CRT ready / ambient fallback' : 'ambient ready / CRT fallback'),
+      crtOk && videoOk ? 'done' : 'warn'
+    );
+    return { ok: crtOk && videoOk, crt, video };
   });
 
   function startAmbientVideo() {
     if (!ambientVideo) return;
     try {
-      ambientVideo.preload = 'auto';
       const playing = ambientVideo.play();
       if (playing?.catch) playing.catch(() => {});
     } catch {}
@@ -451,67 +500,17 @@
   const trackedPageReady = trackProgress('page', pageReady);
   const trackedVideoReady = trackProgress('video', videoReady);
 
-  // Start the real application work immediately, behind the opaque loader.
-  // The enter button is enabled only after the interface, project covers and
-  // 3D pipeline have settled, so the terminal boot remains purely scenic.
+  // Start every expensive application task while the opaque loader is visible.
+  // ENTER is enabled only when the app, decoded covers, CRT runtime, ambient
+  // video buffer and warmed 3D pipeline have all settled.
   const applicationReady = trackProgress('app', loadApplication());
-  // Project covers are not required to enter the homepage. Mark the loader
-  // task complete immediately and decode covers later during browser idle time.
-  const coversReady = trackProgress('covers', Promise.resolve({ ok: true, deferred: true }));
-  // The 3D head is an enhancement, not a prerequisite for first paint.
-  // Load it only when the user signals intent to enter the portfolio.
-  const eagerHead = false;
-  const headReady = Promise.resolve({ ok: true, deferred: true });
-  setRow('head', '06 MODEL', 'deferred until entry', 'done');
-
-  function scheduleDeferredHead() {
-    if (headPromise) return;
-    const start = () => {
-      loadHead()
-        .then(() => window.PortfolioMotion?.enableTouchFallback?.())
-        .catch(error => console.warn('Deferred 3D head load failed.', error));
-    };
-    if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 1800 });
-    else setTimeout(start, 650);
-  }
-
-  function scheduleDeferredCovers() {
-    const start = () => {
-      preloadPortfolioImages().catch?.(() => {});
-    };
-    setTimeout(() => {
-      if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 6000 });
-      else start();
-    }, 900);
-  }
-
-  function scheduleDeferredTouchVisuals() {
-    const startCrt = () => {
-      startAmbientVideo();
-      const run = async () => {
-        await loadCrtRuntime();
-
-        // Never chain the heavier 3D initialization directly after CRT.
-        // Wait for another stable idle window so user interaction wins.
-        setTimeout(() => {
-          if ('requestIdleCallback' in window) {
-            requestIdleCallback(() => scheduleDeferredHead(), { timeout: 6000 });
-          } else {
-            scheduleDeferredHead();
-          }
-        }, 900);
-      };
-
-      if ('requestIdleCallback' in window) {
-        requestIdleCallback(run, { timeout: 6000 });
-      } else {
-        run();
-      }
-    };
-
-    // Keep the entry/reveal completely free of decorative WebGL startup.
-    setTimeout(startCrt, 1400);
-  }
+  const coversReady = trackProgress(
+    'covers',
+    applicationReady
+      .then(() => preloadPortfolioImages())
+      .catch(error => ({ ok: false, skipped: true, error }))
+  );
+  const headReady = trackProgress('head', loadHead());
 
   (async () => {
     try {
@@ -537,11 +536,6 @@
     if (returningVisit) {
       startAmbientVideo();
       launch(true);
-      if (touchDevice) scheduleDeferredTouchVisuals();
-      else {
-        loadCrtRuntime();
-        scheduleDeferredHead();
-      }
       return;
     }
 
@@ -640,21 +634,11 @@
         document.body.classList.add('site-ready');
         if (touchDevice) window.dispatchEvent(new CustomEvent('portfolio:booted'));
         window.dispatchEvent(new CustomEvent('portfolio:site-ready'));
-        scheduleDeferredCovers();
-        if (touchDevice) scheduleDeferredTouchVisuals();
       }, 760);
 
       setTimeout(() => loader.remove(), 640);
     }, holdBeforeRelease);
   }
-
-  // Desktop users usually hover before clicking: use that moment to warm the
-  // expensive visual layer without putting it back in the critical path.
-  enter.addEventListener('pointerenter', () => {
-    if (touchDevice) return;
-    loadCrtRuntime();
-    loadHead().catch(error => console.warn('3D prewarm failed.', error));
-  }, { once: true, passive: true });
 
   enter.addEventListener('click', async () => {
     if (fatalLoadError) {
@@ -666,17 +650,9 @@
 
     if (!beginSequence()) return;
 
-    // Start decorative media only after the user has chosen to enter.
-    // They warm while the terminal sequence is already covering the shell.
-    if (!touchDevice) {
-      startAmbientVideo();
-      loadCrtRuntime();
-    }
-
-    if (!headPromise && !touchDevice) {
-      loadHead()
-        .catch(error => console.warn('3D head load failed.', error));
-    }
+    // All heavy resources are already loaded and warmed. The user gesture only
+    // starts playback of the pre-buffered ambient video.
+    startAmbientVideo();
 
     if (touchDevice) {
       setRow('ready', '07 READY', 'touch mode / launching sequence', 'done');
