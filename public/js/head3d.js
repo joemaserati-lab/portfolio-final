@@ -149,9 +149,18 @@ if (feature && canvas && screenElement) {
       recenter: recenterMotion,
       enableTouchFallback
     };
-    if (windowLayer) {
+    if (windowLayer || projectsView) {
       observer = new MutationObserver(sync);
-      observer.observe(windowLayer, { childList: true, subtree: true });
+      if (windowLayer) {
+        observer.observe(windowLayer, { childList: true, subtree: true });
+      }
+      if (projectsView) {
+        observer.observe(projectsView, {
+          attributes: true,
+          attributeFilter: ['hidden', 'class'],
+          childList: true
+        });
+      }
     }
     effect.ready.then(() => {
       if (disposed || effect.disposed) return;
