@@ -6,6 +6,7 @@ on:
     paths:
       - 'src/**'
       - 'public/**'
+      - '.deploy/**'
       - 'package.json'
       - 'astro.config.mjs'
       - '.github/workflows/astro-build.yml'
@@ -23,6 +24,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Prepare Wolof PWA
+        run: |
+          cat .deploy/wolof-app.part00 .deploy/wolof-app.part01 .deploy/wolof-app.part02 .deploy/wolof-app.part03 .deploy/wolof-app.part04 .deploy/wolof-app.part05 | base64 -d > /tmp/wolof-app-deploy.zip
+          unzip -tq /tmp/wolof-app-deploy.zip
+          rm -rf public/wolof
+          mkdir -p public/wolof
+          unzip -q /tmp/wolof-app-deploy.zip -d public/wolof
+          test -f public/wolof/index.html
+          test -f public/wolof/service-worker.js
+          test -f public/wolof/manifest.webmanifest
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -52,6 +64,9 @@ jobs:
           test -f dist/js/portfolio.js
           test -f dist/css/crt-outline.css
           test -f dist/assets/models/human_head_reference3.glb
+          test -f dist/wolof/index.html
+          test -f dist/wolof/service-worker.js
+          test -f dist/wolof/manifest.webmanifest
 
       - name: Upload Astro dist
         uses: actions/upload-artifact@v4
