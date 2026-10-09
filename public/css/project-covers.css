@@ -48,3 +48,28 @@
     aspect-ratio: 16 / 9 !important;
   }
 }
+
+/* Project imagery is strictly grayscale at rest. The original artwork is
+   revealed only by desktop hover, keyboard focus, or an explicit mobile tap.
+   Filters target the REAL <img>, not the decorative fallback .project-cover-art. */
+.project-tile-v2 .project-cover-img {
+  filter: grayscale(1) brightness(.86) contrast(1.05) !important;
+  opacity: 1 !important;
+  transition: filter .32s ease, transform .35s cubic-bezier(.2,.7,.2,1), opacity .22s ease;
+}
+
+/* Touch hover emulation must never reveal a project automatically. */
+@media (hover: hover) and (pointer: fine) {
+  .project-tile-v2:hover .project-cover-img {
+    filter: none !important;
+    opacity: 1 !important;
+  }
+}
+.project-tile-v2:focus-visible .project-cover-img,
+.project-tile-v2.is-color-preview .project-cover-img {
+  filter: none !important;
+  opacity: 1 !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .project-tile-v2 .project-cover-img { transition: none; }
+}

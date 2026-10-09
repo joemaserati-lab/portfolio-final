@@ -21,3 +21,6 @@ Intermediate black/gray values may exist in the CRT shader, alpha transparency a
 - The separate 404 page has an inline palette by design. Its bouncing portrait uses mint in only one of six phases.
 
 Astro serves `public/` and builds from `src/layouts/PortfolioShell.astro`. Structural CSS and shader sources have root mirrors for legacy tooling.
+
+## Project covers
+Project directory covers are grayscale at rest. Desktop hover or keyboard focus reveals the original artwork; on touch devices, tap once for the color preview and tap again to open. Viewport-triggered mobile animations must not reveal colors automatically.

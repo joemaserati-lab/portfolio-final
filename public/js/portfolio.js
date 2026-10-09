@@ -409,7 +409,19 @@
   }
 
   function bindProjectLinks(root){
-    root.querySelectorAll('[data-project-slug]').forEach(el=>el.addEventListener('click',()=>navigateToProject(el.dataset.projectSlug)));
+    root.querySelectorAll('[data-project-slug]').forEach(el=>el.addEventListener('click',event=>{
+      // On touch, the first tap previews the original colors; the second opens.
+      // Keyboard activation keeps the normal single-press navigation.
+      if(coarsePointer.matches && event.detail > 0){
+        const wasPreviewed=el.classList.contains('is-color-preview');
+        root.querySelectorAll('.project-tile-v2.is-color-preview').forEach(card=>card.classList.remove('is-color-preview'));
+        if(!wasPreviewed){
+          el.classList.add('is-color-preview');
+          return;
+        }
+      }
+      navigateToProject(el.dataset.projectSlug);
+    }));
     bindMobileProjectMotion(root);
   }
 
