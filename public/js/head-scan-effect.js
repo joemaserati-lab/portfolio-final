@@ -5,8 +5,8 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 const PRESET = Object.freeze({
-  // V31.4-A — monochrome contour flow with restricted lime markers.
-  // Fine bright lines on black; lime is only an occasional isolated scan accent.
+  // V31.4-A — monochrome contour flow with restricted mint markers.
+  // Fine bright lines on black; mint is only an occasional isolated scan accent.
   frequency: 8.35,
   depthWarp: 1.28,
   lineWidth: 0.026,
@@ -203,11 +203,11 @@ const fragmentShader = /* glsl */`
     float microT = fract(paletteT1 + (detail - 0.5) * 0.13 + flowB * 0.055);
     lineColor = mix(lineColor, iridescentPalette(microT), 0.22);
     lineColor *= 0.98 + facing * 0.12;
-    // A handful of narrow lime contours interrupt the monochrome scan.
+    // A handful of narrow mint contours interrupt the monochrome scan.
     float limeZone = abs(fract(flowA * 1.29 + detail * 0.13 + uTime * 0.006) - 0.53);
     float limeBand = 1.0 - smoothstep(0.022, 0.084, limeZone);
     float limePresence = limeBand * smoothstep(0.29, 0.56, detail);
-    lineColor = mix(lineColor, vec3(1.06, 1.52, 0.36), limePresence * 0.88);
+    lineColor = mix(lineColor, vec3(0.216, 1.000, 0.604), limePresence * 0.88);
 
     vec3 haloColor = mix(lineColor, vec3(0.98, 0.98, 0.98), 0.025 + edge * 0.018);
 
@@ -243,7 +243,7 @@ function disposeModel(model) {
   textures.forEach(texture => texture.dispose());
 }
 
-// V31.4-A contour-line shader with monochrome scan field and occasional lime contours.
+// V31.4-A contour-line shader with monochrome scan field and occasional mint contours.
 export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion = false, onError } = {}) {
   if (!container || !canvas) throw new Error('Head scan requires its container and canvas.');
   let renderer, composer, outputPass, resizeObserver, model;

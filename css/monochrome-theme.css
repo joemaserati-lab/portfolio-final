@@ -1,4 +1,4 @@
-/* Monochrome visual layer: white, black, neutral grays; lime used only as an active signal. */
+/* Monochrome visual layer: white, black, neutral grays; mint used only as an active signal. */
 
 :root {
   --bg:#080808;
@@ -217,7 +217,7 @@ body{color:var(--bright)}
 @media(max-width:900px){.crt-stage::before{filter:drop-shadow(0 0 5px rgba(227,227,227,.15))}}
 
 
-/* MONO / LIME — UI mostly neutral. Green remains a sparse signal, not a surface colour. */
+/* MONO / Mint — UI mostly neutral. Green remains a sparse signal, not a surface colour. */
 :root{
   color-scheme:dark;
   --bg:#050505;
@@ -232,7 +232,7 @@ body{color:var(--bright)}
   --shadow:rgba(255,255,255,.045);
   --danger:#d0d0d0;
   --chrome:#252525;
-  --lime:#c7ff5b;
+  --mint:#80FFCC;
 }
 html,body,.shell{background:#050505;color:var(--bright)}
 body{color:var(--bright)}
@@ -244,26 +244,26 @@ body{color:var(--bright)}
 .desktop::before{opacity:.035;background-image:linear-gradient(rgba(255,255,255,.11) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.09) 1px,transparent 1px)}
 .hero-intro h1{color:var(--bright);filter:drop-shadow(0 0 3px rgba(245,245,245,.19))}
 .hero-copy,.window-body p,.case-story-copy p{color:#d0d0d0;text-shadow:none}
-.blink-dot{color:var(--lime)}
+.blink-dot{color:var(--mint)}
 .desktop-icon>span:nth-child(2){color:var(--bright)}
 .desktop-icon small,.window-eyebrow,.resume-section-title{color:var(--dim)}
 .icon-glyph{color:var(--bright);border-color:var(--line)}
 .desktop-icon:hover,.desktop-icon:focus-visible{background:rgba(255,255,255,.038);outline-color:var(--line-strong)}
 .desktop-icon:hover .icon-glyph,.desktop-icon:focus-visible .icon-glyph{
-  color:var(--bright);border-color:var(--lime);filter:none;
+  color:var(--bright);border-color:var(--mint);filter:none;
 }
 .primary-action,.boot-enter{background:rgba(255,255,255,.025);border-color:var(--line-strong);color:var(--bright);box-shadow:none}
 .primary-action:hover,.primary-action:focus-visible,
 .boot-enter:hover,.boot-enter:focus-visible{
-  background:rgba(255,255,255,.065);border-color:var(--lime);color:var(--bright);box-shadow:none
+  background:rgba(255,255,255,.065);border-color:var(--mint);color:var(--bright);box-shadow:none
 }
 .primary-action:focus-visible,.boot-enter:focus-visible,.desktop-icon:focus-visible,
 .project-tile-v2:focus-visible,.language-toggle:focus-visible,.privacy-toggle:focus-visible,
 .privacy-actions button:focus-visible,.window-controls button:focus-visible,
 .case-nav-v2 button:focus-visible{
- outline:2px solid var(--lime);outline-offset:3px
+ outline:2px solid var(--mint);outline-offset:3px
 }
-.boot-progress-bar,.boot-progress>span{background:var(--lime)}
+.boot-progress-bar,.boot-progress>span{background:var(--mint)}
 .os-window{
  background:rgba(16,16,16,.98);border-color:var(--line);
  box-shadow:0 24px 68px rgba(0,0,0,.77),0 0 12px rgba(255,255,255,.025)
@@ -271,9 +271,9 @@ body{color:var(--bright)}
 .os-window .window-titlebar{background:rgba(255,255,255,.035);border-bottom-color:var(--line)}
 .projects-view{background-color:#0b0b0b}
 .project-tile-v2:hover,.project-tile-v2:focus-visible{border-color:var(--line-strong)}
-.project-tile-v2:hover .project-cover-open,.project-tile-v2:focus-visible .project-cover-open{color:var(--lime)}
+.project-tile-v2:hover .project-cover-open,.project-tile-v2:focus-visible .project-cover-open{color:var(--mint)}
 .project-cover-v2::after{background:linear-gradient(to bottom,transparent,rgba(255,255,255,.025),rgba(255,255,255,.045),transparent)}
 .crt-background-video{filter:grayscale(1) brightness(.7) contrast(1.1)}
 .crt-stage::before{filter:drop-shadow(0 0 5px rgba(255,255,255,.16))}
 @media(max-width:900px){.crt-stage::before{filter:drop-shadow(0 0 4px rgba(255,255,255,.13))}}
-::selection{background:var(--lime);color:#050505;text-shadow:none}
+::selection{background:var(--mint);color:#050505;text-shadow:none}
