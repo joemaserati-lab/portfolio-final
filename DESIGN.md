@@ -1,18 +1,23 @@
-# Portfolio visual language
+# Portfolio — visual color system
 
-The homepage is a monochrome CRT/desktop interface. It must not develop a green cast.
+The portfolio is deliberately monochromatic. Black, white, dark gray and light gray form the entire interface; mint is a deliberately limited signal. The head remains the main colored object.
 
-## Interface colors
-- Black: `#050505` — outer frame, screen shadows and background.
-- Dark gray: `#252525` — panels, chrome and secondary surfaces.
-- Light gray: `#B9B9B9` — supporting text and dividers.
-- White: `#F5F5F5` — primary text and icon outlines.
-- Mint: `#80FFCC` — a **rare accent**, never a base or ambient tint.
+## Canonical swatches
+- Black `#050505`: frame and background.
+- Dark gray `#252525`: titlebar, chrome and hover surfaces.
+- Light gray `#B9B9B9`: secondary copy and interface labels.
+- White `#F5F5F5`: primary typography, icons and main controls.
+- Mint `#80FFCC`: a **rare accent** on the portrait, blinking hero marker, selected progress, primary CTA hover, keyboard focus and text selection.
 
-The portrait uses white and neutral gray scan contours, with a few narrow mint accents. It is the visual focal point. No red, lime-yellow, violet or orange. The only chromatic accent is mint #80FFCC. Raster scanlines, noise, glows, CRT shader, panel shadows, borders, and large surfaces must remain neutral. Do not tint large areas with mint.
+Intermediate black/gray values may exist in the CRT shader, alpha transparency and anti-aliasing; they may not introduce any green tint. Original project imagery retains its source colors.
 
-Use mint only for the portrait's selected contours and a handful of interactive feedback elements: blinking hero caret, keyboard focus, selected/hovered controls and small loader progress. Project artwork retains its original colors because it is the subject of the case study, not part of the UI palette.
+## Usage rules
+- Mint must **not** be used on backgrounds, panels, window chrome, default icon borders or secondary hover states.
+- Window surfaces stay charcoal with dark-gray titlebars. Text hierarchy: white for primary content, light gray for secondary copy.
+- The 3D portrait is white/gray with only a few mint contours. Avoid broad luminous color effects.
+- Keep the layout, font system, animation, clipping and mobile safe zones intact.
+- Make all visual color adjustments in `public/css/monochrome-theme.css`; it is the canonical palette and **the only stylesheet defining the UI color tokens**. Keep the root mirror `css/monochrome-theme.css` synchronized for legacy checks.
+- The `:root` rules in `style.css`, `fixes.css` and `crt-outline.css` are reserved for geometry, typography and responsive measurements.
+- The separate 404 page has an inline palette by design. Its bouncing portrait uses mint in only one of six phases.
 
-Typography, spacing, CRT shape, layout, motion, responsive safe zones and page behavior are intentionally unchanged by this color revision.
-
-Astro publishes assets from `public/`; corresponding root copies are maintained for existing tooling. Active theme: `public/css/monochrome-theme.css`; source: `src/layouts/PortfolioShell.astro`. Keep the two copies in sync for subsequent updates.
+Astro serves `public/` and builds from `src/layouts/PortfolioShell.astro`. Structural CSS and shader sources have root mirrors for legacy tooling.

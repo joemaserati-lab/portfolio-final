@@ -36,20 +36,7 @@
 }
 
 
-:root {
-  --bg:#050505;
-  --panel:#111111;
-  --phosphor:#ededed;
-  --phosphor-2:#f5f5f5;
-  --bright:#f5f5f5;
-  --dim:#a7a7a7;
-  --line:rgba(255,255,255,.16);
-  --line-strong:rgba(255,255,255,.35);
-  --glass:rgba(14,14,14,.96);
-  --danger:#d0d0d0;
-  --shadow:rgba(255,255,255,.045);
-  --chrome:#252525;
-}
+/* Color tokens are defined once in monochrome-theme.css. */
 *{box-sizing:border-box}
 html,body{height:100%}
 button,input{font:inherit}
@@ -1156,20 +1143,7 @@ body{font-size:var(--type-base)}
    Color-only override. Layout, typography, motion and CRT geometry remain
    unchanged. Goal: align the UI with the head palette using restrained,
    professional lilac / violet / soft peach accents. */
-:root{
-  --bg:#080808;
-  --panel:#080808;
-  --phosphor:#dedede;
-  --phosphor-2:#f3f3f3;
-  --bright:#f4f4f4;
-  --dim:#b3b3b3;
-  --line:rgba(222,222,222,.18);
-  --line-strong:rgba(243,243,243,.34);
-  --glass:rgba(8,8,8,.95);
-  --danger:#c7c7c7;
-  --shadow:rgba(179,179,179,.14);
-  --chrome:#171717;
-}
+/* Color tokens are defined once in monochrome-theme.css. */
 body{background:#080808}
 .screen,
 .boot-loader{
