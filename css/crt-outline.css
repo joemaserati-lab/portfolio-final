@@ -689,3 +689,46 @@ body.content-panel-open .privacy-widget{
     display:none!important;
   }
 }
+
+/* Mobile loader ready title: keep PORTFOLIO PRONTO within the CRT safe area.
+   The legacy heading uses white-space:pre, which forces overflow in Italian. */
+@media (max-width:720px) {
+  .boot-gate {
+    grid-template-columns: minmax(0,1fr);
+    max-width: 100%;
+    min-width: 0;
+  }
+  .boot-gate h2 {
+    display: block;
+    justify-self: stretch;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: normal;
+    word-break: normal;
+    text-wrap: balance;
+    font-size: clamp(22px,7vw,38px);
+    line-height: 1.02;
+    min-height: 2.08em;
+  }
+}
+@media (max-width:900px) and (max-height:520px) {
+  .boot-gate {
+    grid-template-columns: minmax(0,1fr);
+  }
+  .boot-gate h2 {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: normal;
+    word-break: normal;
+    text-wrap: balance;
+    font-size: clamp(20px,5vw,32px);
+    line-height: 1;
+    min-height: auto;
+  }
+}

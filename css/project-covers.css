@@ -73,3 +73,12 @@
 @media (prefers-reduced-motion: reduce) {
   .project-tile-v2 .project-cover-img { transition: none; }
 }
+
+/* Fast chromatic response so one mobile tap reveals the full-color artwork
+   before navigation begins (280 ms after activation). */
+.project-tile-v2 .project-cover-img {
+  transition:
+    filter .14s ease,
+    transform .35s cubic-bezier(.2,.7,.2,1),
+    opacity .22s ease;
+}

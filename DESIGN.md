@@ -23,4 +23,7 @@ Intermediate black/gray values may exist in the CRT shader, alpha transparency a
 Astro serves `public/` and builds from `src/layouts/PortfolioShell.astro`. Structural CSS and shader sources have root mirrors for legacy tooling.
 
 ## Project covers
-Project directory covers are grayscale at rest. Desktop hover or keyboard focus reveals the original artwork; on touch devices, tap once for the color preview and tap again to open. Viewport-triggered mobile animations must not reveal colors automatically.
+Project directory covers are grayscale at rest. Desktop hover or keyboard focus reveals the original artwork; on touch devices, a **single tap** reveals the original colors and opens the project after a 280 ms preview. Viewport-triggered mobile animations must not reveal colors automatically.
+
+## Mobile loader
+The `PORTFOLIO PRONTO` title wraps inside the responsive CRT safe area, without character breaking or horizontal overflow. Maintain this behavior at portrait widths and short landscape heights.
