@@ -4,12 +4,12 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="robots" content="noindex" />
-<meta name="theme-color" content="#040106" />
+<meta name="theme-color" content="#060909" />
 <title>404 — Edoardo Rappanello </title>
 <style is:global>
 @font-face {font-family:'Doto';src:url('/portfolio-final/assets/font/Doto-500.woff2') format('woff2');font-style:normal;font-weight:500;font-display:swap}
 @font-face {font-family:'Redaction 50';src:url('/portfolio-final/assets/font/redaction-50-latin-400-normal.woff') format('woff');font-style:normal;font-weight:400;font-display:swap}
-:root {color-scheme:dark;--bg:#040106;--text:#fbf2ff;--secondary:#b187c4;--line:rgba(213,184,235,.20);--accent:#e8c6f6}
+:root {color-scheme:dark;--bg:#060909;--text:#f0f4f1;--secondary:#9ba9a4;--line:rgba(151,199,178,.20);--accent:#a4edcf}
 *,*::before,*::after {box-sizing:border-box}
 html,body {margin:0;width:100%;height:100%;background:var(--bg)}
 body {font-family:'Doto','Courier New',monospace;font-weight:500;color:var(--text);overflow:hidden;-webkit-font-smoothing:antialiased}
@@ -19,7 +19,7 @@ a {-webkit-tap-highlight-color:transparent}
 ::selection{background:var(--accent);color:var(--bg)}
 .scene {position:relative;isolation:isolate;height:100vh;height:100dvh;min-height:300px;overflow:hidden;background:var(--bg)}
 /* CRT treatment follows the portfolio. One restrained overlay, no decorative UI. */
-.scene::after {content:'';position:absolute;z-index:5;inset:0;pointer-events:none;background:repeating-linear-gradient(180deg,rgba(242,215,255,.025) 0 1px,transparent 1px 3px)}
+.scene::after {content:'';position:absolute;z-index:5;inset:0;pointer-events:none;background:repeating-linear-gradient(180deg,rgba(219,239,227,.022) 0 1px,transparent 1px 3px)}
 .topline {position:absolute;top:clamp(22px,4vw,48px);left:clamp(24px,5vw,76px);right:clamp(24px,5vw,76px);display:flex;align-items:baseline;justify-content:space-between;gap:20px;z-index:3;font-size:clamp(12px,1.1vw,16px);letter-spacing:.015em}
 .topline__brand {color:var(--accent);text-decoration:none;transition:color .15s}
 .topline__brand:hover {color:#fff}
@@ -29,7 +29,7 @@ a {-webkit-tap-highlight-color:transparent}
 .scene__home {display:inline-block;pointer-events:auto;font-size:clamp(14px,1.2vw,18px);text-decoration:none;border-bottom:1px solid currentColor;padding-bottom:4px;color:var(--text);transition:color .16s}
 .scene__home:hover {color:var(--secondary)}
 /* This is the only moving object: portrait in place of "DVD", original disc and VIDEO underneath. */
-.dvd {--dvd-color:#e8c6f6;position:absolute;z-index:2;top:0;left:0;display:flex;flex-direction:column;align-items:center;width:clamp(160px,17.5vw,246px);height:clamp(158px,18vw,224px);color:var(--dvd-color);transform:translate3d(0,0,0);will-change:transform;pointer-events:none;user-select:none}
+.dvd {--dvd-color:#a4edcf;position:absolute;z-index:2;top:0;left:0;display:flex;flex-direction:column;align-items:center;width:clamp(160px,17.5vw,246px);height:clamp(158px,18vw,224px);color:var(--dvd-color);transform:translate3d(0,0,0);will-change:transform;pointer-events:none;user-select:none}
 .dvd__face {position:relative;flex:0 0 67%;height:67%;width:65%;display:flex;justify-content:center;align-items:flex-end;overflow:hidden}
 .dvd__canvas {position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:none}
 .dvd.has-image .dvd__canvas {display:block}
@@ -76,8 +76,8 @@ a {-webkit-tap-highlight-color:transparent}
  const sprite = document.querySelector('[data-dvd]');
  const canvas = document.querySelector('[data-face-canvas]');
  if (!stage || !sprite) return;
- // Each entry remains within the portfolio's lilac-violet palette.
- const colors = ['#e8c6f6','#b17bdf','#fbf2ff','#9460ca','#deb0f3','#c492e2'];
+ // Bounces cycle through mint and neutral phosphor tones.
+ const colors = ['#a4edcf','#d5e3dc','#f0f4f1','#75c7a4','#c6f5db','#95aaa1'];
  let colorIndex = 0;
  let x = 0, y = 0, vx = 155, vy = 113, lastFrame = 0;
  let width = 0, height = 0, maxX = 0, maxY = 0;

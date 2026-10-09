@@ -46,8 +46,8 @@
       vec2 uv=vUv; vec2 q=uv-.5; q.x*=r.x/r.y; float d=length(q);
       float center=1.0-smoothstep(.0,.95,d);
       float n=h(floor(gl_FragCoord.xy/4.)+floor(t*7.));
-      vec3 c=vec3(.015,.0005,.009);
-      c += vec3(.062,.003,.036) * pow(max(0.,1.-d*.82), 1.85) * (.78 + center*.22);
+      vec3 c=vec3(.010,.014,.013);
+      c += vec3(.029,.046,.037) * pow(max(0.,1.-d*.82), 1.85) * (.78 + center*.22);
       c += (n-.5)*.008;
       gl_FragColor=vec4(c,1.);
     }`;
@@ -59,12 +59,12 @@
       float scan=.5+.5*cos(px.y*3.14159265);
       float raster=(1.-scan)*uRaster*.17;
       float col=mod(floor(px.x),3.);
-      vec3 triad=col<1.?vec3(1.,.03,.58):(col<2.?vec3(1.,.18,.78):vec3(.86,.02,.92));
+      vec3 triad=col<1.?vec3(.92,.99,.95):(col<2.?vec3(.82,.93,.87):vec3(.91,.96,.93));
       vec3 triadTint=(triad-vec3(.5))*uTriad*.06;
       float n=(h(floor(px/2.)+floor(t*24.))-.5)*uNoise;
       float y=fract(vUv.y + t*.048);
       float band=exp(-pow((y-.50)*15.,2.))*uRoll;
-      vec3 c=vec3(raster*.24,.01*raster*.24,.14*raster*.24)+triadTint+vec3(n*.24,n*.04,n*.16)+vec3(.46,.015,.27)*band;
+      vec3 c=vec3(raster*.16,raster*.22,raster*.18)+triadTint+vec3(n*.18,n*.20,n*.18)+vec3(.18,.38,.28)*band;
       float a=clamp(raster*.86+abs(n)*.34+band*.12+uTriad*.05,0.,.18);
       gl_FragColor=vec4(c,a);
     }`;

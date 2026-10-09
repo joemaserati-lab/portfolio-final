@@ -108,23 +108,17 @@ const fragmentShader = /* glsl */`
   }
 
   vec3 iridescentPalette(float t) {
-    // Cyclic reference palette: violet -> lilac -> cream -> peach -> orange -> lilac -> violet.
-    // Values are deliberately less HDR than previous versions so hue survives tone mapping.
-    vec3 violet = vec3(0.44, 0.28, 1.55);
-    vec3 lilac = vec3(0.82, 0.63, 1.70);
-    vec3 lilacLight = vec3(1.15, 0.98, 1.78);
-    vec3 cream = vec3(1.76, 1.50, 1.18);
-    vec3 peach = vec3(1.98, 1.13, 0.70);
-    vec3 orange = vec3(2.20, 0.73, 0.16);
-
+    // Cool scanned contours: graphite, paper white, mint. No rainbow iridescence.
+    vec3 silver = vec3(0.66, 0.74, 0.71);
+    vec3 white = vec3(1.27, 1.33, 1.29);
+    vec3 mint = vec3(0.51, 1.25, 0.94);
+    vec3 ice = vec3(0.81, 1.31, 1.09);
     t = fract(t);
-    if (t < 0.16) return mix(violet, lilac, smoothstep(0.00, 0.16, t));
-    if (t < 0.31) return mix(lilac, lilacLight, smoothstep(0.16, 0.31, t));
-    if (t < 0.44) return mix(lilacLight, cream, smoothstep(0.31, 0.44, t));
-    if (t < 0.59) return mix(cream, peach, smoothstep(0.44, 0.59, t));
-    if (t < 0.74) return mix(peach, orange, smoothstep(0.59, 0.74, t));
-    if (t < 0.88) return mix(orange, lilac, smoothstep(0.74, 0.88, t));
-    return mix(lilac, violet, smoothstep(0.88, 1.00, t));
+    if (t < 0.19) return mix(white, mint, smoothstep(0.00, 0.19, t));
+    if (t < 0.40) return mix(mint, silver, smoothstep(0.19, 0.40, t));
+    if (t < 0.62) return mix(silver, ice, smoothstep(0.40, 0.62, t));
+    if (t < 0.82) return mix(ice, white, smoothstep(0.62, 0.82, t));
+    return mix(white, silver, smoothstep(0.82, 1.00, t));
   }
 
   float organicFlow(vec3 npos, float time) {
@@ -191,8 +185,8 @@ const fragmentShader = /* glsl */`
     float edge = pow(1.0 - facing, 1.70);
     float lowerMask = smoothstep(uFadeLow, uFadeHigh, npos.y);
 
-    // Continuous, animated colour flow. Two nearby warped samples are blended so the palette
-    // never reads as isolated warm/cool zones and instead behaves like liquid iridescence.
+    // Continuous tonal flow across the scanned contours.
+    // White, mint and graphite blend across the surface.
     float flowTime = uTime * 0.42;
     float flowA = organicFlow(npos, flowTime);
     vec3 offsetPos = clamp(npos + vec3(0.055, -0.036, 0.048), 0.0, 1.0);
@@ -207,24 +201,29 @@ const fragmentShader = /* glsl */`
     vec3 colorB = iridescentPalette(paletteT2);
     vec3 lineColor = mix(colorA, colorB, blendFlow * 0.34);
 
-    // Small continuous hue drift across each line, not a separate colour zone.
+    // Subtle drift across each line.
     float microT = fract(paletteT1 + (detail - 0.5) * 0.13 + flowB * 0.055);
     lineColor = mix(lineColor, iridescentPalette(microT), 0.22);
     lineColor *= 0.98 + facing * 0.12;
+    // Rare signal-red registration flecks: the third hue is exclusive to the portrait.
+    float signalNoise = noise3(npos * 13.7 + vec3(7.1, 5.3, 2.2));
+    float signalBand = 1.0 - smoothstep(0.009, 0.026, abs(fract(npos.y * 8.5 + npos.x * 4.6) - 0.5));
+    float signalMask = smoothstep(0.75, 0.92, signalNoise) * signalBand;
+    lineColor = mix(lineColor, vec3(1.65, 0.26, 0.21), signalMask * 0.86);
 
-    vec3 haloColor = mix(lineColor, vec3(1.04, 0.88, 1.55), 0.035 + edge * 0.025);
+    vec3 haloColor = mix(lineColor, vec3(0.72, 1.16, 0.94), 0.025 + edge * 0.018);
 
     // The colour should feel luminous inside the line, not surrounded by a neon fog.
     float lineEnergy = core * 1.22 + innerGlow * 0.042 * uGlow + outerGlow * 0.0015 * uGlow;
     vec3 finalColor = lineColor * lineEnergy;
     finalColor += haloColor * outerGlow * edge * 0.006;
 
-    // Very tight cream highlight only on the thinnest core.
-    vec3 hotCream = vec3(2.18, 1.94, 1.58);
+    // Neutral highlight only on the thinnest core.
+    vec3 hotCream = vec3(1.42, 1.47, 1.43);
     finalColor = mix(finalColor, hotCream * 0.76, hotCore * (0.018 + facing * 0.030));
 
-    // Minimal violet/lilac rim for volume.
-    finalColor += mix(vec3(0.08, 0.035, 0.22), vec3(0.18, 0.085, 0.35), paletteT1) * edge * 0.012;
+    // Cool, low-energy rim for depth.
+    finalColor += mix(vec3(0.055, 0.105, 0.087), vec3(0.11, 0.20, 0.16), paletteT1) * edge * 0.010;
     finalColor *= lowerMask;
     gl_FragColor = vec4(finalColor, 1.0);
   }

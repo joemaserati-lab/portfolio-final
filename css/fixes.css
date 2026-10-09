@@ -190,12 +190,12 @@ body.content-panel-open .privacy-widget {
 
 /* Match the hero copy treatment with a dark backing surface. */
 .primary-action {
-  background: rgba(5,3,8,.74);
+  background: rgba(6,9,9,.74);
 }
 
 .primary-action:hover,
 .primary-action:focus-visible {
-  background: rgba(12,6,16,.9);
+  background: rgba(6,9,9,.9);
 }
 
 /* Keep the consent actions usable when all controls are visible. */
@@ -213,7 +213,7 @@ body.content-panel-open .privacy-widget {
   overflow-y: auto;
   scrollbar-gutter: stable;
   scrollbar-width: thin;
-  scrollbar-color: #b187c4 #120818;
+  scrollbar-color: #9abbaa #060909;
 }
 
 .window-body::-webkit-scrollbar,
@@ -224,26 +224,26 @@ body.content-panel-open .privacy-widget {
 
 .window-body::-webkit-scrollbar-track,
 .projects-view::-webkit-scrollbar-track {
-  background: #120818;
-  border-left: 1px solid rgba(240,220,255,.14);
+  background: #060909;
+  border-left: 1px solid rgba(239,244,240,.14);
 }
 
 .window-body::-webkit-scrollbar-thumb,
 .projects-view::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg,#b187c4,#5f397a);
-  border: 2px solid #120818;
+  background: linear-gradient(180deg,#9abbaa,#567969);
+  border: 2px solid #060909;
   min-height: 36px;
 }
 
 .window-body::-webkit-scrollbar-thumb:hover,
 .projects-view::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg,#f0dcff,#7d4f9c);
+  background: linear-gradient(180deg,#eff4f0,#779d89);
 }
 
 /* Give every content window the same top breathing room, and visually extend
    the title-bar chrome through that space on both desktop and mobile. */
 .os-window {
-  --window-chrome-bg: linear-gradient(90deg,rgba(209,181,233,.07),rgba(255,151,110,.045));
+  --window-chrome-bg: linear-gradient(90deg,rgba(181,205,192,.07),rgba(181,205,192,.045));
   box-sizing: border-box;
   padding-top: 18px;
 }
@@ -357,9 +357,9 @@ body.content-panel-open .privacy-widget {
     border-color: transparent;
     box-shadow: none;
     text-shadow:
-      0 2px 4px rgba(0,0,0,.98),
-      0 0 10px rgba(0,0,0,.92),
-      0 0 22px rgba(0,0,0,.78);
+      0 2px 4px rgba(6,9,9,.98),
+      0 0 10px rgba(6,9,9,.92),
+      0 0 22px rgba(6,9,9,.78);
   }
 
   .system-label {
