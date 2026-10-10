@@ -157,5 +157,8 @@ jobs:
 
           node head-regression.mjs
 
+      - name: Compare source and production computed CSS
+        run: node tests/css-render-parity.mjs
+
       - name: Test mobile loader and single-tap project navigation
         run: node tests/mobile-regression.mjs
