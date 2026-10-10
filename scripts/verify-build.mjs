@@ -25,9 +25,12 @@ for (const path of ['index.html','404.html','assets','css','js','about','contact
   assert.ok(!existsSync(dir(path)), `Legacy root snapshot remains: ${path}`);
 }
 const bundle = readFileSync(dir('dist/css/portfolio.bundle.css'), 'utf8');
-for (const source of ['style.css','fixes.css','crt-outline-base.css','project-covers.css','monochrome-theme.css','crt-outline.css']) {
+for (const source of ['foundation.css','workspace.css','visual-experience.css','adaptive.css','fixes.css','crt-outline-base.css','project-covers.css','monochrome-theme.css','crt-outline.css']) {
   assert.ok(bundle.includes(`/* Source: ${source} */`), `Missing stylesheet: ${source}`);
 }
+
+/* A removed monolithic stylesheet must not quietly reappear in the build. */
+assert.ok(!existsSync(dir('public/css/style.css')), 'Monolithic style.css was reintroduced');
 
 /* Keep the Astro route registry aligned with the browser project directory. */
 const runtimeSource = readFileSync(dir('public/js/content.js'), 'utf8');

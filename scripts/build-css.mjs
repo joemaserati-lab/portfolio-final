@@ -3,7 +3,10 @@ import { resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
 const sources = [
-  'style.css',
+  'foundation.css',
+  'workspace.css',
+  'visual-experience.css',
+  'adaptive.css',
   'fixes.css',
   'crt-outline-base.css',
   'project-covers.css',

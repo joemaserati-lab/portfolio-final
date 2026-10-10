@@ -331,7 +331,7 @@ lazy CRT / Three.js startup
 prefers-reduced-motion support
 ```
 
-The production site is small and most runtime cost comes from visual effects rather than application logic. Production CSS is concatenated into a single asset with identical cascade order. Development still loads the six source stylesheets individually.
+The production site is small and most runtime cost comes from visual effects rather than application logic. Production CSS is concatenated into a single asset with identical cascade order. Development loads the source stylesheets individually. The earlier 1,926-line `style.css` is split into four focused modules—`foundation.css`, `workspace.css`, `visual-experience.css`, and `adaptive.css`—in exactly the original selector order; the remaining layers are unchanged.
 
 ### Latest Lighthouse sample
 

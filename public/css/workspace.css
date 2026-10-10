@@ -1,0 +1,582 @@
+/* V3.0 / FOUNDATION CONSOLIDATION -----------------------------------------
+   Desktop: controlled random windows. Tablet/mobile: secondary sections
+   automatically occupy the complete CRT safezone. Content is data-driven.
+*/
+ .footerbar{justify-content:flex-end}
+.footer-state{display:none!important}
+
+.os-window.is-responsive-fullscreen{
+  left:0!important;top:0!important;right:auto!important;bottom:auto!important;
+  width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;
+  transform:none!important;animation:windowInFull .14s ease-out;
+}
+.os-window.is-responsive-fullscreen  .window-titlebar{cursor:default}
+.os-window.is-responsive-fullscreen [data-resize]{display:none!important}
+
+.resume-view{display:grid;gap:clamp(24px,3vw,42px)}
+.resume-header{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.72fr);gap:clamp(24px,4vw,64px);align-items:end;border-bottom:1px solid var(--line);padding-bottom:clamp(18px,2.5vw,30px)}
+.resume-header h2{margin:0}
+.resume-header p{margin:0;color:var(--dim);max-width:52ch}
+.resume-section{display:grid;grid-template-columns:minmax(110px,.24fr) 1fr;gap:clamp(20px,3vw,44px)}
+.resume-section-title{color:var(--dim);font-size:var(--type-small);letter-spacing:.08em;padding-top:4px}
+.resume-list{display:grid}
+.resume-row{display:grid;grid-template-columns:minmax(100px,.25fr) 1fr;gap:clamp(18px,3vw,38px);padding:clamp(14px,2vw,22px) 0;border-top:1px dashed var(--line)}
+.resume-row:first-child{border-top:1px solid var(--line)}
+.resume-row h3{margin:0 0 4px;font-size:var(--type-body-lg);font-weight:400;color:var(--bright)}
+.resume-row strong{display:block;font-size:var(--type-body);font-weight:400}
+.resume-row small,.resume-period{display:block;color:var(--dim);font-size:var(--type-small)}
+.resume-row p{margin:8px 0 0;max-width:62ch}
+.resume-row.compact{padding-block:12px}
+.resume-columns{display:grid;grid-template-columns:1fr 1fr;gap:clamp(26px,4vw,56px);border-top:1px solid var(--line);padding-top:clamp(20px,2.5vw,30px)}
+.resume-columns .tags{margin-top:14px}
+
+@media(max-width:1024px){
+  .os-window{width:100%!important;height:100%!important;max-width:none!important;max-height:none!important}
+  .resume-header{grid-template-columns:1fr;align-items:start}
+}
+@media(max-width:720px){
+  .resume-section{grid-template-columns:1fr;gap:8px}
+  .resume-row{grid-template-columns:1fr;gap:6px}
+  .resume-columns{grid-template-columns:1fr}
+}
+
+
+/* V3.1 / PROJECTS REDESIGN -------------------------------------------------
+   Work-first presentation. The CRT/window system remains the shell; selected
+   work gets editorial scale, image-led cards and a quieter case-study layout.
+*/
+.projects-view{scrollbar-gutter:stable}
+.projects-index-v2{padding:clamp(18px,2.2vw,34px);min-height:100%}
+.projects-index-head{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:clamp(24px,5vw,80px);
+  align-items:end;padding:0 0 clamp(20px,2.5vw,34px);margin-bottom:clamp(18px,2.2vw,30px);
+  border-bottom:1px solid var(--line)
+}
+.projects-index-head h2{
+  margin:clamp(6px,1vw,12px) 0 0;font-size:clamp(48px,min(6.6vw,11vh),96px);
+  line-height:.76;letter-spacing:-.045em;font-weight:400;color:var(--bright)
+}
+.projects-index-side{display:flex;flex-direction:column;align-items:flex-end;gap:4px;color:var(--dim);font-size:var(--type-small);letter-spacing:.06em;text-align:right;padding-bottom:3px}
+.projects-index-side p{max-width:34ch;margin:8px 0 0!important;color:#dedede!important;font-size:var(--type-body)!important;line-height:1.18!important;letter-spacing:.02em}
+.projects-grid-v2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(18px,2.2vw,32px)}
+.project-tile-v2{
+  display:flex;flex-direction:column;min-width:0;padding:0;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer
+}
+.project-cover-v2{
+  position:relative;display:block;overflow:hidden;aspect-ratio:16/10;border:1px solid rgba(199,199,199,.18);
+  background:#080808;transition:border-color .18s ease,transform .18s ease,filter .18s ease
+}
+.project-cover-v2::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(to bottom,rgba(199,199,199,.025),transparent 28%,transparent 70%,rgba(8,8,8,.16));z-index:3
+}
+.project-cover-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(.12) contrast(1.08) brightness(.72) saturate(.78);opacity:.86;transition:transform .35s cubic-bezier(.2,.7,.2,1),filter .18s ease,opacity .18s ease}
+.project-cover-art{position:absolute;inset:0;display:block;transition:transform .35s cubic-bezier(.2,.7,.2,1),opacity .2s ease}
+.project-visual-1 .project-cover-art{
+  background:
+    linear-gradient(118deg,transparent 0 38%,rgba(199,199,199,.14) 38.2% 38.5%,transparent 38.7% 100%),
+    radial-gradient(circle at 68% 42%,rgba(199,199,199,.20),transparent 0 18%,rgba(199,199,199,.045) 18.4% 31%,transparent 31.4%),
+    repeating-linear-gradient(90deg,rgba(199,199,199,.035) 0 1px,transparent 1px 8%)
+}
+.project-visual-2 .project-cover-art{
+  background:
+    linear-gradient(32deg,transparent 0 45%,rgba(199,199,199,.13) 45.2% 45.55%,transparent 45.8%),
+    linear-gradient(148deg,transparent 0 54%,rgba(199,199,199,.075) 54.2% 54.6%,transparent 54.8%),
+    repeating-linear-gradient(0deg,rgba(199,199,199,.035) 0 1px,transparent 1px 34px)
+}
+.project-visual-3 .project-cover-art{
+  inset:9%;border:1px solid rgba(199,199,199,.12);transform:rotate(7deg);
+  background:linear-gradient(90deg,transparent 49.8%,rgba(199,199,199,.12) 50%,transparent 50.2%),linear-gradient(0deg,transparent 49.8%,rgba(199,199,199,.12) 50%,transparent 50.2%)
+}
+.project-visual-4 .project-cover-art{
+  background:
+    repeating-linear-gradient(72deg,transparent 0 8%,rgba(199,199,199,.045) 8.2% 8.5%,transparent 8.7% 16%),
+    radial-gradient(ellipse at 40% 58%,rgba(199,199,199,.13),transparent 0 25%,transparent 25%)
+}
+.project-cover-id{position:absolute;z-index:4;left:clamp(12px,1.4vw,20px);top:clamp(10px,1.2vw,18px);font-size:var(--type-small);color:var(--dim);letter-spacing:.08em}
+.project-cover-type{position:absolute;z-index:4;right:clamp(12px,1.4vw,20px);top:clamp(10px,1.2vw,18px);font-size:var(--type-caption);color:var(--dim);letter-spacing:.08em}
+.project-cover-open{
+  position:absolute;z-index:4;right:clamp(12px,1.4vw,20px);bottom:clamp(10px,1.2vw,18px);
+  font-size:var(--type-small);color:var(--bright);opacity:0;transform:translateY(4px);transition:opacity .16s ease,transform .16s ease
+}
+.project-tile-v2:hover .project-cover-v2,.project-tile-v2:focus-visible .project-cover-v2{border-color:rgba(222,222,222,.52);filter:brightness(1.08)}
+.project-tile-v2:hover .project-cover-art,.project-tile-v2:focus-visible .project-cover-art,.project-tile-v2:hover .project-cover-img,.project-tile-v2:focus-visible .project-cover-img{transform:scale(1.025)}
+.project-tile-v2:hover .project-cover-img,.project-tile-v2:focus-visible .project-cover-img{filter:grayscale(.06) contrast(1.12) brightness(.84) saturate(.9);opacity:.94}
+.project-tile-v2.project-visual-3:hover .project-cover-art,.project-tile-v2.project-visual-3:focus-visible .project-cover-art{transform:rotate(7deg) scale(1.025)}
+.project-tile-v2:hover .project-cover-open,.project-tile-v2:focus-visible .project-cover-open{opacity:1;transform:none}
+.project-tile-v2:focus-visible{outline:1px dashed rgba(222,222,222,.45);outline-offset:5px}
+.project-tile-copy{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;padding:clamp(10px,1.2vw,16px) 1px 0}
+.project-tile-main{display:flex;flex-direction:column;min-width:0}
+.project-tile-main small,.project-tile-details small{font-size:var(--type-small);font-weight:400;color:var(--dim);letter-spacing:.04em}
+.project-tile-main strong{font-size:clamp(24px,2.4vw,38px);line-height:.95;font-weight:400;color:var(--bright);margin-top:3px}
+.project-tile-details{display:flex;flex-direction:column;text-align:right;justify-content:flex-end;max-width:22ch}
+/* Case study v2 */
+.os-window.case-mode .window-body{padding:0;scroll-behavior:smooth}
+.case-study-v2{padding:clamp(18px,2.3vw,36px);max-width:1540px;margin:0 auto}
+.case-topline{display:flex;align-items:center;justify-content:space-between;padding-bottom:clamp(12px,1.5vw,18px);border-bottom:1px solid var(--line);color:var(--dim);font-size:var(--type-small);letter-spacing:.06em}
+.case-back-v2{padding:0;border:0;background:transparent;color:var(--bright);font:inherit;cursor:pointer;letter-spacing:.04em}
+.case-back-v2:hover{color:#f3f3f3}
+.case-lead-v2{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(280px,.62fr);gap:clamp(30px,6vw,96px);align-items:end;padding:clamp(28px,5vw,74px) 0 clamp(24px,3.5vw,50px)}
+.case-title-v2 h2{margin:clamp(7px,1vw,12px) 0 0;font-size:clamp(56px,min(7.5vw,13vh),118px);line-height:.76;letter-spacing:-.05em;font-weight:400;color:var(--bright)}
+.case-lead-v2>p{margin:0!important;max-width:42ch!important;font-size:var(--type-body-lg)!important;line-height:1.22!important;color:var(--phosphor)!important}
+.case-media-v2{margin:0;position:relative;overflow:hidden;border:1px solid rgba(199,199,199,.17);background:#080808}
+.case-media-surface{position:absolute;inset:0}
+.case-media-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(.1) contrast(1.08) brightness(.74) saturate(.8)}
+.case-media-v2 figcaption{position:absolute;z-index:3;left:clamp(10px,1.2vw,16px);right:clamp(10px,1.2vw,16px);bottom:clamp(9px,1vw,14px);display:flex;justify-content:space-between;gap:12px;color:rgba(147,147,147,.78);font-size:var(--type-caption);letter-spacing:.07em}
+.case-media-v2::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(to bottom,transparent 68%,rgba(8,8,8,.22))}
+.media-visual-1 .case-media-surface{background:radial-gradient(circle at 62% 46%,rgba(199,199,199,.22),transparent 0 18%,rgba(199,199,199,.04) 18.5% 31%,transparent 31.5%),linear-gradient(118deg,transparent 40%,rgba(199,199,199,.13) 40.2% 40.5%,transparent 40.7%)}
+.media-visual-2 .case-media-surface{background:repeating-linear-gradient(0deg,transparent 0 36px,rgba(199,199,199,.045) 36px 37px),linear-gradient(32deg,transparent 44%,rgba(199,199,199,.12) 44.2% 44.5%,transparent 44.8%)}
+.media-visual-3 .case-media-surface{inset:10%;border:1px solid rgba(199,199,199,.12);transform:rotate(6deg);background:linear-gradient(90deg,transparent 49.8%,rgba(199,199,199,.12) 50%,transparent 50.2%),linear-gradient(0deg,transparent 49.8%,rgba(199,199,199,.12) 50%,transparent 50.2%)}
+.media-visual-4 .case-media-surface{background:repeating-linear-gradient(72deg,transparent 0 8%,rgba(199,199,199,.045) 8.2% 8.5%,transparent 8.7% 16%),radial-gradient(ellipse at 40% 58%,rgba(199,199,199,.13),transparent 0 26%,transparent 26%)}
+.case-media-hero-v2{aspect-ratio:16/8;min-height:clamp(300px,52vh,680px)}
+.case-facts-v2{display:grid;grid-template-columns:.9fr 1.15fr 1.6fr .45fr;margin:clamp(18px,2vw,28px) 0 clamp(42px,5vw,74px);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.case-facts-v2>div{padding:clamp(10px,1.4vw,17px) clamp(10px,1.4vw,18px);border-right:1px solid var(--line)}
+.case-facts-v2>div:first-child{padding-left:0}.case-facts-v2>div:last-child{border-right:0}
+.case-facts-v2 dt{font-size:var(--type-caption);color:var(--dim);letter-spacing:.09em}.case-facts-v2 dd{margin:4px 0 0;font-size:var(--type-body);color:var(--bright)}
+.case-story-v2{display:grid;grid-template-columns:minmax(110px,.24fr) minmax(0,1fr);gap:clamp(24px,5vw,80px);margin-bottom:clamp(44px,6vw,90px)}
+.case-story-label{font-size:var(--type-small);color:var(--dim);letter-spacing:.08em;padding-top:3px}
+.case-story-copy{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(28px,5vw,76px)}
+.case-story-copy article{border-top:1px solid var(--line);padding-top:12px}.case-story-copy span{font-size:var(--type-caption);color:var(--dim);letter-spacing:.09em}.case-story-copy p{margin:9px 0 0!important;max-width:48ch!important;font-size:var(--type-body-lg)!important;line-height:1.24!important}
+.case-outputs-v2{display:grid;grid-template-columns:minmax(110px,.24fr) minmax(0,1fr);gap:clamp(24px,5vw,80px);border-top:1px solid var(--line);padding-top:clamp(20px,2.4vw,30px);margin:0 0 clamp(44px,6vw,84px)}
+.case-output-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(18px,2.6vw,36px)}
+.case-output-list article{border-top:1px dashed var(--line);padding-top:12px}.case-output-list h3{margin:0;color:var(--bright);font-size:var(--type-body-lg);font-weight:400}.case-output-list p{margin:8px 0 0!important;max-width:52ch!important;font-size:var(--type-body)!important;line-height:1.22!important}
+.case-gallery-v2{display:grid;grid-template-columns:1.25fr .75fr;gap:clamp(10px,1.2vw,18px)}
+.case-media-landscape-v2{aspect-ratio:4/3;grid-row:span 2}.case-media-portrait-v2{aspect-ratio:3/4}.case-media-wide-v2{aspect-ratio:16/7;grid-column:1/-1;margin-top:clamp(6px,1vw,12px)}
+.case-tags-v2{display:grid;grid-template-columns:minmax(110px,.24fr) minmax(0,1fr);gap:clamp(24px,5vw,80px);align-items:start;border-top:1px solid var(--line);padding-top:clamp(20px,2.4vw,30px);margin:clamp(44px,6vw,84px) 0}
+.case-tags-v2>span{font-size:var(--type-small);color:var(--dim);letter-spacing:.08em}.case-tags-v2 .tags{margin:0}
+.case-nav-v2{display:grid;grid-template-columns:1fr 1fr;gap:12px;border-top:1px solid var(--line);padding-top:clamp(14px,2vw,22px)}
+.case-nav-v2 button{min-height:clamp(84px,11vw,130px);padding:clamp(14px,1.7vw,22px);border:1px solid var(--line);background:rgba(199,199,199,.015);color:var(--bright);cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:space-between;gap:10px}
+.case-nav-v2 button:last-child{text-align:right;align-items:flex-end}.case-nav-v2 button:hover{border-color:var(--line-strong);background:rgba(199,199,199,.04)}.case-nav-v2 small{font-size:var(--type-caption);color:var(--dim);letter-spacing:.08em}.case-nav-v2 b{font-size:clamp(22px,2.5vw,38px);font-weight:400;line-height:.95}
+
+@media(max-width:1024px){
+  .projects-index-head{grid-template-columns:1fr}.projects-index-side{align-items:flex-start;text-align:left}
+  .projects-grid-v2{grid-template-columns:1fr 1fr}
+  .case-lead-v2{grid-template-columns:1fr;gap:18px}.case-lead-v2>p{max-width:60ch!important}
+  .case-facts-v2{grid-template-columns:1fr 1fr}.case-facts-v2>div:nth-child(2){border-right:0}.case-facts-v2>div:nth-child(-n+2){border-bottom:1px solid var(--line)}.case-facts-v2>div:first-child{padding-left:clamp(10px,1.4vw,18px)}
+  .case-story-v2,.case-outputs-v2{grid-template-columns:1fr;gap:10px}.case-gallery-v2{grid-template-columns:1fr 1fr}.case-media-landscape-v2{grid-column:1/-1;grid-row:auto;aspect-ratio:16/9}
+}
+@media(max-width:720px){
+  .projects-index-v2{padding:14px 10px 24px}.projects-index-head h2{font-size:clamp(44px,14vw,70px)}
+  .projects-grid-v2{grid-template-columns:1fr;gap:24px}.project-cover-v2{aspect-ratio:4/3}.project-tile-copy{grid-template-columns:1fr auto}.project-tile-details small:first-child{display:none}
+  .project-cover-open{opacity:1;transform:none}
+  .case-study-v2{padding:14px 10px 24px}.case-lead-v2{padding:24px 0}.case-title-v2 h2{font-size:clamp(48px,15vw,76px)}.case-media-hero-v2{aspect-ratio:4/3;min-height:220px}
+  .case-facts-v2{grid-template-columns:1fr;margin-bottom:38px}.case-facts-v2>div,.case-facts-v2>div:nth-child(2){border-right:0;border-bottom:1px solid var(--line);padding-left:0}.case-facts-v2>div:last-child{border-bottom:0}
+  .case-story-copy,.case-output-list{grid-template-columns:1fr;gap:22px}.case-gallery-v2{grid-template-columns:1fr}.case-media-landscape-v2,.case-media-portrait-v2,.case-media-wide-v2{grid-column:auto;aspect-ratio:4/3;margin-top:0}
+  .case-tags-v2{grid-template-columns:1fr;gap:12px;margin:38px 0}.case-nav-v2{grid-template-columns:1fr}.case-nav-v2 button:last-child{text-align:left;align-items:flex-start}
+}
+
+
+/* V3.2 AESTHETIC POLISH ------------------------------------------------------
+   Short, contextual CRT behaviours only. No continuous decorative motion.
+*/
+
+
+/* CRT power / degauss transition used for Projects and case-study changes. */
+.screen.crt-degauss .desktop,
+.screen.crt-degauss .terminal-dock,
+.screen.crt-degauss .footerbar,
+.screen.crt-degauss #crt-bg,
+.screen.crt-degauss #crt-fx,
+.screen.crt-degauss .noise,
+.screen.crt-degauss .scanlines{
+  transform-origin:50% 50%;
+  animation:crtDegaussContent .34s cubic-bezier(.65,.02,.25,1) both;
+}
+.screen.crt-degauss::after{
+  content:""!important;display:block!important;position:absolute;z-index:90;pointer-events:none;
+  left:4%;right:4%;top:50%;height:2px;opacity:0;
+  background:rgba(243,243,243,.92);
+  box-shadow:0 0 8px rgba(222,222,222,.9),0 0 26px rgba(199,199,199,.65),0 0 72px rgba(179,179,179,.35);
+  animation:crtDegaussLine .34s cubic-bezier(.65,.02,.25,1) both;
+}
+@keyframes crtDegaussContent{
+  0%{transform:scaleY(1) scaleX(1);filter:brightness(1)}
+  38%{transform:scaleY(.045) scaleX(.985);filter:brightness(1.55)}
+  52%{transform:scaleY(.018) scaleX(.94);filter:brightness(2.1)}
+  72%{transform:scaleY(.50) scaleX(.992);filter:brightness(1.18)}
+  100%{transform:scaleY(1) scaleX(1);filter:brightness(1)}
+}
+@keyframes crtDegaussLine{
+  0%,20%{opacity:0;transform:scaleX(.30)}
+  45%{opacity:.95;transform:scaleX(.86)}
+  60%{opacity:.55;transform:scaleX(.48)}
+  100%{opacity:0;transform:scaleX(.12)}
+}
+
+/* Balanced CRT tremor for secondary windows: visible, brief, never violent. */
+.screen.micro-glitch .desktop,
+.screen.micro-glitch .terminal-dock,
+.screen.micro-glitch  .footerbar{animation:microGlitchShift .14s steps(4,end) both}
+.screen.micro-glitch #crt-fx{animation:microGlitchFx .14s steps(4,end) both}
+@keyframes microGlitchShift{
+  0%{transform:translate3d(0,0,0) skewX(0);filter:none}
+  20%{transform:translate3d(3px,-1px,0) skewX(.055deg);filter:brightness(1.055)}
+  42%{transform:translate3d(-3px,1px,0) skewX(-.045deg);filter:brightness(.985)}
+  64%{transform:translate3d(2px,0,0) skewX(.03deg);filter:brightness(1.04)}
+  82%{transform:translate3d(-1px,0,0) skewX(-.015deg);filter:brightness(1.015)}
+  100%{transform:translate3d(0,0,0) skewX(0);filter:none}
+}
+@keyframes microGlitchFx{
+  0%,100%{opacity:.98;filter:none}
+  28%{opacity:1;filter:brightness(1.28) contrast(1.025)}
+  54%{opacity:.91;filter:brightness(.98)}
+  76%{opacity:1;filter:brightness(1.16)}
+}
+.screen.micro-glitch::before{display:none!important}
+
+/* Project hover / focus signal. */
+.project-cover-v2::after{
+  content:"";position:absolute;z-index:3;left:0;right:0;top:-18%;height:16%;pointer-events:none;opacity:0;
+  background:linear-gradient(to bottom,transparent,rgba(222,222,222,.10),rgba(243,243,243,.14),transparent);
+  mix-blend-mode:screen;
+}
+.project-tile-v2:hover .project-cover-v2::after,
+.project-tile-v2:focus-visible .project-cover-v2::after,
+.project-tile-v2.mobile-signal .project-cover-v2::after,
+.project-tile-v2.is-pressed .project-cover-v2::after{animation:projectSignalSweep .48s linear both}
+.project-tile-v2:hover .project-tile-main strong,
+.project-tile-v2:focus-visible .project-tile-main strong,
+.project-tile-v2.mobile-signal .project-tile-main strong,
+.project-tile-v2.is-pressed .project-tile-main strong{
+  color:#f3f3f3;text-shadow:0 0 5px rgba(222,222,222,.56),0 0 15px rgba(179,179,179,.24)
+}
+.project-tile-v2.mobile-signal .project-cover-v2,
+.project-tile-v2.is-pressed .project-cover-v2{border-color:rgba(222,222,222,.52);filter:brightness(1.08)}
+.project-tile-v2.mobile-signal .project-cover-art,
+.project-tile-v2.is-pressed .project-cover-art,
+.project-tile-v2.mobile-signal .project-cover-img,
+.project-tile-v2.is-pressed .project-cover-img{transform:scale(1.025)}
+.project-tile-v2.mobile-signal .project-cover-img,
+.project-tile-v2.is-pressed .project-cover-img{filter:grayscale(.06) contrast(1.12) brightness(.84) saturate(.9);opacity:.94}
+.project-tile-v2.project-visual-3.mobile-signal .project-cover-art,
+.project-tile-v2.project-visual-3.is-pressed .project-cover-art{transform:rotate(7deg) scale(1.025)}
+.project-tile-v2.mobile-signal .project-cover-open,
+.project-tile-v2.is-pressed .project-cover-open{opacity:1;transform:none}
+@keyframes projectSignalSweep{0%{top:-18%;opacity:0}15%{opacity:.85}75%{opacity:.55}100%{top:102%;opacity:0}}
+
+/* Mobile has no hover: cards receive a short signal as they enter the viewport. */
+@media (hover:none), (pointer:coarse){
+  .project-cover-open{opacity:0;transform:translateY(4px)}
+  .project-tile-v2.mobile-signal .project-cover-open,.project-tile-v2.is-pressed .project-cover-open{opacity:1;transform:none}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .screen.crt-degauss .desktop,.screen.crt-degauss .terminal-dock,.screen.crt-degauss .footerbar,.screen.crt-degauss #crt-bg,.screen.crt-degauss #crt-fx,.screen.crt-degauss .noise,.screen.crt-degauss .scanlines{animation:none!important}
+  .screen.crt-degauss::after,.screen.micro-glitch .desktop,.screen.micro-glitch .terminal-dock,.screen.micro-glitch .footerbar,.screen.micro-glitch #crt-fx,.project-cover-v2::after{animation:none!important}
+}
+
+
+/* Pixelarticons cursor system -------------------------------------------------
+   Self-hosted default-alt + pointer + text, adapted to the amber phosphor palette.
+   Original cursor grid: 32x32. Render size: 80x80 (2.5x; every 2px source
+   pixel becomes a crisp 5px block). Assets are preloaded before the UI scripts.
+*/
+.pixelart-cursor{
+  position:fixed;
+  left:0;
+  top:0;
+  z-index:2147483647;
+  width:80px;
+  height:80px;
+  pointer-events:none;
+  opacity:0;
+  background-repeat:no-repeat;
+  background-position:0 0;
+  background-size:80px 80px;
+  image-rendering:pixelated;
+  transform:translate3d(-200px,-200px,0);
+  will-change:transform;
+}
+.pixelart-cursor.is-visible{opacity:1}
+.pixelart-cursor.is-default{
+  background-image:url('../assets/cursors/default-alt-mono.svg');
+}
+.pixelart-cursor.is-pointer{
+  background-image:url('../assets/cursors/pointer-mono.svg');
+}
+.pixelart-cursor.is-text{
+  background-image:url('../assets/cursors/text-mono.svg');
+}
+@media (hover:hover) and (pointer:fine){
+  html,body,body *,button,a,input,textarea,[role="button"]{cursor:none!important}
+}
+@media (hover:none), (pointer:coarse){
+  .pixelart-cursor{display:none!important}
+}
+
+
+/* V4.1 / ADAPTIVE CASE-STUDY BENTO GRID -----------------------------------
+   Gallery media no longer preserve isolated aspect-ratio heights. Items are
+   paired into complete bento bands so every row closes without dead space.
+   Pattern repeats 7/5 -> 5/7. An unpaired final item automatically spans all
+   columns. Tablet uses a stable 2-column grid; mobile collapses to one column.
+*/
+.case-gallery-v2{
+  display:grid;
+  grid-template-columns:repeat(12,minmax(0,1fr));
+  grid-auto-flow:dense;
+  grid-auto-rows:clamp(40px,3.7vw,58px);
+  gap:clamp(10px,1.2vw,18px);
+  align-items:stretch;
+}
+.case-gallery-v2 .case-media-v2{
+  aspect-ratio:auto!important;
+  min-height:0;
+  height:100%;
+  margin-top:0!important;
+  align-self:stretch;
+}
+.case-gallery-v2 .bento-slot-0{grid-column:span 7;grid-row:span 6}
+.case-gallery-v2 .bento-slot-1{grid-column:span 5;grid-row:span 6}
+.case-gallery-v2 .bento-slot-2{grid-column:span 5;grid-row:span 6}
+.case-gallery-v2 .bento-slot-3{grid-column:span 7;grid-row:span 6}
+.case-gallery-v2 .bento-full{grid-column:1/-1!important;grid-row:span 6!important}
+
+@media(max-width:1024px){
+  .case-gallery-v2{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    grid-auto-rows:clamp(250px,34vw,360px);
+    gap:clamp(10px,1.5vw,16px);
+  }
+  .case-gallery-v2 .bento-slot-0,
+  .case-gallery-v2 .bento-slot-1,
+  .case-gallery-v2 .bento-slot-2,
+  .case-gallery-v2 .bento-slot-3{grid-column:span 1;grid-row:span 1}
+  .case-gallery-v2 .bento-full{grid-column:1/-1!important;grid-row:span 1!important}
+}
+
+@media(max-width:720px){
+  .case-gallery-v2{grid-template-columns:1fr;grid-auto-rows:auto;gap:10px}
+  .case-gallery-v2 .case-media-v2{
+    grid-column:1/-1!important;
+    grid-row:auto!important;
+    aspect-ratio:4/3!important;
+    min-height:220px;
+  }
+}
+
+/* V4.4 / EXTERNAL CRT HALO
+   The screen itself masks the solid core; only the drop-shadow remains visible
+   outside the curved silhouette. */
+@media(max-width:900px){
+  .crt-stage::before{opacity:.34;filter:drop-shadow(0 0 6px rgba(222,222,222,.48)) drop-shadow(0 0 16px rgba(179,179,179,.30)) drop-shadow(0 0 34px rgba(179,179,179,.16)) drop-shadow(0 0 62px rgba(147,147,147,.07));}
+}
+
+
+/* V4.5 / REDACTION 50 DISPLAY LAYER ---------------------------------------
+   Doto remains the operating-system/interface voice. Redaction 50 appears
+   only in large editorial display moments. */
+.hero-intro h1,
+.projects-index-head h2,
+.case-title-v2 h2
+{
+  font-family:"Redaction 50", Georgia, "Times New Roman", serif;
+  font-weight:400;
+  font-style:normal;
+  text-transform:none;
+}
+.hero-intro h1{
+  line-height:.74;
+  letter-spacing:-.055em;
+  filter:drop-shadow(0 0 4px rgba(222,222,222,.50)) drop-shadow(0 0 13px rgba(179,179,179,.26));
+}
+.projects-index-head h2{line-height:.78;letter-spacing:-.045em;}
+.case-title-v2 h2{line-height:.78;letter-spacing:-.045em;}
+
+
+/* V4.6 / stronger ambient halo + Redaction secondary titles -------------
+   Keep the site structure unchanged.
+   1) The external halo should read as ambient light emitted by the screen.
+   2) Redaction 50 extends to secondary section headings only. */
+.crt-stage::before{
+  background:radial-gradient(circle at 50% 46%,
+    rgba(243,243,243,.95) 0%,
+    rgba(222,222,222,.9) 22%,
+    rgba(222,222,222,.82) 48%,
+    rgba(199,199,199,.66) 72%,
+    rgba(179,179,179,.46) 100%);
+  opacity:.70;
+  transform:scale(1.012);
+  filter:
+    blur(1.5px)
+    drop-shadow(0 0 8px rgba(243,243,243,.72))
+    drop-shadow(0 0 20px rgba(222,222,222,.56))
+    drop-shadow(0 0 44px rgba(199,199,199,.34))
+    drop-shadow(0 0 82px rgba(179,179,179,.22))
+    drop-shadow(0 0 136px rgba(147,147,147,.12));
+}
+/* secondary atmospheric bloom, broader and softer than the primary halo */
+.crt-stage::after{
+  content:"";
+  position:absolute;
+  left:calc(var(--bezel-x) - 12px);
+  right:calc(var(--bezel-x) - 12px);
+  top:calc(var(--bezel-y) - 12px);
+  bottom:calc(var(--bezel-y) - 12px);
+  clip-path:url(#crtScreenClip);
+  -webkit-clip-path:url(#crtScreenClip);
+  pointer-events:none;
+  z-index:0;
+  background:rgba(222,222,222,.92);
+  opacity:.18;
+  transform:scale(1.05);
+  filter:blur(42px) saturate(1.08) brightness(1.06);
+  mix-blend-mode:screen;
+  display:block;
+}
+@media(max-width:900px){
+  .crt-stage::before{
+    opacity:.62;
+    filter:
+      blur(1.2px)
+      drop-shadow(0 0 7px rgba(243,243,243,.64))
+      drop-shadow(0 0 17px rgba(222,222,222,.48))
+      drop-shadow(0 0 34px rgba(199,199,199,.28))
+      drop-shadow(0 0 62px rgba(179,179,179,.17))
+      drop-shadow(0 0 102px rgba(147,147,147,.09));
+  }
+  .crt-stage::after{opacity:.14;filter:blur(30px) saturate(1.04) brightness(1.04);}
+}
+
+.window-body h2,
+.resume-header h2,
+.projects-index-head h2,
+.case-title-v2 h2,
+.hero-intro h1{
+  font-family:"Redaction 50", Georgia, "Times New Roman", serif;
+  font-weight:400;
+  font-style:normal;
+  text-transform:none;
+}
+.window-body h2,
+.resume-header h2{
+  line-height:.84;
+  letter-spacing:-.04em;
+}
+
+
+/* V4.7 / microcopy cleanup + revert to lighter CRT halo ------------------ */
+.window-eyebrow,
+.boot-skip{display:none!important}
+
+/* Return to the lighter external bloom from the earlier approved state. */
+.crt-stage::before{
+  background:#dedede;
+  opacity:.44;
+  transform:none;
+  filter:
+    drop-shadow(0 0 7px rgba(222,222,222,.58))
+    drop-shadow(0 0 21px rgba(179,179,179,.36))
+    drop-shadow(0 0 48px rgba(179,179,179,.20))
+    drop-shadow(0 0 92px rgba(147,147,147,.095));
+}
+.crt-stage::after{display:none!important}
+@media(max-width:900px){
+  .crt-stage::before{
+    opacity:.34;
+    filter:
+      drop-shadow(0 0 6px rgba(222,222,222,.48))
+      drop-shadow(0 0 16px rgba(179,179,179,.30))
+      drop-shadow(0 0 34px rgba(179,179,179,.16))
+      drop-shadow(0 0 62px rgba(147,147,147,.07));
+  }
+}
+
+/* V5.0 / FULL-SCREEN WORKSPACE --------------------------------------------
+   Windows fill the curved CRT surface when opened. Their chrome and content
+   remain inset from the clipped corners, while restore keeps a usable panel. */
+:root{
+  --screen-safe-top:42px;
+  --screen-safe-right:72px;
+  --screen-safe-bottom:42px;
+  --screen-safe-left:72px;
+}
+
+.crt-background-video{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  pointer-events:none;
+  opacity:.48;
+  filter:sepia(1) saturate(1.35) hue-rotate(342deg) brightness(.55) contrast(1.22);
+}
+#crt-bg{z-index:1;opacity:.68;mix-blend-mode:screen}
+
+.desktop{height:100%}
+.window-layer{inset:0;overflow:hidden}
+.os-window.is-maximized{
+  border:0;
+  background:#080808;
+  box-shadow:inset 0 0 90px rgba(179,179,179,.045);
+}
+.os-window.is-maximized .window-titlebar{
+  padding-left:var(--screen-safe-left);
+  padding-right:var(--screen-safe-right);
+}
+.os-window.is-maximized .window-body{
+  padding:clamp(28px,4vw,64px) var(--screen-safe-right) var(--screen-safe-bottom) var(--screen-safe-left);
+}
+.projects-view .projects-index-v2,
+.projects-view .case-study-v2{
+  padding-left:var(--screen-safe-left);
+  padding-right:var(--screen-safe-right);
+  padding-bottom:var(--screen-safe-bottom);
+}
+
+.window-titlebar{position:relative;height:52px;flex-basis:52px;min-width:0}
+.window-titlebar>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.window-controls{gap:8px;flex:0 0 auto}
+.window-controls button{
+  width:46px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border-color:var(--line-strong);
+  font-size:24px;
+  line-height:1;
+}
+.window-controls button[data-resize]{font-size:22px;padding:0}
+
+.projects-view{position:absolute;z-index:12;inset:0;overflow:auto;background:#080808;color:var(--phosphor);scrollbar-color:var(--dim) transparent;box-shadow:inset 0 0 90px rgba(179,179,179,.045)}
+.projects-view[hidden]{display:none}
+.projects-view .projects-index-v2,.projects-view .case-study-v2{padding-left:var(--screen-safe-left);padding-right:var(--screen-safe-right);padding-bottom:var(--screen-safe-bottom)}
+
+/* Keep editorial lines distinct even with CRT bloom and fallback fonts. */
+.hero-intro h1{line-height:.82}
+.projects-index-head h2,.case-title-v2 h2{line-height:.9}
+.project-tile-main strong,.contact-link b{overflow-wrap:anywhere}
+.contact-link{gap:18px;align-items:baseline}
+.desktop-icon{gap:14px}
+.icon-glyph{flex-shrink:0}
+
+@media(max-width:900px){
+  :root{
+    --screen-safe-top:34px;
+    --screen-safe-right:46px;
+    --screen-safe-bottom:34px;
+    --screen-safe-left:46px;
+  }
+}
+@media(max-width:720px){
+  :root{
+    --screen-safe-top:26px;
+    --screen-safe-right:26px;
+    --screen-safe-bottom:26px;
+    --screen-safe-left:26px;
+  }
+  .os-window:not(.is-maximized):not(.is-responsive-fullscreen){width:92%!important;height:78%!important}
+  .os-window.is-maximized .window-titlebar{padding-left:var(--screen-safe-left);padding-right:52px}
+  .window-titlebar{height:50px;flex-basis:50px;padding-left:10px}
+  .window-titlebar>span{font-size:clamp(15px,4.4vw,18px)}
+  .window-controls{position:absolute;top:4px;right:52px;gap:6px}
+  .window-controls button{width:44px;height:40px;font-size:23px}
+  .os-window.is-maximized .window-body{padding:24px var(--screen-safe-right) var(--screen-safe-bottom) var(--screen-safe-left)}
+  .projects-index-head h2{line-height:.94}
+  .contact-panel{grid-template-columns:1fr;gap:16px}
+  .contact-photo{min-height:0;max-height:260px;aspect-ratio:5/4;order:-1}
+  .contact-link{display:grid;grid-template-columns:1fr;gap:2px}
+}
+
