@@ -16,11 +16,11 @@ Intermediate black/gray values may exist in the CRT shader, alpha transparency a
 - Window surfaces stay charcoal with dark-gray titlebars. Text hierarchy: white for primary content, light gray for secondary copy.
 - The 3D portrait is white/gray with only a few mint contours. Avoid broad luminous color effects.
 - Keep the layout, font system, animation, clipping and mobile safe zones intact.
-- Make all visual color adjustments in `public/css/monochrome-theme.css`; it is the canonical palette and **the only stylesheet defining the UI color tokens**. Keep the root mirror `css/monochrome-theme.css` synchronized for legacy checks.
+- Make all visual color adjustments in `public/css/monochrome-theme.css`; it is the canonical palette and **the only stylesheet defining the UI color tokens**.
 - The `:root` rules in `style.css`, `fixes.css` and `crt-outline.css` are reserved for geometry, typography and responsive measurements.
 - The separate 404 page has an inline palette by design. Its bouncing portrait uses mint in only one of six phases.
 
-Astro serves `public/` and builds from `src/layouts/PortfolioShell.astro`. Structural CSS and shader sources have root mirrors for legacy tooling.
+Astro serves `public/` and builds from `src/layouts/PortfolioShell.astro`. Root-level legacy snapshots are removed; `public/` and `src/` are authoritative. Production bundles the six CSS source files in the documented order; development loads those same sources separately.
 
 ## Project covers
 Project directory covers are grayscale at rest. Desktop hover or keyboard focus reveals the original artwork; on touch devices, a **single tap** reveals the original colors and opens the project after a 280 ms preview. Viewport-triggered mobile animations must not reveal colors automatically.

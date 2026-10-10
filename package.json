@@ -8,8 +8,10 @@
   },
   "scripts": {
     "dev": "astro dev",
+    "prebuild": "node scripts/build-css.mjs",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "check": "node scripts/verify-build.mjs"
   },
   "dependencies": {
     "astro": "7.3.4"

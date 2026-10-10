@@ -152,7 +152,7 @@ jobs:
           await page.waitForFunction(() => {
             const b = document.querySelector('#boot-enter');
             return b && !b.disabled;
-          }, { timeout: 20000 });
+          }, null, { timeout: 20000 });
 
           const initialShifts = await page.evaluate(() => window.__portfolioLayoutShifts || []);
           const initialCls = initialShifts.reduce((sum, item) => sum + item.value, 0);
@@ -291,7 +291,7 @@ jobs:
             await page.waitForFunction(() => {
               const el=document.querySelector('#projects-view');
               return el && !el.hidden;
-            }, { timeout: 5000 });
+            }, null, { timeout: 5000 });
             await page.waitForTimeout(150);
 
             const projects = await page.evaluate(() => {
@@ -398,7 +398,7 @@ jobs:
           await page.waitForFunction(() => {
             const button = document.querySelector('#boot-enter');
             return button && !button.disabled;
-          }, { timeout: 25000 });
+          }, null, { timeout: 25000 });
 
           const preEntry = await page.evaluate(() => {
             const title = document.querySelector('#boot-gate h2');
@@ -425,13 +425,13 @@ jobs:
               && state?.ready
               && feature?.classList.contains('is-ready')
               && !feature.classList.contains('is-failed');
-          }, { timeout: 5000 });
+          }, null, { timeout: 5000 });
 
           await page.click('.primary-action');
           await page.waitForFunction(() => {
             const view = document.querySelector('#projects-view');
             return view && !view.hidden;
-          }, { timeout: 5000 });
+          }, null, { timeout: 5000 });
 
           const openState = await page.evaluate(() => {
             const feature = document.querySelector('#crt-head-feature');
@@ -452,7 +452,7 @@ jobs:
           await page.waitForFunction(() => {
             const view = document.querySelector('#projects-view');
             return view && view.hidden;
-          }, { timeout: 5000 });
+          }, null, { timeout: 5000 });
           await page.waitForFunction(() => {
             const feature = document.querySelector('#crt-head-feature');
             if (!feature) return false;
@@ -465,7 +465,7 @@ jobs:
               && style.visibility === 'visible'
               && Number.parseFloat(style.opacity) > 0.4
               && rect && rect.width > 10 && rect.height > 10;
-          }, { timeout: 5000 });
+          }, null, { timeout: 5000 });
 
           console.log('Head/loader lifecycle audit: PASS');
           await browser.close();

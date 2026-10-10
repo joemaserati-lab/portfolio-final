@@ -1,0 +1,28 @@
+---
+const { project, basePath } = Astro.props;
+---
+
+{/* Accessible, indexable HTML summary if scripts fail or are disabled.
+    The interactive CRT case study stays the canonical visible experience with JS. */}
+<noscript>
+  <style is:inline>
+    body { overflow: auto !important; background: #050505; color: #f5f5f5; }
+    .boot-loader, .shell { display: none !important; }
+    .project-fallback { display: block; max-width: 880px; margin: 0 auto; padding: clamp(24px,5vw,72px); font: 17px/1.6 system-ui,sans-serif; }
+    .project-fallback a { color: #f5f5f5; }
+    .project-fallback .project-fallback__back { display: inline-block; margin-bottom: 36px; }
+    .project-fallback h1 { font: 400 clamp(40px,7vw,86px)/1.05 Georgia,serif; letter-spacing: -.04em; margin: 0 0 18px; }
+    .project-fallback p { max-width: 64ch; color: #b9b9b9; }
+    .project-fallback img { display: block; width: 100%; height: auto; object-fit: contain; margin: 28px 0; }
+  </style>
+  <main class="project-fallback">
+    <a class="project-fallback__back" href={basePath + 'work/'}>← Selected work</a>
+    <article>
+      <h1>{project.name}</h1>
+      <p>{project.description}</p>
+      <img src={basePath + project.image} alt={project.name + ' project cover'} loading="lazy" width="1200" height="675" />
+      <p>Project by Edoardo Rappanello.</p>
+      <p><a href={basePath}>Back to portfolio</a></p>
+    </article>
+  </main>
+</noscript>

@@ -4,11 +4,12 @@ on:
   push:
     branches: [main]
     paths:
-      - 'js/boot.js'
-      - 'js/head3d.js'
-      - 'js/portfolio.js'
-      - 'css/style.css'
+      - 'src/**'
+      - 'public/**'
+      - 'scripts/**'
       - '.github/workflows/head-regression.yml'
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -19,7 +20,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  AUDIT_URL: https://joemaserati-lab.github.io/portfolio-final/
+  AUDIT_URL: http://127.0.0.1:4321/portfolio-final/
 
 jobs:
   test:
@@ -29,43 +30,30 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Wait until live assets match main
-        run: |
-          expected_boot="$(sha256sum js/boot.js | awk '{print $1}')"
-          expected_head="$(sha256sum js/head3d.js | awk '{print $1}')"
-          expected_css="$(sha256sum css/style.css | awk '{print $1}')"
-          expected_portfolio="$(sha256sum js/portfolio.js | awk '{print $1}')"
-
-          for attempt in $(seq 1 60); do
-            curl -fsSL "$AUDIT_URL/js/boot.js?sha=$GITHUB_SHA" -o /tmp/live-boot.js || true
-            curl -fsSL "$AUDIT_URL/js/head3d.js?sha=$GITHUB_SHA" -o /tmp/live-head3d.js || true
-            curl -fsSL "$AUDIT_URL/css/style.css?sha=$GITHUB_SHA" -o /tmp/live-style.css || true
-            curl -fsSL "$AUDIT_URL/js/portfolio.js?sha=$GITHUB_SHA" -o /tmp/live-portfolio.js || true
-
-            live_boot="$(sha256sum /tmp/live-boot.js 2>/dev/null | awk '{print $1}')"
-            live_head="$(sha256sum /tmp/live-head3d.js 2>/dev/null | awk '{print $1}')"
-            live_css="$(sha256sum /tmp/live-style.css 2>/dev/null | awk '{print $1}')"
-            live_portfolio="$(sha256sum /tmp/live-portfolio.js 2>/dev/null | awk '{print $1}')"
-
-            if [ "$live_boot" = "$expected_boot" ] && [ "$live_head" = "$expected_head" ] && [ "$live_css" = "$expected_css" ] && [ "$live_portfolio" = "$expected_portfolio" ]; then
-              echo "Live assets match main."
-              exit 0
-            fi
-
-            sleep 5
-          done
-
-          echo "Live assets did not match main before timeout."
-          exit 1
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '22'
 
+      - name: Build local production candidate
+        run: |
+          npm install --no-package-lock --no-audit --no-fund
+          npm run build
+          npm run check
+
+      - name: Serve built candidate
+        run: |
+          (npm run preview -- --host 127.0.0.1 --port 4321 > /tmp/portfolio-preview.log 2>&1 &)
+          for i in $(seq 1 60); do
+            if curl --fail --silent --show-error "$AUDIT_URL" > /dev/null 2>&1; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/portfolio-preview.log
+          exit 1
+
       - name: Install Playwright
         run: |
-          npm install --no-save --no-audit --no-fund playwright@latest
+          npm install --no-save --no-audit --no-fund playwright@1.56.1
           npx playwright install chromium
 
       - name: Test loader and head lifecycle
@@ -168,3 +156,6 @@ jobs:
           NODE
 
           node head-regression.mjs
+
+      - name: Test mobile loader and single-tap project navigation
+        run: node tests/mobile-regression.mjs
