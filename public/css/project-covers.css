@@ -55,7 +55,7 @@
 .project-tile-v2 .project-cover-img {
   filter: grayscale(1) brightness(.86) contrast(1.05) !important;
   opacity: 1 !important;
-  transition: filter .32s ease, transform .35s cubic-bezier(.2,.7,.2,1), opacity .22s ease;
+  transition: filter .14s ease, transform .35s cubic-bezier(.2,.7,.2,1), opacity .22s ease;
 }
 
 /* Touch hover emulation must never reveal a project automatically. */
@@ -74,11 +74,3 @@
   .project-tile-v2 .project-cover-img { transition: none; }
 }
 
-/* Fast chromatic response so one mobile tap reveals the full-color artwork
-   before navigation begins (280 ms after activation). */
-.project-tile-v2 .project-cover-img {
-  transition:
-    filter .14s ease,
-    transform .35s cubic-bezier(.2,.7,.2,1),
-    opacity .22s ease;
-}

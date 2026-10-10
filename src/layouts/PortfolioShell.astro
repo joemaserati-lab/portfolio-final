@@ -1,11 +1,14 @@
 ---
+import ProjectFallback from '../components/ProjectFallback.astro';
+
 const {
   title = 'Edoardo Rappanello — Multidisciplinary Designer',
   description = 'Portfolio of Edoardo Rappanello. Graphic design, web and digital marketing across independent projects and ongoing communication work.',
   canonicalPath = '',
   ogImage = 'assets/images/profilephoto.webp',
   ogType = 'website',
-  jsonLd = null
+  jsonLd = null,
+  project = null
 } = Astro.props;
 
 const basePath = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
@@ -44,12 +47,15 @@ const ogImageUrl = new URL(ogImage, rootUrl);
     } catch {}
   </script>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="css/fixes.css" />
-  <link rel="stylesheet" href="css/crt-outline-base.css" />
-  <link rel="stylesheet" href="css/project-covers.css" />
-  <link rel="stylesheet" href="css/monochrome-theme.css" />
-  <link rel="stylesheet" href="css/crt-outline.css" />
+  {import.meta.env.PROD
+    ? <link rel="stylesheet" href="css/portfolio.bundle.css" />
+    : <><link rel="stylesheet" href="css/style.css" />
+       <link rel="stylesheet" href="css/fixes.css" />
+       <link rel="stylesheet" href="css/crt-outline-base.css" />
+       <link rel="stylesheet" href="css/project-covers.css" />
+       <link rel="stylesheet" href="css/monochrome-theme.css" />
+       <link rel="stylesheet" href="css/crt-outline.css" /></>
+  }
   <link rel="preload" href="assets/font/Doto-500.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="assets/font/redaction-50-latin-400-normal.woff" as="font" type="font/woff" crossorigin />
   <link rel="preload" as="image" href="assets/cursors/default-alt-mono.svg" type="image/svg+xml" media="(hover:hover) and (pointer:fine)" />
@@ -149,6 +155,8 @@ const ogImageUrl = new URL(ogImage, rootUrl);
       </section>
     </div>
   </main>
+
+  {project && <ProjectFallback project={project} basePath={basePath} />}
 
   <script is:inline defer src="js/i18n.js"></script>
   <script is:inline defer src="js/cursor.js"></script>

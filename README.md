@@ -135,7 +135,7 @@ src/       page structure, route data and Astro templates
 public/    CSS, JavaScript, fonts, images, video and 3D assets
 ```
 
-Some pre-Astro static files still exist at repository root as migration / rollback copies. They are not the primary source for production.
+Legacy static mirrors have been removed: `src/` and `public/` are now the only production sources. Historical versions remain available in Git history.
 
 ---
 
@@ -331,7 +331,7 @@ lazy CRT / Three.js startup
 prefers-reduced-motion support
 ```
 
-The production site is small and most runtime cost comes from visual effects rather than application logic.
+The production site is small and most runtime cost comes from visual effects rather than application logic. Production CSS is concatenated into a single asset with identical cascade order. Development still loads the six source stylesheets individually.
 
 ### Latest Lighthouse sample
 
@@ -592,3 +592,9 @@ static HTML
 ```
 
 Astro is the build architecture, not the visual runtime.
+
+## Source integrity and review
+
+Run `npm run build && npm run check` before merging. `AGENTS.md` defines coding and design constraints. PRs run an Astro build and local head lifecycle test. Changes to `public/` are the changes that ship; do not restore root-level snapshots.
+
+Static no-JavaScript fallbacks on project URLs provide an accessible project summary and a link back to the directory. Full case studies remain client-interactive until the project content architecture is progressively moved into Astro.
