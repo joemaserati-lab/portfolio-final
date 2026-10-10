@@ -1,0 +1,306 @@
+/* V31.9 / RETURNING SESSION BOOT */
+html.returning-visit .boot-loader{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+}
+html.returning-visit body.booting .shell{
+  visibility:visible;
+  opacity:0;
+}
+
+
+/* V31.10 / BOOT CPU GUARD */
+/* The shell is visually hidden during first boot, so its decorative animation
+   should not consume CPU/GPU before the user enters. */
+body.booting .noise,
+body.booting .scanlines,
+body.booting .screen-reflection,
+body.booting .edge-light{
+  animation-play-state:paused!important;
+}
+body.booting .crt-background-video{
+  visibility:hidden;
+}
+
+
+/* V31.11 / LARGE-DISPLAY PROPORTIONAL SCALE */
+/* 1920×1080 is the visual baseline. On displays that are larger in both
+   dimensions, typography, controls and spacing grow by the smaller viewport
+   ratio so the composition keeps the same perceived proportions instead of
+   floating inside excess empty space. */
+@media (min-width:1921px) and (min-height:1081px){
+  :root{
+    --type-caption:min(.78125vw,1.388889vh);
+    --type-small:min(.885417vw,1.574074vh);
+    --type-ui:min(.9375vw,1.666667vh);
+    --type-base:min(1.041667vw,1.851852vh);
+    --type-body:min(1.145833vw,2.037037vh);
+    --type-body-lg:min(1.302083vw,2.314815vh);
+    --type-lead:min(1.458333vw,2.592593vh);
+    --type-subhead:min(1.5625vw,2.777778vh);
+    --type-heading:min(3.020833vw,5.37037vh);
+    --type-display:min(6.666667vw,11.851852vh);
+    --type-boot:min(1.875vw,3.333333vh);
+
+    --screen-safe-top:min(2.1875vw,3.888889vh);
+    --screen-safe-right:min(3.75vw,6.666667vh);
+    --screen-safe-bottom:min(2.1875vw,3.888889vh);
+    --screen-safe-left:min(3.75vw,6.666667vh);
+  }
+
+  .desktop::before{
+    background-size:min(2.916667vw,5.185185vh) min(2.916667vw,5.185185vh);
+  }
+
+  .hero-intro{
+    max-width:min(25vw,44.444444vh);
+    padding-left:min(1.5625vw,2.777778vh);
+    padding-top:min(.625vw,1.111111vh);
+  }
+  .system-label{
+    margin-bottom:min(.9375vw,1.666667vh);
+  }
+  .hero-copy{
+    max-width:min(21.875vw,38.888889vh);
+    margin:min(1.25vw,2.222222vh) 0;
+  }
+  .primary-action{
+    padding:min(.572917vw,1.018519vh) min(.729167vw,1.296296vh);
+  }
+
+  .desktop-icons{
+    right:calc(var(--screen-safe-right) + min(.729167vw,1.296296vh));
+    top:calc(var(--screen-safe-top) + min(.833333vw,1.481481vh));
+    grid-template-columns:repeat(2,min(5.833333vw,10.37037vh));
+    gap:min(1.145833vw,2.037037vh);
+  }
+  .desktop-icon{
+    gap:min(.729167vw,1.296296vh);
+    padding:min(.416667vw,.740741vh) min(.3125vw,.555556vh);
+  }
+  .icon-glyph{
+    width:min(3.020833vw,5.37037vh);
+    height:min(2.5vw,4.444444vh);
+  }
+  .file-glyph{width:min(2.1875vw,3.888889vh)}
+  .folder-glyph b{
+    top:min(-.364583vw,-.648148vh);
+    left:min(.260417vw,.462963vh);
+    width:min(1.25vw,2.222222vh);
+    height:min(.364583vw,.648148vh);
+  }
+
+  .language-toggle{
+    min-width:min(2.5vw,4.444444vh);
+    height:min(1.770833vw,3.148148vh);
+  }
+  .privacy-widget{
+    gap:min(.416667vw,.740741vh);
+    max-width:min(18.75vw,33.333333vh);
+  }
+  .privacy-toggle,
+  .privacy-actions button{
+    padding:min(.46875vw,.833333vh) min(.625vw,1.111111vh);
+  }
+  .privacy-panel{
+    width:min(18.75vw,33.333333vh);
+    padding:min(.833333vw,1.481481vh);
+    gap:min(.625vw,1.111111vh);
+  }
+
+  .window-titlebar{
+    height:min(2.708333vw,4.814815vh);
+    flex-basis:min(2.708333vw,4.814815vh);
+  }
+  .window-controls{gap:min(.416667vw,.740741vh)}
+  .window-controls button{
+    width:min(2.395833vw,4.259259vh);
+    height:min(2.1875vw,3.888889vh);
+  }
+
+  .os-window.is-maximized .window-body{
+    padding-top:min(3.333333vw,5.925926vh);
+  }
+
+  .projects-index-v2{
+    padding-top:min(1.770833vw,3.148148vh);
+  }
+  .projects-index-head{
+    gap:min(4.166667vw,7.407407vh);
+    padding-bottom:min(1.770833vw,3.148148vh);
+    margin-bottom:min(1.5625vw,2.777778vh);
+  }
+  .projects-index-head h2{
+    margin-top:min(.625vw,1.111111vh);
+    font-size:min(5vw,8.888889vh);
+  }
+  .projects-index-side{gap:min(.208333vw,.37037vh)}
+  .projects-grid-v2{gap:min(1.666667vw,2.962963vh)}
+  .project-tile-copy{
+    gap:min(.833333vw,1.481481vh);
+    padding-top:min(.833333vw,1.481481vh);
+  }
+  .project-tile-main strong{
+    font-size:min(1.979167vw,3.518519vh);
+    margin-top:min(.15625vw,.277778vh);
+  }
+
+  .case-study-v2{
+    max-width:min(80.208333vw,142.592593vh);
+    padding-top:min(1.875vw,3.333333vh);
+  }
+  .case-topline{
+    padding-bottom:min(.9375vw,1.666667vh);
+  }
+  .case-lead-v2{
+    gap:min(5vw,8.888889vh);
+    padding:min(3.854167vw,6.851852vh) 0 min(2.604167vw,4.62963vh);
+  }
+  .case-title-v2 h2{
+    margin-top:min(.625vw,1.111111vh);
+    font-size:min(6.145833vw,10.925926vh);
+  }
+  .case-facts-v2{
+    margin-top:min(1.458333vw,2.592593vh);
+    margin-bottom:min(3.854167vw,6.851852vh);
+  }
+  .case-facts-v2>div{
+    padding:min(.885417vw,1.574074vh) min(.9375vw,1.666667vh);
+  }
+  .case-story-v2{
+    gap:min(4.166667vw,7.407407vh);
+    margin-bottom:min(4.6875vw,8.333333vh);
+  }
+  .case-story-copy{
+    gap:min(3.958333vw,7.037037vh);
+  }
+  .case-story-copy article,
+  .case-output-list article{
+    padding-top:min(.625vw,1.111111vh);
+  }
+  .case-outputs-v2{
+    gap:min(4.166667vw,7.407407vh);
+    padding-top:min(1.5625vw,2.777778vh);
+    margin-bottom:min(4.375vw,7.777778vh);
+  }
+  .case-output-list{
+    gap:min(1.875vw,3.333333vh);
+  }
+  .case-gallery-v2{
+    gap:min(.9375vw,1.666667vh);
+  }
+  .case-tags-v2{
+    gap:min(4.166667vw,7.407407vh);
+    padding-top:min(1.5625vw,2.777778vh);
+    margin:min(4.375vw,7.777778vh) 0;
+  }
+  .case-nav-v2{
+    gap:min(.625vw,1.111111vh);
+    padding-top:min(1.145833vw,2.037037vh);
+  }
+  .case-nav-v2 button{
+    min-height:min(6.770833vw,12.037037vh);
+    padding:min(1.145833vw,2.037037vh);
+    gap:min(.520833vw,.925926vh);
+  }
+  .case-nav-v2 b{
+    font-size:min(1.979167vw,3.518519vh);
+  }
+
+  .contact-panel{
+    gap:min(1.25vw,2.222222vh);
+  }
+  .contact-links{
+    gap:min(.46875vw,.833333vh);
+    max-width:min(29.166667vw,51.851852vh);
+  }
+  .contact-link{
+    gap:min(.9375vw,1.666667vh);
+    padding:min(.572917vw,1.018519vh) min(.677083vw,1.203704vh);
+  }
+
+  .resume-view{gap:min(2.1875vw,3.888889vh)}
+  .resume-header{
+    gap:min(3.333333vw,5.925926vh);
+    padding-bottom:min(1.5625vw,2.777778vh);
+  }
+  .resume-section{gap:min(2.291667vw,4.074074vh)}
+  .resume-row{
+    gap:min(1.979167vw,3.518519vh);
+    padding:min(1.145833vw,2.037037vh) 0;
+  }
+  .resume-columns{
+    gap:min(2.916667vw,5.185185vh);
+    padding-top:min(1.5625vw,2.777778vh);
+  }
+}
+
+/* V31.15 / MOBILE ENTRY COMPOSITING ---------------------------------------
+   Mobile keeps the approved reveal timing language without blur filters,
+   which are disproportionately expensive during the loader-to-site handoff. */
+@media (max-width:720px){
+  .shell{
+    transition:opacity .58s cubic-bezier(.22,.61,.36,1);
+  }
+  .boot-line{
+    filter:none!important;
+    transition:opacity .20s ease,transform .24s cubic-bezier(.22,.61,.36,1)!important;
+  }
+  body.site-entering .hero-intro > *,
+  body.site-entering .desktop-icons .desktop-icon{
+    animation:siteElementInMobile .54s cubic-bezier(.22,.61,.36,1) both;
+  }
+  body.site-entering .hero-intro .system-label{animation-delay:.06s}
+  body.site-entering .hero-intro h1{animation-delay:.11s}
+  body.site-entering .hero-intro .hero-copy{animation-delay:.17s}
+  body.site-entering .hero-intro .primary-action{animation-delay:.23s}
+  body.site-entering .desktop-icons .desktop-icon:nth-child(1){animation-delay:.28s}
+  body.site-entering .desktop-icons .desktop-icon:nth-child(2){animation-delay:.32s}
+  body.site-entering .desktop-icons .desktop-icon:nth-child(3){animation-delay:.36s}
+  body.site-entering .desktop-icons .desktop-icon:nth-child(4){animation-delay:.40s}
+  body.site-entering .desktop-icons .desktop-icon:nth-child(5){animation-delay:.44s}
+}
+@keyframes siteElementInMobile{
+  from{opacity:0;transform:translateY(6px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* V31.17 / MOBILE CLICK-TIME PREWARM --------------------------------------
+   Rasterize the CRT workspace only after explicit entry intent, while the
+   terminal boot remains opaque. The actual reveal is then a compositor-only
+   loader fade rather than a full interface paint + stagger in one frame. */
+@media (max-width:720px){
+  body.booting.entry-prewarm .shell{
+    visibility:visible;
+    opacity:.001;
+    transition:none!important;
+    will-change:opacity;
+  }
+  body.booting.site-entering .shell{
+    visibility:visible;
+    opacity:1;
+    transition:opacity .36s cubic-bezier(.22,.61,.36,1)!important;
+  }
+
+  /* The loader fade is the mobile entrance animation. Avoid starting a group
+     of descendant animations at the same moment. */
+  body.site-entering .hero-intro > *,
+  body.site-entering .desktop-icons .desktop-icon{
+    animation:none!important;
+  }
+
+  /* Animated SVG turbulence is expensive on touch GPUs. Preserve the noise
+     texture but keep it static; the deferred CRT runtime supplies motion. */
+  .noise{
+    animation:none!important;
+    opacity:.04;
+  }
+
+  .boot-loader{
+    transform:translateZ(0);
+    backface-visibility:hidden;
+    will-change:opacity;
+  }
+}
+
