@@ -181,12 +181,7 @@ body {
 }
 
 /* Global controls must not cover window/project content. */
-body.content-panel-open .language-toggle,
-body.content-panel-open .privacy-widget {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
+
 
 /* Match the hero copy treatment with a dark backing surface. */
 .primary-action {
@@ -259,9 +254,7 @@ body.content-panel-open .privacy-widget {
   pointer-events: none;
 }
 
-.os-window .window-titlebar {
-  background: var(--window-chrome-bg);
-}
+
 
 /* Keep the Colorcopy proof editorial rather than dashboard-like. */
 .case-proof-v2 .case-story-copy {

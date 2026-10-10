@@ -309,7 +309,7 @@ body.site-entering .desktop-icons .desktop-icon:nth-child(5){animation-delay:.58
 .privacy-panel p{margin:0;color:#b3b3b3;font-size:19px;line-height:1.18}
 .privacy-status{color:var(--dim);font-size:15px;margin-bottom:6px}
 .privacy-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
-.privacy-actions button{border:1px solid var(--line);background:#080808;color:var(--bright);cursor:pointer;font-size:17px;padding:6px 9px}
+.privacy-actions button{border:1px solid var(--line);color:var(--bright);cursor:pointer;font-size:17px;padding:6px 9px}
 
 .not-found-body{min-height:100%;overflow:hidden;background:#080808;color:var(--phosphor);font-family:"Doto","Courier New",ui-monospace,monospace;margin:0}
 .not-found-screen{position:fixed;inset:0;display:grid;place-items:center;padding:clamp(24px,6vw,72px);background:radial-gradient(circle at 50% 46%,rgba(60,60,60,.54),rgba(15,15,15,.9) 35%,rgba(8,8,8,.985) 78%);text-shadow:0 0 7px rgba(199,199,199,.48);overflow:hidden}
