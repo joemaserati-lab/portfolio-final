@@ -11,7 +11,7 @@
 Read `DESIGN.md` first. Preserve monochrome #050505/#252525/#B9B9B9/#F5F5F5 with restrained #80FFCC accents.
 Do not add generic gradients, glass panels, rounded cards or stock interfaces.
 Project thumbnails stay grayscale, color is revealed on desktop hover/focus or a single mobile tap with 280 ms preview.
-Never replace actual project covers with decorative placeholders. Case-study media are pending real production assets; do not invent them.
+Never replace actual project covers with decorative placeholders; do not load a duplicate CSS background image for an existing project cover. Case-study media are pending real production assets; do not invent them.
 
 ## Implementation
 - Preserve Astro, Three.js, CRT effects and the existing user interactions.

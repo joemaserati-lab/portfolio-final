@@ -1,6 +1,7 @@
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import assert from 'node:assert/strict';
+import { projects } from '../src/data/routes.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const dir = path => resolve(root, path);
@@ -27,4 +28,15 @@ const bundle = readFileSync(dir('dist/css/portfolio.bundle.css'), 'utf8');
 for (const source of ['style.css','fixes.css','crt-outline-base.css','project-covers.css','monochrome-theme.css','crt-outline.css']) {
   assert.ok(bundle.includes(`/* Source: ${source} */`), `Missing stylesheet: ${source}`);
 }
+
+/* Keep the Astro route registry aligned with the browser project directory. */
+const runtimeSource = readFileSync(dir('public/js/content.js'), 'utf8');
+const browserSlugs = [...runtimeSource.matchAll(/slug:'([^']+)'/g)].map(match => match[1]);
+const routeSlugs = projects.map(project => project.slug);
+assert.deepEqual(browserSlugs, routeSlugs, 'Astro and browser project slugs differ');
+for (const project of projects) {
+  assert.ok(existsSync(dir('public/' + project.image)), 'Project cover missing: ' + project.image);
+}
+assert.ok(!bundle.includes('assets/images/projects/'), 'Redundant CSS project backgrounds were reintroduced');
+
 console.log(`Build verified: ${routes.length} routes, static project summaries, single CSS bundle, no root mirrors.`);
