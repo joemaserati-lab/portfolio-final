@@ -1,6 +1,5 @@
 (() => {
   // Initial CLS sources are captured by the Playwright performance audit.
-  // Touch entry timing is validated in CI with mobile/touch emulation.
   // Post-entry timing is verified by the Lighthouse workflow (click-scoped long-task measurement).
   const loader = document.getElementById('boot-loader');
   const out = document.getElementById('boot-output');
@@ -408,64 +407,15 @@
   });
 
   const ambientVideo = document.querySelector('.crt-background-video');
-
-  function preloadAmbientVideo() {
-    return new Promise(resolve => {
-      if (!ambientVideo) {
-        resolve({ ok: false, unavailable: true });
-        return;
-      }
-      if (ambientVideo.readyState >= 2) {
-        resolve({ ok: true });
-        return;
-      }
-
-      let settled = false;
-      let timer = null;
-      const cleanup = () => {
-        if (timer) clearTimeout(timer);
-        ambientVideo.removeEventListener('loadeddata', onReady);
-        ambientVideo.removeEventListener('canplay', onReady);
-        ambientVideo.removeEventListener('error', onError);
-      };
-      const done = ok => {
-        if (settled) return;
-        settled = true;
-        cleanup();
-        resolve({ ok });
-      };
-      const onReady = () => done(true);
-      const onError = () => done(false);
-
-      ambientVideo.preload = 'auto';
-      ambientVideo.addEventListener('loadeddata', onReady, { once: true });
-      ambientVideo.addEventListener('canplay', onReady, { once: true });
-      ambientVideo.addEventListener('error', onError, { once: true });
-      timer = setTimeout(() => done(ambientVideo.readyState >= 2), 4000);
-
-      try { ambientVideo.load(); }
-      catch { done(false); }
-    });
-  }
-
-  const videoReady = Promise.all([
-    preloadAmbientVideo(),
-    loadCrtRuntime()
-  ]).then(([video, crt]) => {
-    const crtOk = crt?.ok !== false;
-    const videoOk = Boolean(video?.ok);
-    setRow(
-      'video',
-      '05 SIGNAL',
-      crtOk && videoOk ? 'CRT + ambient buffer ready' : (crtOk ? 'CRT ready / ambient fallback' : 'ambient ready / CRT fallback'),
-      crtOk && videoOk ? 'done' : 'warn'
-    );
-    return { ok: crtOk && videoOk, crt, video };
+  const videoReady = Promise.resolve({ ok: true, deferred: true }).then(value => {
+    setRow('video', '05 SIGNAL', 'deferred until entry', 'done');
+    return value;
   });
 
   function startAmbientVideo() {
     if (!ambientVideo) return;
     try {
+      ambientVideo.preload = 'auto';
       const playing = ambientVideo.play();
       if (playing?.catch) playing.catch(() => {});
     } catch {}
@@ -476,17 +426,46 @@
   const trackedPageReady = trackProgress('page', pageReady);
   const trackedVideoReady = trackProgress('video', videoReady);
 
-  // Start every expensive application task while the opaque loader is visible.
-  // ENTER is enabled only when the app, decoded covers, CRT runtime, ambient
-  // video buffer and warmed 3D pipeline have all settled.
+  // Start the real application work immediately, behind the opaque loader.
+  // The enter button is enabled only after the interface, project covers and
+  // 3D pipeline have settled, so the terminal boot remains purely scenic.
   const applicationReady = trackProgress('app', loadApplication());
-  const coversReady = trackProgress(
-    'covers',
-    applicationReady
-      .then(() => preloadPortfolioImages())
-      .catch(error => ({ ok: false, skipped: true, error }))
-  );
-  const headReady = trackProgress('head', loadHead());
+  // Project covers are not required to enter the homepage. Mark the loader
+  // task complete immediately and decode covers later during browser idle time.
+  const coversReady = trackProgress('covers', Promise.resolve({ ok: true, deferred: true }));
+
+  // The head belongs to the entry sequence, not the initial page critical path.
+  // It is initialized after explicit ENTER intent while the loader is still
+  // opaque, and the homepage is never revealed until that promise settles.
+  const headReady = Promise.resolve({ ok: true, gated: true });
+  setRow('head', '06 MODEL', 'waiting for entry', 'pending');
+
+  function scheduleDeferredCovers() {
+    const start = () => {
+      preloadPortfolioImages().catch?.(() => {});
+    };
+    setTimeout(() => {
+      if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 6000 });
+      else start();
+    }, 900);
+  }
+
+  function scheduleDeferredTouchVisuals() {
+    const startCrt = () => {
+      startAmbientVideo();
+      const run = () => loadCrtRuntime();
+
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(run, { timeout: 6000 });
+      } else {
+        run();
+      }
+    };
+
+    // CRT noise/video may remain deferred on touch; the hero head itself is
+    // already ready before the page is revealed.
+    setTimeout(startCrt, 900);
+  }
 
   (async () => {
     try {
@@ -510,7 +489,17 @@
     resourcesReady = true;
 
     if (returningVisit) {
-      startAmbientVideo();
+      // The full loader stays hidden on repeat visits, but the shell remains
+      // unrevealed until the hero head is ready. Cached assets make this fast
+      // while preventing a visible late 3D pop-in.
+      await loadHead();
+      if (touchDevice) {
+        window.PortfolioMotion?.enableTouchFallback?.();
+        scheduleDeferredTouchVisuals();
+      } else {
+        startAmbientVideo();
+        loadCrtRuntime();
+      }
       launch(true);
       return;
     }
@@ -610,11 +599,20 @@
         document.body.classList.add('site-ready');
         if (touchDevice) window.dispatchEvent(new CustomEvent('portfolio:booted'));
         window.dispatchEvent(new CustomEvent('portfolio:site-ready'));
+        scheduleDeferredCovers();
+        if (touchDevice) scheduleDeferredTouchVisuals();
       }, 760);
 
       setTimeout(() => loader.remove(), 640);
     }, holdBeforeRelease);
   }
+
+  // Desktop hover can opportunistically warm the head, but it remains inside
+  // the loader lifecycle: no page reveal happens until loadHead() settles.
+  enter.addEventListener('pointerenter', () => {
+    if (touchDevice || headPromise) return;
+    loadHead().catch(error => console.warn('3D head prewarm failed.', error));
+  }, { once: true, passive: true });
 
   enter.addEventListener('click', async () => {
     if (fatalLoadError) {
@@ -626,13 +624,16 @@
 
     if (!beginSequence()) return;
 
-    // All heavy resources are already loaded and warmed. The user gesture only
-    // starts playback of the pre-buffered ambient video.
-    startAmbientVideo();
+    // The loader/terminal remains visible while the 3D hero initializes.
+    // This keeps WebGL out of the initial page critical path without allowing
+    // the head to appear after the homepage has already been revealed.
+    await loadHead();
 
     if (touchDevice) {
-      setRow('ready', '07 READY', 'touch mode / launching sequence', 'done');
+      await enableTouchFallbackBeforeEntry();
     } else {
+      startAmbientVideo();
+      loadCrtRuntime();
       setRow('ready', '07 READY', 'desktop pointer mode / launching sequence', 'done');
     }
 
