@@ -25,9 +25,13 @@ for (const path of ['index.html','404.html','assets','css','js','about','contact
   assert.ok(!existsSync(dir(path)), `Legacy root snapshot remains: ${path}`);
 }
 const bundle = readFileSync(dir('dist/css/portfolio.bundle.css'), 'utf8');
-for (const source of ['foundation.css','workspace.css','visual-experience.css','adaptive.css','fixes.css','crt-outline-base.css','project-covers.css','monochrome-theme.css','crt-outline.css']) {
-  assert.ok(bundle.includes(`/* Source: ${source} */`), `Missing stylesheet: ${source}`);
-}
+const cssSources = ['foundation.css','workspace.css','visual-experience.css','adaptive.css','fixes.css','crt-outline-base.css','project-covers.css','monochrome-theme.css','crt-outline.css'];
+const originalCss = cssSources.map(name => '/* Source: ' + name + ' */\\n' + readFileSync(dir('public/css/' + name), 'utf8')).join('\\n\\n') + '\\n';
+assert.ok(bundle.length < originalCss.length * 0.95, 'Expected CSS whitespace compression of at least 5%');
+assert.ok(bundle.includes('.project-tile-v2'), 'Project directory CSS missing');
+assert.ok(bundle.includes('#crt-head-feature'), '3D head CSS missing');
+assert.ok(bundle.includes('80ffcc') || bundle.includes('80FFCC'), 'Approved mint accent missing');
+assert.ok(bundle.includes('grayscale('), 'Project grayscale interaction missing');
 
 /* A removed monolithic stylesheet must not quietly reappear in the build. */
 assert.ok(!existsSync(dir('public/css/style.css')), 'Monolithic style.css was reintroduced');
