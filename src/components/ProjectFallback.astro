@@ -5,7 +5,7 @@ const { project, basePath } = Astro.props;
 {/* Accessible, indexable HTML summary if scripts fail or are disabled.
     The interactive CRT case study stays the canonical visible experience with JS. */}
 <noscript>
-  <style is:global>
+  <style is:inline>
     body { overflow: auto !important; background: #050505; color: #f5f5f5; }
     .boot-loader, .shell { display: none !important; }
     .project-fallback { display: block; max-width: 880px; margin: 0 auto; padding: clamp(24px,5vw,72px); font: 17px/1.6 system-ui,sans-serif; }
