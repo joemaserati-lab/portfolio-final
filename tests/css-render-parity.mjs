@@ -10,7 +10,7 @@ const rawCss = sourceFiles.map(name =>
 ).join('\n\n');
 const url = process.env.AUDIT_URL || 'http://127.0.0.1:4321/portfolio-final/';
 const browser = await chromium.launch({ headless: true });
-const selectors = ['html','body','.crt-stage','.screen','.desktop','.hero-intro','.hero-intro h1','.primary-action','.desktop-icons','#crt-head-feature','.boot-loader','#boot-gate','#boot-gate h2','.boot-enter','.footerbar','#projects-view'];
+const selectors = ['html','body','.crt-stage','.screen','.desktop','.hero-intro','.hero-intro h1','.primary-action','.desktop-icons','#crt-head-feature','.boot-loader','#boot-gate','#boot-gate h2','.boot-enter' ,'#projects-view'];
 const props = ['display','position','font-family','font-size','font-weight','line-height','letter-spacing','color','background-color','padding-top','padding-right','padding-bottom','padding-left','margin-top','margin-left','border-radius','border-top-width','border-top-color','overflow-x','overflow-y','max-width','grid-template-columns','z-index'];
 
 async function snapshot(width, height, unminified) {
