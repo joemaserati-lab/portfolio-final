@@ -29,7 +29,7 @@ const cssSources = ['foundation.css','workspace.css','visual-experience.css','ad
 const originalCss = cssSources.map(name => '/* Source: ' + name + ' */\\n' + readFileSync(dir('public/css/' + name), 'utf8')).join('\\n\\n') + '\\n';
 assert.ok(bundle.length < originalCss.length * 0.95, 'Expected CSS whitespace compression of at least 5%');
 assert.ok(bundle.includes('.project-tile-v2'), 'Project directory CSS missing');
-assert.ok(bundle.includes('#crt-head-feature'), '3D head CSS missing');
+assert.ok(bundle.includes('.crt-head-feature'), '3D head CSS missing');
 assert.ok(bundle.includes('80ffcc') || bundle.includes('80FFCC'), 'Approved mint accent missing');
 assert.ok(bundle.includes('grayscale('), 'Project grayscale interaction missing');
 
