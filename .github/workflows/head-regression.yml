@@ -156,3 +156,6 @@ jobs:
           NODE
 
           node head-regression.mjs
+
+      - name: Test mobile loader and single-tap project navigation
+        run: node tests/mobile-regression.mjs
