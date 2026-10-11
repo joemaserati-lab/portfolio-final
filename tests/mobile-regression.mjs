@@ -45,6 +45,16 @@ try {
   }
   await page.waitForFunction(() => document.body.classList.contains('site-ready'), null, { timeout: 25000 });
 
+  // CTA must remain readable over the animated head, matching the dark copy backing.
+  const mobileCtaBackground = await page.locator('.primary-action').evaluate(element => getComputedStyle(element).backgroundColor);
+  const ctaChannels = mobileCtaBackground.match(/[\d.]+/g)?.map(Number);
+  assert.ok(
+    ctaChannels && ctaChannels.length === 4 &&
+    ctaChannels.slice(0, 3).every(channel => channel <= 12) &&
+    ctaChannels[3] >= .78,
+    'Mobile primary CTA needs an opaque-enough dark backing: ' + mobileCtaBackground
+  );
+
   await page.locator('.primary-action').click({ timeout: 10000 });
   await page.waitForFunction(() => {
     const view = document.querySelector('#projects-view');
