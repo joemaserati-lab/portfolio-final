@@ -690,6 +690,20 @@ body.content-panel-open .privacy-widget{
   }
 }
 
+/* Mobile hero CTA: use the same dark backing treatment as the copy above.
+   Preserve the button's current dimensions, border and click behaviour. */
+@media (max-width:720px) {
+  .hero-intro .primary-action {
+    background: rgba(8,8,8,.82);
+    text-shadow: 0 0 4px rgba(8,8,8,.55);
+  }
+  .hero-intro .primary-action:hover,
+  .hero-intro .primary-action:focus-visible,
+  .hero-intro .primary-action:active {
+    background: rgba(8,8,8,.92);
+  }
+}
+
 /* Mobile loader ready title: keep PORTFOLIO PRONTO within the CRT safe area.
    The legacy heading uses white-space:pre, which forces overflow in Italian. */
 @media (max-width:720px) {
