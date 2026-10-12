@@ -17,7 +17,7 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  await page.locator('#privacy-reject').click();
  assert.equal(await page.locator('.desktop-icons .desktop-icon').count(),4);
  assert.equal(await page.locator('#scroll-work .project-tile-v2').count(),5);
- assert(await page.locator('#crt-head-feature').evaluate(e=>e.classList.contains('is-ready')),'head not ready');
+ await page.waitForFunction(()=>document.querySelector('#crt-head-feature').classList.contains('is-ready'),null,{timeout:30000});
  await screenshot(page,`original-hero-${width}.png`);
  await page.evaluate(()=>{const v=document.querySelector('#scroll-viewport');v.scrollTop=v.clientHeight*.5});await page.waitForTimeout(200);
  await screenshot(page,`original-transition-${width}.png`);

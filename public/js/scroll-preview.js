@@ -127,10 +127,14 @@
   }
   links.forEach(link => link.addEventListener('click', event => { event.preventDefault(); go(link.dataset.scrollSection); }));
   addEventListener('portfolio:scroll-to', event => go(event.detail));
-  addEventListener('portfolio:scroll-return', () => go(current, {historyUpdate:false}));
+  addEventListener('portfolio:scroll-return', () => {
+    history.replaceState({scrollSection:current}, '', new URL(`scroll-preview/#${current}`, document.baseURI));
+    go(current, {historyUpdate:false});
+  });
   viewport.addEventListener('scroll', schedule, {passive:true});
   addEventListener('resize', () => { if (docked) { desktop.prepend(head); head.removeAttribute('style'); head.classList.remove('scroll-portrait-docked'); docked = false; } measure(); schedule(); });
   addEventListener('portfolio:scroll-runtime', renderContents);
+  addEventListener('portfolio:head-settled', schedule);
   addEventListener('portfolio:langchange', renderContents);
   addEventListener('popstate', () => { const hash = location.hash.slice(1); if (kinds.includes(hash)) go(hash, {historyUpdate:false}); });
   reduced.addEventListener('change', schedule);
