@@ -109,7 +109,7 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
    }
    await select('work'); await settle('work');
    const card=page.locator('#scroll-work .project-tile-v2').first();
-   await card.evaluate(e=>{const v=document.getElementById('scroll-viewport');v.scrollTop+=e.getBoundingClientRect().top-document.querySelector('.scroll-index').getBoundingClientRect().top+e.getBoundingClientRect().height+20});
+   await card.evaluate(e=>{const v=document.getElementById('scroll-viewport');v.scrollTop=Math.max(document.getElementById('scroll-work').offsetTop,v.scrollTop+e.getBoundingClientRect().top-document.querySelector('.scroll-index').getBoundingClientRect().top+e.getBoundingClientRect().height+20)});
    await page.waitForFunction(()=>document.querySelectorAll('.is-viewport-color').length===1);
    await page.waitForFunction(()=>getComputedStyle(document.querySelector('.is-viewport-color .project-cover-img')).filter==='none');
    await select('work'); await settle('work');
