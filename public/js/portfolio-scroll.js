@@ -10,10 +10,10 @@
   const launchers = [...heroIcons.querySelectorAll('.desktop-icon')];
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const compact = matchMedia('(max-width: 1024px)');
-  const kinds = ['home', 'work', 'about', 'contact'];
+  const kinds = ['home', 'work', 'about', 'resume', 'contact'];
   const links = [...document.querySelectorAll('.scroll-index a')];
   const menuButtons = new Map();
-  const windows = ['work', 'about', 'contact'].map(kind => {
+  const windows = ['work', 'about', 'resume', 'contact'].map(kind => {
     const section = document.getElementById(`scroll-${kind}`);
     return {kind, section, window:section.querySelector('.scroll-window'), body:section.querySelector('.window-body')};
   });
@@ -30,7 +30,7 @@
     button.className = 'scroll-mini-icon';
     button.dataset.scrollLaunch = kind;
     button.appendChild(launcher.querySelector('.icon-glyph').cloneNode(true));
-    button.addEventListener('click', () => kind === 'resume' ? launcher.click() : go(kind));
+    button.addEventListener('click', () => go(kind));
     miniMenu.appendChild(button);
     menuButtons.set(kind, button);
   });
@@ -100,7 +100,7 @@
       menuButtons.get(kind).setAttribute('aria-label', name);
       menuButtons.get(kind).title = name;
     });
-    ['work','about','contact'].forEach(kind => {
+    ['work','about','resume','contact'].forEach(kind => {
       const target = document.querySelector(`[data-scroll-content="${kind}"]`);
       target.innerHTML = api.content(kind);
       document.querySelector(`[data-scroll-title="${kind}"]`).textContent = window.PortfolioI18n?.t(`window.${kind === 'work' ? 'projects' : kind}`) || kind.toUpperCase();
@@ -138,7 +138,7 @@
         link.classList.add('is-changing');
       }
     });
-    const displayKind = displayName === 'Resume' ? 'resume' : kind;
+    const displayKind = kind;
     caption.dataset.section = displayKind;
     captionLabel.dataset.scrollLabel = displayName;
     captionLabel.textContent = displayName;
@@ -260,7 +260,7 @@
       if (progress > 0 && progress < OPEN_END) candidate = {kind, progress,section};
     });
     if (y+h >= viewport.scrollHeight-4) selected = 'contact';
-    const name = document.querySelector('#window-layer .os-window[data-kind="resume"]') ? 'Resume' : links[kinds.indexOf(selected)].querySelector('[data-scroll-label]').dataset.scrollLabel;
+    const name = links[kinds.indexOf(selected)].querySelector('[data-scroll-label]').dataset.scrollLabel;
     active(selected, name);
     updateCoverColor(overlay);
     morph.style.display = 'none';
@@ -313,7 +313,7 @@
     const route = window.Portfolio.getRoute();
     if (route.type === 'project') go('work', {historyUpdate:false, closeOverlay:false});
     else if (route.type === 'work') go('work', {historyUpdate:false});
-    else if (route.type === 'section' && route.kind !== 'resume') go(route.kind, {historyUpdate:false});
+    else if (route.type === 'section') go(route.kind, {historyUpdate:false});
   }
   addEventListener('portfolio:site-ready', enter, {once:true});
   new MutationObserver(() => { if (!ready && document.body.classList.contains('site-ready')) enter(); }).observe(document.body, {attributes:true, attributeFilter:['class']});
