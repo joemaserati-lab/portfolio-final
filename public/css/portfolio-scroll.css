@@ -249,6 +249,11 @@
     box-shadow: none;
     text-align: left;
   }
+  .scroll-portfolio #scroll-resume .scroll-window.os-window {
+    height: auto !important;
+    min-height: 0;
+    max-height: none !important;
+  }
   .scroll-portfolio .scroll-window > .window-titlebar {
     display: none;
   }
