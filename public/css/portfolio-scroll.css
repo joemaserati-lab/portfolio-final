@@ -1,6 +1,6 @@
 /* Scroll layout, navigation and transitions. Base typography and CRT chrome
    are shared with the rest of the production stylesheet bundle. */
-.scroll-portfolio { --scroll-portrait-size: clamp(76px, 22vw, 96px); }
+.scroll-portfolio { --scroll-portrait-size: clamp(88px, 25vw, 110px); }
 .scroll-portfolio .scroll-viewport {
   position: absolute;
   inset: 0;
@@ -237,7 +237,8 @@
   }
   .scroll-portfolio .scroll-section {
     display: flex;
-    padding: calc(var(--ui-safe-top) + var(--scroll-portrait-size) + 20px) var(--ui-safe-right) calc(var(--ui-safe-bottom) + 100px) var(--ui-safe-left);
+    min-height: 0;
+    padding: calc(var(--ui-safe-top) + var(--scroll-portrait-size) + 20px) var(--ui-safe-right) 24px var(--ui-safe-left);
   }
   .scroll-portfolio .scroll-window.os-window {
     flex: 1 1 100%;
@@ -343,7 +344,7 @@
 }
 
 @media (max-width: 1024px) and (max-height: 450px) {
-  .scroll-portfolio { --scroll-portrait-size: 64px; }
+  .scroll-portfolio { --scroll-portrait-size: 72px; }
   .scroll-portfolio .desktop-icons { translate: none; }
 }
 @keyframes scroll-tab-refresh {
