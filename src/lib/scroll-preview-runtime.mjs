@@ -9,17 +9,24 @@ export function runtime(name, base) {
   if (name === 'effect') {
     source = replace(source, 'touchMaxPixels: 1400000', 'touchMaxPixels: 2200000');
     source = replace(source, 'touchMaxDpr: 1.25', 'touchMaxDpr: 2');
-    source = replace(source, '  let fitX = 1, fitY = 1;', '  let fitX = 1, fitY = 1;\n  let scrollYaw = null;');
+    source = replace(source, '  let fitX = 1, fitY = 1;', '  let fitX = 1, fitY = 1;\n  let scrollYaw = null, presentationScale = 1;');
     source = replace(source, '    root.rotation.y += (pointer.x * PRESET.mouseAmount - root.rotation.y) * ease;', `    if (scrollYaw !== null) root.rotation.set(-0.015, reducedMotion ? 0 : scrollYaw, 0);
     else root.rotation.y += (pointer.x * PRESET.mouseAmount - root.rotation.y) * ease;`);
     source = replace(source, '    root.rotation.x += ((pointer.y * PRESET.mouseAmount * 0.40 - 0.015) - root.rotation.x) * ease;', '    if (scrollYaw === null) root.rotation.x += ((pointer.y * PRESET.mouseAmount * 0.40 - 0.015) - root.rotation.x) * ease;');
     source = replace(source, '    setPointer(x, y) {', `    setScrollRotation(value) {
+      if (scrollYaw === value) return;
       scrollYaw = value;
       if (value !== null) root.rotation.set(-0.015, reducedMotion ? 0 : value, 0);
-      refresh();
+      if (!raf && !paused) refresh();
+    },
+    setPresentationScale(value) {
+      if (Math.abs(value - presentationScale) < .001) return;
+      presentationScale = value; resize();
     },
     setPointer(x, y) {
       if (scrollYaw !== null) return;`);
+    source = replace(source, 'const nativeDpr = Math.min(devicePixelRatio || 1, maxDpr);', 'const nativeDpr = Math.min(devicePixelRatio || 1, maxDpr) * presentationScale;');
+    source = replace(source, 'const pixelRatio = Math.max(0.38, Math.min(nativeDpr, budgetDpr));', 'const pixelRatio = Math.max(0.05, Math.min(nativeDpr, budgetDpr));');
     return source;
   }
   if (name === 'boot') {
@@ -35,6 +42,7 @@ export function runtime(name, base) {
     source = replace(source, 'effect.setPaused(!shouldBeVisible || windowOpen);', 'effect.setPaused(!shouldBeVisible);');
     source = replace(source, '  function onPointerMove(event) {', `  function onScrollPose(event) {
     effect?.setScrollRotation(event.detail.yaw);
+    effect?.setPresentationScale(event.detail.renderScale);
   }
   addEventListener('portfolio:scroll-pose', onScrollPose);
   function onPointerMove(event) {`);

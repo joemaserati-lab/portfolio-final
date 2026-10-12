@@ -240,3 +240,14 @@
 @media (prefers-reduced-motion: reduce) { .scroll-preview .scroll-index .icon-glyph, .scroll-preview .scroll-index [data-scroll-label] { transition: none; } }
 
 .scroll-preview .contact-photo img { filter: grayscale(1) contrast(1.08) brightness(.88); }
+
+@media (max-width: 1024px) {
+  .scroll-preview .scroll-portrait-docked { will-change: transform; }
+  .scroll-preview #scroll-work .project-tile-v2 .project-cover-img { transition: filter .65s cubic-bezier(.22,.61,.36,1), transform .35s ease, opacity .65s ease; }
+  .scroll-preview #scroll-work .is-viewport-color .project-cover-v2::after { content: ''; position: absolute; z-index: 2; left: 0; right: 0; height: 2px; background: var(--white); box-shadow: 0 0 5px var(--gray-light); pointer-events: none; animation: scroll-color-scan .65s ease-out both; }
+}
+@keyframes scroll-color-scan { from { top: 0; opacity: .35; } to { top: 100%; opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .scroll-preview #scroll-work .project-tile-v2 .project-cover-img { transition: none; }
+  .scroll-preview #scroll-work .is-viewport-color .project-cover-v2::after { display: none; }
+}
