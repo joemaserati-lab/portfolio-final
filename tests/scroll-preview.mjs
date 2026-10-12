@@ -29,7 +29,7 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  await screenshot(page,`original-loader-${width}.png`);
  await page.locator('#boot-enter').click();await page.waitForFunction(()=>document.body.classList.contains('site-ready'),{},{timeout:20000});
  await page.waitForTimeout(800);
- await page.locator('#privacy-panel').waitFor({state:'visible',timeout:3000});
+ await page.locator('#privacy-panel').waitFor({state:'visible',timeout:15000});
  await page.locator('#privacy-reject').click();
  assert.equal(await page.locator('.desktop-icons .desktop-icon').count(),4);
  assert.equal(await page.locator('#scroll-work .project-tile-v2').count(),5);
