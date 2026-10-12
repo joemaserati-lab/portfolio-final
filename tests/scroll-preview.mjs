@@ -114,7 +114,8 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
    await page.waitForFunction(()=>getComputedStyle(document.querySelector('.is-viewport-color .project-cover-img')).filter==='none');
    await select('work'); await settle('work');
  } else {
-   await page.mouse.move(1300,450); await page.waitForTimeout(1200);
+   await page.mouse.move(1300,450);
+   await page.waitForFunction(()=>{const r=document.getElementById('crt-head-feature').getBoundingClientRect();const target=Math.max(-1,Math.min(1,(1300-r.left)/r.width*2-1))*.72;return Math.abs(window.PortfolioMotion.getPose().yaw-target)<.005},null,{timeout:20000});
    const pose=await page.evaluate(()=>window.PortfolioMotion.getPose());
    await page.locator('#scroll-viewport').evaluate(e=>e.scrollTop+=100); await page.waitForTimeout(400);
    const after=await page.evaluate(()=>window.PortfolioMotion.getPose());
