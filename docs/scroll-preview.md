@@ -1,26 +1,37 @@
-# Scroll preview
+# Scroll extension of the original CRT portfolio
 
-Experimental route: `/portfolio-final/scroll-preview/` on GitHub Pages.
+Route: `/portfolio-final/scroll-preview/`. The production homepage and every existing route remain unchanged.
 
-The page is deliberately absent from the existing navigation and sitemap and has `noindex, follow`. It uses its own Astro document, CSS and client module; it never loads the production boot, window manager or History API router.
+## Reuse, not redesign
 
-## Sources
+The page renders the unchanged `PortfolioShell.astro` with Astro's container API, then adds a native scrolling viewport and a text-only section index. The original loader, hero, four desktop icons, full production CSS bundle, local fonts, CRT renderer, custom cursor, language selector, privacy controls and content dictionaries are reused directly. The original project, About and Contact markup is produced by the existing portfolio runtime's content functions.
 
-- `src/pages/scroll-preview/index.astro`: static accessible sections and metadata. Reads the existing route data and English content dictionary at build time.
-- `public/css/scroll-preview.css`: layout, existing local fonts, responsive styling and reduced-motion fallback. Colors come from the unchanged `monochrome-theme.css`.
-- `public/js/scroll-preview.js`: reversible scroll transition, active section, 240 ms visual character scramble, hash navigation and touch cover preview. Imports the unchanged production portrait renderer and GLB asset; no portrait lifecycle globals are installed.
+The three preview runtime endpoints are generated from the original boot, portfolio and head sources at build time. `src/lib/scroll-preview-runtime.mjs` adapts only their preview routing, content exposure and portrait lifecycle. Guarded string replacements deliberately fail the build if upstream hooks change. Production scripts are never edited or replaced.
 
-Desktop uses a sticky full-height hero over a two-viewport scroll range. Small screens and reduced-motion users get a one-viewport hero and natural document scrolling. The index uses real links, persistent accessible labels and `aria-current`. All content and links remain available without JavaScript; the portrait photo is the WebGL failure fallback.
+## Scroll behavior
 
-## Removal
+The first viewport contains the original hero. Scrolling expands the matching original folder glyph into a window outline and reveals the corresponding existing content. The same transformation reverses on scroll back. Folder clicks and the section index scroll to content; Resume keeps its original window. Project covers keep the single-touch 280 ms color preview and open the original case-study renderer. Cases and Resume stay under preview-local hashes; close/back return to the scrolling context.
 
-Delete these three implementation files and this note, then rebuild and deploy. No existing routes, data, components, stylesheets, bundling or deployment configuration require changes.
+The original head remains at its original hero position at scroll zero. It moves to a persistent side area on desktop or compact upper area on mobile, keeps rendering while content is open, and receives scroll-driven pose updates in addition to pointer/touch input. Reduced motion disables the folder morph, pose animation and character scramble. Section navigation uses fixed accessible labels plus a visual 240 ms scramble.
 
-## Verification
+## Files and removal
 
-- Astro production build and the existing `scripts/verify-build.mjs` passed.
-- Original built routes and public assets compared byte-for-byte against a clean build of the parent main commit: identical.
-- Playwright with installed Chromium-based Brave: 1440×900, 320×568, 390×844 and 667×375 passed horizontal overflow, four-section index, clickable navigation, contact link and no uncaught JavaScript errors. The shared 3D renderer loaded in all four sizes.
-- Scroll transition checked at intermediate progress and back at zero; reduced-motion layout and immediate navigation passed.
-- Desktop and mobile hero/project screenshots reviewed.
-- Physical-device testing and a Lighthouse audit of this experimental URL are not included in these local checks. Existing production loader/window/close behavior was not exercised locally; its built output is unchanged.
+Remove only these experiment files and rebuild:
+
+- `src/pages/scroll-preview/` (page and generated runtime endpoint)
+- `src/lib/scroll-preview-runtime.mjs`
+- `public/css/scroll-preview.css`
+- `public/js/scroll-preview.js`
+- `tests/scroll-preview.mjs`
+- `.github/workflows/scroll-preview.yml`
+- this note
+
+The route stays outside the original navigation and sitemap and is marked `noindex, follow`.
+
+## Validation
+
+Production build and existing route verification passed locally. All original built pages and public assets were byte-for-byte identical to the clean original build. Computed hero font, spacing and geometry matched the original homepage at 1440×900, 320×568 and 667×375.
+
+The dedicated Playwright test covers fresh-entry loader, original icons, five original project cards, persistent 3D head, section navigation, project open/close, preview-local URLs, reverse scroll to the original hero, horizontal overflow, returning visits, reduced motion and language change at 1440×900, 320×568, 390×844 and 667×375. The dedicated PR workflow runs it against the production build and saves screenshots.
+
+Physical-device testing and Lighthouse measurements specifically of this experimental route remain outside these checks. Existing production checks continue to run unchanged.

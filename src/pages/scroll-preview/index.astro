@@ -1,51 +1,20 @@
 ---
-import { readFileSync } from 'node:fs';
-import { runInNewContext } from 'node:vm';
-import { profile, projects } from '../../data/routes.mjs';
-// Consume the existing dictionary without changing the production runtime.
-const context = { window: {}, addEventListener: () => {} };
-runInNewContext(readFileSync(new URL('../../../public/js/content.js', import.meta.url), 'utf8'), context);
-const content = context.window.PORTFOLIO_DATA.profile;
+import { experimental_AstroContainer as AstroContainer } from 'astro/container';
+import PortfolioShell from '../../layouts/PortfolioShell.astro';
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
-const url = (path = '') => `${base}${path}`;
-const canonical = new URL(url('scroll-preview/'), Astro.site);
+const container = await AstroContainer.create({ astroConfig: { site: Astro.site.href, base, trailingSlash: 'always' } });
+let html = await container.renderToString(PortfolioShell, {
+  props: { title: 'Scroll Preview — Edoardo Rappanello', canonicalPath: 'scroll-preview/' },
+  request: new Request(new URL(`${base}scroll-preview/`, Astro.site)), partial: false
+});
+const navigation = `<nav class="scroll-index" aria-label="Scroll sections">${[['home','Home'],['work','Selected Works'],['about','About'],['contact','Contact']].map(([id,name]) => `<a href="${base}scroll-preview/#${id}" data-scroll-section="${id}" ${id==='home'?'aria-current="location"':''}><span aria-hidden="true" data-scroll-label="${name}">${name}</span><span class="scroll-sr">${name}</span></a>`).join('')}</nav>`;
+const sections = ['work','about','contact'].map(kind => `<section class="scroll-section" id="scroll-${kind}" aria-label="${kind==='work'?'Selected Works':kind==='about'?'About':'Contact'}"><div class="scroll-window os-window" data-kind="${kind}"><div class="window-titlebar"><span data-scroll-title="${kind}">${kind==='work'?'PROJECTS':kind.toUpperCase()}</span></div><div class="window-body" data-scroll-content="${kind}"></div></div></section>`).join('');
+html = html.replace('<body class="booting">', '<body class="booting scroll-preview">')
+  .replace('</head>', `<meta name="robots" content="noindex, follow"><link rel="stylesheet" href="${base}css/scroll-preview.css"></head>`)
+  .replace('<div class="desktop" id="desktop">', '<div class="scroll-viewport" id="scroll-viewport" tabindex="0" aria-label="Scrollable portfolio"><section class="scroll-home" id="scroll-home" aria-label="Home"><div class="desktop" id="desktop">')
+  .replace(/<\/div>\s*(<button class="language-toggle")/, `</div></section>${sections}</div><div class="scroll-folder-morph" aria-hidden="true"></div>$1`)
+  .replace('src="js/boot.js"', 'src="scroll-preview/runtime/boot.js"')
+  .replace('</body>', `${navigation}<script defer src="${base}js/scroll-preview.js"></script></body>`);
+if (!html.includes('id="scroll-viewport"') || !html.includes('data-scroll-content="contact"') || !html.includes('src="scroll-preview/runtime/boot.js"')) throw new Error('Scroll extension: original shell hooks changed');
 ---
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="description" content={profile.defaultDescription} />
-    <meta name="robots" content="noindex, follow" />
-    <link rel="canonical" href={canonical} />
-    <title>Scroll Preview — {profile.name}</title>
-    <link rel="icon" href={url('assets/favicon/favicon-er.svg')} />
-    <link rel="stylesheet" href={url('css/monochrome-theme.css')} />
-    <link rel="stylesheet" href={url('css/scroll-preview.css')} />
-    <script type="importmap" is:inline>{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.185.1/examples/jsm/"}}</script>
-  </head>
-  <body class="scroll-preview">
-    <a class="sp-skip" href="#sp-works">Skip to selected works</a>
-    <header class="sp-header"><a href={url()} aria-label="Original portfolio">ER<span>©</span></a><span>GRAPHIC DESIGN / WEB / DIGITAL MARKETING</span></header>
-    <nav class="sp-index" aria-label="Page sections">
-      {['Home', 'Selected Works', 'About', 'Contact'].map((name, i) => <a href={`#${['sp-home', 'sp-works', 'sp-about', 'sp-contact'][i]}`} aria-current={i === 0 ? 'location' : undefined}><span class="sp-label" data-label={name} aria-hidden="true">{name}</span><span class="sp-sr">{name}</span></a>)}
-    </nav>
-    <main>
-      <section id="sp-home" class="sp-home" aria-label="Home">
-        <div class="sp-stage">
-          <div class="sp-head" aria-hidden="true"><img src={url(profile.defaultImage)} alt="" /><canvas></canvas></div>
-          <div class="sp-hero-copy"><p class="sp-eyebrow">MULTIDISCIPLINARY DESIGNER</p><h1>EDOARDO<br />RAPPANELLO<span>_</span></h1><p>I work across graphic design, web and digital marketing, with a focus on how each project works in context.</p><a class="sp-action" href="#sp-works">Enter selected work <span aria-hidden="true">↘</span></a></div>
-          <p class="sp-scroll" aria-hidden="true">SCROLL TO EXPLORE ↓</p>
-          <div class="sp-transition" aria-hidden="true">Selected<br /><em>Works</em></div>
-        </div>
-      </section>
-      <section id="sp-works" class="sp-section" aria-labelledby="sp-work-title">
-        <p class="sp-eyebrow">DESIGN / DEVELOPMENT / COMMUNICATION</p><h2 id="sp-work-title">Selected <em>Works</em></h2>
-        <div class="sp-projects">{projects.map(project => <a class="sp-project" href={url(`work/${project.slug}/`)}><div class="sp-cover"><img src={url(project.image)} alt={`${project.name} project cover`} loading="lazy" width="1200" height="800" /></div><div class="sp-project-title"><h3>{project.name}</h3><span aria-hidden="true">↗</span></div><p>{project.description}</p></a>)}</div>
-      </section>
-      <section id="sp-about" class="sp-section sp-about" aria-labelledby="sp-about-title"><div><p class="sp-eyebrow">PROFILE</p><h2 id="sp-about-title">About</h2><img src={url(profile.defaultImage)} alt={profile.name} loading="lazy" width="480" height="480" /></div><div class="sp-about-copy"><h3>{content.role}</h3>{content.intro.map(paragraph => <p>{paragraph}</p>)}<a class="sp-action" href={url('resume/')}>Resume ↗</a></div></section>
-      <section id="sp-contact" class="sp-section sp-contact" aria-labelledby="sp-contact-title"><p class="sp-eyebrow">CONTACT</p><h2 id="sp-contact-title">Let’s <em>talk.</em></h2><a class="sp-email" href={`mailto:${content.email}`}>{content.email} <span aria-hidden="true">↗</span></a><a class="sp-action" href={content.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn ↗</a><footer><span>{profile.name}</span><a href={url()}>Original portfolio ↗</a></footer></section>
-    </main>
-    <script type="module" is:inline src={url('js/scroll-preview.js')}></script>
-  </body>
-</html>
+<Fragment set:html={html} />
