@@ -227,7 +227,7 @@
     windows.forEach(({kind, section, window:panel, body}) => {
       const start = section.offsetTop;
       if (y + h*.4 >= start) selected = kind;
-      const progress = clamp((y - start + h)/h);
+      const progress = Math.abs(y - start) < 2 ? 1 : clamp((y - start + h)/h);
       const signal = reduced.matches ? 1 : clamp((progress-OPEN_END)/(1-OPEN_END));
       const reveal = reduced.matches ? 1 : clamp((signal-.2)/.8);
       const opened = reduced.matches || progress >= OPEN_END;
