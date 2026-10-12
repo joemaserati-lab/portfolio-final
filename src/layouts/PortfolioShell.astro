@@ -2,6 +2,7 @@
 import ScrollSections from '../components/ScrollSections.astro';
 import ScrollNavigation from '../components/ScrollNavigation.astro';
 import PortfolioFooter from '../components/PortfolioFooter.astro';
+import packageInfo from '../../package.json';
 import ProjectFallback from '../components/ProjectFallback.astro';
 
 const {
@@ -14,6 +15,8 @@ const {
   project = null
 } = Astro.props;
 
+const assetVersion = packageInfo.version;
+const asset = path => `${path}?v=${assetVersion}`;
 const basePath = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 const rootUrl = new URL(basePath, Astro.site ?? Astro.url.origin);
 const canonicalUrl = new URL(canonicalPath, rootUrl);
@@ -42,7 +45,8 @@ const ogImageUrl = new URL(ogImage, rootUrl);
   <link rel="icon" href="assets/favicon/favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="icon" href="assets/favicon/favicon-64.png" sizes="64x64" type="image/png" />
   <link rel="shortcut icon" href="assets/favicon/favicon-32.png" type="image/png" />
-  <script is:inline>
+  <script is:inline define:vars={{assetVersion}}>
+    window.PORTFOLIO_ASSET_VERSION = assetVersion;
     try {
       if (sessionStorage.getItem('portfolioBootSeen') === '1') {
         document.documentElement.classList.add('returning-visit');
@@ -51,7 +55,7 @@ const ogImageUrl = new URL(ogImage, rootUrl);
   </script>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   {import.meta.env.PROD
-    ? <link rel="stylesheet" href="css/portfolio.bundle.css" />
+    ? <link rel="stylesheet" href={asset('css/portfolio.bundle.css')} />
     : <><link rel="stylesheet" href="css/foundation.css" />
        <link rel="stylesheet" href="css/workspace.css" />
        <link rel="stylesheet" href="css/visual-experience.css" />
@@ -175,12 +179,12 @@ const ogImageUrl = new URL(ogImage, rootUrl);
 
   {project && <ProjectFallback project={project} basePath={basePath} />}
 
-  <script is:inline defer src="js/i18n.js"></script>
-  <script is:inline defer src="js/cursor.js"></script>
-  <script is:inline defer src="js/boot.js"></script>
-  <script is:inline defer src="js/hero-copy-contrast.js"></script>
-  <script is:inline defer src="js/analytics.js"></script>
-  <script is:inline defer src="js/privacy.js"></script>
-  <script is:inline defer src="js/portfolio-scroll.js"></script>
+  <script is:inline defer src={asset('js/i18n.js')}></script>
+  <script is:inline defer src={asset('js/cursor.js')}></script>
+  <script is:inline defer src={asset('js/boot.js')}></script>
+  <script is:inline defer src={asset('js/hero-copy-contrast.js')}></script>
+  <script is:inline defer src={asset('js/analytics.js')}></script>
+  <script is:inline defer src={asset('js/privacy.js')}></script>
+  <script is:inline defer src={asset('js/portfolio-scroll.js')}></script>
 </body>
 </html>

@@ -17,7 +17,7 @@ async function snapshot(width, height, unminified) {
   const context = await browser.newContext({ viewport: { width,height }, deviceScaleFactor: 1, isMobile: width < 600, hasTouch: width < 600 });
   const page = await context.newPage();
   if (unminified) {
-    await page.route('**/css/portfolio.bundle.css', route =>
+    await page.route('**/css/portfolio.bundle.css*', route =>
       route.fulfill({status:200, contentType:'text/css; charset=utf-8', body:rawCss})
     );
   }

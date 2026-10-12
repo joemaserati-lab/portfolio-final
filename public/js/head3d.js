@@ -6,7 +6,9 @@ function settleHead(ready, error=null) {
   window.dispatchEvent(new CustomEvent('portfolio:head-settled', { detail: window.__portfolioHeadState }));
 }
 
-import { mountHeadScanEffect } from './head-scan-effect.js';
+const effectUrl = new URL('./head-scan-effect.js', import.meta.url);
+effectUrl.searchParams.set('v', window.PORTFOLIO_ASSET_VERSION);
+const { mountHeadScanEffect } = await import(effectUrl.href);
 
 const feature = document.getElementById('crt-head-feature');
 const canvas = document.getElementById('crt-head-canvas');

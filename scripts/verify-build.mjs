@@ -48,6 +48,8 @@ assert.ok(!bundle.includes('assets/images/projects/'), 'Redundant CSS project ba
 
 for (const route of routes) {
   const html=readFileSync(dir(`dist/${route}index.html`),'utf8');
+  assert.ok(/css\/portfolio\.bundle\.css\?v=/.test(html), `Unversioned stylesheet: ${route}`);
+  assert.ok(/js\/boot\.js\?v=/.test(html), `Unversioned boot runtime: ${route}`);
   assert.ok(html.includes('id="scroll-viewport"'), `Scroll layout missing: ${route}`);
   assert.ok(!html.includes('noindex'), `Official route is excluded from indexing: ${route}`);
 }

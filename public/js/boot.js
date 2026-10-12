@@ -218,7 +218,13 @@
 
   setProgressTarget(1.5);
 
+  function assetUrl(path) {
+    const url = new URL(path, document.baseURI);
+    url.searchParams.set('v', window.PORTFOLIO_ASSET_VERSION);
+    return url.href;
+  }
   function loadScript(src) {
+    src = assetUrl(src);
     return new Promise((resolve, reject) => {
       const selector = `script[data-app-src="${src}"]`;
       const existing = document.querySelector(selector);
@@ -361,7 +367,7 @@
       }
       addEventListener('portfolio:head-settled', onSettled, { once: true });
       timer = setTimeout(() => done({ settled: true, ready: false, error: 'Head initialization timed out.' }), HEAD_READY_TIMEOUT_MS);
-      import(new URL('js/head3d.js', document.baseURI).href).catch(error => {
+      import(assetUrl('js/head3d.js')).catch(error => {
         console.error('3D head module failed to load.', error);
         done({ settled: true, ready: false, error: String(error?.message || error) });
       });
