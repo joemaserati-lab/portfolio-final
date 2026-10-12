@@ -156,11 +156,10 @@
       });
     }
     cards.forEach(card => {
-      const wasSelected = card.classList.contains('is-viewport-color');
       const isSelected = card === selected;
       card.classList.toggle('is-viewport-color', isSelected);
       if (isSelected) card.classList.add('is-color-preview');
-      else if (wasSelected && !card.dataset.scrollTap) card.classList.remove('is-color-preview');
+      else if (!card.dataset.scrollTap) card.classList.remove('is-color-preview');
     });
   }
   function update() {

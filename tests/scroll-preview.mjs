@@ -128,6 +128,7 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  assert(await page.locator('#crt-head-feature').evaluate(e=>e.classList.contains('is-ready')));
  await page.locator('.projects-close').click();await page.waitForTimeout(700);
  assert(await page.locator('#projects-view').evaluate(e=>e.hidden));
+ if(width<=1024) assert(await page.locator('#scroll-work .is-color-preview').count()<=1,'More than one mobile card is colored');
  await select('about');await settle('about');
  assert.equal(await page.locator('.scroll-index [aria-current]').getAttribute('data-scroll-section'),'about');
  await select('contact');await settle('contact');
