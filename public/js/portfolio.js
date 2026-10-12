@@ -290,7 +290,6 @@
     dispatchEvent(new CustomEvent('portfolio:scroll-return',{detail:kind}));
   }
   function navigateProjects() { crtTransition(()=>returnToScroll('work')); }
-  function navigateHome() { returnToScroll(); }
   function bindProjectChrome(root) {
     root.querySelector('[data-projects-back]')?.addEventListener('click',navigateProjects);
     root.querySelector('[data-projects-close]')?.addEventListener('click',()=>returnToScroll());

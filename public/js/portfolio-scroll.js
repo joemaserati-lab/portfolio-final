@@ -19,7 +19,7 @@
   });
   const HANDOFF_END = .22;
   const OPEN_END = .8;
-  let ready = false, frame = 0, scramble = 0, current = 'home', headRect, folders = {}, launcherRects = new Map(), docked = false, smoothDock = 0, dockTime = 0;
+  let ready = false, frame = 0, scramble = 0, current = 'home', headRect, launcherRects = new Map(), docked = false, smoothDock = 0, dockTime = 0;
   const clamp = value => Math.max(0, Math.min(1, value));
   const mix = (a,b,p) => a + (b-a)*p;
 
@@ -84,10 +84,6 @@
       const r = head.getBoundingClientRect();
       headRect = {left:r.left-parent.left, top:r.top-parent.top+viewport.scrollTop, width:r.width, height:r.height};
     }
-    ['work','about','contact'].forEach(kind => {
-      const r = desktop.querySelector(`[data-open="${kind === 'work' ? 'projects' : kind}"] .icon-glyph`).getBoundingClientRect();
-      folders[kind] = {left:r.left-parent.left, top:r.top-parent.top+viewport.scrollTop, width:r.width, height:r.height};
-    });
     windows.forEach(entry => {
       entry.window.style.setProperty('--scroll-raster-height', `${Math.min(entry.body.offsetHeight, viewport.clientHeight * .7)}px`);
     });
@@ -270,12 +266,12 @@
     morph.style.display = 'none';
     if (candidate && !compact.matches && !reduced.matches && !overlay) {
       const {kind,progress,section} = candidate;
-      const source = compact.matches ? folders[kind] : menuButtons.get(kind).querySelector('.icon-glyph').getBoundingClientRect();
+      const source = menuButtons.get(kind).querySelector('.icon-glyph').getBoundingClientRect();
       const sr = screen.getBoundingClientRect();
-      const from = compact.matches ? source : {left:source.left-sr.left,top:source.top-sr.top,width:source.width,height:source.height};
+      const from = {left:source.left-sr.left,top:source.top-sr.top,width:source.width,height:source.height};
       const target = section.querySelector('.scroll-window').getBoundingClientRect();
       const to = {left:target.left-sr.left,top:target.top-sr.top,width:target.width,height:Math.min(target.height,h*.75)};
-      const openingStart = compact.matches || kind !== 'work' ? 0 : HANDOFF_END;
+      const openingStart = kind !== 'work' ? 0 : HANDOFF_END;
       if (progress > openingStart) {
         morph.style.display = 'block';
         const t = clamp((progress-openingStart)/(OPEN_END-openingStart));
