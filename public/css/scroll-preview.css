@@ -157,7 +157,7 @@
     z-index: 80;
     left: var(--ui-safe-left);
     right: var(--ui-safe-right);
-    bottom: var(--ui-safe-bottom);
+    bottom: max(12px, env(safe-area-inset-bottom));
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 2px;
