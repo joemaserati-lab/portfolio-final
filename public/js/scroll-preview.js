@@ -19,7 +19,7 @@
   });
   const HANDOFF_END = .22;
   const OPEN_END = .8;
-  let ready = false, frame = 0, scramble = 0, current = 'home', headRect, folders = {}, launcherRects = new Map(), docked = false;
+  let ready = false, frame = 0, scramble = 0, current = 'home', headRect, folders = {}, launcherRects = new Map(), docked = false, smoothDock = 0, dockTime = 0;
   const clamp = value => Math.max(0, Math.min(1, value));
   const mix = (a,b,p) => a + (b-a)*p;
 
@@ -143,7 +143,8 @@
   }
   function updateCoverColor(overlay) {
     const cards = [...document.querySelectorAll('#scroll-work .project-tile-v2')];
-    let selected = null, best = 0;
+    let selected = null, best = 0, currentScore = 0;
+    const currentCard = cards.find(card => card.classList.contains('is-viewport-color'));
     if (compact.matches && !overlay && windows[0].window.classList.contains('is-revealed')) {
       const sr = screen.getBoundingClientRect();
       const top = head.getBoundingClientRect().bottom + 12;
@@ -152,9 +153,11 @@
         const rect = card.getBoundingClientRect();
         const visible = Math.max(0, Math.min(rect.bottom, bottom) - Math.max(rect.top, top));
         const score = visible / Math.max(1, rect.height);
+        if (card === currentCard) currentScore = score;
         if (rect.right > sr.left && rect.left < sr.right && score > best) { best = score; selected = card; }
       });
     }
+    if (currentCard && currentScore > 0 && currentScore >= best - .12) selected = currentCard;
     cards.forEach(card => {
       const isSelected = card === selected;
       card.classList.toggle('is-viewport-color', isSelected);
@@ -162,26 +165,44 @@
       else if (!card.dataset.scrollTap) card.classList.remove('is-color-preview');
     });
   }
-  function update() {
+  function update(now = performance.now()) {
     frame = 0;
     if (!ready || !headRect) return;
     const y = viewport.scrollTop, h = viewport.clientHeight, w = viewport.clientWidth;
     const p = reduced.matches ? Number(y > 1) : clamp(y/(h*.8));
     const overlay = !document.getElementById('projects-view').hidden || Boolean(document.querySelector('#window-layer .os-window'));
-    const pose = overlay ? 1 : p;
+    const targetPose = overlay ? 1 : p;
+    const dt = Math.min(64, Math.max(0, now - (dockTime || now - 16)));
+    dockTime = now;
+    smoothDock = compact.matches && !reduced.matches ? mix(smoothDock, targetPose, 1 - Math.exp(-dt / 55)) : targetPose;
+    if (Math.abs(smoothDock - targetPose) < .001) smoothDock = targetPose;
+    const pose = smoothDock;
     document.body.classList.toggle('scroll-reading', pose > 0);
     viewport.style.setProperty('--scroll-dock', pose.toFixed(4));
     if (pose > 0) {
       if (!docked) { screen.appendChild(head); head.classList.add('scroll-portrait-docked'); docked = true; }
       const slot = portraitSlot.getBoundingClientRect(), sr = screen.getBoundingClientRect();
       const target = compact.matches ? {left:slot.left-sr.left,top:slot.top-sr.top,width:slot.width,height:slot.height} : {left:w*.75,top:h*.22,width:w*.22,height:h*.55};
-      Object.entries(target).forEach(([key,value]) => { head.style[key] = `${mix(headRect[key],value,pose)}px`; });
-      head.style.transform = 'none';
+      if (compact.matches) {
+        const scale = mix(1, target.height / headRect.height, pose);
+        const finalWidth = headRect.width * target.height / headRect.height;
+        const left = mix(headRect.left, target.left + (target.width - finalWidth) / 2, pose);
+        const top = mix(headRect.top, target.top, pose);
+        head.style.width = `${headRect.width}px`;
+        head.style.height = `${headRect.height}px`;
+        head.style.left = `${headRect.left}px`;
+        head.style.top = `${headRect.top}px`;
+        head.style.transformOrigin = '0 0';
+        head.style.transform = `translate3d(${left-headRect.left}px, ${top-headRect.top}px, 0) scale(${scale})`;
+      } else {
+        Object.entries(target).forEach(([key,value]) => { head.style[key] = `${mix(headRect[key],value,pose)}px`; });
+        head.style.transform = 'none';
+      }
     } else if (docked) {
       desktop.prepend(head); head.classList.remove('scroll-portrait-docked'); head.removeAttribute('style'); docked = false;
     }
     const progress = clamp(y / Math.max(1, viewport.scrollHeight - h));
-    dispatchEvent(new CustomEvent('portfolio:scroll-pose', {detail:{yaw:compact.matches ? (reduced.matches ? 0 : progress * Math.PI * 2) : null}}));
+    dispatchEvent(new CustomEvent('portfolio:scroll-pose', {detail:{yaw:compact.matches ? (reduced.matches ? 0 : progress * Math.PI * 2) : null, renderScale:compact.matches && pose === 1 ? portraitSlot.clientHeight / headRect.height : 1}}));
     const handoff = reduced.matches ? Number(pose > 0) : clamp(y/(h*HANDOFF_END));
     const menuVisible = !compact.matches && (handoff > 0 || overlay);
     miniMenu.style.visibility = menuVisible ? 'visible' : 'hidden';
@@ -200,6 +221,7 @@
       launcher.style.transform = `translate(${(target.left-sr.left-origin.left)*handoff}px, ${(target.top-sr.top-origin.top+y)*handoff}px) scale(${scale})`;
       launcher.style.opacity = String(1-clamp((handoff-.7)/.3));
     });
+    if (Math.abs(smoothDock - targetPose) >= .001) schedule();
     heroIcons.inert = !compact.matches && handoff >= 1;
     let selected = 'home', candidate;
     windows.forEach(({kind, section, window:panel, body}) => {

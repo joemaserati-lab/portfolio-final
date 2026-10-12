@@ -19,7 +19,8 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
    return Math.abs(viewport.scrollTop - target) < 2
      && document.querySelector('.scroll-index [aria-current]')?.dataset.scrollSection === kind
      && (kind !== 'home' || document.getElementById('crt-head-feature').parentElement.id === 'desktop')
-     && (kind === 'home' || section.querySelector('.scroll-window').classList.contains('is-revealed'));
+     && (kind === 'home' || section.querySelector('.scroll-window').classList.contains('is-revealed'))
+     && (kind === 'home' || matchMedia('(min-width:1025px)').matches || Math.abs(document.getElementById('crt-head-feature').getBoundingClientRect().height-document.querySelector('.scroll-portrait-slot').getBoundingClientRect().height)<1);
  }, kind, {timeout:15000});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')console.log('CONSOLE',m.text())});
  await page.goto(url);
@@ -34,6 +35,7 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  assert.equal(await page.locator('.desktop-icons .desktop-icon').count(),4);
  assert.equal(await page.locator('#scroll-work .project-tile-v2').count(),5);
  await page.waitForFunction(()=>document.querySelector('#crt-head-feature').classList.contains('is-ready'),null,{timeout:30000});
+ const initialCanvasWidth=await page.locator("#crt-head-canvas").evaluate(e=>e.width);
  await screenshot(page,`original-hero-${width}.png`);
  if(width>1024) {
    assert.equal(await page.locator('.scroll-minimenu button').count(),4);
@@ -48,6 +50,7 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
    assert(origin<6,'Window does not originate at the minimenu icon');
  }
  await page.evaluate(()=>{const v=document.querySelector('#scroll-viewport');v.scrollTop=v.clientHeight*.5});await page.waitForTimeout(200);
+ if(width<=1024) assert.equal(await page.locator("#crt-head-canvas").evaluate(e=>e.width),initialCanvasWidth,"Head drawing buffer resized during mobile handoff");
  await screenshot(page,`original-transition-${width}.png`);
  assert.equal(await page.locator('#scroll-work .window-body').evaluate(e=>getComputedStyle(e).visibility),'hidden','Content appeared before the outline finished');
  assert(await page.locator('#scroll-work .window-body').evaluate(e=>e.inert));
@@ -111,7 +114,9 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
    const card=page.locator('#scroll-work .project-tile-v2').first();
    await card.evaluate(e=>{const v=document.getElementById('scroll-viewport');v.scrollTop=Math.max(document.getElementById('scroll-work').offsetTop,v.scrollTop+e.getBoundingClientRect().top-document.querySelector('.scroll-index').getBoundingClientRect().top+e.getBoundingClientRect().height+20)});
    await page.waitForFunction(()=>document.querySelectorAll('.is-viewport-color').length===1);
-   await page.waitForFunction(()=>getComputedStyle(document.querySelector('.is-viewport-color .project-cover-img')).filter==='none');
+   await page.waitForFunction(()=>{const image=document.querySelector('.is-viewport-color .project-cover-img');return image&&getComputedStyle(image).filter==='none'});
+   assert((await page.locator('.is-viewport-color .project-cover-img').evaluate(e=>getComputedStyle(e).transitionDuration)).includes('0.65s'));
+   assert.equal(await page.locator('.is-viewport-color .project-cover-v2').evaluate(e=>getComputedStyle(e,'::after').animationName),'scroll-color-scan');
    await select('work'); await settle('work');
  } else {
    await page.mouse.move(1300,450);
