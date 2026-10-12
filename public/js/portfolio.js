@@ -8,6 +8,19 @@
   const BASE_URL = new URL(document.baseURI);
   const BASE_PATH = BASE_URL.pathname;
   let returnSection = 'work';
+  let transitionSwap = null, transitionEnd = null;
+  function cancelTransition() {
+    clearTimeout(transitionSwap); clearTimeout(transitionEnd);
+    transitionSwap = null; transitionEnd = null;
+    document.getElementById('screen').classList.remove('crt-degauss');
+  }
+  function crtTransition(action) {
+    cancelTransition();
+    if (matchMedia('(prefers-reduced-motion:reduce)').matches) { action(); return; }
+    document.getElementById('screen').classList.add('crt-degauss');
+    transitionSwap = setTimeout(()=>{ transitionSwap = null; action(); },155);
+    transitionEnd = setTimeout(cancelTransition,370);
+  }
 
   function parseRoute() {
     const path = location.pathname.slice(BASE_PATH.length).replace(/^\/+|\/+$/g, '');
@@ -246,6 +259,7 @@
 
 
   function close() {
+    if (transitionSwap !== null) cancelTransition();
     projectsView.hidden = true;
     projectsView.classList.remove('is-open','case-mode');
     projectsView.innerHTML = '';
@@ -275,7 +289,7 @@
     navigateSection(kind,{replace:true});
     dispatchEvent(new CustomEvent('portfolio:scroll-return',{detail:kind}));
   }
-  function navigateProjects() { returnToScroll('work'); }
+  function navigateProjects() { crtTransition(()=>returnToScroll('work')); }
   function navigateHome() { returnToScroll(); }
   function bindProjectChrome(root) {
     root.querySelector('[data-projects-back]')?.addEventListener('click',navigateProjects);
@@ -298,6 +312,7 @@
     document.body.classList.add('content-panel-open');
   }
   function applyRoute() {
+    cancelTransition();
     const route = parseRoute();
     updateRouteMeta(route);
     if (route.type === 'project') {
@@ -317,7 +332,7 @@
     const kind=button.dataset.open === 'projects' ? 'work' : button.dataset.open;
     if (kind === 'resume') {
       returnSection=document.querySelector('.scroll-index [aria-current]')?.dataset.scrollSection || 'home';
-      navigateSection('resume'); openResume();
+      crtTransition(()=>{navigateSection('resume'); openResume();});
     } else dispatchEvent(new CustomEvent('portfolio:scroll-to',{detail:kind}));
   }));
   addEventListener('popstate',applyRoute);
