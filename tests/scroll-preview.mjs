@@ -90,7 +90,14 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
    assert(navigation.inside,'Mobile section menu is outside the CRT safe area');
    assert(navigation.contrast,'Mobile current section is not visually distinct');
    assert(navigation.touch,'Mobile section menu is covered by another control');
-   assert(await page.evaluate(()=>document.querySelector('.scroll-index').getBoundingClientRect().bottom <= document.querySelector('#language-toggle').getBoundingClientRect().top),'Section tabs must be above language controls');
+   assert(await page.locator('#language-toggle').evaluate(e=>e.parentElement.classList.contains('scroll-footer-controls')));
+   assert(await page.locator('#privacy-toggle').evaluate(e=>e.closest('.scroll-footer-controls')!==null));
+   const stable=await page.evaluate(()=>{
+     const nav=document.querySelector('.scroll-index'),label=nav.querySelector('[aria-current] [data-scroll-label]'),before=nav.getBoundingClientRect(),text=label.textContent;
+     label.textContent='W'.repeat(100);const after=nav.getBoundingClientRect();label.textContent=text;
+     return Math.abs(before.height-after.height)<.1&&Math.abs(before.width-after.width)<.1;
+   });
+   assert(stable,'Long scramble text changed mobile navigation dimensions');
    const placement=await page.evaluate(()=>{
      const head=document.getElementById('crt-head-feature').getBoundingClientRect();
      const panel=document.querySelector('#scroll-work .scroll-window').getBoundingClientRect();
@@ -146,6 +153,7 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  assert((await page.locator('#scroll-contact .contact-photo img').evaluate(e=>getComputedStyle(e).filter)).includes('grayscale(1)')); 
  assert.equal(await page.locator('.scroll-footer').count(),1);
  await page.locator('#scroll-viewport').evaluate(e=>e.scrollTop=e.scrollHeight);
+ if(width<=1024){await page.locator('#privacy-toggle').click();await page.locator('#privacy-panel').waitFor({state:'visible'});await page.locator('#privacy-close').click();}
  await page.locator('.scroll-footer a').click();
  await settle('home');
  await select('home');await settle('home');
@@ -164,6 +172,7 @@ await reduced.locator('[data-scroll-section=about]').click();await reduced.waitF
 assert.equal(await reduced.locator('.scroll-index [aria-current]').getAttribute('data-scroll-section'),'about');
 assert.equal(await reduced.locator('.scroll-folder-morph').evaluate(e=>getComputedStyle(e).visibility),'hidden');
 const before=await reduced.locator('#scroll-about .window-body').innerText();
+await reduced.locator('#scroll-viewport').evaluate(e=>e.scrollTop=e.scrollHeight);
 await reduced.locator('#language-toggle').click();await reduced.waitForTimeout(100);
 assert.notEqual(await reduced.locator('#scroll-about .window-body').innerText(),before);
 console.log('PASS returning visit, reduced motion, language');

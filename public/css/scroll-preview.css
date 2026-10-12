@@ -157,7 +157,7 @@
     z-index: 80;
     left: var(--ui-safe-left);
     right: var(--ui-safe-right);
-    bottom: calc(var(--ui-safe-bottom) + 46px);
+    bottom: var(--ui-safe-bottom);
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 2px;
@@ -250,4 +250,21 @@
 @media (prefers-reduced-motion: reduce) {
   .scroll-preview #scroll-work .project-tile-v2 .project-cover-img { transition: none; }
   .scroll-preview #scroll-work .is-viewport-color .project-cover-v2::after { display: none; }
+}
+
+.scroll-preview .scroll-footer-controls { display: none; }
+@media (max-width: 1024px) {
+  .scroll-preview .scroll-index { height: 48px; align-items: stretch; overflow: hidden; contain: layout paint; }
+  .scroll-preview .scroll-index a { height: 48px; min-height: 48px; overflow: hidden; }
+  .scroll-preview .scroll-index [data-scroll-label] { position: absolute; inset: 4px 2px; max-width: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; align-content: center; line-height: 20px; }
+  .scroll-preview .scroll-index a[aria-current] [data-scroll-label] { max-width: none; }
+  .scroll-preview .scroll-index .icon-glyph { transition: opacity .2s, transform .2s; }
+  .scroll-preview .scroll-index a[aria-current] .icon-glyph { width: 28px; flex-basis: 28px; }
+  .scroll-preview .scroll-footer-controls { display: flex; gap: 12px; align-items: center; margin-top: 24px; }
+  .scroll-preview .scroll-footer-controls .language-toggle,
+  .scroll-preview .scroll-footer-controls .privacy-widget { position: static; height: 44px; margin: 0; transform: none; opacity: 1; visibility: visible; }
+  .scroll-preview .scroll-footer-controls .privacy-widget { flex: 1; display: block; max-width: 260px; }
+  .scroll-preview .scroll-footer-controls .privacy-toggle { height: 44px; }
+  .scroll-preview .scroll-privacy-portal { position: absolute; z-index: 110; left: var(--ui-safe-left); right: var(--ui-safe-right); bottom: calc(var(--ui-safe-bottom) + 56px); }
+  .scroll-preview .scroll-privacy-portal .privacy-panel { position: relative; inset: auto; width: 100%; max-height: min(58dvh,400px); }
 }
