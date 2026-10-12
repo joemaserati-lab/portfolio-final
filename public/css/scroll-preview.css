@@ -238,3 +238,5 @@
 .scroll-preview .scroll-footer a { color: var(--white); }
 
 @media (prefers-reduced-motion: reduce) { .scroll-preview .scroll-index .icon-glyph, .scroll-preview .scroll-index [data-scroll-label] { transition: none; } }
+
+.scroll-preview .contact-photo img { filter: grayscale(1) contrast(1.08) brightness(.88); }
