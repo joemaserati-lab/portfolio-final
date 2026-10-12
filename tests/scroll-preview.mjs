@@ -12,7 +12,8 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
    const target = Math.min(section.offsetTop, viewport.scrollHeight - viewport.clientHeight);
    return Math.abs(viewport.scrollTop - target) < 2
      && document.querySelector('.scroll-index [aria-current]')?.dataset.scrollSection === kind
-     && (kind !== 'home' || document.getElementById('crt-head-feature').parentElement.id === 'desktop');
+     && (kind !== 'home' || document.getElementById('crt-head-feature').parentElement.id === 'desktop')
+     && (kind === 'home' || section.querySelector('.scroll-window').classList.contains('is-revealed'));
  }, kind, {timeout:15000});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')console.log('CONSOLE',m.text())});
  await page.goto(url);
@@ -27,12 +28,42 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  assert.equal(await page.locator('#scroll-work .project-tile-v2').count(),5);
  await page.waitForFunction(()=>document.querySelector('#crt-head-feature').classList.contains('is-ready'),null,{timeout:30000});
  await screenshot(page,`original-hero-${width}.png`);
+ if(width>1024) {
+   assert.equal(await page.locator('.scroll-minimenu button').count(),4);
+   await page.evaluate(()=>{const v=document.getElementById('scroll-viewport');v.scrollTop=v.clientHeight*.221});
+   await page.waitForFunction(()=>getComputedStyle(document.querySelector('.scroll-folder-morph')).display==='block');
+   const origin=await page.evaluate(()=>{
+     const glyph=document.querySelector('[data-scroll-launch=work] .icon-glyph').getBoundingClientRect();
+     const outline=document.querySelector('.scroll-folder-morph').getBoundingClientRect();
+     return Math.abs(glyph.left-outline.left);
+   });
+   assert(origin<6,'Window does not originate at the minimenu icon');
+ }
  await page.evaluate(()=>{const v=document.querySelector('#scroll-viewport');v.scrollTop=v.clientHeight*.5});await page.waitForTimeout(200);
  await screenshot(page,`original-transition-${width}.png`);
+ assert.equal(await page.locator('#scroll-work .window-body').evaluate(e=>getComputedStyle(e).visibility),'hidden','Content appeared before the outline finished');
+ assert(await page.locator('#scroll-work .window-body').evaluate(e=>e.inert));
  assert(await page.locator('#crt-head-feature').evaluate(e=>e.classList.contains('scroll-portrait-docked')));
- await page.locator('.scroll-index [data-scroll-section="work"]').click();await settle('work');
+ await page.evaluate(()=>{const v=document.getElementById('scroll-viewport');v.scrollTop=v.clientHeight*.91});
+ await page.waitForFunction(()=>document.querySelector('#scroll-work .scroll-window').classList.contains('is-scanning'));
+ assert.notEqual(await page.locator('#scroll-work .window-body').evaluate(e=>getComputedStyle(e).clipPath),'none','Missing CRT raster reveal');
+ await screenshot(page,`crt-reveal-${width}.png`);
+ await page.evaluate(()=>{const v=document.getElementById('scroll-viewport');v.scrollTop=v.clientHeight*.5});
+ await page.waitForFunction(()=>getComputedStyle(document.querySelector('#scroll-work .window-body')).visibility==='hidden');
+ if(width>1024) await page.locator('[data-scroll-launch=work]').click();
+ else await page.locator('.scroll-index [data-scroll-section="work"]').click();
+ await settle('work');
  assert.equal(await page.locator('.scroll-index [aria-current]').getAttribute('data-scroll-section'),'work');
  await screenshot(page,`original-work-${width}.png`);
+ if(width<=1024) {
+   const placement=await page.evaluate(()=>{
+     const head=document.getElementById('crt-head-feature').getBoundingClientRect();
+     const panel=document.querySelector('#scroll-work .scroll-window').getBoundingClientRect();
+     return {gap:panel.top-head.bottom,alignment:Math.abs(panel.right-head.right)};
+   });
+   assert(placement.gap>=12,'Portrait overlaps the content header');
+   assert(placement.alignment<2,'Portrait is not aligned to the content window');
+ }
  await page.locator('#scroll-work .project-tile-v2').first().click();await page.waitForTimeout(700);
  assert.equal(await page.locator('#projects-view').getAttribute('data-view'),'case');
  assert(page.url().includes('/scroll-preview/#project=tovadu'));
