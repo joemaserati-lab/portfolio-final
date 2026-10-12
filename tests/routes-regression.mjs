@@ -13,7 +13,11 @@ for(const path of ['','work/','about/','contact/','resume/','work/tovadu/','work
  if(path.startsWith('work/')&&path!=='work/'){
   assert.equal(await page.locator('#projects-view').getAttribute('data-view'),'case');
   assert.equal(await page.locator('#projects-view').getAttribute('data-project'),path.split('/')[1]);
- }else if(path==='resume/')assert.equal(await page.locator('#window-layer .os-window[data-kind=resume]').count(),1);
+ }else if(path==='resume/'){
+  await page.waitForFunction(()=>document.querySelector('.scroll-index [aria-current]')?.dataset.scrollSection==='resume');
+  assert.equal(await page.locator('#scroll-resume .resume-row').count(),8);
+  assert.equal(await page.locator('#window-layer .os-window[data-kind=resume]').count(),0);
+ }
  else if(path)await page.waitForFunction(kind=>document.querySelector('.scroll-index [aria-current]')?.dataset.scrollSection===kind,path.slice(0,-1));
  console.log('ROUTE PASS',path||'/');
 }
