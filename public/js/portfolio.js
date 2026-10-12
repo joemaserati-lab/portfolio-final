@@ -297,19 +297,6 @@
   function bindProjectLinks(root) {
     root.querySelectorAll('[data-project-slug]').forEach(button => button.addEventListener('click',()=>navigateToProject(button.dataset.projectSlug)));
   }
-  function openResume() {
-    close();
-    const dialog = document.createElement('section');
-    dialog.className = 'os-window is-maximized';
-    if (matchMedia('(max-width:1024px)').matches) dialog.classList.add('is-responsive-fullscreen');
-    dialog.dataset.kind = 'resume';
-    dialog.setAttribute('role','dialog');
-    dialog.setAttribute('aria-labelledby','resume-title');
-    dialog.innerHTML = `<div class="window-titlebar"><button class="window-back" data-close aria-label="${esc(t('window.backLabel'))}">${backGlyph}</button><span id="resume-title">${esc(t('window.resume'))}</span><div class="window-controls"><button data-close aria-label="${esc(t('window.closeLabel'))}">×</button></div></div><div class="window-body">${contents.resume()}</div>`;
-    dialog.querySelectorAll('[data-close]').forEach(button=>button.addEventListener('click',()=>returnToScroll()));
-    layer.appendChild(dialog);
-    document.body.classList.add('content-panel-open');
-  }
   function applyRoute() {
     cancelTransition();
     const route = parseRoute();
@@ -319,7 +306,6 @@
       if (project) { renderProjectCase(project); return; }
       returnToScroll('work'); return;
     }
-    if (route.type === 'section' && route.kind === 'resume') { returnSection = 'home'; openResume(); return; }
     close();
     if (document.body.classList.contains('site-ready')) dispatchEvent(new CustomEvent('portfolio:scroll-to',{detail:{kind:route.type === 'work' ? 'work' : route.kind || 'home'}}));
   }
@@ -329,10 +315,7 @@
   }
   document.querySelectorAll('[data-open]').forEach(button=>button.addEventListener('click',()=>{
     const kind=button.dataset.open === 'projects' ? 'work' : button.dataset.open;
-    if (kind === 'resume') {
-      returnSection=document.querySelector('.scroll-index [aria-current]')?.dataset.scrollSection || 'home';
-      crtTransition(()=>{navigateSection('resume'); openResume();});
-    } else dispatchEvent(new CustomEvent('portfolio:scroll-to',{detail:kind}));
+    dispatchEvent(new CustomEvent('portfolio:scroll-to',{detail:kind}));
   }));
   addEventListener('popstate',applyRoute);
   addEventListener('keydown',event=>{if(event.key==='Escape' && (!projectsView.hidden || layer.children.length)) returnToScroll();});
@@ -341,7 +324,6 @@
     syncLocalizedData();
     const route=parseRoute();
     if(route.type==='project') { const project=projectBySlug(route.slug); if(project) renderProjectCase(project); }
-    else if(route.kind==='resume') openResume();
     updateRouteMeta(route);
   });
   window.Portfolio = { content:kind=>contents[kind==='work'?'projects':kind](), openProject:navigateToProject, close, refresh:syncLocalizedData, getRoute:parseRoute, navigateSection };

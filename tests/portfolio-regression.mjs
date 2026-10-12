@@ -148,6 +148,11 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  if(width<=1024) assert(await page.locator('#scroll-work .is-color-preview').count()<=1,'More than one mobile card is colored');
  await select('about');await settle('about');
  assert.equal(await page.locator('.scroll-index [aria-current]').getAttribute('data-scroll-section'),'about');
+ await select('resume');await settle('resume');
+ assert.equal(await page.locator('.scroll-index [aria-current]').getAttribute('data-scroll-section'),'resume');
+ assert.equal(await page.locator('#scroll-resume .resume-row').count(),8);
+ assert.equal(await page.locator('#window-layer .os-window[data-kind=resume]').count(),0);
+ assert(page.url().endsWith('/resume/'));
  await select('contact');await settle('contact');
  assert.equal(await page.locator('.scroll-index [aria-current]').getAttribute('data-scroll-section'),'contact');
  assert((await page.locator('#scroll-contact .contact-photo img').evaluate(e=>getComputedStyle(e).filter)).includes('grayscale(1)')); 
