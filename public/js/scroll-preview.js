@@ -1,74 +1,148 @@
-const home = document.querySelector('.sp-home');
-const stage = document.querySelector('.sp-stage');
-const links = [...document.querySelectorAll('.sp-index a')];
-const sections = links.map(link => document.querySelector(link.hash));
-const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-const mobile = matchMedia('(max-width: 767px)');
-let effect, frame, scrambleFrame, active = 0;
+(() => {
+  const viewport = document.getElementById('scroll-viewport');
+  const screen = document.getElementById('screen');
+  const desktop = document.getElementById('desktop');
+  const head = document.getElementById('crt-head-feature');
+  const morph = document.querySelector('.scroll-folder-morph');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const compact = matchMedia('(max-width: 1024px)');
+  const kinds = ['home', 'work', 'about', 'contact'];
+  const links = [...document.querySelectorAll('.scroll-index a')];
+  let ready = false, frame = 0, scramble = 0, current = 'home', headRect, folders = {}, docked = false;
+  const clamp = value => Math.max(0, Math.min(1, value));
+  const mix = (a,b,p) => a + (b-a)*p;
 
-function setActive(index) {
-  if (index === active) return;
-  cancelAnimationFrame(scrambleFrame);
-  links.forEach((link, i) => {
-    link.toggleAttribute('aria-current', i === index);
-    if (i === index) link.setAttribute('aria-current', 'location');
-    link.querySelector('.sp-label').textContent = link.querySelector('.sp-label').dataset.label;
-  });
-  active = index;
-  if (reduced.matches) return;
-  const label = links[index].querySelector('.sp-label');
-  const value = label.dataset.label;
-  const start = performance.now();
-  function tick(now) {
-    const progress = Math.min(1, (now - start) / 240);
-    label.textContent = [...value].map((char, i) => char === ' ' || i < progress * value.length ? char : '·/—'[Math.floor((now / 45 + i) % 3)]).join('');
-    if (progress < 1) scrambleFrame = requestAnimationFrame(tick);
+  function measure() {
+    const parent = screen.getBoundingClientRect();
+    if (!docked) {
+      const r = head.getBoundingClientRect();
+      headRect = {left:r.left-parent.left, top:r.top-parent.top+viewport.scrollTop, width:r.width, height:r.height};
+    }
+    ['work','about','contact'].forEach(kind => {
+      const r = desktop.querySelector(`[data-open="${kind === 'work' ? 'projects' : kind}"] .icon-glyph`).getBoundingClientRect();
+      folders[kind] = {left:r.left-parent.left, top:r.top-parent.top+viewport.scrollTop, width:r.width, height:r.height};
+    });
   }
-  scrambleFrame = requestAnimationFrame(tick);
-}
-function update() {
-  frame = null;
-  const rect = home.getBoundingClientRect();
-  const distance = home.offsetHeight - stage.offsetHeight;
-  const progress = !reduced.matches && !mobile.matches && distance > 0 ? Math.max(0, Math.min(1, -rect.top / distance)) : 0;
-  stage.style.setProperty('--sp-progress', progress.toFixed(4));
-  stage.style.setProperty('--sp-hero-events', progress > .7 ? 'none' : 'auto');
-  document.querySelector('.sp-hero-copy').inert = progress > .7;
-  let index = 0;
-  sections.forEach((section, i) => { if (section.getBoundingClientRect().top <= innerHeight * .45) index = i; });
-  if (innerHeight + scrollY >= document.documentElement.scrollHeight - 4) index = sections.length - 1;
-  setActive(index);
-  effect?.setPaused(document.hidden || rect.bottom <= 0 || rect.top >= innerHeight || progress >= .98);
-}
-function schedule() { if (!frame) frame = requestAnimationFrame(update); }
-addEventListener('scroll', schedule, { passive: true });
-addEventListener('resize', schedule, { passive: true });
-document.addEventListener('visibilitychange', schedule);
-reduced.addEventListener('change', () => { effect?.setReducedMotion(reduced.matches); schedule(); });
-mobile.addEventListener('change', schedule);
-document.querySelectorAll('a[href^="#"]').forEach(link => link.addEventListener('click', event => {
-  const target = document.querySelector(link.hash);
-  if (!target) return;
-  event.preventDefault();
-  history.pushState(null, '', link.hash);
-  target.scrollIntoView({ behavior: reduced.matches || mobile.matches ? 'instant' : 'smooth', block: 'start' });
-  target.setAttribute('tabindex', '-1');
-  target.focus({ preventScroll: true });
-}));
-addEventListener('popstate', () => { document.getElementById(location.hash.slice(1) || 'sp-home')?.scrollIntoView(); });
-document.querySelectorAll('.sp-project').forEach(link => link.addEventListener('click', event => {
-  if (!matchMedia('(hover: none)').matches || reduced.matches || event.detail === 0 || event.metaKey || event.ctrlKey) return;
-  event.preventDefault();
-  link.classList.add('sp-color');
-  setTimeout(() => { location.href = link.href; }, 280);
-}));
-update();
-// Reuse the production portrait renderer; no production lifecycle globals are installed.
-const head = document.querySelector('.sp-head');
-import('./head-scan-effect.js').then(({ mountHeadScanEffect }) => {
-  effect = mountHeadScanEffect({ container: head, canvas: head.querySelector('canvas'), modelUrl: new URL('../assets/models/human_head_reference3.glb', import.meta.url).href, reducedMotion: reduced.matches, onError: () => head.classList.remove('is-ready') });
-  effect.ready.then(() => { if (!effect.disposed) head.classList.add('is-ready'); schedule(); }).catch(() => {});
-  addEventListener('pointermove', event => effect?.setPointer(event.clientX / innerWidth * 2 - 1, event.clientY / innerHeight * 2 - 1), { passive: true });
-}).catch(() => {});
-addEventListener('pagehide', event => { if (event.persisted) effect?.setPaused(true); else effect?.destroy(); });
-addEventListener('pageshow', schedule);
+  function renderContents() {
+    const api = window.ScrollPortfolio;
+    if (!api) return;
+    api.refresh();
+    ['work','about','contact'].forEach(kind => {
+      const target = document.querySelector(`[data-scroll-content="${kind}"]`);
+      target.innerHTML = api.content(kind);
+      document.querySelector(`[data-scroll-title="${kind}"]`).textContent = window.PortfolioI18n?.t(`window.${kind === 'work' ? 'projects' : kind}`) || kind.toUpperCase();
+    });
+    document.querySelectorAll('#scroll-work [data-project-slug]').forEach(button => {
+      let pending = false;
+      button.addEventListener('click', event => {
+        if (pending) return;
+        const open = () => { pending = false; api.openProject(button.dataset.projectSlug); schedule(); };
+        if (matchMedia('(hover: none), (pointer: coarse)').matches && event.detail > 0 && !reduced.matches) {
+          pending = true;
+          button.classList.add('is-color-preview');
+          setTimeout(open, 280);
+        } else open();
+      });
+    });
+    schedule();
+  }
+  function active(kind) {
+    if (kind === current) return;
+    current = kind;
+    cancelAnimationFrame(scramble);
+    links.forEach(link => {
+      const selected = link.dataset.scrollSection === kind;
+      if (selected) link.setAttribute('aria-current', 'location'); else link.removeAttribute('aria-current');
+      const label = link.querySelector('[data-scroll-label]');
+      label.textContent = label.dataset.scrollLabel;
+    });
+    if (reduced.matches) return;
+    const label = links[kinds.indexOf(kind)].querySelector('[data-scroll-label]');
+    const text = label.dataset.scrollLabel, start = performance.now();
+    function tick(now) {
+      const p = clamp((now-start)/240);
+      label.textContent = [...text].map((c,i) => c === ' ' || i < p*text.length ? c : '·/—'[Math.floor(now/45+i)%3]).join('');
+      if (p < 1) scramble = requestAnimationFrame(tick);
+    }
+    scramble = requestAnimationFrame(tick);
+  }
+  function update() {
+    frame = 0;
+    if (!ready || !headRect) return;
+    const y = viewport.scrollTop, h = viewport.clientHeight, w = viewport.clientWidth;
+    const p = reduced.matches ? Number(y > 1) : clamp(y/(h*.8));
+    const overlay = !document.getElementById('projects-view').hidden || Boolean(document.querySelector('#window-layer .os-window'));
+    const pose = overlay ? 1 : p;
+    document.body.classList.toggle('scroll-reading', pose > 0);
+    if (pose > 0) {
+      if (!docked) { screen.appendChild(head); head.classList.add('scroll-portrait-docked'); docked = true; }
+      const target = compact.matches ? {left:w-145,top:40,width:110,height:110} : {left:w*.75,top:h*.22,width:w*.22,height:h*.55};
+      Object.entries(target).forEach(([key,value]) => { head.style[key] = `${mix(headRect[key],value,pose)}px`; });
+      head.style.transform = 'none';
+    } else if (docked) {
+      desktop.prepend(head); head.classList.remove('scroll-portrait-docked'); head.removeAttribute('style'); docked = false;
+    }
+    const amount = reduced.matches ? 0 : y/h;
+    dispatchEvent(new CustomEvent('portfolio:scroll-pose', {detail:{x: Math.sin(amount*.9)*.8, y: Math.sin(amount*.4)*.35}}));
+    let selected = 'home', candidate;
+    ['work','about','contact'].forEach(kind => {
+      const section = document.getElementById(`scroll-${kind}`);
+      const start = section.offsetTop;
+      if (y + h*.4 >= start) selected = kind;
+      const progress = clamp((y - start + h)/h);
+      if (progress > 0 && progress < 1) candidate = {kind, progress,section};
+    });
+    if (y+h >= viewport.scrollHeight-4) selected = 'contact';
+    active(selected);
+    morph.style.display = 'none';
+    if (candidate && !reduced.matches && !overlay) {
+      const {kind,progress,section} = candidate;
+      const from = folders[kind];
+      const target = section.querySelector('.scroll-window').getBoundingClientRect(), sr = screen.getBoundingClientRect();
+      const to = {left:target.left-sr.left,top:target.top-sr.top,width:target.width,height:Math.min(target.height,h*.75)};
+      if (progress < .82) {
+        morph.style.display = 'block';
+        const t = clamp(progress/.82);
+        Object.keys(to).forEach(key => morph.style[key] = `${mix(from[key],to[key],t)}px`);
+        morph.style.opacity = String(1-clamp((progress-.65)/.17));
+        morph.innerHTML = `<span>${desktop.querySelector(`[data-open="${kind==='work'?'projects':kind}"] .icon-glyph`).innerHTML}</span>`;
+      }
+      section.querySelector('.scroll-window').style.opacity = String(clamp((progress-.5)/.35));
+    }
+    ['work','about','contact'].forEach(kind => {
+      const section = document.getElementById(`scroll-${kind}`);
+      if (reduced.matches || y >= section.offsetTop || !candidate || candidate.kind !== kind) section.querySelector('.scroll-window').style.opacity = '1';
+    });
+  }
+  function schedule() { if (!frame) frame = requestAnimationFrame(update); }
+  function go(kind, {historyUpdate = true} = {}) {
+    const section = document.getElementById(`scroll-${kind}`);
+    if (!section || !ready) return;
+    window.ScrollPortfolio?.close();
+    if (historyUpdate) history.pushState({scrollSection:kind}, '', new URL(`scroll-preview/#${kind}`, document.baseURI));
+    viewport.scrollTo({top:section.offsetTop, behavior:reduced.matches?'instant':'smooth'});
+    section.tabIndex = -1;
+    section.focus({preventScroll:true});
+    schedule();
+  }
+  links.forEach(link => link.addEventListener('click', event => { event.preventDefault(); go(link.dataset.scrollSection); }));
+  addEventListener('portfolio:scroll-to', event => go(event.detail));
+  addEventListener('portfolio:scroll-return', () => go(current, {historyUpdate:false}));
+  viewport.addEventListener('scroll', schedule, {passive:true});
+  addEventListener('resize', () => { if (docked) { desktop.prepend(head); head.removeAttribute('style'); head.classList.remove('scroll-portrait-docked'); docked = false; } measure(); schedule(); });
+  addEventListener('portfolio:scroll-runtime', renderContents);
+  addEventListener('portfolio:langchange', renderContents);
+  addEventListener('popstate', () => { const hash = location.hash.slice(1); if (kinds.includes(hash)) go(hash, {historyUpdate:false}); });
+  reduced.addEventListener('change', schedule);
+  new MutationObserver(schedule).observe(document.getElementById('projects-view'), {attributes:true,attributeFilter:['hidden']});
+  new MutationObserver(schedule).observe(document.getElementById('window-layer'), {childList:true});
+  function enter() {
+    ready = true;
+    renderContents(); measure(); schedule();
+    const hash = location.hash.slice(1);
+    if (kinds.includes(hash) && hash !== 'home') go(hash, {historyUpdate:false});
+  }
+  addEventListener('portfolio:site-ready', enter, {once:true});
+  new MutationObserver(() => { if (!ready && document.body.classList.contains('site-ready')) enter(); }).observe(document.body, {attributes:true, attributeFilter:['class']});
+  if (document.body.classList.contains('site-ready')) enter();
+})();

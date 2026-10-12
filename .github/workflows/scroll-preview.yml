@@ -1,0 +1,44 @@
+name: Scroll Preview Regression
+on:
+  pull_request:
+    branches: [main]
+    paths: ['src/pages/scroll-preview/**', 'src/lib/scroll-preview-runtime.mjs', 'public/css/scroll-preview.css', 'public/js/scroll-preview.js', 'tests/scroll-preview.mjs', '.github/workflows/scroll-preview.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build and verify
+        run: |
+          npm install --no-package-lock --no-audit --no-fund
+          npm run build
+          npm run check
+      - name: Start preview
+        run: |
+          (npm run preview -- --host 127.0.0.1 --port 4321 > /tmp/scroll-preview.log 2>&1 &)
+          for i in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:4321/portfolio-final/scroll-preview/ > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Install existing browser test tooling
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Check loader, folders, portrait, navigation and mobile
+        env:
+          QA_DIR: /tmp/scroll-preview-qa
+        run: node tests/scroll-preview.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: scroll-preview-screenshots
+          path: /tmp/scroll-preview-qa
+          retention-days: 7
