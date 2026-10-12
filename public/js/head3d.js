@@ -1,6 +1,6 @@
 
 window.__portfolioHeadState = window.__portfolioHeadState || { settled:false, ready:false };
-window.PortfolioMotion = window.PortfolioMotion || { getStatus: () => 'unavailable', recenter: () => {}, enableTouchFallback: () => false };
+window.PortfolioMotion = window.PortfolioMotion || { getStatus: () => 'unavailable', recenter: () => {} };
 function settleHead(ready, error=null) {
   window.__portfolioHeadState = { settled:true, ready, error: error ? String(error?.message || error) : null };
   window.dispatchEvent(new CustomEvent('portfolio:head-settled', { detail: window.__portfolioHeadState }));
@@ -18,18 +18,20 @@ if (feature && canvas && screenElement) {
   const touch = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
   let effect, observer, ready = false, disposed = false, pageVisible = !document.hidden;
   let booted = !document.body.classList.contains('booting');
-  let fallbackActive = false, fallbackRaf = 0, fallbackPointerId = null, fallbackTouchedAt = 0;
-  let fallbackX = 0, fallbackY = 0, fallbackTargetX = 0, fallbackTargetY = 0;
 
   function sync() {
     if (disposed || !effect) return;
-    const windowOpen = Boolean(windowLayer?.querySelector('.os-window')) || Boolean(projectsView && !projectsView.hidden);
-    feature.classList.toggle('is-window-open', windowOpen);
+    // The portrait remains present on the scroll route, including project cases.
 
     const shouldBeVisible = ready && booted && pageVisible;
     feature.classList.toggle('is-ready', shouldBeVisible);
-    effect.setPaused(!shouldBeVisible || windowOpen);
+    effect.setPaused(!shouldBeVisible);
   }
+  function onScrollPose(event) {
+    effect?.setScrollRotation(event.detail.yaw);
+    effect?.setPresentationScale(event.detail.renderScale);
+  }
+  addEventListener('portfolio:scroll-pose', onScrollPose);
   function onPointerMove(event) {
     if (touch || event.pointerType !== 'mouse') return;
     const rect = feature.getBoundingClientRect();
@@ -39,71 +41,12 @@ if (feature && canvas && screenElement) {
   }
   function getMotionStatus() {
     if (disposed) return 'unavailable';
-    return touch ? 'touch-fallback' : 'not-touch';
+    return touch ? 'scroll' : 'mouse';
   }
-  function recenterMotion() {
-    fallbackX = 0;
-    fallbackY = 0;
-    fallbackTargetX = 0;
-    fallbackTargetY = 0;
-    effect?.setPointer(0, 0);
-  }
-  function updateFallbackTargetFromPoint(clientX, clientY) {
-    const rect = screenElement.getBoundingClientRect();
-    const x = (clientX - rect.left) / Math.max(rect.width, 1) * 2 - 1;
-    const y = (clientY - rect.top) / Math.max(rect.height, 1) * 2 - 1;
-    fallbackTargetX = Math.max(-0.45, Math.min(0.45, x * 0.45));
-    fallbackTargetY = Math.max(-0.30, Math.min(0.30, y * 0.30));
-  }
-  function onFallbackPointerDown(event) {
-    if (!fallbackActive || fallbackPointerId !== null) return;
-    fallbackPointerId = event.pointerId;
-    fallbackTouchedAt = performance.now();
-    updateFallbackTargetFromPoint(event.clientX, event.clientY);
-  }
-  function onFallbackPointerMove(event) {
-    if (!fallbackActive || fallbackPointerId !== event.pointerId) return;
-    fallbackTouchedAt = performance.now();
-    updateFallbackTargetFromPoint(event.clientX, event.clientY);
-  }
-  function onFallbackPointerEnd(event) {
-    if (fallbackPointerId === event.pointerId) fallbackPointerId = null;
-  }
-  function animateFallback(now) {
-    fallbackRaf = 0;
-    if (disposed || !fallbackActive) return;
-    if (fallbackPointerId === null && now - fallbackTouchedAt > 220) {
-      const t = now / 1000;
-      fallbackTargetX = Math.sin(t * 0.42) * 0.18 + Math.sin(t * 0.17 + 1.2) * 0.08;
-      fallbackTargetY = Math.cos(t * 0.31 + 0.6) * 0.10 + Math.sin(t * 0.21) * 0.035;
-    }
-    const rateX = fallbackPointerId === null ? 0.035 : 0.10;
-    const rateY = fallbackPointerId === null ? 0.030 : 0.085;
-    fallbackX += (fallbackTargetX - fallbackX) * rateX;
-    fallbackY += (fallbackTargetY - fallbackY) * rateY;
-    effect?.setPointer(fallbackX, fallbackY);
-    fallbackRaf = requestAnimationFrame(animateFallback);
-  }
-  function enableTouchFallback() {
-    if (disposed || fallbackActive || !touch) return false;
-    fallbackActive = true;
-    fallbackPointerId = null;
-    fallbackTouchedAt = 0;
-    fallbackX = 0;
-    fallbackY = 0;
-    fallbackTargetX = 0;
-    fallbackTargetY = 0;
-    screenElement.addEventListener('pointerdown', onFallbackPointerDown, { passive: true });
-    screenElement.addEventListener('pointermove', onFallbackPointerMove, { passive: true });
-    screenElement.addEventListener('pointerup', onFallbackPointerEnd, { passive: true });
-    screenElement.addEventListener('pointercancel', onFallbackPointerEnd, { passive: true });
-    fallbackRaf = requestAnimationFrame(animateFallback);
-    return true;
-  }
+  function recenterMotion() { effect?.setPointer(0, 0); }
   function onVisibility() { pageVisible = !document.hidden; sync(); }
   function onBooted() {
     booted = true;
-    if (touch) enableTouchFallback();
     sync();
   }
   function onPageHide(event) {
@@ -114,13 +57,9 @@ if (feature && canvas && screenElement) {
   function cleanup() {
     if (disposed) return;
     disposed = true;
+    removeEventListener('portfolio:scroll-pose', onScrollPose);
     observer?.disconnect();
-    cancelAnimationFrame(fallbackRaf);
     removeEventListener('pointermove', onPointerMove);
-    screenElement.removeEventListener('pointerdown', onFallbackPointerDown);
-    screenElement.removeEventListener('pointermove', onFallbackPointerMove);
-    screenElement.removeEventListener('pointerup', onFallbackPointerEnd);
-    screenElement.removeEventListener('pointercancel', onFallbackPointerEnd);
     document.removeEventListener('visibilitychange', onVisibility);
     removeEventListener('portfolio:booted', onBooted);
     removeEventListener('pagehide', onPageHide);
@@ -148,8 +87,8 @@ if (feature && canvas && screenElement) {
     addEventListener('pageshow', onPageShow);
     window.PortfolioMotion = {
       getStatus: getMotionStatus,
-      recenter: recenterMotion,
-      enableTouchFallback
+      getPose: () => ({ yaw: effect?.root.rotation.y, pitch: effect?.root.rotation.x }),
+      recenter: recenterMotion
     };
     observer = new MutationObserver(sync);
     if (windowLayer) observer.observe(windowLayer, { childList: true, subtree: true });
@@ -167,7 +106,7 @@ if (feature && canvas && screenElement) {
       // visible frame does not pay the shader warm-up cost.
       if (!booted && pageVisible) {
         effect.setPaused(false);
-        requestAnimationFrame(() => effect?.setPaused(true));
+        requestAnimationFrame(sync);
       }
       settleHead(true);
       sync();

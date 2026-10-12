@@ -94,7 +94,7 @@
 
   }
   function renderContents() {
-    const api = window.ScrollPortfolio;
+    const api = window.Portfolio;
     if (!api) return;
     api.refresh();
     delete morph.dataset.kind;
@@ -289,37 +289,35 @@
     }
   }
   function schedule() { if (!frame) frame = requestAnimationFrame(update); }
-  function go(kind, {historyUpdate = true} = {}) {
+  function go(kind, {historyUpdate = true, closeOverlay = true} = {}) {
     const section = document.getElementById(`scroll-${kind}`);
     if (!section || !ready) return;
-    window.ScrollPortfolio?.close();
-    if (historyUpdate) history.pushState({scrollSection:kind}, '', new URL(`scroll-preview/#${kind}`, document.baseURI));
+    if (closeOverlay) window.Portfolio?.close();
+    if (historyUpdate) window.Portfolio.navigateSection(kind);
     viewport.scrollTo({top:section.offsetTop, behavior:reduced.matches?'instant':'smooth'});
     section.tabIndex = -1;
-    section.focus({preventScroll:true});
+    if (closeOverlay) section.focus({preventScroll:true});
     schedule();
   }
   document.querySelector('.scroll-footer a').addEventListener('click', event => { event.preventDefault(); go('home'); });
   links.forEach(link => link.addEventListener('click', event => { event.preventDefault(); go(link.dataset.scrollSection); }));
-  addEventListener('portfolio:scroll-to', event => go(event.detail));
-  addEventListener('portfolio:scroll-return', () => {
-    history.replaceState({scrollSection:current}, '', new URL(`scroll-preview/#${current}`, document.baseURI));
-    go(current, {historyUpdate:false});
-  });
+  addEventListener('portfolio:scroll-to', event => typeof event.detail === 'string' ? go(event.detail) : go(event.detail.kind, {historyUpdate:false}));
+  addEventListener('portfolio:scroll-return', event => go(event.detail || current, {historyUpdate:false}));
   viewport.addEventListener('scroll', schedule, {passive:true});
   addEventListener('resize', () => { if (docked) { desktop.prepend(head); head.removeAttribute('style'); head.classList.remove('scroll-portrait-docked'); docked = false; } measure(); schedule(); });
-  addEventListener('portfolio:scroll-runtime', renderContents);
+  addEventListener('portfolio:runtime-ready', renderContents);
   addEventListener('portfolio:head-settled', schedule);
   addEventListener('portfolio:langchange', renderContents);
-  addEventListener('popstate', () => { const hash = location.hash.slice(1); if (kinds.includes(hash)) go(hash, {historyUpdate:false}); });
   reduced.addEventListener('change', schedule);
   new MutationObserver(schedule).observe(document.getElementById('projects-view'), {attributes:true,attributeFilter:['hidden']});
   new MutationObserver(schedule).observe(document.getElementById('window-layer'), {childList:true});
   function enter() {
     ready = true;
     renderContents(); measure(); schedule();
-    const hash = location.hash.slice(1);
-    if (kinds.includes(hash) && hash !== 'home') go(hash, {historyUpdate:false});
+    const route = window.Portfolio.getRoute();
+    if (route.type === 'project') go('work', {historyUpdate:false, closeOverlay:false});
+    else if (route.type === 'work') go('work', {historyUpdate:false});
+    else if (route.type === 'section' && route.kind !== 'resume') go(route.kind, {historyUpdate:false});
   }
   addEventListener('portfolio:site-ready', enter, {once:true});
   new MutationObserver(() => { if (!ready && document.body.classList.contains('site-ready')) enter(); }).observe(document.body, {attributes:true, attributeFilter:['class']});

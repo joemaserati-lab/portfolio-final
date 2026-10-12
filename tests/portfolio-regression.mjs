@@ -1,7 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 import assert from 'node:assert/strict';
-const url = process.env.PREVIEW_URL || 'http://127.0.0.1:4321/portfolio-final/scroll-preview/';
+const url = process.env.AUDIT_URL || 'http://127.0.0.1:4321/portfolio-final/';
 const browser=await chromium.launch({headless:true, ...(process.env.PLAYWRIGHT_EXECUTABLE_PATH ? {executablePath:process.env.PLAYWRIGHT_EXECUTABLE_PATH} : {}), args:['--use-gl=swiftshader','--enable-webgl']});
 async function screenshot(page,name) { if(process.env.QA_DIR) { await mkdir(process.env.QA_DIR,{recursive:true}); await page.screenshot({path:`${process.env.QA_DIR}/${name}`}); } }
 for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
@@ -141,7 +141,7 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  }
  await page.locator('#scroll-work .project-tile-v2').first().click();await page.waitForTimeout(700);
  assert.equal(await page.locator('#projects-view').getAttribute('data-view'),'case');
- assert(page.url().includes('/scroll-preview/#project=tovadu'));
+ assert(page.url().endsWith('/work/tovadu/'));
  assert(await page.locator('#crt-head-feature').evaluate(e=>e.classList.contains('is-ready')));
  await page.locator('.projects-close').click();await page.waitForTimeout(700);
  assert(await page.locator('#projects-view').evaluate(e=>e.hidden));

@@ -1,4 +1,7 @@
 ---
+import ScrollSections from '../components/ScrollSections.astro';
+import ScrollNavigation from '../components/ScrollNavigation.astro';
+import PortfolioFooter from '../components/PortfolioFooter.astro';
 import ProjectFallback from '../components/ProjectFallback.astro';
 
 const {
@@ -57,7 +60,8 @@ const ogImageUrl = new URL(ogImage, rootUrl);
        <link rel="stylesheet" href="css/crt-outline-base.css" />
        <link rel="stylesheet" href="css/project-covers.css" />
        <link rel="stylesheet" href="css/monochrome-theme.css" />
-       <link rel="stylesheet" href="css/crt-outline.css" /></>
+       <link rel="stylesheet" href="css/crt-outline.css" />
+       <link rel="stylesheet" href="css/portfolio-scroll.css" /></>
   }
   <link rel="preload" href="assets/font/Doto-500.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="assets/font/redaction-50-latin-400-normal.woff" as="font" type="font/woff" crossorigin />
@@ -74,7 +78,7 @@ const ogImageUrl = new URL(ogImage, rootUrl);
   </script>
   {jsonLd && <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)}></script>}
 </head>
-<body class="booting">
+<body class="booting scroll-portfolio">
   <svg class="svg-defs" aria-hidden="true" width="0" height="0">
     <defs>
       <clipPath id="crtScreenClip" clipPathUnits="objectBoundingBox">
@@ -107,6 +111,8 @@ const ogImageUrl = new URL(ogImage, rootUrl);
         <div class="screen-reflection" aria-hidden="true"></div>
         <div class="edge-light" aria-hidden="true"></div>
 
+        <div class="scroll-viewport" id="scroll-viewport" tabindex="0" aria-label="Scrollable portfolio">
+        <section class="scroll-home" id="scroll-home" aria-label="Home">
         <div class="desktop" id="desktop">
           <div class="crt-head-feature" id="crt-head-feature" aria-hidden="true">
             <canvas id="crt-head-canvas"></canvas>
@@ -138,6 +144,14 @@ const ogImageUrl = new URL(ogImage, rootUrl);
           </nav>
         </div>
 
+        </section>
+        <ScrollSections />
+        <PortfolioFooter basePath={basePath} />
+        </div>
+        <ScrollNavigation basePath={basePath} />
+        <div class="scroll-portrait-slot" aria-hidden="true"></div>
+        <div class="scroll-folder-morph" aria-hidden="true"></div>
+
         <button class="language-toggle" id="language-toggle" type="button" aria-label="Switch language">IT</button>
         <aside class="privacy-widget" aria-label="Privacy and cookie preferences">
           <button class="privacy-toggle" id="privacy-toggle" type="button" aria-expanded="false" aria-controls="privacy-panel" data-i18n="privacy.button">PRIVACY / COOKIES</button>
@@ -167,5 +181,6 @@ const ogImageUrl = new URL(ogImage, rootUrl);
   <script is:inline defer src="js/hero-copy-contrast.js"></script>
   <script is:inline defer src="js/analytics.js"></script>
   <script is:inline defer src="js/privacy.js"></script>
+  <script is:inline defer src="js/portfolio-scroll.js"></script>
 </body>
 </html>

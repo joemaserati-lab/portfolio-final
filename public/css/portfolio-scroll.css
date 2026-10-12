@@ -1,0 +1,376 @@
+/* Scroll layout, navigation and transitions. Base typography and CRT chrome
+   are shared with the rest of the production stylesheet bundle. */
+.scroll-portfolio { --scroll-portrait-size: clamp(76px, 22vw, 96px); }
+.scroll-portfolio .scroll-viewport {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray-dark) transparent;
+}
+.scroll-portfolio.booting .scroll-viewport { overflow: hidden; }
+.scroll-portfolio .scroll-home { height: 100%; min-height: 100%; }
+.scroll-portfolio .scroll-section {
+  position: relative;
+  min-height: 100%;
+  padding: var(--ui-safe-top) calc(var(--ui-safe-right) + 24%) calc(var(--ui-safe-bottom) + 40px) var(--ui-safe-left);
+  scroll-margin-top: 0;
+}
+.scroll-portfolio .scroll-window.os-window {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  height: auto;
+  min-height: 60vh;
+  max-height: none;
+  margin: 0;
+  transform: none;
+  visibility: hidden;
+  opacity: 1;
+  pointer-events: auto;
+}
+.scroll-portfolio .scroll-window.is-open { visibility: visible; }
+.scroll-portfolio .scroll-window .window-body {
+  position: relative;
+  overflow: visible;
+  flex: auto;
+  visibility: hidden;
+}
+.scroll-portfolio .scroll-window.is-signal-ready .window-body {
+  visibility: visible;
+  clip-path: inset(0 0 max(0px, calc(100% - var(--scroll-reveal, 0) * var(--scroll-raster-height, 60vh))) 0);
+}
+.scroll-portfolio .scroll-window.is-revealed .window-body { clip-path: none; }
+.scroll-portfolio .scroll-window.is-scanning .window-body::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: max(0px, calc(var(--scroll-reveal, 0) * var(--scroll-raster-height, 60vh) - 2px));
+  height: 2px;
+  background: var(--white);
+  opacity: .45;
+  box-shadow: 0 0 6px var(--gray-light);
+  pointer-events: none;
+}
+.scroll-portfolio .scroll-window.is-powering .window-body::before {
+  content: '';
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  top: 2px;
+  height: 1px;
+  background: var(--white);
+  visibility: visible;
+  transform: scaleX(var(--scroll-signal, 0));
+  opacity: .6;
+  pointer-events: none;
+}
+.scroll-portfolio .scroll-window .window-titlebar { pointer-events: none; }
+.scroll-portfolio .scroll-window .projects-index-v2 { padding: 0; }
+.scroll-portfolio .scroll-window .projects-index-side { max-width: none; }
+.scroll-portfolio .scroll-window .contact-photo { max-width: 280px; }
+.scroll-portfolio .scroll-portrait-docked { z-index: 13; transition: none; }
+.scroll-portfolio .scroll-portrait-slot { display: none; }
+.scroll-portfolio .scroll-minimenu {
+  position: absolute;
+  z-index: 18;
+  top: var(--ui-safe-top);
+  right: var(--ui-safe-right);
+  display: grid;
+  grid-template-columns: repeat(4, 44px);
+  gap: 6px;
+  opacity: 0;
+  visibility: hidden;
+}
+.scroll-portfolio .scroll-mini-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 4px;
+  border: 0;
+  background: transparent;
+  color: var(--gray-light);
+}
+.scroll-portfolio .scroll-mini-icon .icon-glyph { width: 28px; height: 28px; }
+.scroll-portfolio .scroll-mini-icon:hover,
+.scroll-portfolio .scroll-mini-icon[aria-current] { color: var(--white); }
+.scroll-portfolio .scroll-mini-icon:focus-visible { outline: 1px solid var(--mint); }
+.scroll-portfolio .scroll-section-name {
+  grid-column: 1 / -1;
+  margin: 0;
+  min-height: 20px;
+  color: var(--white);
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
+}
+.scroll-portfolio .desktop-icons .desktop-icon { transform-origin: top left; }
+.scroll-portfolio .scroll-index {
+  display: none;
+  font-size: 11px;
+  line-height: 1.2;
+}
+.scroll-portfolio .scroll-index a { color: var(--gray-light); text-decoration: none; }
+.scroll-portfolio .scroll-index a:focus-visible { outline: 1px solid var(--mint); outline-offset: 4px; }
+.scroll-portfolio.booting .scroll-index { visibility: hidden; }
+.scroll-portfolio .scroll-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.scroll-portfolio .scroll-folder-morph {
+  position: absolute;
+  z-index: 16;
+  display: none;
+  pointer-events: none;
+  border: 1px solid var(--line-strong);
+  background: var(--window-chrome-bg, var(--gray-dark));
+  transform-origin: top left;
+  overflow: hidden;
+}
+.scroll-portfolio .scroll-folder-morph svg { width: 44px; height: 36px; fill: none; stroke: var(--white); stroke-width: 1.5; }
+.scroll-portfolio .scroll-folder-morph .window-titlebar { min-height: 32px; }
+.scroll-portfolio .scroll-folder-morph .scroll-morph-glyph { display: block; padding: 8px; }
+.scroll-portfolio .scroll-window { transform-origin: top right; }
+.scroll-portfolio.scroll-reading #projects-view { padding-right: 24%; }
+.scroll-portfolio.scroll-reading #projects-view .case-study-v2 { padding-right: calc(var(--ui-safe-right) + 24%); }
+.scroll-portfolio.scroll-reading .window-layer .os-window .window-body { padding-right: calc(var(--ui-safe-right) + 24%); }
+.scroll-portfolio .scroll-footer-controls { display: none; }
+@media (max-width: 1024px) {
+  .scroll-portfolio .scroll-minimenu {
+    display: none;
+  }
+  .scroll-portfolio .scroll-portrait-slot {
+    display: block;
+    position: absolute;
+    top: var(--ui-safe-top);
+    left: 50%;
+    transform: translateX(-50%);
+    width: var(--scroll-portrait-size);
+    height: var(--scroll-portrait-size);
+    pointer-events: none;
+  }
+  .scroll-portfolio .scroll-viewport {
+    clip-path: inset(calc((var(--ui-safe-top) + var(--scroll-portrait-size) + 12px) * var(--scroll-dock, 0)) 0 0 0);
+  }
+  .scroll-portfolio .scroll-index {
+    position: absolute;
+    z-index: 80;
+    left: var(--ui-safe-left);
+    right: var(--ui-safe-right);
+    bottom: max(12px, env(safe-area-inset-bottom));
+    display: flex;
+    gap: 4px;
+    font-size: 11px;
+    padding: 0;
+    background: var(--black);
+    height: 48px;
+    align-items: stretch;
+    overflow: hidden;
+    contain: layout paint;
+  }
+  .scroll-portfolio .scroll-index a {
+    position: relative;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 2px;
+    text-align: center;
+    opacity: .72;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    transition: opacity .18s, background-color .18s, border-color .18s;
+    flex: 1 1 0;
+    min-width: 0;
+    background: transparent;
+    height: 48px;
+    overflow: hidden;
+  }
+  .scroll-portfolio .scroll-index a[aria-current] {
+    color: var(--white);
+    opacity: 1;
+    background: transparent;
+    border-color: var(--line-strong);
+    border-bottom-color: var(--mint);
+    flex: 2.6 1 0;
+    border: 0;
+  }
+  .scroll-portfolio .scroll-index a.is-changing {
+    animation: scroll-tab-refresh .28s ease-out;
+  }
+  .scroll-portfolio .desktop-icons {
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .scroll-portfolio .scroll-index .icon-glyph {
+    width: 28px;
+    height: 28px;
+    flex: 0 0 28px;
+    transition: opacity .2s, transform .2s;
+  }
+  .scroll-portfolio .scroll-index [data-scroll-label] {
+    display: block;
+    max-width: none;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity .2s, transform .24s;
+    position: absolute;
+    inset: 4px 2px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    align-content: center;
+    line-height: 20px;
+  }
+  .scroll-portfolio .scroll-index a[aria-current] .icon-glyph {
+    width: 28px;
+    flex-basis: 28px;
+    opacity: 0;
+    transform: scale(.65);
+  }
+  .scroll-portfolio .scroll-index a[aria-current] [data-scroll-label] {
+    max-width: none;
+    opacity: 1;
+    transform: none;
+  }
+  .scroll-portfolio .scroll-section {
+    display: flex;
+    padding: calc(var(--ui-safe-top) + var(--scroll-portrait-size) + 20px) var(--ui-safe-right) calc(var(--ui-safe-bottom) + 100px) var(--ui-safe-left);
+  }
+  .scroll-portfolio .scroll-window.os-window {
+    flex: 1 1 100%;
+    margin: 0;
+    min-height: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    text-align: left;
+  }
+  .scroll-portfolio .scroll-window > .window-titlebar {
+    display: none;
+  }
+  .scroll-portfolio .scroll-window .window-body {
+    padding: 0;
+    text-align: left;
+  }
+  .scroll-portfolio .scroll-window .projects-index-head,
+  .scroll-portfolio .scroll-window .projects-index-side,
+  .scroll-portfolio .scroll-window .contact-panel,
+  .scroll-portfolio .scroll-window .contact-copy,
+  .scroll-portfolio .scroll-window .project-tile-copy,
+  .scroll-portfolio .scroll-window .project-tile-main,
+  .scroll-portfolio .scroll-window .project-tile-details,
+  .scroll-portfolio .case-study-v2,
+  .scroll-portfolio .case-lead-v2,
+  .scroll-portfolio .resume-view {
+    text-align: left;
+    justify-items: start;
+    align-items: start;
+  }
+  .scroll-portfolio .scroll-window .contact-photo {
+    max-width: 100%;
+    width: 100%;
+  }
+  .scroll-portfolio #scroll-viewport .scroll-footer {
+    text-align: left;
+  }
+  .scroll-portfolio.scroll-reading #projects-view .case-study-v2 {
+    padding-top: calc(var(--ui-safe-top) + var(--scroll-portrait-size) + 20px);
+  }
+  .scroll-portfolio.scroll-reading #projects-view {
+    padding-right: 0;
+  }
+  .scroll-portfolio.scroll-reading #projects-view .case-study-v2,
+  .scroll-portfolio.scroll-reading .window-layer .os-window .window-body {
+    padding-right: var(--ui-safe-right);
+  }
+  .scroll-portfolio .scroll-portrait-docked {
+    will-change: transform;
+  }
+  .scroll-portfolio #scroll-work .project-tile-v2 .project-cover-img {
+    transition: filter .65s cubic-bezier(.22,.61,.36,1), transform .35s ease, opacity .65s ease;
+  }
+  .scroll-portfolio #scroll-work .is-viewport-color .project-cover-v2::after {
+    content: '';
+    position: absolute;
+    z-index: 2;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--white);
+    box-shadow: 0 0 5px var(--gray-light);
+    pointer-events: none;
+    animation: scroll-color-scan .65s ease-out both;
+  }
+  .scroll-portfolio .scroll-footer-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-top: 24px;
+  }
+  .scroll-portfolio .scroll-footer-controls .language-toggle,
+  .scroll-portfolio .scroll-footer-controls .privacy-widget {
+    position: static;
+    height: 44px;
+    margin: 0;
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+  }
+  .scroll-portfolio .scroll-footer-controls .privacy-widget {
+    flex: 1;
+    display: block;
+    max-width: 260px;
+  }
+  .scroll-portfolio .scroll-footer-controls .privacy-toggle {
+    height: 44px;
+  }
+  .scroll-portfolio .scroll-privacy-portal {
+    position: absolute;
+    z-index: 110;
+    left: var(--ui-safe-left);
+    right: var(--ui-safe-right);
+    bottom: calc(var(--ui-safe-bottom) + 56px);
+  }
+  .scroll-portfolio .scroll-privacy-portal .privacy-panel {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    max-height: min(58dvh,400px);
+  }
+}
+
+@media (max-width: 1024px) and (max-height: 450px) {
+  .scroll-portfolio { --scroll-portrait-size: 64px; }
+  .scroll-portfolio .desktop-icons { translate: none; }
+}
+@keyframes scroll-tab-refresh {
+  from { opacity: .55; transform: translateY(1px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-portfolio .scroll-folder-morph { visibility: hidden; }
+  .scroll-portfolio .scroll-window .window-body { clip-path: none; }
+  .scroll-portfolio .scroll-window .window-body::before,
+  .scroll-portfolio .scroll-window .window-body::after { display: none; }
+  .scroll-portfolio .scroll-index a { transition: none; }
+  .scroll-portfolio .scroll-index a.is-changing { animation: none; }
+}
+
+.scroll-portfolio .scroll-footer { margin: 0 var(--ui-safe-right) 0 var(--ui-safe-left); padding: 28px 12px calc(var(--ui-safe-bottom) + 108px); border-top: 1px solid var(--line-strong); color: var(--gray-light); text-align: center; }
+.scroll-portfolio .scroll-footer p { margin: 0 0 12px; }
+.scroll-portfolio .scroll-footer a { color: var(--white); }
+
+@media (prefers-reduced-motion: reduce) { .scroll-portfolio .scroll-index .icon-glyph, .scroll-portfolio .scroll-index [data-scroll-label] { transition: none; } }
+
+.scroll-portfolio .contact-photo img { filter: grayscale(1) contrast(1.08) brightness(.88); }
+
+
+@keyframes scroll-color-scan { from { top: 0; opacity: .35; } to { top: 100%; opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .scroll-portfolio #scroll-work .project-tile-v2 .project-cover-img { transition: none; }
+  .scroll-portfolio #scroll-work .is-viewport-color .project-cover-v2::after { display: none; }
+}

@@ -434,10 +434,9 @@
   // task complete immediately and decode covers later during browser idle time.
   const coversReady = trackProgress('covers', Promise.resolve({ ok: true, deferred: true }));
 
-  // The head belongs to the entry sequence, not the initial page critical path.
-  // It is initialized after explicit ENTER intent while the loader is still
-  // opaque, and the homepage is never revealed until that promise settles.
-  const headReady = Promise.resolve({ ok: true, gated: true });
+  // Warm the touch portrait behind the loader. Desktop can start on Enter;
+  // both modes wait for the same readiness promise before revealing the page.
+  const headReady = touchDevice ? Promise.all([trackedDomReady, trackedFontsReady]).then(() => loadHead()) : Promise.resolve({ ok: true, gated: true });
   setRow('head', '06 MODEL', 'waiting for entry', 'pending');
 
   function scheduleDeferredCovers() {
@@ -494,7 +493,6 @@
       // while preventing a visible late 3D pop-in.
       await loadHead();
       if (touchDevice) {
-        window.PortfolioMotion?.enableTouchFallback?.();
         scheduleDeferredTouchVisuals();
       } else {
         startAmbientVideo();
@@ -517,20 +515,6 @@
     enter.focus({ preventScroll: true });
 
   })();
-
-  async function enableTouchFallbackBeforeEntry() {
-    if (!isTouchDevice()) {
-      setRow('ready', '07 READY', 'desktop pointer mode / launching sequence', 'done');
-      return;
-    }
-    const enabled = Boolean(window.PortfolioMotion?.enableTouchFallback?.());
-    setRow(
-      'ready',
-      '07 READY',
-      enabled ? 'touch + ambient motion enabled' : 'touch mode / launching sequence',
-      enabled ? 'done' : 'warn'
-    );
-  }
 
   function beginSequence() {
     if (sequenceStarted || finished) return false;
@@ -630,7 +614,7 @@
     await loadHead();
 
     if (touchDevice) {
-      await enableTouchFallbackBeforeEntry();
+      setRow('ready', '07 READY', 'scroll motion ready / launching sequence', 'done');
     } else {
       startAmbientVideo();
       loadCrtRuntime();

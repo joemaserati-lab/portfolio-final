@@ -1,0 +1,64 @@
+name: Portfolio Regression
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build and verify
+        run: |
+          npm install --no-package-lock --no-audit --no-fund
+          npm run build
+          npm run check
+      - name: Start preview
+        run: |
+          (npm run preview -- --host 127.0.0.1 --port 4321 > /tmp/portfolio.log 2>&1 &)
+          for i in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:4321/portfolio-final/ > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Install existing browser test tooling
+        run: |
+          npx playwright install --with-deps chromium
+      - name: Check loader, folders, portrait, navigation and mobile
+        env:
+          AUDIT_URL: http://127.0.0.1:4321/portfolio-final/
+          QA_DIR: /tmp/portfolio-qa
+        run: node tests/portfolio-regression.mjs
+      - name: Verify source and bundle style parity
+        env:
+          AUDIT_URL: http://127.0.0.1:4321/portfolio-final/
+        run: node tests/css-render-parity.mjs
+      - name: Check direct routes and browser history
+        env:
+          AUDIT_URL: http://127.0.0.1:4321/portfolio-final/
+        run: node tests/routes-regression.mjs
+      - name: Audit candidate performance and accessibility
+        run: |
+          npx --yes lighthouse@12 http://127.0.0.1:4321/portfolio-final/ --chrome-flags="--headless --no-sandbox" --output=json --output=html --output-path=/tmp/portfolio-qa/lighthouse-mobile
+          npx --yes lighthouse@12 http://127.0.0.1:4321/portfolio-final/ --preset=desktop --chrome-flags="--headless --no-sandbox" --output=json --output=html --output-path=/tmp/portfolio-qa/lighthouse-desktop
+          node --input-type=module - <<'NODE'
+          import {readFileSync} from 'node:fs';
+          for(const device of ['mobile','desktop']) {
+            const report=JSON.parse(readFileSync(`/tmp/portfolio-qa/lighthouse-${device}.report.json`,'utf8'));
+            console.log('LIGHTHOUSE',device,Object.fromEntries(Object.entries(report.categories).map(([key,value])=>[key,value.score])));
+          }
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: portfolio-screenshots
+          path: /tmp/portfolio-qa
+          retention-days: 7

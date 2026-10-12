@@ -1,0 +1,9 @@
+---
+const sections = [ ['work', 'Selected Works'], ['about', 'About'], ['contact', 'Contact'] ];
+---
+{sections.map(([kind, name]) => <section class="scroll-section" id={`scroll-${kind}`} aria-label={name}>
+  <div class="scroll-window os-window" data-kind={kind}>
+    <div class="window-titlebar"><span data-scroll-title={kind}>{kind === 'work' ? 'PROJECTS' : kind.toUpperCase()}</span></div>
+    <div class="window-body" data-scroll-content={kind}></div>
+  </div>
+</section>)}

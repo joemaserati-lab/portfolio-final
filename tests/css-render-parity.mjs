@@ -1,15 +1,15 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { chromium } from 'playwright';
+const {chromium}=await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 import assert from 'node:assert/strict';
 
 const root = resolve(import.meta.dirname, '..');
-const sourceFiles = ['foundation.css','workspace.css','visual-experience.css','adaptive.css','fixes.css','crt-outline-base.css','project-covers.css','monochrome-theme.css','crt-outline.css'];
+const sourceFiles = ['foundation.css','workspace.css','visual-experience.css','adaptive.css','fixes.css','crt-outline-base.css','project-covers.css','monochrome-theme.css','crt-outline.css','portfolio-scroll.css'];
 const rawCss = sourceFiles.map(name =>
   readFileSync(resolve(root,'public/css',name),'utf8')
 ).join('\n\n');
 const url = process.env.AUDIT_URL || 'http://127.0.0.1:4321/portfolio-final/';
-const browser = await chromium.launch({ headless: true });
+const browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_EXECUTABLE_PATH ? {executablePath:process.env.PLAYWRIGHT_EXECUTABLE_PATH}: {}) });
 const selectors = ['html','body','.crt-stage','.screen','.desktop','.hero-intro','.hero-intro h1','.primary-action','.desktop-icons','#crt-head-feature','.boot-loader','#boot-gate','#boot-gate h2','.boot-enter' ,'#projects-view'];
 const props = ['display','position','font-family','font-size','font-weight','line-height','letter-spacing','color','background-color','padding-top','padding-right','padding-bottom','padding-left','margin-top','margin-left','border-radius','border-top-width','border-top-color','overflow-x','overflow-y','max-width','grid-template-columns','z-index'];
 
