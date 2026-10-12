@@ -43,6 +43,13 @@
   miniMenu.appendChild(caption);
   const captionLabel = caption.querySelector('[data-scroll-label]');
 
+  links.forEach(link => {
+    const kind = link.dataset.scrollSection;
+    const launcher = launchers.find(item => item.dataset.open === (kind === 'work' ? 'projects' : kind === 'home' ? 'resume' : kind));
+    const glyph = launcher.querySelector('.icon-glyph').cloneNode(true);
+    glyph.setAttribute('aria-hidden', 'true');
+    link.prepend(glyph);
+  });
   function measure() {
     const parent = screen.getBoundingClientRect();
     launchers.forEach(launcher => {
@@ -152,7 +159,7 @@
       desktop.prepend(head); head.classList.remove('scroll-portrait-docked'); head.removeAttribute('style'); docked = false;
     }
     const amount = reduced.matches ? 0 : y/h;
-    dispatchEvent(new CustomEvent('portfolio:scroll-pose', {detail:{x: Math.sin(amount*.9)*.8, y: Math.sin(amount*.4)*.35}}));
+    dispatchEvent(new CustomEvent('portfolio:scroll-pose', {detail:{x: Math.sin(amount*(compact.matches ? 1.65 : .9))*(compact.matches ? 1 : .8), y: Math.sin(amount*(compact.matches ? .9 : .4))*(compact.matches ? .65 : .35)}}));
     const handoff = reduced.matches ? Number(pose > 0) : clamp(y/(h*HANDOFF_END));
     const menuVisible = !compact.matches && (handoff > 0 || overlay);
     miniMenu.style.visibility = menuVisible ? 'visible' : 'hidden';
@@ -194,7 +201,7 @@
     const name = document.querySelector('#window-layer .os-window[data-kind="resume"]') ? 'Resume' : links[kinds.indexOf(selected)].querySelector('[data-scroll-label]').dataset.scrollLabel;
     active(selected, name);
     morph.style.display = 'none';
-    if (candidate && !reduced.matches && !overlay) {
+    if (candidate && !compact.matches && !reduced.matches && !overlay) {
       const {kind,progress,section} = candidate;
       const source = compact.matches ? folders[kind] : menuButtons.get(kind).querySelector('.icon-glyph').getBoundingClientRect();
       const sr = screen.getBoundingClientRect();

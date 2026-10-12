@@ -5,7 +5,7 @@ const url = process.env.PREVIEW_URL || 'http://127.0.0.1:4321/portfolio-final/sc
 const browser=await chromium.launch({headless:true, ...(process.env.PLAYWRIGHT_EXECUTABLE_PATH ? {executablePath:process.env.PLAYWRIGHT_EXECUTABLE_PATH} : {}), args:['--use-gl=swiftshader','--enable-webgl']});
 async function screenshot(page,name) { if(process.env.QA_DIR) { await mkdir(process.env.QA_DIR,{recursive:true}); await page.screenshot({path:`${process.env.QA_DIR}/${name}`}); } }
 for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
- const page=await browser.newPage({viewport:{width,height},hasTouch:width<768,isMobile:width<768});
+ const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:width<768?2:1,hasTouch:width<768,isMobile:width<768});
  const select = async kind => {
    if(width>1024) {
      if(kind==='home') await page.locator('#scroll-viewport').evaluate(e=>e.scrollTo({top:0,behavior:'smooth'}));
@@ -81,7 +81,7 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
      const a=getComputedStyle(active), i=getComputedStyle(idle);
      const hit=active.getBoundingClientRect();
      return {inside:nav.parentElement.id==='screen'&&r.left>=screen.left+10&&r.right<=screen.right-10&&r.bottom<=screen.bottom-10,
-       contrast:Number(a.opacity)>Number(i.opacity)&&a.backgroundColor!==i.backgroundColor,
+       contrast:Number(a.opacity)>Number(i.opacity)&&getComputedStyle(active.querySelector(".icon-glyph")).opacity==="0"&&getComputedStyle(idle.querySelector("[data-scroll-label]")).opacity==="0",
        touch:document.elementFromPoint(hit.left+hit.width/2,hit.top+hit.height/2)?.closest('a')===active};
    });
    assert(navigation.inside,'Mobile section menu is outside the CRT safe area');
@@ -95,6 +95,12 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
    });
    assert(placement.gap>=12,'Portrait overlaps the content header');
    assert(placement.alignment<2,'Portrait is not aligned to the content window');
+   assert.equal(await page.locator('#scroll-work .window-body').evaluate(e=>getComputedStyle(e).textAlign),'left');
+   assert.equal(await page.locator('#scroll-work .window-titlebar').isVisible(),false);
+   assert.equal(await page.locator('.desktop-icons').isVisible(),false);
+   assert(await page.locator('#scroll-work .scroll-window').evaluate(e=>getComputedStyle(e).borderTopWidth==='0px'));
+   const density=await page.locator('#crt-head-feature canvas').evaluate(e=>e.width/e.getBoundingClientRect().width);
+   assert(density>=Math.min(await page.evaluate(()=>devicePixelRatio),2)-.1,'Portrait resolution below requested DPR');
  }
  await page.locator('#scroll-work .project-tile-v2').first().click();await page.waitForTimeout(700);
  assert.equal(await page.locator('#projects-view').getAttribute('data-view'),'case');

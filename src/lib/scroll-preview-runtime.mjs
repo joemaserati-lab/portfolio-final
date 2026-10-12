@@ -5,7 +5,12 @@ function replace(source, from, to) {
   return source.replace(from, to);
 }
 export function runtime(name, base) {
-  let source = readFileSync(resolve(process.cwd(), `public/js/${{boot:'boot',portfolio:'portfolio',head:'head3d'}[name]}.js`), 'utf8');
+  let source = readFileSync(resolve(process.cwd(), `public/js/${{boot:'boot',portfolio:'portfolio',head:'head3d',effect:'head-scan-effect'}[name]}.js`), 'utf8');
+  if (name === 'effect') {
+    source = replace(source, 'touchMaxPixels: 1400000', 'touchMaxPixels: 2200000');
+    source = replace(source, 'touchMaxDpr: 1.25', 'touchMaxDpr: 2');
+    return replace(source, 'pointer.x * PRESET.mouseAmount', 'pointer.x * PRESET.mouseAmount * (coarsePointer ? 1.65 : 1)');
+  }
   if (name === 'boot') {
     source = replace(source, "const headReady = Promise.resolve({ ok: true, gated: true });", "const headReady = touchDevice ? Promise.all([trackedDomReady, trackedFontsReady]).then(() => loadHead()) : Promise.resolve({ ok: true, gated: true });");
     source = replace(source, "loadScript('js/portfolio.js')", "loadScript('scroll-preview/runtime/portfolio.js')");
@@ -13,7 +18,7 @@ export function runtime(name, base) {
   }
   if (name === 'head') {
     source = replace(source, "'../assets/models/human_head_reference3.glb'", `'${base}assets/models/human_head_reference3.glb'`);
-    source = replace(source, "from './head-scan-effect.js'", `from '${base}js/head-scan-effect.js'`);
+    source = replace(source, "from './head-scan-effect.js'", `from '${base}scroll-preview/runtime/effect.js'`);
     source = replace(source, "feature.classList.toggle('is-window-open', windowOpen);", "// The portrait remains present on the scroll route, including project cases.");
     source = replace(source, 'effect.setPaused(!shouldBeVisible || windowOpen);', 'effect.setPaused(!shouldBeVisible);');
     source = replace(source, '  function onPointerMove(event) {', `  let scrollX = 0, scrollY = 0;
