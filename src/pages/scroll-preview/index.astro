@@ -8,11 +8,12 @@ let html = await container.renderToString(PortfolioShell, {
   request: new Request(new URL(`${base}scroll-preview/`, Astro.site)), partial: false
 });
 const navigation = `<nav class="scroll-index" aria-label="Scroll sections">${[['home','Home'],['work','Selected Works'],['about','About'],['contact','Contact']].map(([id,name]) => `<a href="${base}scroll-preview/#${id}" data-scroll-section="${id}" ${id==='home'?'aria-current="location"':''}><span aria-hidden="true" data-scroll-label="${name}">${name}</span><span class="scroll-sr">${name}</span></a>`).join('')}</nav>`;
+const footer = `<footer class="scroll-footer"><p>© ${new Date().getFullYear()} Edoardo Rappanello</p><a href="${base}scroll-preview/#home">Home ↑</a></footer>`;
 const sections = ['work','about','contact'].map(kind => `<section class="scroll-section" id="scroll-${kind}" aria-label="${kind==='work'?'Selected Works':kind==='about'?'About':'Contact'}"><div class="scroll-window os-window" data-kind="${kind}"><div class="window-titlebar"><span data-scroll-title="${kind}">${kind==='work'?'PROJECTS':kind.toUpperCase()}</span></div><div class="window-body" data-scroll-content="${kind}"></div></div></section>`).join('');
 html = html.replace('<body class="booting">', '<body class="booting scroll-preview">')
   .replace('</head>', `<meta name="robots" content="noindex, follow"><link rel="stylesheet" href="${base}css/scroll-preview.css"></head>`)
   .replace('<div class="desktop" id="desktop">', '<div class="scroll-viewport" id="scroll-viewport" tabindex="0" aria-label="Scrollable portfolio"><section class="scroll-home" id="scroll-home" aria-label="Home"><div class="desktop" id="desktop">')
-  .replace(/<\/div>\s*(<button class="language-toggle")/, `</div></section>${sections}</div><nav class="scroll-minimenu" aria-label="Portfolio shortcuts" inert></nav>${navigation}<div class="scroll-portrait-slot" aria-hidden="true"></div><div class="scroll-folder-morph" aria-hidden="true"></div>$1`)
+  .replace(/<\/div>\s*(<button class="language-toggle")/, `</div></section>${sections}${footer}</div><nav class="scroll-minimenu" aria-label="Portfolio shortcuts" inert></nav>${navigation}<div class="scroll-portrait-slot" aria-hidden="true"></div><div class="scroll-folder-morph" aria-hidden="true"></div>$1`)
   .replace('src="js/boot.js"', 'src="scroll-preview/runtime/boot.js"')
   .replace('</body>', `<script defer src="${base}js/scroll-preview.js"></script></body>`);
 if (!html.includes('id="scroll-viewport"') || !html.includes('data-scroll-content="contact"') || !html.includes('src="scroll-preview/runtime/boot.js"')) throw new Error('Scroll extension: original shell hooks changed');

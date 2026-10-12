@@ -7,6 +7,7 @@ function replace(source, from, to) {
 export function runtime(name, base) {
   let source = readFileSync(resolve(process.cwd(), `public/js/${{boot:'boot',portfolio:'portfolio',head:'head3d'}[name]}.js`), 'utf8');
   if (name === 'boot') {
+    source = replace(source, "const headReady = Promise.resolve({ ok: true, gated: true });", "const headReady = touchDevice ? Promise.all([trackedDomReady, trackedFontsReady]).then(() => loadHead()) : Promise.resolve({ ok: true, gated: true });");
     source = replace(source, "loadScript('js/portfolio.js')", "loadScript('scroll-preview/runtime/portfolio.js')");
     return replace(source, "new URL('js/head3d.js', document.baseURI)", "new URL('scroll-preview/runtime/head.js', document.baseURI)");
   }

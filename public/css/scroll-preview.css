@@ -143,7 +143,8 @@
     display: block;
     position: absolute;
     top: var(--ui-safe-top);
-    right: calc(var(--ui-safe-right) + var(--scroll-window-inset, 0px));
+    left: 50%;
+    transform: translateX(-50%);
     width: var(--scroll-portrait-size);
     height: var(--scroll-portrait-size);
     pointer-events: none;
@@ -156,7 +157,7 @@
     z-index: 80;
     left: var(--ui-safe-left);
     right: var(--ui-safe-right);
-    bottom: 16px;
+    bottom: calc(var(--ui-safe-bottom) + 46px);
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 2px;
@@ -185,11 +186,27 @@
     border-bottom-color: var(--mint);
   }
   .scroll-preview .scroll-index a.is-changing { animation: scroll-tab-refresh .28s ease-out; }
-  .scroll-preview .language-toggle,
-  .scroll-preview .privacy-widget { translate: 0 -48px; }
+
   .scroll-preview .desktop-icons { translate: 0 -48px; }
+  .scroll-preview .scroll-window.os-window { margin-inline: auto; text-align: center; }
+  .scroll-preview .window-titlebar { justify-content: center; }
+  .scroll-preview .scroll-window .projects-index-head,
+  .scroll-preview .scroll-window .projects-index-side,
+  .scroll-preview .scroll-window .contact-panel,
+  .scroll-preview .scroll-window .contact-copy { text-align: center; justify-items: center; }
+  .scroll-preview .scroll-window .project-tile-copy,
+  .scroll-preview .scroll-window .project-tile-main,
+  .scroll-preview .scroll-window .project-tile-details { text-align: center; align-items: center; justify-content: center; }
+  .scroll-preview .scroll-window .contact-photo,
+  .scroll-preview .scroll-window .contact-links { margin-inline: auto; width: 100%; }
+  .scroll-preview .scroll-window .contact-link { justify-content: center; gap: 12px; }
   .scroll-preview .scroll-section { padding-left: var(--ui-safe-left); padding-right: var(--ui-safe-right); padding-top: calc(var(--ui-safe-top) + var(--scroll-portrait-size) + 20px); padding-bottom: calc(var(--ui-safe-bottom) + 70px); }
   .scroll-preview .scroll-window .window-body { padding: 16px; }
+  .scroll-preview .case-study-v2,
+  .scroll-preview .case-lead-v2,
+  .scroll-preview .case-title-v2,
+  .scroll-preview .case-block-v2,
+  .scroll-preview .resume-view { text-align: center; justify-items: center; }
   .scroll-preview.scroll-reading #projects-view .case-study-v2 { padding-top: calc(var(--ui-safe-top) + var(--scroll-portrait-size) + 20px); }
   .scroll-preview.scroll-reading #projects-view { padding-right: 0; }
   .scroll-preview.scroll-reading #projects-view .case-study-v2,
@@ -211,3 +228,7 @@
   .scroll-preview .scroll-index a { transition: none; }
   .scroll-preview .scroll-index a.is-changing { animation: none; }
 }
+
+.scroll-preview .scroll-footer { margin: 0 var(--ui-safe-right) 0 var(--ui-safe-left); padding: 28px 12px calc(var(--ui-safe-bottom) + 108px); border-top: 1px solid var(--line-strong); color: var(--gray-light); text-align: center; }
+.scroll-preview .scroll-footer p { margin: 0 0 12px; }
+.scroll-preview .scroll-footer a { color: var(--white); }
