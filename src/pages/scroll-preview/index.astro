@@ -12,9 +12,9 @@ const sections = ['work','about','contact'].map(kind => `<section class="scroll-
 html = html.replace('<body class="booting">', '<body class="booting scroll-preview">')
   .replace('</head>', `<meta name="robots" content="noindex, follow"><link rel="stylesheet" href="${base}css/scroll-preview.css"></head>`)
   .replace('<div class="desktop" id="desktop">', '<div class="scroll-viewport" id="scroll-viewport" tabindex="0" aria-label="Scrollable portfolio"><section class="scroll-home" id="scroll-home" aria-label="Home"><div class="desktop" id="desktop">')
-  .replace(/<\/div>\s*(<button class="language-toggle")/, `</div></section>${sections}</div><nav class="scroll-minimenu" aria-label="Portfolio shortcuts" inert></nav><div class="scroll-portrait-slot" aria-hidden="true"></div><div class="scroll-folder-morph" aria-hidden="true"></div>$1`)
+  .replace(/<\/div>\s*(<button class="language-toggle")/, `</div></section>${sections}</div><nav class="scroll-minimenu" aria-label="Portfolio shortcuts" inert></nav>${navigation}<div class="scroll-portrait-slot" aria-hidden="true"></div><div class="scroll-folder-morph" aria-hidden="true"></div>$1`)
   .replace('src="js/boot.js"', 'src="scroll-preview/runtime/boot.js"')
-  .replace('</body>', `${navigation}<script defer src="${base}js/scroll-preview.js"></script></body>`);
+  .replace('</body>', `<script defer src="${base}js/scroll-preview.js"></script></body>`);
 if (!html.includes('id="scroll-viewport"') || !html.includes('data-scroll-content="contact"') || !html.includes('src="scroll-preview/runtime/boot.js"')) throw new Error('Scroll extension: original shell hooks changed');
 ---
 <Fragment set:html={html} />

@@ -6,6 +6,12 @@ const browser=await chromium.launch({headless:true, ...(process.env.PLAYWRIGHT_E
 async function screenshot(page,name) { if(process.env.QA_DIR) { await mkdir(process.env.QA_DIR,{recursive:true}); await page.screenshot({path:`${process.env.QA_DIR}/${name}`}); } }
 for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  const page=await browser.newPage({viewport:{width,height},hasTouch:width<768,isMobile:width<768});
+ const select = async kind => {
+   if(width>1024) {
+     if(kind==='home') await page.locator('#scroll-viewport').evaluate(e=>e.scrollTo({top:0,behavior:'smooth'}));
+     else await page.locator(`[data-scroll-launch="${kind}"]`).click();
+   } else await page.locator(`[data-scroll-section="${kind}"]`).click();
+ };
  const settle = kind => page.waitForFunction(kind => {
    const viewport = document.getElementById('scroll-viewport');
    const section = document.getElementById(`scroll-${kind}`);
@@ -30,6 +36,7 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  await screenshot(page,`original-hero-${width}.png`);
  if(width>1024) {
    assert.equal(await page.locator('.scroll-minimenu button').count(),4);
+   assert.equal(await page.locator('.scroll-index').isVisible(),false,'Desktop side index remains visible');
    await page.evaluate(()=>{const v=document.getElementById('scroll-viewport');v.scrollTop=v.clientHeight*.221});
    await page.waitForFunction(()=>getComputedStyle(document.querySelector('.scroll-folder-morph')).display==='block');
    const origin=await page.evaluate(()=>{
@@ -55,7 +62,30 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  await settle('work');
  assert.equal(await page.locator('.scroll-index [aria-current]').getAttribute('data-scroll-section'),'work');
  await screenshot(page,`original-work-${width}.png`);
+ if(width>1024) {
+   assert.equal(await page.locator('.scroll-section-name .scroll-sr').textContent(),'Selected Works');
+   const labelPosition=await page.evaluate(()=>{
+     const icon=document.querySelector('.scroll-mini-icon').getBoundingClientRect();
+     const label=document.querySelector('.scroll-section-name').getBoundingClientRect();
+     return label.top>=icon.bottom;
+   });
+   assert(labelPosition,'Section name is not below the four desktop icons');
+ }
  if(width<=1024) {
+   await page.waitForFunction(()=>getComputedStyle(document.querySelector('.scroll-index [aria-current]')).opacity==='1');
+   const navigation=await page.evaluate(()=>{
+     const nav=document.querySelector('.scroll-index'), r=nav.getBoundingClientRect();
+     const screen=document.getElementById('screen').getBoundingClientRect();
+     const active=nav.querySelector('[aria-current]'), idle=nav.querySelector('a:not([aria-current])');
+     const a=getComputedStyle(active), i=getComputedStyle(idle);
+     const hit=active.getBoundingClientRect();
+     return {inside:nav.parentElement.id==='screen'&&r.left>=screen.left+10&&r.right<=screen.right-10&&r.bottom<=screen.bottom-10,
+       contrast:Number(a.opacity)>Number(i.opacity)&&a.backgroundColor!==i.backgroundColor,
+       touch:document.elementFromPoint(hit.left+hit.width/2,hit.top+hit.height/2)?.closest('a')===active};
+   });
+   assert(navigation.inside,'Mobile section menu is outside the CRT safe area');
+   assert(navigation.contrast,'Mobile current section is not visually distinct');
+   assert(navigation.touch,'Mobile section menu is covered by another control');
    const placement=await page.evaluate(()=>{
      const head=document.getElementById('crt-head-feature').getBoundingClientRect();
      const panel=document.querySelector('#scroll-work .scroll-window').getBoundingClientRect();
@@ -70,11 +100,11 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  assert(await page.locator('#crt-head-feature').evaluate(e=>e.classList.contains('is-ready')));
  await page.locator('.projects-close').click();await page.waitForTimeout(700);
  assert(await page.locator('#projects-view').evaluate(e=>e.hidden));
- await page.locator('.scroll-index [data-scroll-section="about"]').click();await settle('about');
+ await select('about');await settle('about');
  assert.equal(await page.locator('.scroll-index [aria-current]').getAttribute('data-scroll-section'),'about');
- await page.locator('.scroll-index [data-scroll-section="contact"]').click();await settle('contact');
+ await select('contact');await settle('contact');
  assert.equal(await page.locator('.scroll-index [aria-current]').getAttribute('data-scroll-section'),'contact');
- await page.locator('.scroll-index [data-scroll-section="home"]').click();await settle('home');
+ await select('home');await settle('home');
  assert.equal(await page.locator('#scroll-viewport').evaluate(e=>e.scrollTop),0);
  assert.equal(await page.locator('#crt-head-feature').evaluate(e=>e.parentElement.id),'desktop');
  assert.equal(errors.length,0,errors.join('\n'));

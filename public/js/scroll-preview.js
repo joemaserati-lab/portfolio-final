@@ -34,6 +34,14 @@
     miniMenu.appendChild(button);
     menuButtons.set(kind, button);
   });
+  const caption = document.createElement('p');
+  caption.className = 'scroll-section-name';
+  caption.dataset.section = 'home';
+  caption.setAttribute('aria-live', 'polite');
+  caption.setAttribute('aria-atomic', 'true');
+  caption.innerHTML = '<span aria-hidden="true" data-scroll-label="Home">Home</span><span class="scroll-sr">Home</span>';
+  miniMenu.appendChild(caption);
+  const captionLabel = caption.querySelector('[data-scroll-label]');
 
   function measure() {
     const parent = screen.getBoundingClientRect();
@@ -94,8 +102,8 @@
     });
     schedule();
   }
-  function active(kind) {
-    if (kind === current) return;
+  function active(kind, displayName) {
+    if (kind === current && captionLabel.dataset.scrollLabel === displayName) return;
     current = kind;
     cancelAnimationFrame(scramble);
     links.forEach(link => {
@@ -103,16 +111,29 @@
       if (selected) link.setAttribute('aria-current', 'location'); else link.removeAttribute('aria-current');
       const label = link.querySelector('[data-scroll-label]');
       label.textContent = label.dataset.scrollLabel;
+      link.classList.remove('is-changing');
+      if (selected && !reduced.matches) {
+        void link.offsetWidth;
+        link.classList.add('is-changing');
+      }
     });
+    const displayKind = displayName === 'Resume' ? 'resume' : kind;
+    caption.dataset.section = displayKind;
+    captionLabel.dataset.scrollLabel = displayName;
+    captionLabel.textContent = displayName;
+    caption.querySelector('.scroll-sr').textContent = displayName;
     menuButtons.forEach((button, name) => {
-      if (name === kind) button.setAttribute('aria-current', 'location'); else button.removeAttribute('aria-current');
+      if (name === displayKind) button.setAttribute('aria-current', 'location'); else button.removeAttribute('aria-current');
     });
     if (reduced.matches) return;
-    const label = links[kinds.indexOf(kind)].querySelector('[data-scroll-label]');
-    const text = label.dataset.scrollLabel, start = performance.now();
+    const labels = [links[kinds.indexOf(kind)].querySelector('[data-scroll-label]'), captionLabel];
+    const start = performance.now();
     function tick(now) {
       const p = clamp((now-start)/240);
-      label.textContent = [...text].map((c,i) => c === ' ' || i < p*text.length ? c : '·/—'[Math.floor(now/45+i)%3]).join('');
+      labels.forEach(label => {
+        const text = label.dataset.scrollLabel;
+        label.textContent = [...text].map((c,i) => c === ' ' || i < p*text.length ? c : '·/—'[Math.floor(now/45+i)%3]).join('');
+      });
       if (p < 1) scramble = requestAnimationFrame(tick);
     }
     scramble = requestAnimationFrame(tick);
@@ -175,7 +196,8 @@
       if (progress > 0 && progress < OPEN_END) candidate = {kind, progress,section};
     });
     if (y+h >= viewport.scrollHeight-4) selected = 'contact';
-    active(selected);
+    const name = document.querySelector('#window-layer .os-window[data-kind="resume"]') ? 'Resume' : links[kinds.indexOf(selected)].querySelector('[data-scroll-label]').dataset.scrollLabel;
+    active(selected, name);
     morph.style.display = 'none';
     if (candidate && !reduced.matches && !overlay) {
       const {kind,progress,section} = candidate;
