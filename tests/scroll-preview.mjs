@@ -102,16 +102,39 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
    const density=await page.locator('#crt-head-feature canvas').evaluate(e=>e.width/e.getBoundingClientRect().width);
    assert(density>=Math.min(await page.evaluate(()=>devicePixelRatio),2)-.1,'Portrait resolution below requested DPR');
  }
+ if(width<=1024) {
+   for(const fraction of [0,.25,.5,.75,1]) {
+     await page.locator('#scroll-viewport').evaluate((e,p)=>e.scrollTop=(e.scrollHeight-e.clientHeight)*p,fraction);
+     await page.waitForFunction(p=>Math.abs(window.PortfolioMotion.getPose().yaw-p*Math.PI*2)<.01,fraction);
+   }
+   await select('work'); await settle('work');
+   const card=page.locator('#scroll-work .project-tile-v2').first();
+   await card.evaluate(e=>{const v=document.getElementById('scroll-viewport');v.scrollTop+=e.getBoundingClientRect().top-document.querySelector('.scroll-index').getBoundingClientRect().top+e.getBoundingClientRect().height+20});
+   await page.waitForFunction(()=>document.querySelectorAll('.is-viewport-color').length===1);
+   await page.waitForFunction(()=>getComputedStyle(document.querySelector('.is-viewport-color .project-cover-img')).filter==='none');
+   await select('work'); await settle('work');
+ } else {
+   await page.mouse.move(1300,450);
+   await page.waitForFunction(()=>{const r=document.getElementById('crt-head-feature').getBoundingClientRect();const target=Math.max(-1,Math.min(1,(1300-r.left)/r.width*2-1))*.72;return Math.abs(window.PortfolioMotion.getPose().yaw-target)<.005},null,{timeout:20000});
+   const pose=await page.evaluate(()=>window.PortfolioMotion.getPose());
+   await page.locator('#scroll-viewport').evaluate(e=>e.scrollTop+=100); await page.waitForTimeout(400);
+   const after=await page.evaluate(()=>window.PortfolioMotion.getPose());
+   assert(Math.abs(after.yaw-pose.yaw)<.015,'Desktop scroll changed portrait rotation');
+   assert.equal(await page.locator('.is-viewport-color').count(),0);
+   await select('work'); await settle('work');
+ }
  await page.locator('#scroll-work .project-tile-v2').first().click();await page.waitForTimeout(700);
  assert.equal(await page.locator('#projects-view').getAttribute('data-view'),'case');
  assert(page.url().includes('/scroll-preview/#project=tovadu'));
  assert(await page.locator('#crt-head-feature').evaluate(e=>e.classList.contains('is-ready')));
  await page.locator('.projects-close').click();await page.waitForTimeout(700);
  assert(await page.locator('#projects-view').evaluate(e=>e.hidden));
+ if(width<=1024) assert(await page.locator('#scroll-work .is-color-preview').count()<=1,'More than one mobile card is colored');
  await select('about');await settle('about');
  assert.equal(await page.locator('.scroll-index [aria-current]').getAttribute('data-scroll-section'),'about');
  await select('contact');await settle('contact');
  assert.equal(await page.locator('.scroll-index [aria-current]').getAttribute('data-scroll-section'),'contact');
+ assert((await page.locator('#scroll-contact .contact-photo img').evaluate(e=>getComputedStyle(e).filter)).includes('grayscale(1)')); 
  assert.equal(await page.locator('.scroll-footer').count(),1);
  await page.locator('#scroll-viewport').evaluate(e=>e.scrollTop=e.scrollHeight);
  await page.locator('.scroll-footer a').click();

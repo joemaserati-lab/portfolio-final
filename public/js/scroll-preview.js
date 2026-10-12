@@ -94,9 +94,10 @@
       let pending = false;
       button.addEventListener('click', event => {
         if (pending) return;
-        const open = () => { pending = false; api.openProject(button.dataset.projectSlug); schedule(); };
+        const open = () => { pending = false; delete button.dataset.scrollTap; api.openProject(button.dataset.projectSlug); schedule(); };
         if (matchMedia('(hover: none), (pointer: coarse)').matches && event.detail > 0 && !reduced.matches) {
           pending = true;
+          button.dataset.scrollTap = '1';
           button.classList.add('is-color-preview');
           setTimeout(open, 280);
         } else open();
@@ -140,6 +141,27 @@
     }
     scramble = requestAnimationFrame(tick);
   }
+  function updateCoverColor(overlay) {
+    const cards = [...document.querySelectorAll('#scroll-work .project-tile-v2')];
+    let selected = null, best = 0;
+    if (compact.matches && !overlay && windows[0].window.classList.contains('is-revealed')) {
+      const sr = screen.getBoundingClientRect();
+      const top = head.getBoundingClientRect().bottom + 12;
+      const bottom = document.querySelector('.scroll-index').getBoundingClientRect().top;
+      cards.forEach(card => {
+        const rect = card.getBoundingClientRect();
+        const visible = Math.max(0, Math.min(rect.bottom, bottom) - Math.max(rect.top, top));
+        const score = visible / Math.max(1, rect.height);
+        if (rect.right > sr.left && rect.left < sr.right && score > best) { best = score; selected = card; }
+      });
+    }
+    cards.forEach(card => {
+      const isSelected = card === selected;
+      card.classList.toggle('is-viewport-color', isSelected);
+      if (isSelected) card.classList.add('is-color-preview');
+      else if (!card.dataset.scrollTap) card.classList.remove('is-color-preview');
+    });
+  }
   function update() {
     frame = 0;
     if (!ready || !headRect) return;
@@ -158,8 +180,8 @@
     } else if (docked) {
       desktop.prepend(head); head.classList.remove('scroll-portrait-docked'); head.removeAttribute('style'); docked = false;
     }
-    const amount = reduced.matches ? 0 : y/h;
-    dispatchEvent(new CustomEvent('portfolio:scroll-pose', {detail:{x: Math.sin(amount*(compact.matches ? 1.65 : .9))*(compact.matches ? 1 : .8), y: Math.sin(amount*(compact.matches ? .9 : .4))*(compact.matches ? .65 : .35)}}));
+    const progress = clamp(y / Math.max(1, viewport.scrollHeight - h));
+    dispatchEvent(new CustomEvent('portfolio:scroll-pose', {detail:{yaw:compact.matches ? (reduced.matches ? 0 : progress * Math.PI * 2) : null}}));
     const handoff = reduced.matches ? Number(pose > 0) : clamp(y/(h*HANDOFF_END));
     const menuVisible = !compact.matches && (handoff > 0 || overlay);
     miniMenu.style.visibility = menuVisible ? 'visible' : 'hidden';
@@ -200,6 +222,7 @@
     if (y+h >= viewport.scrollHeight-4) selected = 'contact';
     const name = document.querySelector('#window-layer .os-window[data-kind="resume"]') ? 'Resume' : links[kinds.indexOf(selected)].querySelector('[data-scroll-label]').dataset.scrollLabel;
     active(selected, name);
+    updateCoverColor(overlay);
     morph.style.display = 'none';
     if (candidate && !compact.matches && !reduced.matches && !overlay) {
       const {kind,progress,section} = candidate;

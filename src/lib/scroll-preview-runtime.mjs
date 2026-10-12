@@ -9,7 +9,18 @@ export function runtime(name, base) {
   if (name === 'effect') {
     source = replace(source, 'touchMaxPixels: 1400000', 'touchMaxPixels: 2200000');
     source = replace(source, 'touchMaxDpr: 1.25', 'touchMaxDpr: 2');
-    return replace(source, 'pointer.x * PRESET.mouseAmount', 'pointer.x * PRESET.mouseAmount * (coarsePointer ? 1.65 : 1)');
+    source = replace(source, '  let fitX = 1, fitY = 1;', '  let fitX = 1, fitY = 1;\n  let scrollYaw = null;');
+    source = replace(source, '    root.rotation.y += (pointer.x * PRESET.mouseAmount - root.rotation.y) * ease;', `    if (scrollYaw !== null) root.rotation.set(-0.015, reducedMotion ? 0 : scrollYaw, 0);
+    else root.rotation.y += (pointer.x * PRESET.mouseAmount - root.rotation.y) * ease;`);
+    source = replace(source, '    root.rotation.x += ((pointer.y * PRESET.mouseAmount * 0.40 - 0.015) - root.rotation.x) * ease;', '    if (scrollYaw === null) root.rotation.x += ((pointer.y * PRESET.mouseAmount * 0.40 - 0.015) - root.rotation.x) * ease;');
+    source = replace(source, '    setPointer(x, y) {', `    setScrollRotation(value) {
+      scrollYaw = value;
+      if (value !== null) root.rotation.set(-0.015, reducedMotion ? 0 : value, 0);
+      refresh();
+    },
+    setPointer(x, y) {
+      if (scrollYaw !== null) return;`);
+    return source;
   }
   if (name === 'boot') {
     source = replace(source, "const headReady = Promise.resolve({ ok: true, gated: true });", "const headReady = touchDevice ? Promise.all([trackedDomReady, trackedFontsReady]).then(() => loadHead()) : Promise.resolve({ ok: true, gated: true });");
@@ -21,15 +32,12 @@ export function runtime(name, base) {
     source = replace(source, "from './head-scan-effect.js'", `from '${base}scroll-preview/runtime/effect.js'`);
     source = replace(source, "feature.classList.toggle('is-window-open', windowOpen);", "// The portrait remains present on the scroll route, including project cases.");
     source = replace(source, 'effect.setPaused(!shouldBeVisible || windowOpen);', 'effect.setPaused(!shouldBeVisible);');
-    source = replace(source, '  function onPointerMove(event) {', `  let scrollX = 0, scrollY = 0;
-  function onScrollPose(event) {
-    scrollX = event.detail.x; scrollY = event.detail.y;
-    effect?.setPointer(scrollX, scrollY);
+    source = replace(source, '  function onPointerMove(event) {', `  function onScrollPose(event) {
+    effect?.setScrollRotation(event.detail.yaw);
   }
   addEventListener('portfolio:scroll-pose', onScrollPose);
   function onPointerMove(event) {`);
-    source = source.replaceAll('effect?.setPointer(x, y);', 'effect?.setPointer(x * .3 + scrollX, y * .3 + scrollY);');
-    source = source.replaceAll('effect?.setPointer(fallbackX, fallbackY);', 'effect?.setPointer(fallbackX * .3 + scrollX, fallbackY * .3 + scrollY);');
+    source = replace(source, '      getStatus: getMotionStatus,', '      getStatus: getMotionStatus,\n      getPose: () => ({ yaw: effect?.root.rotation.y, pitch: effect?.root.rotation.x }),');
     source = replace(source, '    observer?.disconnect();', "    removeEventListener('portfolio:scroll-pose', onScrollPose);\n    observer?.disconnect();");
     return source;
   }
