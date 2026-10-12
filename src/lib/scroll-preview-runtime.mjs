@@ -28,6 +28,7 @@ export function runtime(name, base) {
     return replace(source, "new URL('js/head3d.js', document.baseURI)", "new URL('scroll-preview/runtime/head.js', document.baseURI)");
   }
   if (name === 'head') {
+    source = replace(source, 'requestAnimationFrame(() => effect?.setPaused(true));', 'requestAnimationFrame(sync);');
     source = replace(source, "'../assets/models/human_head_reference3.glb'", `'${base}assets/models/human_head_reference3.glb'`);
     source = replace(source, "from './head-scan-effect.js'", `from '${base}scroll-preview/runtime/effect.js'`);
     source = replace(source, "feature.classList.toggle('is-window-open', windowOpen);", "// The portrait remains present on the scroll route, including project cases.");

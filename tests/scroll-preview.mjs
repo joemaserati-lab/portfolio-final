@@ -109,7 +109,7 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
    }
    await select('work'); await settle('work');
    const card=page.locator('#scroll-work .project-tile-v2').first();
-   await card.evaluate(e=>{const v=document.getElementById('scroll-viewport');v.scrollTop+=e.getBoundingClientRect().top-document.querySelector('.scroll-index').getBoundingClientRect().top+e.getBoundingClientRect().height+20});
+   await card.evaluate(e=>{const v=document.getElementById('scroll-viewport');v.scrollTop=Math.max(document.getElementById('scroll-work').offsetTop,v.scrollTop+e.getBoundingClientRect().top-document.querySelector('.scroll-index').getBoundingClientRect().top+e.getBoundingClientRect().height+20)});
    await page.waitForFunction(()=>document.querySelectorAll('.is-viewport-color').length===1);
    await page.waitForFunction(()=>getComputedStyle(document.querySelector('.is-viewport-color .project-cover-img')).filter==='none');
    await select('work'); await settle('work');
@@ -158,4 +158,11 @@ const before=await reduced.locator('#scroll-about .window-body').innerText();
 await reduced.locator('#language-toggle').click();await reduced.waitForTimeout(100);
 assert.notEqual(await reduced.locator('#scroll-about .window-body').innerText(),before);
 console.log('PASS returning visit, reduced motion, language');
+const returningDesktop=await browser.newPage({viewport:{width:1440,height:900}});
+await returningDesktop.addInitScript(()=>{sessionStorage.setItem('portfolioBootSeen','1');localStorage.setItem('portfolioPrivacyAck','1')});
+await returningDesktop.goto(url);
+await returningDesktop.waitForFunction(()=>document.body.classList.contains('site-ready'),null,{timeout:50000});
+await returningDesktop.mouse.move(1250,450);
+await returningDesktop.waitForFunction(()=>Math.abs(window.PortfolioMotion.getPose().yaw)>.1,null,{timeout:20000});
+console.log('PASS returning desktop mouse animation');
 await browser.close();
