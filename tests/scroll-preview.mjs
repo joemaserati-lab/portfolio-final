@@ -25,6 +25,7 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  await page.goto(url);
  await page.locator('#boot-enter').waitFor({state:'visible',timeout:30000});
  await page.waitForFunction(()=>!document.querySelector('#boot-enter').disabled,{},{timeout:45000});
+ if(width<=1024) assert(await page.evaluate(()=>window.__portfolioHeadState?.ready),"Mobile head was not warmed during loader");
  await screenshot(page,`original-loader-${width}.png`);
  await page.locator('#boot-enter').click();await page.waitForFunction(()=>document.body.classList.contains('site-ready'),{},{timeout:20000});
  await page.waitForTimeout(800);
@@ -86,10 +87,11 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
    assert(navigation.inside,'Mobile section menu is outside the CRT safe area');
    assert(navigation.contrast,'Mobile current section is not visually distinct');
    assert(navigation.touch,'Mobile section menu is covered by another control');
+   assert(await page.evaluate(()=>document.querySelector('.scroll-index').getBoundingClientRect().bottom <= document.querySelector('#language-toggle').getBoundingClientRect().top),'Section tabs must be above language controls');
    const placement=await page.evaluate(()=>{
      const head=document.getElementById('crt-head-feature').getBoundingClientRect();
      const panel=document.querySelector('#scroll-work .scroll-window').getBoundingClientRect();
-     return {gap:panel.top-head.bottom,alignment:Math.abs(panel.right-head.right)};
+     return {gap:panel.top-head.bottom,alignment:Math.abs((panel.left+panel.right-head.left-head.right)/2)};
    });
    assert(placement.gap>=12,'Portrait overlaps the content header');
    assert(placement.alignment<2,'Portrait is not aligned to the content window');
@@ -104,6 +106,10 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  assert.equal(await page.locator('.scroll-index [aria-current]').getAttribute('data-scroll-section'),'about');
  await select('contact');await settle('contact');
  assert.equal(await page.locator('.scroll-index [aria-current]').getAttribute('data-scroll-section'),'contact');
+ assert.equal(await page.locator('.scroll-footer').count(),1);
+ await page.locator('#scroll-viewport').evaluate(e=>e.scrollTop=e.scrollHeight);
+ await page.locator('.scroll-footer a').click();
+ await settle('home');
  await select('home');await settle('home');
  assert.equal(await page.locator('#scroll-viewport').evaluate(e=>e.scrollTop),0);
  assert.equal(await page.locator('#crt-head-feature').evaluate(e=>e.parentElement.id),'desktop');

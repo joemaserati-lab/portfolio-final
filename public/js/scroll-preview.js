@@ -62,12 +62,7 @@
     windows.forEach(entry => {
       entry.window.style.setProperty('--scroll-raster-height', `${Math.min(entry.body.offsetHeight, viewport.clientHeight * .7)}px`);
     });
-    if (compact.matches) {
-      const currentInset = parseFloat(screen.style.getPropertyValue('--scroll-window-inset')) || 0;
-      const slot = portraitSlot.getBoundingClientRect();
-      const panel = windows[0].window.getBoundingClientRect();
-      screen.style.setProperty('--scroll-window-inset', `${Math.max(0, currentInset + slot.right - panel.right)}px`);
-    }
+
   }
   function renderContents() {
     const api = window.ScrollPortfolio;
@@ -230,6 +225,7 @@
     section.focus({preventScroll:true});
     schedule();
   }
+  document.querySelector('.scroll-footer a').addEventListener('click', event => { event.preventDefault(); go('home'); });
   links.forEach(link => link.addEventListener('click', event => { event.preventDefault(); go(link.dataset.scrollSection); }));
   addEventListener('portfolio:scroll-to', event => go(event.detail));
   addEventListener('portfolio:scroll-return', () => {
