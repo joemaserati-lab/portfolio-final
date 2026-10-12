@@ -6,6 +6,12 @@ const browser=await chromium.launch({headless:true, ...(process.env.PLAYWRIGHT_E
 async function screenshot(page,name) { if(process.env.QA_DIR) { await mkdir(process.env.QA_DIR,{recursive:true}); await page.screenshot({path:`${process.env.QA_DIR}/${name}`}); } }
 for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  const page=await browser.newPage({viewport:{width,height},hasTouch:width<768,isMobile:width<768});
+ const settle = kind => page.waitForFunction(kind => {
+   const viewport = document.getElementById('scroll-viewport');
+   const section = document.getElementById(`scroll-${kind}`);
+   const target = Math.min(section.offsetTop, viewport.scrollHeight - viewport.clientHeight);
+   return Math.abs(viewport.scrollTop - target) < 2;
+ }, kind, {timeout:15000});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')console.log('CONSOLE',m.text())});
  await page.goto(url);
  await page.locator('#boot-enter').waitFor({state:'visible',timeout:30000});
@@ -22,7 +28,7 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  await page.evaluate(()=>{const v=document.querySelector('#scroll-viewport');v.scrollTop=v.clientHeight*.5});await page.waitForTimeout(200);
  await screenshot(page,`original-transition-${width}.png`);
  assert(await page.locator('#crt-head-feature').evaluate(e=>e.classList.contains('scroll-portrait-docked')));
- await page.locator('.scroll-index [data-scroll-section="work"]').click();await page.waitForTimeout(1200);
+ await page.locator('.scroll-index [data-scroll-section="work"]').click();await settle('work');
  assert.equal(await page.locator('.scroll-index [aria-current]').getAttribute('data-scroll-section'),'work');
  await screenshot(page,`original-work-${width}.png`);
  await page.locator('#scroll-work .project-tile-v2').first().click();await page.waitForTimeout(700);
@@ -31,11 +37,11 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  assert(await page.locator('#crt-head-feature').evaluate(e=>e.classList.contains('is-ready')));
  await page.locator('.projects-close').click();await page.waitForTimeout(700);
  assert(await page.locator('#projects-view').evaluate(e=>e.hidden));
- await page.locator('.scroll-index [data-scroll-section="about"]').click();await page.waitForTimeout(1200);
+ await page.locator('.scroll-index [data-scroll-section="about"]').click();await settle('about');
  assert.equal(await page.locator('.scroll-index [aria-current]').getAttribute('data-scroll-section'),'about');
- await page.locator('.scroll-index [data-scroll-section="contact"]').click();await page.waitForTimeout(1200);
+ await page.locator('.scroll-index [data-scroll-section="contact"]').click();await settle('contact');
  assert.equal(await page.locator('.scroll-index [aria-current]').getAttribute('data-scroll-section'),'contact');
- await page.locator('.scroll-index [data-scroll-section="home"]').click();await page.waitForTimeout(1200);
+ await page.locator('.scroll-index [data-scroll-section="home"]').click();await settle('home');
  assert.equal(await page.locator('#scroll-viewport').evaluate(e=>e.scrollTop),0);
  assert.equal(await page.locator('#crt-head-feature').evaluate(e=>e.parentElement.id),'desktop');
  assert.equal(errors.length,0,errors.join('\n'));
