@@ -181,7 +181,6 @@
     text-align: center;
     opacity: .72;
     border: 0;
-    border-bottom: 2px solid transparent;
     transition: opacity .18s, background-color .18s, border-color .18s;
     flex: 1 1 0;
     min-width: 0;
