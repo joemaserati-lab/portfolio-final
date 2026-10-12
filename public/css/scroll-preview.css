@@ -172,7 +172,7 @@
     justify-content: center;
     padding: 4px 2px;
     text-align: center;
-    opacity: .5;
+    opacity: .72;
     border: 1px solid transparent;
     border-bottom: 2px solid transparent;
     transition: opacity .18s, background-color .18s, border-color .18s;
