@@ -210,7 +210,7 @@
   .scroll-preview .case-lead-v2,
   .scroll-preview .resume-view { text-align: left; justify-items: start; align-items: start; }
   .scroll-preview .scroll-window .contact-photo { max-width: 100%; width: 100%; }
-  .scroll-preview .scroll-footer { text-align: left; }
+  .scroll-preview #scroll-viewport .scroll-footer { text-align: left; }
   .scroll-preview.scroll-reading #projects-view .case-study-v2 { padding-top: calc(var(--ui-safe-top) + var(--scroll-portrait-size) + 20px); }
   .scroll-preview.scroll-reading #projects-view { padding-right: 0; }
   .scroll-preview.scroll-reading #projects-view .case-study-v2,
