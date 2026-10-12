@@ -10,7 +10,9 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
    const viewport = document.getElementById('scroll-viewport');
    const section = document.getElementById(`scroll-${kind}`);
    const target = Math.min(section.offsetTop, viewport.scrollHeight - viewport.clientHeight);
-   return Math.abs(viewport.scrollTop - target) < 2;
+   return Math.abs(viewport.scrollTop - target) < 2
+     && document.querySelector('.scroll-index [aria-current]')?.dataset.scrollSection === kind
+     && (kind !== 'home' || document.getElementById('crt-head-feature').parentElement.id === 'desktop');
  }, kind, {timeout:15000});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')console.log('CONSOLE',m.text())});
  await page.goto(url);
