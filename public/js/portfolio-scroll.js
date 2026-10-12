@@ -19,7 +19,7 @@
   });
   const HANDOFF_END = .22;
   const OPEN_END = .8;
-  let ready = false, frame = 0, scramble = 0, current = 'home', headRect, folders = {}, launcherRects = new Map(), docked = false, smoothDock = 0, dockTime = 0;
+  let ready = false, frame = 0, scramble = 0, current = 'home', headRect, launcherRects = new Map(), docked = false, smoothDock = 0, dockTime = 0;
   const clamp = value => Math.max(0, Math.min(1, value));
   const mix = (a,b,p) => a + (b-a)*p;
 
@@ -84,17 +84,13 @@
       const r = head.getBoundingClientRect();
       headRect = {left:r.left-parent.left, top:r.top-parent.top+viewport.scrollTop, width:r.width, height:r.height};
     }
-    ['work','about','contact'].forEach(kind => {
-      const r = desktop.querySelector(`[data-open="${kind === 'work' ? 'projects' : kind}"] .icon-glyph`).getBoundingClientRect();
-      folders[kind] = {left:r.left-parent.left, top:r.top-parent.top+viewport.scrollTop, width:r.width, height:r.height};
-    });
     windows.forEach(entry => {
       entry.window.style.setProperty('--scroll-raster-height', `${Math.min(entry.body.offsetHeight, viewport.clientHeight * .7)}px`);
     });
 
   }
   function renderContents() {
-    const api = window.ScrollPortfolio;
+    const api = window.Portfolio;
     if (!api) return;
     api.refresh();
     delete morph.dataset.kind;
@@ -270,12 +266,12 @@
     morph.style.display = 'none';
     if (candidate && !compact.matches && !reduced.matches && !overlay) {
       const {kind,progress,section} = candidate;
-      const source = compact.matches ? folders[kind] : menuButtons.get(kind).querySelector('.icon-glyph').getBoundingClientRect();
+      const source = menuButtons.get(kind).querySelector('.icon-glyph').getBoundingClientRect();
       const sr = screen.getBoundingClientRect();
-      const from = compact.matches ? source : {left:source.left-sr.left,top:source.top-sr.top,width:source.width,height:source.height};
+      const from = {left:source.left-sr.left,top:source.top-sr.top,width:source.width,height:source.height};
       const target = section.querySelector('.scroll-window').getBoundingClientRect();
       const to = {left:target.left-sr.left,top:target.top-sr.top,width:target.width,height:Math.min(target.height,h*.75)};
-      const openingStart = compact.matches || kind !== 'work' ? 0 : HANDOFF_END;
+      const openingStart = kind !== 'work' ? 0 : HANDOFF_END;
       if (progress > openingStart) {
         morph.style.display = 'block';
         const t = clamp((progress-openingStart)/(OPEN_END-openingStart));
@@ -289,37 +285,35 @@
     }
   }
   function schedule() { if (!frame) frame = requestAnimationFrame(update); }
-  function go(kind, {historyUpdate = true} = {}) {
+  function go(kind, {historyUpdate = true, closeOverlay = true} = {}) {
     const section = document.getElementById(`scroll-${kind}`);
     if (!section || !ready) return;
-    window.ScrollPortfolio?.close();
-    if (historyUpdate) history.pushState({scrollSection:kind}, '', new URL(`scroll-preview/#${kind}`, document.baseURI));
+    if (closeOverlay) window.Portfolio?.close();
+    if (historyUpdate) window.Portfolio.navigateSection(kind);
     viewport.scrollTo({top:section.offsetTop, behavior:reduced.matches?'instant':'smooth'});
     section.tabIndex = -1;
-    section.focus({preventScroll:true});
+    if (closeOverlay) section.focus({preventScroll:true});
     schedule();
   }
   document.querySelector('.scroll-footer a').addEventListener('click', event => { event.preventDefault(); go('home'); });
   links.forEach(link => link.addEventListener('click', event => { event.preventDefault(); go(link.dataset.scrollSection); }));
-  addEventListener('portfolio:scroll-to', event => go(event.detail));
-  addEventListener('portfolio:scroll-return', () => {
-    history.replaceState({scrollSection:current}, '', new URL(`scroll-preview/#${current}`, document.baseURI));
-    go(current, {historyUpdate:false});
-  });
+  addEventListener('portfolio:scroll-to', event => typeof event.detail === 'string' ? go(event.detail) : go(event.detail.kind, {historyUpdate:false}));
+  addEventListener('portfolio:scroll-return', event => go(event.detail || current, {historyUpdate:false}));
   viewport.addEventListener('scroll', schedule, {passive:true});
   addEventListener('resize', () => { if (docked) { desktop.prepend(head); head.removeAttribute('style'); head.classList.remove('scroll-portrait-docked'); docked = false; } measure(); schedule(); });
-  addEventListener('portfolio:scroll-runtime', renderContents);
+  addEventListener('portfolio:runtime-ready', renderContents);
   addEventListener('portfolio:head-settled', schedule);
   addEventListener('portfolio:langchange', renderContents);
-  addEventListener('popstate', () => { const hash = location.hash.slice(1); if (kinds.includes(hash)) go(hash, {historyUpdate:false}); });
   reduced.addEventListener('change', schedule);
   new MutationObserver(schedule).observe(document.getElementById('projects-view'), {attributes:true,attributeFilter:['hidden']});
   new MutationObserver(schedule).observe(document.getElementById('window-layer'), {childList:true});
   function enter() {
     ready = true;
     renderContents(); measure(); schedule();
-    const hash = location.hash.slice(1);
-    if (kinds.includes(hash) && hash !== 'home') go(hash, {historyUpdate:false});
+    const route = window.Portfolio.getRoute();
+    if (route.type === 'project') go('work', {historyUpdate:false, closeOverlay:false});
+    else if (route.type === 'work') go('work', {historyUpdate:false});
+    else if (route.type === 'section' && route.kind !== 'resume') go(route.kind, {historyUpdate:false});
   }
   addEventListener('portfolio:site-ready', enter, {once:true});
   new MutationObserver(() => { if (!ready && document.body.classList.contains('site-ready')) enter(); }).observe(document.body, {attributes:true, attributeFilter:['class']});

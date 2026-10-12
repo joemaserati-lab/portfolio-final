@@ -25,7 +25,7 @@ for (const path of ['index.html','404.html','assets','css','js','about','contact
   assert.ok(!existsSync(dir(path)), `Legacy root snapshot remains: ${path}`);
 }
 const bundle = readFileSync(dir('dist/css/portfolio.bundle.css'), 'utf8');
-const cssSources = ['foundation.css','workspace.css','visual-experience.css','adaptive.css','fixes.css','crt-outline-base.css','project-covers.css','monochrome-theme.css','crt-outline.css'];
+const cssSources = ['foundation.css','workspace.css','visual-experience.css','adaptive.css','fixes.css','crt-outline-base.css','project-covers.css','monochrome-theme.css','crt-outline.css','portfolio-scroll.css'];
 const originalCss = cssSources.map(name => '/* Source: ' + name + ' */\\n' + readFileSync(dir('public/css/' + name), 'utf8')).join('\\n\\n') + '\\n';
 assert.ok(bundle.length < originalCss.length * 0.95, 'Expected CSS whitespace compression of at least 5%');
 assert.ok(bundle.includes('.project-tile-v2'), 'Project directory CSS missing');
@@ -46,4 +46,14 @@ for (const project of projects) {
 }
 assert.ok(!bundle.includes('assets/images/projects/'), 'Redundant CSS project backgrounds were reintroduced');
 
+for (const route of routes) {
+  const html=readFileSync(dir(`dist/${route}index.html`),'utf8');
+  assert.ok(/css\/portfolio\.bundle\.css\?v=/.test(html), `Unversioned stylesheet: ${route}`);
+  assert.ok(/js\/boot\.js\?v=/.test(html), `Unversioned boot runtime: ${route}`);
+  assert.ok(html.includes('id="scroll-viewport"'), `Scroll layout missing: ${route}`);
+  assert.ok(!html.includes('noindex'), `Official route is excluded from indexing: ${route}`);
+}
+assert.ok(!existsSync(dir('dist/scroll-preview/runtime')), 'Experimental runtime remains');
+assert.ok(!existsSync(dir('public/js/scroll-preview.js')), 'Duplicate scroll controller remains');
+assert.ok(!existsSync(dir('src/lib/scroll-preview-runtime.mjs')), 'Build-time runtime adapter remains');
 console.log(`Build verified: ${routes.length} routes, static project summaries, single CSS bundle, no root mirrors.`);

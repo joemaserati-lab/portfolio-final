@@ -1,0 +1,9 @@
+---
+import { profile } from '../data/routes.mjs';
+const { basePath } = Astro.props;
+---
+<footer class="scroll-footer">
+  <p>© {new Date().getFullYear()} {profile.name}</p>
+  <a href={basePath}>Home ↑</a>
+  <div class="scroll-footer-controls"></div>
+</footer>

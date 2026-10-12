@@ -16,7 +16,6 @@
   transition:opacity .22s ease;
 }
 .crt-head-feature.is-ready{opacity:0.96;visibility:visible}
-.crt-head-feature.is-ready.is-window-open{opacity:0.23}
 .crt-head-feature.is-failed{display:none}
 #crt-head-canvas{
   display:block;
@@ -30,7 +29,6 @@
     width:92%;
   }
   .crt-head-feature.is-ready{opacity:0.86}
-  .crt-head-feature.is-ready.is-window-open{opacity:0.21}
 }
 @media(max-width:720px){
   .crt-head-feature{
@@ -38,7 +36,6 @@
     width:100%;
   }
   .crt-head-feature.is-ready{opacity:0.72}
-  .crt-head-feature.is-ready.is-window-open{opacity:0.18}
 }
 @media(prefers-reduced-motion:reduce){
   .crt-head-feature{transition:none}

@@ -1,58 +1,57 @@
 (() => {
   let DATA = window.PORTFOLIO_DATA;
-  if (!DATA) {
-    console.error('PORTFOLIO_DATA is missing.');
-    return;
-  }
-
-  let { profile, resume, projects } = DATA;
-  const i18n = window.PortfolioI18n;
-  const t = key => i18n?.t?.(key) || key;
+  if (!DATA) { console.error('PORTFOLIO_DATA is missing.'); return; }
+  let {profile, resume, projects} = DATA;
+  const t = key => window.PortfolioI18n?.t?.(key) || key;
   const layer = document.getElementById('window-layer');
-  const screen = document.getElementById('screen');
   const projectsView = document.getElementById('projects-view');
-  const coarsePointer = matchMedia('(hover: none), (pointer: coarse)');
-  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
-  const responsiveWindows = matchMedia('(max-width: 1024px)');
-  let z = 20;
-  let routeReady = !document.body.classList.contains('booting');
-  let lastLauncher = null;
-
-  const SCRIPT_URL = new URL(document.currentScript?.src || 'js/portfolio.js', document.baseURI);
-  const BASE_URL = new URL('../', SCRIPT_URL);
-  const BASE_PATH = BASE_URL.pathname.endsWith('/') ? BASE_URL.pathname : `${BASE_URL.pathname}/`;
-  const SECTION_KINDS = new Set(['about','resume','contact']);
-
-  function normalizeLocalPath(){
-    let pathname = location.pathname;
-    if(pathname.startsWith(BASE_PATH)) pathname = pathname.slice(BASE_PATH.length);
-    else pathname = pathname.replace(/^\/+/, '');
-    return decodeURIComponent(pathname).replace(/^\/+|\/+$/g, '');
+  const BASE_URL = new URL(document.baseURI);
+  const BASE_PATH = BASE_URL.pathname;
+  let returnSection = 'work';
+  let transitionSwap = null, transitionEnd = null;
+  function cancelTransition() {
+    clearTimeout(transitionSwap); clearTimeout(transitionEnd);
+    transitionSwap = null; transitionEnd = null;
+    document.getElementById('screen').classList.remove('crt-degauss');
+  }
+  function crtTransition(action) {
+    cancelTransition();
+    if (matchMedia('(prefers-reduced-motion:reduce)').matches) { action(); return; }
+    document.getElementById('screen').classList.add('crt-degauss');
+    transitionSwap = setTimeout(()=>{ transitionSwap = null; action(); },155);
+    transitionEnd = setTimeout(cancelTransition,370);
   }
 
-  function parseRoute(){
-    const path = normalizeLocalPath();
-    if(!path) return {type:'home'};
-    if(SECTION_KINDS.has(path)) return {type:'section',kind:path};
-    if(path==='work') return {type:'work'};
-    const match=path.match(/^work\/([^/]+)$/);
-    if(match) return {type:'project',slug:match[1]};
+  function parseRoute() {
+    const path = location.pathname.slice(BASE_PATH.length).replace(/^\/+|\/+$/g, '');
+    const hash = location.hash.slice(1);
+    if (path.startsWith('work/')) return {type:'project', slug:decodeURIComponent(path.slice(5))};
+    if (hash.startsWith('project=')) return {type:'project', slug:decodeURIComponent(hash.slice(8))};
+    if (hash === '/projects') return {type:'work'};
+    const legacy = hash.match(/^\/work\/([^/?#]+)/);
+    if (legacy) return {type:'project',slug:decodeURIComponent(legacy[1])};
+    const section = path || hash;
+    if (section === 'work') return {type:'work'};
+    if (['about','contact','resume'].includes(section)) return {type:'section', kind:section};
     return {type:'home'};
   }
-
-  function routeKey(route){
-    if(route.type==='section') return `section:${route.kind}`;
-    if(route.type==='project') return `project:${route.slug}`;
-    return route.type;
+  function routePath(route) {
+    if (route.type === 'project') return `${BASE_PATH}work/${encodeURIComponent(route.slug)}/`;
+    if (route.type === 'work') return `${BASE_PATH}work/`;
+    if (route.type === 'section') return `${BASE_PATH}${route.kind}/`;
+    return BASE_PATH;
   }
-
-  function routePath(route){
-    let relative='';
-    if(route.type==='section') relative=`${route.kind}/`;
-    else if(route.type==='work') relative='work/';
-    else if(route.type==='project') relative=`work/${route.slug}/`;
-    return `${BASE_PATH}${relative}`;
+  function navigateSection(kind, {replace=false}={}) {
+    const route = kind === 'home' ? {type:'home'} : kind === 'work' ? {type:'work'} : {type:'section',kind};
+    history[replace ? 'replaceState' : 'pushState']({scrollSection:kind}, '', routePath(route));
+    updateRouteMeta(route);
   }
+  const esc = s => String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  const paragraphs = value => [].concat(value || []).map(text => `<p>${esc(text)}</p>`).join('');
+  const projectById = id => projects.find(p => p.id === String(id).padStart(2,'0'));
+  const projectBySlug = slug => projects.find(p => p.slug === slug);
+  const backGlyph = '<span aria-hidden="true" style="display:inline-block;line-height:1;transform:translate(1px,-1px)">&lt;</span>';
+  const projectImage = p => p.cover ? `<img class="project-cover-img" src="${esc(p.cover)}" alt="${esc(p.title)}" loading="lazy" decoding="async">` : '<span class="project-cover-art" aria-hidden="true"></span>';
 
   function updateRouteMeta(route){
     let title=t('title');
@@ -91,97 +90,6 @@
     setMeta('meta[name="twitter:title"]',title);
     setMeta('meta[name="twitter:description"]',description);
     setMeta('link[rel="canonical"]',canonical,'href');
-  }
-
-  function commitRoute(nextRoute,{replace=false,from=parseRoute()}={}){
-    const state={portfolioRoute:routeKey(nextRoute),portfolioFrom:routeKey(from)};
-    history[replace?'replaceState':'pushState'](state,'',routePath(nextRoute));
-    route(nextRoute);
-  }
-
-  function returnToRoute(target){
-    if(history.state?.portfolioFrom===routeKey(target)){
-      history.back();
-      return;
-    }
-    commitRoute(target,{replace:true,from:target});
-  }
-
-  function migrateLegacyHash(){
-    const hash=location.hash || '';
-    if(hash==='#/projects'){
-      history.replaceState({portfolioRoute:'work'},'',routePath({type:'work'}));
-      return true;
-    }
-    const match=hash.match(/^#\/work\/([^/?#]+)/);
-    if(match){
-      const slug=decodeURIComponent(match[1]);
-      history.replaceState({portfolioRoute:`project:${slug}`},'',routePath({type:'project',slug}));
-      return true;
-    }
-    return false;
-  }
-
-  const esc = s => String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-  const paragraphs = value => [].concat(value || []).map(text => `<p>${esc(text)}</p>`).join('');
-  const projectById = id => projects.find(p => p.id === String(id).padStart(2,'0'));
-  const projectBySlug = slug => projects.find(p => p.slug === slug);
-  const isTouchDevice = () => coarsePointer.matches || navigator.maxTouchPoints > 0;
-  const backGlyph = '<span aria-hidden="true" style="display:inline-block;line-height:1;transform:translate(1px,-1px)">&lt;</span>';
-  const projectImage = p => p.cover ? `<img class="project-cover-img" src="${esc(p.cover)}" alt="${esc(p.title)}" loading="lazy" decoding="async">` : '<span class="project-cover-art" aria-hidden="true"></span>';
-
-  let degaussSwap=null, degaussEnd=null;
-  let mobileProjectObserver=null;
-  function microGlitch(){
-    if(!screen || reduceMotion.matches || screen.classList.contains('crt-degauss')) return;
-    screen.classList.remove('micro-glitch');
-    screen.style.setProperty('--micro-glitch-y',`${28+Math.random()*44}%`);
-    void screen.offsetWidth;
-    screen.classList.add('micro-glitch');
-    setTimeout(()=>screen.classList.remove('micro-glitch'),160);
-  }
-  function cancelDegauss(){
-    clearTimeout(degaussSwap); clearTimeout(degaussEnd);
-    degaussSwap=null; degaussEnd=null;
-    screen?.classList.remove('crt-degauss');
-  }
-  function degauss(action){
-    cancelDegauss();
-    if(!screen || reduceMotion.matches){ action?.(); return; }
-    screen.classList.remove('micro-glitch');
-    void screen.offsetWidth;
-    screen.classList.add('crt-degauss');
-    // Swap the content while the raster has collapsed to the central line.
-    degaussSwap=setTimeout(()=>{degaussSwap=null;action?.();},155);
-    degaussEnd=setTimeout(cancelDegauss,370);
-  }
-  function bindMobileProjectMotion(root){
-    mobileProjectObserver?.disconnect();
-    mobileProjectObserver=null;
-    const cards=[...root.querySelectorAll('.project-tile-v2')];
-    if(!cards.length || !coarsePointer.matches || reduceMotion.matches) return;
-    const timers=new WeakMap();
-    mobileProjectObserver=new IntersectionObserver(entries=>{
-      entries.forEach(entry=>{
-        const card=entry.target;
-        if(!entry.isIntersecting || entry.intersectionRatio<.58) return;
-        if(timers.has(card)) clearTimeout(timers.get(card));
-        const delay=90+(cards.indexOf(card)%3)*120;
-        const t=setTimeout(()=>{
-          cards.forEach(c=>c!==card&&c.classList.remove('mobile-signal'));
-          card.classList.add('mobile-signal');
-          setTimeout(()=>card.classList.remove('mobile-signal'),1050);
-        },delay);
-        timers.set(card,t);
-      });
-    },{threshold:[.58,.72]});
-    cards.forEach(card=>{
-      mobileProjectObserver.observe(card);
-      card.addEventListener('pointerdown',()=>card.classList.add('is-pressed'),{passive:true});
-      const clear=()=>setTimeout(()=>card.classList.remove('is-pressed'),140);
-      card.addEventListener('pointerup',clear,{passive:true});
-      card.addEventListener('pointercancel',clear,{passive:true});
-    });
   }
 
   const tagList = items => `<div class="tags">${items.map(t=>`<span>${esc(t)}</span>`).join('')}</div>`;
@@ -266,227 +174,13 @@
       </section>`
   };
 
-  function windowRectInLayer(win){
-    const wr=win.getBoundingClientRect(), lr=layer.getBoundingClientRect();
-    return {left:wr.left-lr.left, top:wr.top-lr.top, width:wr.width, height:wr.height, right:wr.right-lr.left, bottom:wr.bottom-lr.top};
-  }
-
-  function overlapArea(a,b){
-    const x=Math.max(0,Math.min(a.right,b.right)-Math.max(a.left,b.left));
-    const y=Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top));
-    return x*y;
-  }
-
-  function placeWindowRandomly(win){
-    if(responsiveWindows.matches) return;
-    const layerW=layer.clientWidth, layerH=layer.clientHeight;
-    const winW=win.offsetWidth, winH=win.offsetHeight;
-    const maxX=Math.max(0,layerW-winW), maxY=Math.max(0,layerH-winH);
-    const others=[...layer.querySelectorAll('.os-window')]
-      .filter(w=>w!==win && !w.classList.contains('is-maximized') && !w.classList.contains('is-responsive-fullscreen'))
-      .map(windowRectInLayer);
-    const candidates=[];
-    const margin=Math.min(18,Math.max(6,Math.min(layerW,layerH)*.025));
-    const usableX=Math.max(0,maxX-margin*2), usableY=Math.max(0,maxY-margin*2);
-    const anchors=[[.08,.10],[.58,.12],[.14,.54],[.62,.58],[.34,.30],[.46,.48]];
-    anchors.forEach(([ax,ay])=>candidates.push({
-      left:Math.min(maxX,Math.max(0,margin+usableX*ax+(Math.random()-.5)*42)),
-      top:Math.min(maxY,Math.max(0,margin+usableY*ay+(Math.random()-.5)*34))
-    }));
-    for(let i=0;i<42;i++) candidates.push({left:margin+Math.random()*usableX,top:margin+Math.random()*usableY});
-
-    let best=null, bestScore=Infinity;
-    for(const c of candidates){
-      const rect={left:c.left,top:c.top,width:winW,height:winH,right:c.left+winW,bottom:c.top+winH};
-      let score=0;
-      for(const o of others){
-        const overlap=overlapArea(rect,o);
-        score += overlap/Math.max(1,Math.min(winW*winH,o.width*o.height))*1000;
-        const dx=Math.abs(rect.left-o.left), dy=Math.abs(rect.top-o.top);
-        if(dx<54 && dy<46) score+=5000;
-        const dist=Math.hypot((rect.left+rect.width/2)-(o.left+o.width/2),(rect.top+rect.height/2)-(o.top+o.height/2));
-        if(dist<120) score+=(120-dist)*2;
-      }
-      score+=Math.random()*8;
-      if(score<bestScore){bestScore=score;best=c;}
-    }
-    win.style.transform='none';
-    win.style.left=`${Math.round(best?.left ?? maxX*.5)}px`;
-    win.style.top=`${Math.round(best?.top ?? maxY*.5)}px`;
-  }
-
-  function setResizeControl(win){
-    const btn=win.querySelector('[data-resize]');
-    if(btn) btn.remove();
-  }
-
-  function projectShell(inner,{caseView=false}={}){
+  function projectShell(inner){
     return `<div class="projects-chrome" aria-label="${esc(t('window.projects'))}">
       <button class="projects-back" data-projects-back aria-label="${esc(t('window.backLabel'))}" title="${esc(t('window.back'))}">${backGlyph}</button>
       <button class="projects-close" data-projects-close aria-label="${esc(t('window.closeLabel'))}" title="${esc(t('window.close'))}">×</button>
     </div>${inner}`;
   }
 
-  function bindProjectChrome(root){
-    root.querySelector('[data-projects-back]')?.addEventListener('click',()=>{
-      if(projectsView?.dataset.view==='case') navigateProjects({back:true});
-      else navigateHome({back:true});
-    });
-    root.querySelector('[data-projects-close]')?.addEventListener('click',()=>navigateHome({back:true}));
-  }
-
-  function updateWindowControls(win){
-    const back=win.querySelector('[data-window-back]');
-    const close=win.querySelector('[data-close]');
-    if(back){ back.setAttribute('aria-label',t('window.backLabel')); back.title=t('window.back'); }
-    if(close){ close.setAttribute('aria-label',t('window.closeLabel')); close.title=t('window.close'); }
-  }
-
-  function applyResponsiveState(win){
-    if(win.classList.contains('is-maximized')){
-      win.classList.remove('is-responsive-fullscreen');
-      setResizeControl(win);
-      return;
-    }
-    if(responsiveWindows.matches){
-      if(!win.classList.contains('is-responsive-fullscreen')){
-        if(!win.classList.contains('is-maximized')){
-          const r=windowRectInLayer(win);
-          win.dataset.responsiveLeft=String(r.left);
-          win.dataset.responsiveTop=String(r.top);
-          win.dataset.responsiveWidth=String(r.width);
-          win.dataset.responsiveHeight=String(r.height);
-        }
-        win.classList.add('is-responsive-fullscreen');
-      }
-    } else if(win.classList.contains('is-responsive-fullscreen')){
-      win.classList.remove('is-responsive-fullscreen');
-      if(!win.classList.contains('is-maximized')){
-        const w=Math.min(layer.clientWidth,parseFloat(win.dataset.responsiveWidth)||win.offsetWidth);
-        const h=Math.min(layer.clientHeight,parseFloat(win.dataset.responsiveHeight)||win.offsetHeight);
-        if(win.dataset.responsiveLeft!=null){
-          win.style.width=`${w}px`; win.style.height=`${h}px`;
-          win.style.left=`${Math.max(0,Math.min(layer.clientWidth-w,parseFloat(win.dataset.responsiveLeft)||0))}px`;
-          win.style.top=`${Math.max(0,Math.min(layer.clientHeight-h,parseFloat(win.dataset.responsiveTop)||0))}px`;
-        } else requestAnimationFrame(()=>placeWindowRandomly(win));
-      }
-    }
-    setResizeControl(win);
-  }
-
-  function createWindow(kind, title){
-    const existing = document.querySelector(`.os-window[data-kind="${kind}"]`);
-    if(existing){ existing.__returnFocus=lastLauncher || existing.__returnFocus; bringFront(existing); focusWindow(existing); return existing; }
-    const win=document.createElement('section');
-    win.className='os-window'; win.dataset.kind=kind; win.style.zIndex=++z;
-    win.tabIndex=-1;
-    win.setAttribute('role','dialog');
-    win.setAttribute('aria-modal','false');
-    const titleId=`window-title-${kind}`;
-    win.setAttribute('aria-labelledby',titleId);
-    win.__returnFocus=lastLauncher;
-    win.innerHTML=`<div class="window-titlebar"><button class="window-back" data-window-back aria-label="${esc(t('window.backLabel'))}" title="${esc(t('window.back'))}">${backGlyph}</button><span id="${titleId}">${title}</span><div class="window-controls"><button data-close aria-label="${esc(t('window.closeLabel'))}" title="${esc(t('window.close'))}">×</button></div></div><div class="window-body"></div>`;
-    layer.appendChild(win);
-    if(!responsiveWindows.matches){
-      placeWindowRandomly(win);
-      const initial=windowRectInLayer(win);
-      win.dataset.restoreLeft=String(initial.left);
-      win.dataset.restoreTop=String(initial.top);
-      win.dataset.restoreWidth=String(initial.width);
-      win.dataset.restoreHeight=String(initial.height);
-    }
-    win.classList.add('is-maximized');
-    wireWindow(win);
-    setResizeControl(win);
-    return win;
-  }
-
-  function focusWindow(win){
-    requestAnimationFrame(()=>{
-      const target=win.querySelector('[data-close]') || win;
-      target.focus({preventScroll:true});
-    });
-  }
-
-  function bindProjectLinks(root){
-    // A single mobile tap reveals the cover, then opens the project after a short beat.
-    // The same buttons remain immediate for mouse and keyboard activation.
-    let pendingPreview = false;
-    root.querySelectorAll('[data-project-slug]').forEach(el=>el.addEventListener('click',event=>{
-      const slug=el.dataset.projectSlug;
-      if(coarsePointer.matches && event.detail > 0 && el.classList.contains('project-tile-v2')){
-        if(pendingPreview) return;
-        pendingPreview=true;
-        root.querySelectorAll('.project-tile-v2.is-color-preview').forEach(card=>card.classList.remove('is-color-preview'));
-        el.classList.add('is-color-preview');
-        setTimeout(()=>{
-          pendingPreview=false;
-          if(el.isConnected && projectsView && !projectsView.hidden && projectsView.dataset.view==='directory'){
-            navigateToProject(slug);
-          }
-        },280);
-        return;
-      }
-      navigateToProject(slug);
-    }));
-    bindMobileProjectMotion(root);
-  }
-
-  function openProjectsView(){
-    if(!projectsView) return false;
-    projectsView.hidden=false;
-    projectsView.classList.add('is-open');
-    document.body.classList.add('projects-open','content-panel-open');
-    return true;
-  }
-
-  function closeProjectsView(){
-    if(!projectsView || projectsView.hidden) return;
-    projectsView.hidden=true;
-    projectsView.classList.remove('is-open','case-mode');
-    projectsView.innerHTML='';
-    delete projectsView.dataset.view;
-    delete projectsView.dataset.project;
-    document.body.classList.remove('projects-open');
-    if(!document.querySelector('.os-window')) document.body.classList.remove('content-panel-open');
-  }
-
-  function clearWindowsExcept(kind=null){
-    document.querySelectorAll('.os-window').forEach(win=>{
-      if(kind && win.dataset.kind===kind) return;
-      leavePhosphorGhost(win);
-      win.remove();
-    });
-    const hasWindow=Boolean(document.querySelector('.os-window'));
-    const hasProjects=Boolean(projectsView && !projectsView.hidden);
-    document.body.classList.toggle('content-panel-open',hasWindow || hasProjects);
-  }
-  function renderProjectsDirectory(){
-    if(!openProjectsView()) return false;
-    projectsView.classList.remove('case-mode');
-    projectsView.dataset.view='directory';
-    delete projectsView.dataset.project;
-    projectsView.innerHTML=projectShell(contents.projects());
-    projectsView.scrollTop=0;
-    bindProjectChrome(projectsView);
-    bindProjectLinks(projectsView);
-    microGlitch();
-    return true;
-  }
-
-  function openWindow(kind){
-    if(kind==='projects') return renderProjectsDirectory();
-    const labels={projects:t('window.projects'),about:t('window.about'),contact:t('window.contact'),resume:t('window.resume')};
-    const win=createWindow(kind,labels[kind]||kind.toUpperCase());
-    document.body.classList.add('content-panel-open');
-    win.classList.remove('case-mode');
-    win.querySelector('.window-body').innerHTML=contents[kind]();
-    applyResponsiveState(win);
-    bringFront(win);
-    focusWindow(win);
-    if(kind!=='projects') microGlitch();
-    return win;
-  }
 
   function mediaPlaceholder(media,index,project,{galleryIndex=null,galleryCount=0}={}){
     const cls={hero:'case-media-hero-v2',landscape:'case-media-landscape-v2',portrait:'case-media-portrait-v2',wide:'case-media-wide-v2'}[media.type]||'';
@@ -555,7 +249,7 @@
           <button data-project-slug="${esc(prev.slug)}"><small>${esc(t('case.previous'))}</small><b>← ${esc(prev.title)}</b></button>
           <button data-project-slug="${esc(next.slug)}"><small>${esc(t('case.next'))}</small><b>${esc(next.title)} →</b></button>
         </nav>
-      </article>`,{caseView:true});
+      </article>`);
     projectsView.scrollTop=0;
     bindProjectChrome(projectsView);
     projectsView.querySelector('[data-back-projects]').addEventListener('click',()=>navigateProjects({back:true}));
@@ -563,214 +257,94 @@
     return true;
   }
 
-  function openProject(slug){
-    const p=projectBySlug(slug) || projectById(slug);
-    if(!p) return false;
-    return renderProjectCase(p);
+
+  function close() {
+    if (transitionSwap !== null) cancelTransition();
+    projectsView.hidden = true;
+    projectsView.classList.remove('is-open','case-mode');
+    projectsView.innerHTML = '';
+    delete projectsView.dataset.view;
+    delete projectsView.dataset.project;
+    layer.replaceChildren();
+    document.body.classList.remove('projects-open','content-panel-open');
   }
-
-  function navigateToProject(slug){
-    const p=projectBySlug(slug) || projectById(slug);
-    if(!p) return;
-    commitRoute({type:'project',slug:p.slug});
+  function openProjectsView() {
+    layer.replaceChildren();
+    projectsView.hidden = false;
+    projectsView.classList.add('is-open');
+    document.body.classList.add('projects-open','content-panel-open');
+    return true;
   }
-
-  function navigateProjects({back=false}={}){
-    degauss(()=>{
-      const target={type:'work'};
-      if(back) returnToRoute(target);
-      else commitRoute(target);
-    });
+  function navigateToProject(slug) {
+    const project = projectBySlug(slug) || projectById(slug);
+    if (!project) return;
+    returnSection = 'work';
+    const route = {type:'project',slug:project.slug};
+    history.pushState({portfolioProject:project.slug}, '', routePath(route));
+    updateRouteMeta(route);
+    renderProjectCase(project);
   }
-
-  function navigateHome({back=false}={}){
-    const target={type:'home'};
-
-    // Close the Projects surface synchronously before touching browser history.
-    // The 3D layer observes the hidden attribute and resumes immediately, even
-    // if a popstate is delayed or the history stack behaves differently.
-    closeProjectsView();
-
-    if(back) returnToRoute(target);
-    else commitRoute(target);
+  function returnToScroll(kind=returnSection) {
+    close();
+    navigateSection(kind,{replace:true});
+    dispatchEvent(new CustomEvent('portfolio:scroll-return',{detail:kind}));
   }
-
-  function openLauncher(kind){
-    const target=kind==='projects' ? {type:'work'} : {type:'section',kind};
-    degauss(()=>commitRoute(target));
+  function navigateProjects() { crtTransition(()=>returnToScroll('work')); }
+  function bindProjectChrome(root) {
+    root.querySelector('[data-projects-back]')?.addEventListener('click',navigateProjects);
+    root.querySelector('[data-projects-close]')?.addEventListener('click',()=>returnToScroll());
   }
-
-  function route(requestedRoute=null){
-    if(!routeReady) return;
-    if(degaussSwap!==null) cancelDegauss();
-    const current=requestedRoute || parseRoute();
-    updateRouteMeta(current);
-
-    if(current.type==='home'){
-      closeProjectsView();
-      clearWindowsExcept();
-      return;
+  function bindProjectLinks(root) {
+    root.querySelectorAll('[data-project-slug]').forEach(button => button.addEventListener('click',()=>navigateToProject(button.dataset.projectSlug)));
+  }
+  function openResume() {
+    close();
+    const dialog = document.createElement('section');
+    dialog.className = 'os-window is-maximized';
+    if (matchMedia('(max-width:1024px)').matches) dialog.classList.add('is-responsive-fullscreen');
+    dialog.dataset.kind = 'resume';
+    dialog.setAttribute('role','dialog');
+    dialog.setAttribute('aria-labelledby','resume-title');
+    dialog.innerHTML = `<div class="window-titlebar"><button class="window-back" data-close aria-label="${esc(t('window.backLabel'))}">${backGlyph}</button><span id="resume-title">${esc(t('window.resume'))}</span><div class="window-controls"><button data-close aria-label="${esc(t('window.closeLabel'))}">×</button></div></div><div class="window-body">${contents.resume()}</div>`;
+    dialog.querySelectorAll('[data-close]').forEach(button=>button.addEventListener('click',()=>returnToScroll()));
+    layer.appendChild(dialog);
+    document.body.classList.add('content-panel-open');
+  }
+  function applyRoute() {
+    cancelTransition();
+    const route = parseRoute();
+    updateRouteMeta(route);
+    if (route.type === 'project') {
+      const project = projectBySlug(route.slug);
+      if (project) { renderProjectCase(project); return; }
+      returnToScroll('work'); return;
     }
-
-    if(current.type==='section'){
-      closeProjectsView();
-      clearWindowsExcept(current.kind);
-      openWindow(current.kind);
-      return;
-    }
-
-    clearWindowsExcept();
-    if(current.type==='work'){
-      renderProjectsDirectory();
-      return;
-    }
-
-    if(current.type==='project'){
-      if(openProject(current.slug)) return;
-      const work={type:'work'};
-      history.replaceState({portfolioRoute:'work'},'',routePath(work));
-      updateRouteMeta(work);
-      renderProjectsDirectory();
-    }
+    if (route.type === 'section' && route.kind === 'resume') { returnSection = 'home'; openResume(); return; }
+    close();
+    if (document.body.classList.contains('site-ready')) dispatchEvent(new CustomEvent('portfolio:scroll-to',{detail:{kind:route.type === 'work' ? 'work' : route.kind || 'home'}}));
   }
-
-  function leavePhosphorGhost(win){
-    const wr=win.getBoundingClientRect(), hr=layer.getBoundingClientRect();
-    const ghost=document.createElement('div'); ghost.className='phosphor-ghost';
-    ghost.style.left=(wr.left-hr.left)+'px'; ghost.style.top=(wr.top-hr.top)+'px'; ghost.style.width=wr.width+'px'; ghost.style.height=wr.height+'px';
-    layer.appendChild(ghost); setTimeout(()=>ghost.remove(),2500);
-  }
-  function bringFront(win){ win.style.zIndex=++z; }
-  function closeWindow(win){
-    if(!win) return;
-    const current=parseRoute();
-    if(current.type==='section' && current.kind===win.dataset.kind){
-      returnToRoute({type:'home'});
-      return;
-    }
-    const returnFocus=win.__returnFocus;
-    leavePhosphorGhost(win);
-    win.remove();
-    const hasWindow=Boolean(document.querySelector('.os-window'));
-    const hasProjects=Boolean(projectsView && !projectsView.hidden);
-    document.body.classList.toggle('content-panel-open',hasWindow || hasProjects);
-    if(returnFocus?.isConnected) returnFocus.focus({preventScroll:true});
-  }
-
-  function maximizeWindow(win){
-    if(win.classList.contains('is-maximized') || win.classList.contains('is-responsive-fullscreen')) return;
-    const r=windowRectInLayer(win);
-    win.dataset.restoreLeft=String(r.left); win.dataset.restoreTop=String(r.top); win.dataset.restoreWidth=String(r.width); win.dataset.restoreHeight=String(r.height);
-    win.classList.add('is-maximized'); win.style.transform='none'; setResizeControl(win); microGlitch();
-  }
-  function restoreWindow(win){
-    if(!win.classList.contains('is-maximized') || win.classList.contains('is-responsive-fullscreen')) return;
-    win.classList.remove('is-maximized'); win.style.transform='none';
-    const width=Math.min(layer.clientWidth,parseFloat(win.dataset.restoreWidth)||layer.clientWidth*(responsiveWindows.matches?.92:.72));
-    const height=Math.min(layer.clientHeight,parseFloat(win.dataset.restoreHeight)||layer.clientHeight*(responsiveWindows.matches?.78:.72));
-    const maxX=Math.max(0,layer.clientWidth-width), maxY=Math.max(0,layer.clientHeight-height);
-    win.style.width=`${width}px`; win.style.height=`${height}px`;
-    win.style.left=`${Math.max(0,Math.min(maxX,parseFloat(win.dataset.restoreLeft)||maxX*.5))}px`;
-    win.style.top=`${Math.max(0,Math.min(maxY,parseFloat(win.dataset.restoreTop)||maxY*.5))}px`;
-    setResizeControl(win); microGlitch();
-  }
-  function toggleWindowSize(win){ if(win.classList.contains('is-maximized')) restoreWindow(win); else maximizeWindow(win); bringFront(win); }
-
-  function clampWindowToLayer(win){
-    if(win.classList.contains('is-maximized') || win.classList.contains('is-responsive-fullscreen')) return;
-    const r=windowRectInLayer(win);
-    const maxX=Math.max(0,layer.clientWidth-r.width), maxY=Math.max(0,layer.clientHeight-r.height);
-    win.style.left=`${Math.max(0,Math.min(maxX,r.left))}px`; win.style.top=`${Math.max(0,Math.min(maxY,r.top))}px`;
-  }
-
-  function wireWindow(win){
-    win.addEventListener('pointerdown',()=>bringFront(win));
-    win.querySelector('[data-window-back]')?.addEventListener('click',()=>closeWindow(win));
-    win.querySelector('[data-close]').addEventListener('click',()=>closeWindow(win));
-    const bar=win.querySelector('.window-titlebar'); let drag=false,sx=0,sy=0,sl=0,st=0;
-    bar.addEventListener('dblclick',e=>{
-      if(!e.target.closest('button') && !win.classList.contains('is-responsive-fullscreen')) bringFront(win);
-    });
-    bar.addEventListener('pointerdown',e=>{
-      if(e.target.closest('button') || win.classList.contains('is-maximized') || win.classList.contains('is-responsive-fullscreen')) return;
-      drag=true; bringFront(win);
-      const r=windowRectInLayer(win);
-      win.style.transform='none'; win.style.left=`${r.left}px`; win.style.top=`${r.top}px`;
-      sx=e.clientX; sy=e.clientY; sl=r.left; st=r.top; bar.setPointerCapture(e.pointerId);
-    });
-    bar.addEventListener('pointermove',e=>{
-      if(!drag)return;
-      const maxX=Math.max(0,layer.clientWidth-win.offsetWidth),maxY=Math.max(0,layer.clientHeight-win.offsetHeight);
-      win.style.left=Math.max(0,Math.min(maxX,sl+e.clientX-sx))+'px'; win.style.top=Math.max(0,Math.min(maxY,st+e.clientY-sy))+'px';
-    });
-    bar.addEventListener('pointerup',()=>drag=false); bar.addEventListener('pointercancel',()=>drag=false);
-  }
-
-  function syncResponsiveWindows(){ document.querySelectorAll('.os-window').forEach(applyResponsiveState); }
-  if(responsiveWindows.addEventListener) responsiveWindows.addEventListener('change',syncResponsiveWindows);
-  else responsiveWindows.addListener(syncResponsiveWindows);
-  addEventListener('resize',()=>{
-    syncResponsiveWindows();
-    document.querySelectorAll('.os-window:not(.is-maximized):not(.is-responsive-fullscreen)').forEach(clampWindowToLayer);
-  },{passive:true});
-
-  document.querySelectorAll('[data-open]').forEach(el=>el.addEventListener('click',()=>{
-    lastLauncher=el;
-    openLauncher(el.dataset.open);
-  }));
-
-  addEventListener('popstate',route);
-  addEventListener('keydown',e=>{
-    if(e.key!=='Escape') return;
-    const current=parseRoute();
-    if(current.type==='section'){
-      returnToRoute({type:'home'});
-      return;
-    }
-    if(current.type==='project'){
-      navigateProjects({back:true});
-      return;
-    }
-    if(current.type==='work') navigateHome({back:true});
-  });
-
-  function syncLocalizedData(){
+  function syncLocalizedData() {
     DATA = window.PORTFOLIO_DATA || DATA;
-    ({ profile, resume, projects } = DATA);
+    ({profile,resume,projects}=DATA);
   }
-
+  document.querySelectorAll('[data-open]').forEach(button=>button.addEventListener('click',()=>{
+    const kind=button.dataset.open === 'projects' ? 'work' : button.dataset.open;
+    if (kind === 'resume') {
+      returnSection=document.querySelector('.scroll-index [aria-current]')?.dataset.scrollSection || 'home';
+      crtTransition(()=>{navigateSection('resume'); openResume();});
+    } else dispatchEvent(new CustomEvent('portfolio:scroll-to',{detail:kind}));
+  }));
+  addEventListener('popstate',applyRoute);
+  addEventListener('keydown',event=>{if(event.key==='Escape' && (!projectsView.hidden || layer.children.length)) returnToScroll();});
+  addEventListener('resize',()=>layer.querySelector('.os-window')?.classList.toggle('is-responsive-fullscreen',matchMedia('(max-width:1024px)').matches));
   addEventListener('portfolio:langchange',()=>{
     syncLocalizedData();
-    if(projectsView && !projectsView.hidden){
-      const slug=projectsView.dataset.view==='case' ? projectsView.dataset.project : null;
-      if(slug){
-        const project=projectBySlug(slug) || projectById(slug);
-        if(project) renderProjectCase(project);
-        else renderProjectsDirectory();
-      } else renderProjectsDirectory();
-    }
-    document.querySelectorAll('.os-window').forEach(win=>{
-      const kind=win.dataset.kind;
-      if(contents[kind]){
-        win.querySelector('.window-titlebar > span').textContent=({about:t('window.about'),contact:t('window.contact'),resume:t('window.resume')}[kind]||kind.toUpperCase());
-        win.querySelector('.window-body').innerHTML=contents[kind]();
-      }
-      updateWindowControls(win);
-      setResizeControl(win);
-    });
-    updateRouteMeta(parseRoute());
+    const route=parseRoute();
+    if(route.type==='project') { const project=projectBySlug(route.slug); if(project) renderProjectCase(project); }
+    else if(route.kind==='resume') openResume();
+    updateRouteMeta(route);
   });
-
-  const onReady=()=>{
-    routeReady=true;
-    migrateLegacyHash();
-    const current=parseRoute();
-    if(!history.state?.portfolioRoute){
-      history.replaceState({portfolioRoute:routeKey(current)},'',location.href);
-    }
-    route();
-  };
-  // The router is prepared behind the opaque loader so the reveal frame
-  // only has to animate already-initialized UI.
-  onReady();
+  window.Portfolio = { content:kind=>contents[kind==='work'?'projects':kind](), openProject:navigateToProject, close, refresh:syncLocalizedData, getRoute:parseRoute, navigateSection };
+  applyRoute();
+  dispatchEvent(new CustomEvent('portfolio:runtime-ready'));
 })();

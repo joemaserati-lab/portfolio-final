@@ -1,4 +1,8 @@
 ---
+import ScrollSections from '../components/ScrollSections.astro';
+import ScrollNavigation from '../components/ScrollNavigation.astro';
+import PortfolioFooter from '../components/PortfolioFooter.astro';
+import packageInfo from '../../package.json';
 import ProjectFallback from '../components/ProjectFallback.astro';
 
 const {
@@ -11,6 +15,8 @@ const {
   project = null
 } = Astro.props;
 
+const assetVersion = packageInfo.version;
+const asset = path => `${path}?v=${assetVersion}`;
 const basePath = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 const rootUrl = new URL(basePath, Astro.site ?? Astro.url.origin);
 const canonicalUrl = new URL(canonicalPath, rootUrl);
@@ -39,7 +45,8 @@ const ogImageUrl = new URL(ogImage, rootUrl);
   <link rel="icon" href="assets/favicon/favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="icon" href="assets/favicon/favicon-64.png" sizes="64x64" type="image/png" />
   <link rel="shortcut icon" href="assets/favicon/favicon-32.png" type="image/png" />
-  <script is:inline>
+  <script is:inline define:vars={{assetVersion}}>
+    window.PORTFOLIO_ASSET_VERSION = assetVersion;
     try {
       if (sessionStorage.getItem('portfolioBootSeen') === '1') {
         document.documentElement.classList.add('returning-visit');
@@ -48,7 +55,7 @@ const ogImageUrl = new URL(ogImage, rootUrl);
   </script>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   {import.meta.env.PROD
-    ? <link rel="stylesheet" href="css/portfolio.bundle.css" />
+    ? <link rel="stylesheet" href={asset('css/portfolio.bundle.css')} />
     : <><link rel="stylesheet" href="css/foundation.css" />
        <link rel="stylesheet" href="css/workspace.css" />
        <link rel="stylesheet" href="css/visual-experience.css" />
@@ -57,7 +64,8 @@ const ogImageUrl = new URL(ogImage, rootUrl);
        <link rel="stylesheet" href="css/crt-outline-base.css" />
        <link rel="stylesheet" href="css/project-covers.css" />
        <link rel="stylesheet" href="css/monochrome-theme.css" />
-       <link rel="stylesheet" href="css/crt-outline.css" /></>
+       <link rel="stylesheet" href="css/crt-outline.css" />
+       <link rel="stylesheet" href="css/portfolio-scroll.css" /></>
   }
   <link rel="preload" href="assets/font/Doto-500.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="assets/font/redaction-50-latin-400-normal.woff" as="font" type="font/woff" crossorigin />
@@ -74,7 +82,7 @@ const ogImageUrl = new URL(ogImage, rootUrl);
   </script>
   {jsonLd && <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)}></script>}
 </head>
-<body class="booting">
+<body class="booting scroll-portfolio">
   <svg class="svg-defs" aria-hidden="true" width="0" height="0">
     <defs>
       <clipPath id="crtScreenClip" clipPathUnits="objectBoundingBox">
@@ -107,6 +115,8 @@ const ogImageUrl = new URL(ogImage, rootUrl);
         <div class="screen-reflection" aria-hidden="true"></div>
         <div class="edge-light" aria-hidden="true"></div>
 
+        <div class="scroll-viewport" id="scroll-viewport" tabindex="0" aria-label="Scrollable portfolio">
+        <section class="scroll-home" id="scroll-home" aria-label="Home">
         <div class="desktop" id="desktop">
           <div class="crt-head-feature" id="crt-head-feature" aria-hidden="true">
             <canvas id="crt-head-canvas"></canvas>
@@ -138,6 +148,14 @@ const ogImageUrl = new URL(ogImage, rootUrl);
           </nav>
         </div>
 
+        </section>
+        <ScrollSections />
+        <PortfolioFooter basePath={basePath} />
+        </div>
+        <ScrollNavigation basePath={basePath} />
+        <div class="scroll-portrait-slot" aria-hidden="true"></div>
+        <div class="scroll-folder-morph" aria-hidden="true"></div>
+
         <button class="language-toggle" id="language-toggle" type="button" aria-label="Switch language">IT</button>
         <aside class="privacy-widget" aria-label="Privacy and cookie preferences">
           <button class="privacy-toggle" id="privacy-toggle" type="button" aria-expanded="false" aria-controls="privacy-panel" data-i18n="privacy.button">PRIVACY / COOKIES</button>
@@ -161,11 +179,12 @@ const ogImageUrl = new URL(ogImage, rootUrl);
 
   {project && <ProjectFallback project={project} basePath={basePath} />}
 
-  <script is:inline defer src="js/i18n.js"></script>
-  <script is:inline defer src="js/cursor.js"></script>
-  <script is:inline defer src="js/boot.js"></script>
-  <script is:inline defer src="js/hero-copy-contrast.js"></script>
-  <script is:inline defer src="js/analytics.js"></script>
-  <script is:inline defer src="js/privacy.js"></script>
+  <script is:inline defer src={asset('js/i18n.js')}></script>
+  <script is:inline defer src={asset('js/cursor.js')}></script>
+  <script is:inline defer src={asset('js/boot.js')}></script>
+  <script is:inline defer src={asset('js/hero-copy-contrast.js')}></script>
+  <script is:inline defer src={asset('js/analytics.js')}></script>
+  <script is:inline defer src={asset('js/privacy.js')}></script>
+  <script is:inline defer src={asset('js/portfolio-scroll.js')}></script>
 </body>
 </html>

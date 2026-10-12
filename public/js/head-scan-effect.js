@@ -29,8 +29,8 @@ const PERFORMANCE = Object.freeze({
     Object.freeze({ name: 'balanced', maxPixels: 1400000, maxDpr: 1.00, fps: 60 }),
     Object.freeze({ name: 'low',      maxPixels: 850000,  maxDpr: 0.80, fps: 30 })
   ]),
-  touchMaxPixels: 1400000,
-  touchMaxDpr: 1.25,
+  touchMaxPixels: 2200000,
+  touchMaxDpr: 2,
   touchFps: 30,
   slowFrameFactor: 1.42,
   slowFrameFloor: 24,
@@ -308,6 +308,7 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
   scene.add(root);
   const fitCenter = new THREE.Vector2();
   let fitX = 1, fitY = 1;
+  let scrollYaw = null, presentationScale = 1;
 
   function destroy() {
     if (disposed) return;
@@ -336,8 +337,9 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
     elapsed += dt;
     pointer.lerp(targetPointer, 1.0 - Math.pow(0.0007, dt));
     const ease = 1.0 - Math.pow(0.0012, dt);
-    root.rotation.y += (pointer.x * PRESET.mouseAmount - root.rotation.y) * ease;
-    root.rotation.x += ((pointer.y * PRESET.mouseAmount * 0.40 - 0.015) - root.rotation.x) * ease;
+    if (scrollYaw !== null) root.rotation.set(-0.015, reducedMotion ? 0 : scrollYaw, 0);
+    else root.rotation.y += (pointer.x * PRESET.mouseAmount - root.rotation.y) * ease;
+    if (scrollYaw === null) root.rotation.x += ((pointer.y * PRESET.mouseAmount * 0.40 - 0.015) - root.rotation.x) * ease;
     for (const material of materials) {
       material.uniforms.uTime.value = reducedMotion ? 0 : elapsed;
       material.uniforms.uPhase.value = reducedMotion ? 0 : elapsed * PRESET.drift;
@@ -374,9 +376,9 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
     const q = quality();
     const maxPixels = coarsePointer ? PERFORMANCE.touchMaxPixels : q.maxPixels;
     const maxDpr = coarsePointer ? PERFORMANCE.touchMaxDpr : q.maxDpr;
-    const nativeDpr = Math.min(devicePixelRatio || 1, maxDpr);
+    const nativeDpr = Math.min(devicePixelRatio || 1, maxDpr) * presentationScale;
     const budgetDpr = Math.sqrt(maxPixels / Math.max(1, width * height));
-    const pixelRatio = Math.max(0.38, Math.min(nativeDpr, budgetDpr));
+    const pixelRatio = Math.max(0.05, Math.min(nativeDpr, budgetDpr));
     syncPerformanceClass();
     renderer.setPixelRatio(pixelRatio);
     renderer.setSize(width, height, false);
@@ -524,7 +526,18 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
   return {
     renderer, scene, camera, root, materials, preset: PRESET, ready,
     get disposed() { return disposed; },
+    setScrollRotation(value) {
+      if (scrollYaw === value) return;
+      scrollYaw = value;
+      if (value !== null) root.rotation.set(-0.015, reducedMotion ? 0 : value, 0);
+      if (!raf && !paused) refresh();
+    },
+    setPresentationScale(value) {
+      if (Math.abs(value - presentationScale) < .001) return;
+      presentationScale = value; resize();
+    },
     setPointer(x, y) {
+      if (scrollYaw !== null) return;
       if (disposed) return;
       targetPointer.set(THREE.MathUtils.clamp(x, -1, 1), THREE.MathUtils.clamp(y, -1, 1));
     },
