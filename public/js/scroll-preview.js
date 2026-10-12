@@ -50,6 +50,28 @@
     glyph.setAttribute('aria-hidden', 'true');
     link.prepend(glyph);
   });
+  const footerControls = document.querySelector('.scroll-footer-controls');
+  const languageControl = document.getElementById('language-toggle');
+  const privacyWidget = document.querySelector('.privacy-widget');
+  const privacyPanel = document.getElementById('privacy-panel');
+  const controlsOrigin = document.createComment('preview controls origin');
+  languageControl.before(controlsOrigin);
+  const panelOrigin = document.createComment('preview privacy panel origin');
+  privacyPanel.before(panelOrigin);
+  const privacyPortal = document.createElement('div');
+  privacyPortal.className = 'scroll-privacy-portal';
+  screen.appendChild(privacyPortal);
+  function positionControls() {
+    if (compact.matches) {
+      footerControls.append(languageControl, privacyWidget);
+      privacyPortal.appendChild(privacyPanel);
+    } else {
+      controlsOrigin.after(languageControl, privacyWidget);
+      panelOrigin.after(privacyPanel);
+    }
+  }
+  compact.addEventListener('change', positionControls);
+  positionControls();
   function measure() {
     const parent = screen.getBoundingClientRect();
     launchers.forEach(launcher => {

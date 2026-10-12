@@ -8,7 +8,7 @@ let html = await container.renderToString(PortfolioShell, {
   request: new Request(new URL(`${base}scroll-preview/`, Astro.site)), partial: false
 });
 const navigation = `<nav class="scroll-index" aria-label="Scroll sections">${[['home','Home'],['work','Selected Works'],['about','About'],['contact','Contact']].map(([id,name]) => `<a href="${base}scroll-preview/#${id}" data-scroll-section="${id}" ${id==='home'?'aria-current="location"':''}><span aria-hidden="true" data-scroll-label="${name}">${name}</span><span class="scroll-sr">${name}</span></a>`).join('')}</nav>`;
-const footer = `<footer class="scroll-footer"><p>© ${new Date().getFullYear()} Edoardo Rappanello</p><a href="${base}scroll-preview/#home">Home ↑</a></footer>`;
+const footer = `<footer class="scroll-footer"><p>© ${new Date().getFullYear()} Edoardo Rappanello</p><a href="${base}scroll-preview/#home">Home ↑</a><div class="scroll-footer-controls"></div></footer>`;
 const sections = ['work','about','contact'].map(kind => `<section class="scroll-section" id="scroll-${kind}" aria-label="${kind==='work'?'Selected Works':kind==='about'?'About':'Contact'}"><div class="scroll-window os-window" data-kind="${kind}"><div class="window-titlebar"><span data-scroll-title="${kind}">${kind==='work'?'PROJECTS':kind.toUpperCase()}</span></div><div class="window-body" data-scroll-content="${kind}"></div></div></section>`).join('');
 html = html.replace('<body class="booting">', '<body class="booting scroll-preview">')
   .replace('</head>', `<meta name="robots" content="noindex, follow"><link rel="stylesheet" href="${base}css/scroll-preview.css"></head>`)
