@@ -50,7 +50,7 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: calc(var(--scroll-reveal, 0) * var(--scroll-raster-height, 60vh));
+  top: max(0px, calc(var(--scroll-reveal, 0) * var(--scroll-raster-height, 60vh) - 2px));
   height: 2px;
   background: var(--white);
   opacity: .45;
