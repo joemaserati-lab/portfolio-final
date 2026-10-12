@@ -47,6 +47,7 @@
     const kind = link.dataset.scrollSection;
     const launcher = launchers.find(item => item.dataset.open === (kind === 'work' ? 'projects' : kind === 'home' ? 'resume' : kind));
     const glyph = launcher.querySelector('.icon-glyph').cloneNode(true);
+    if (kind === 'home') glyph.innerHTML = '<svg viewBox="0 0 48 40"><path d="M4 4h40v26H4zM16 35h16M24 30v5M9 11h12M9 16h8"/></svg>';
     glyph.setAttribute('aria-hidden', 'true');
     link.prepend(glyph);
   });
