@@ -14,7 +14,8 @@ const selectors = ['html','body','.crt-stage','.screen','.desktop','.hero-intro'
 const props = ['display','position','font-family','font-size','font-weight','line-height','letter-spacing','color','background-color','padding-top','padding-right','padding-bottom','padding-left','margin-top','margin-left','border-radius','border-top-width','border-top-color','overflow-x','overflow-y','max-width','grid-template-columns','z-index'];
 
 async function snapshot(width, height, unminified) {
-  const context = await browser.newContext({ viewport: { width,height }, deviceScaleFactor: 1, isMobile: width < 600, hasTouch: width < 600 });
+  // Compare CSS alone: runtime text fitting must not race either snapshot.
+  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width,height }, deviceScaleFactor: 1, isMobile: width < 600, hasTouch: width < 600 });
   const page = await context.newPage();
   if (unminified) {
     await page.route('**/css/portfolio.bundle.css*', route =>

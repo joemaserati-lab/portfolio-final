@@ -13,6 +13,7 @@ try {
    await page.waitForFunction(()=>document.body.classList.contains('site-ready'),null,{timeout:45000});
    await page.waitForFunction(()=>!document.querySelector('#crt-head-feature').classList.contains('is-ready'));
    assert.equal(await page.locator('#crt-head-feature').isVisible(),false,'Head visible on direct project route');
+   if(['platinum-technologies','colorcopy-large-format'].includes(slug)) assert.equal(await page.locator('.case-proof-v2').count(),1,'Impact/results content missing without a gallery');
    const image=page.locator('.case-media-img');
    await image.evaluate(img=>img.decode());
    const clean=await image.evaluate(img=>{
