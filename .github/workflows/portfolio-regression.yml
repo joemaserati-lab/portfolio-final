@@ -37,6 +37,7 @@ jobs:
           AUDIT_URL: http://127.0.0.1:4321/portfolio-final/
           QA_DIR: /tmp/portfolio-qa
         run: |
+          node tests/project-presentation.mjs
           node tests/boot-regression.mjs
           node tests/portfolio-regression.mjs
       - name: Verify source and bundle style parity
