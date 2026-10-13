@@ -1,6 +1,6 @@
 /* Scroll layout, navigation and transitions. Base typography and CRT chrome
    are shared with the rest of the production stylesheet bundle. */
-.scroll-portfolio { --scroll-portrait-size: clamp(88px, 25vw, 110px); }
+.scroll-portfolio { --scroll-portrait-size: clamp(120px, 34vw, 148px); }
 .scroll-portfolio .scroll-viewport {
   position: absolute;
   inset: 0;
@@ -139,13 +139,16 @@
 .scroll-portfolio.scroll-reading .window-layer .os-window .window-body { padding-right: calc(var(--ui-safe-right) + 24%); }
 .scroll-portfolio .scroll-footer-controls { display: none; }
 @media (max-width: 1024px) {
+  .scroll-portfolio {
+    --scroll-portrait-top: max(18px, calc(var(--ui-safe-top) - 26px), var(--device-screen-top));
+  }
   .scroll-portfolio .scroll-minimenu {
     display: none;
   }
   .scroll-portfolio .scroll-portrait-slot {
     display: block;
     position: absolute;
-    top: var(--ui-safe-top);
+    top: var(--scroll-portrait-top);
     left: 50%;
     transform: translateX(-50%);
     width: var(--scroll-portrait-size);
@@ -153,7 +156,7 @@
     pointer-events: none;
   }
   .scroll-portfolio .scroll-viewport {
-    clip-path: inset(calc((var(--ui-safe-top) + var(--scroll-portrait-size) + 12px) * var(--scroll-dock, 0)) 0 0 0);
+    clip-path: inset(calc((var(--scroll-portrait-top) + var(--scroll-portrait-size) + 12px) * var(--scroll-dock, 0)) 0 0 0);
   }
   .scroll-portfolio .scroll-index {
     position: absolute;
@@ -238,7 +241,7 @@
   .scroll-portfolio .scroll-section {
     display: flex;
     min-height: 0;
-    padding: calc(var(--ui-safe-top) + var(--scroll-portrait-size) + 20px) var(--ui-safe-right) 24px var(--ui-safe-left);
+    padding: calc(var(--scroll-portrait-top) + var(--scroll-portrait-size) + 20px) var(--ui-safe-right) 24px var(--ui-safe-left);
   }
   .scroll-portfolio .scroll-window.os-window {
     flex: 1 1 100%;
@@ -283,7 +286,7 @@
     text-align: left;
   }
   .scroll-portfolio.scroll-reading #projects-view .case-study-v2 {
-    padding-top: calc(var(--ui-safe-top) + var(--scroll-portrait-size) + 20px);
+    padding-top: calc(var(--scroll-portrait-top) + var(--scroll-portrait-size) + 20px);
   }
   .scroll-portfolio.scroll-reading #projects-view {
     padding-right: 0;
@@ -349,7 +352,7 @@
 }
 
 @media (max-width: 1024px) and (max-height: 450px) {
-  .scroll-portfolio { --scroll-portrait-size: 72px; }
+  .scroll-portfolio { --scroll-portrait-size: 88px; }
   .scroll-portfolio .desktop-icons { translate: none; }
 }
 @keyframes scroll-tab-refresh {
