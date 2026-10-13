@@ -308,7 +308,7 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
   scene.add(root);
   const fitCenter = new THREE.Vector2();
   let fitX = 1, fitY = 1;
-  let scrollYaw = null, presentationScale = 1;
+  let scrollYaw = null, heroPresence = 0, presentationScale = 1;
 
   function destroy() {
     if (disposed) return;
@@ -337,7 +337,17 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
     elapsed += dt;
     pointer.lerp(targetPointer, 1.0 - Math.pow(0.0007, dt));
     const ease = 1.0 - Math.pow(0.0012, dt);
-    if (scrollYaw !== null) root.rotation.set(-0.015, reducedMotion ? 0 : scrollYaw, 0);
+    if (scrollYaw !== null) {
+      // A gentle 14-second orbit blends out as the mobile portrait docks.
+      // Reuse the renderer clock so hidden tabs pause without a second loop.
+      const presence = reducedMotion ? 0 : heroPresence * heroPresence * (3 - 2 * heroPresence);
+      const phase = elapsed * Math.PI * 2 / 14;
+      root.rotation.set(
+        -0.015 + Math.sin(phase * 2) * 0.025 * presence,
+        reducedMotion ? 0 : scrollYaw + Math.sin(phase) * 0.09 * presence,
+        0
+      );
+    }
     else root.rotation.y += (pointer.x * PRESET.mouseAmount - root.rotation.y) * ease;
     if (scrollYaw === null) root.rotation.x += ((pointer.y * PRESET.mouseAmount * 0.40 - 0.015) - root.rotation.x) * ease;
     for (const material of materials) {
@@ -526,10 +536,11 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
   return {
     renderer, scene, camera, root, materials, preset: PRESET, ready,
     get disposed() { return disposed; },
-    setScrollRotation(value) {
-      if (scrollYaw === value) return;
+    setScrollRotation(value, presence = 0) {
+      const nextPresence = THREE.MathUtils.clamp(presence, 0, 1);
+      if (scrollYaw === value && heroPresence === nextPresence) return;
       scrollYaw = value;
-      if (value !== null) root.rotation.set(-0.015, reducedMotion ? 0 : value, 0);
+      heroPresence = nextPresence;
       if (!raf && !paused) refresh();
     },
     setPresentationScale(value) {

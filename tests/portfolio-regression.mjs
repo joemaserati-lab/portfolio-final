@@ -113,7 +113,15 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
    assert(density>=Math.min(await page.evaluate(()=>devicePixelRatio),2)-.1,'Portrait resolution below requested DPR');
  }
  if(width<=1024) {
-   for(const fraction of [0,.25,.5,.75,1]) {
+   await select('home'); await settle('home');
+   const samples=[];
+   for(let i=0;i<5;i++) {
+     samples.push(await page.evaluate(()=>window.PortfolioMotion.getPose()));
+     await page.waitForTimeout(400);
+   }
+   assert(samples.every(p=>Math.abs(p.yaw)<=.091&&Math.abs(p.pitch+.015)<=.026),'Hero motion is too strong');
+   assert(Math.max(...samples.map(p=>p.yaw))-Math.min(...samples.map(p=>p.yaw))>.001,'Mobile hero portrait is static');
+   for(const fraction of [.25,.5,.75,1]) {
      await page.locator('#scroll-viewport').evaluate((e,p)=>e.scrollTop=(e.scrollHeight-e.clientHeight)*p,fraction);
      await page.waitForFunction(p=>Math.abs(window.PortfolioMotion.getPose().yaw-p*Math.PI*2)<.01,fraction);
    }
@@ -172,6 +180,9 @@ const reduced=await browser.newPage({viewport:{width:390,height:844},hasTouch:tr
 await reduced.addInitScript(()=>{sessionStorage.setItem('portfolioBootSeen','1');localStorage.setItem('portfolioPrivacyAck','1')});
 await reduced.goto(url);
 await reduced.waitForFunction(()=>document.body.classList.contains('site-ready'),null,{timeout:50000});
+const stillPose=await reduced.evaluate(()=>window.PortfolioMotion.getPose());
+await reduced.waitForTimeout(500);
+assert.deepEqual(await reduced.evaluate(()=>window.PortfolioMotion.getPose()),stillPose,'Reduced motion hero should remain still');
 assert.equal(await reduced.locator('#scroll-work .project-tile-v2').count(),5, 'Returning visit content missing');
 await reduced.locator('[data-scroll-section=about]').click();await reduced.waitForTimeout(150);
 assert.equal(await reduced.locator('.scroll-index [aria-current]').getAttribute('data-scroll-section'),'about');
