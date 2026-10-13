@@ -241,7 +241,7 @@ body.booting .crt-background-video{
    which are disproportionately expensive during the loader-to-site handoff. */
 @media (max-width:720px){
   .shell{
-    transition:opacity .58s cubic-bezier(.22,.61,.36,1);
+    transition:none;
   }
   .boot-line{
     filter:none!important;

@@ -24,11 +24,10 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  }, kind, {timeout:15000});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')console.log('CONSOLE',m.text())});
  await page.goto(url);
- await page.locator('#boot-enter').waitFor({state:'visible',timeout:30000});
- await page.waitForFunction(()=>!document.querySelector('#boot-enter').disabled,{},{timeout:45000});
- if(width<=1024) assert(await page.evaluate(()=>window.__portfolioHeadState?.ready),"Mobile head was not warmed during loader");
- await screenshot(page,`original-loader-${width}.png`);
- await page.locator('#boot-enter').click();await page.waitForFunction(()=>document.body.classList.contains('site-ready'),{},{timeout:20000});
+ await page.waitForFunction(()=>document.body.classList.contains('site-ready'),null,{timeout:45000});
+ assert(await page.evaluate(()=>window.__portfolioHeadState?.ready), 'Head was not ready at reveal');
+ assert.equal(await page.locator('#boot-loader').count(),0);
+ assert.equal(await page.locator('.shell').evaluate(e=>getComputedStyle(e).opacity),'1');
  await page.waitForTimeout(800);
  await page.locator('#privacy-panel').waitFor({state:'visible',timeout:15000});
  await page.locator('#privacy-reject').click();

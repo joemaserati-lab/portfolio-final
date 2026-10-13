@@ -52,6 +52,11 @@ const ogImageUrl = new URL(ogImage, rootUrl);
         document.documentElement.classList.add('returning-visit');
       }
     } catch {}
+    try {
+      if (localStorage.getItem('portfolioBootSeen') === '1') {
+        document.documentElement.classList.add('returning-visit');
+      }
+    } catch {}
   </script>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   {import.meta.env.PROD
