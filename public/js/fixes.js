@@ -53,7 +53,7 @@
     const caseStudy = root?.querySelector?.('.case-study-v2');
     if (!caseStudy || caseStudy.querySelector('.case-proof-v2')) return;
 
-    const gallery = caseStudy.querySelector('.case-gallery-v2');
+    const gallery = caseStudy.querySelector('.case-gallery-v2') || caseStudy.querySelector('.case-tags-v2');
     const project = window.PORTFOLIO_DATA?.projects?.find(item => item.slug === slug);
     const proof = project?.proof;
     if (!gallery || !proof) return;

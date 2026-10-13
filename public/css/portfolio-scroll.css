@@ -134,10 +134,18 @@
 .scroll-portfolio .scroll-folder-morph .window-titlebar { min-height: 32px; }
 .scroll-portfolio .scroll-folder-morph .scroll-morph-glyph { display: block; padding: 8px; }
 .scroll-portfolio .scroll-window { transform-origin: top right; }
-.scroll-portfolio.scroll-reading #projects-view { padding-right: 24%; }
-.scroll-portfolio.scroll-reading #projects-view .case-study-v2 { padding-right: calc(var(--ui-safe-right) + 24%); }
+.scroll-portfolio.scroll-reading #projects-view { padding-right: 0; }
+.scroll-portfolio.scroll-reading #projects-view .case-study-v2 { padding-right: var(--ui-safe-right); }
 .scroll-portfolio.scroll-reading .window-layer .os-window .window-body { padding-right: calc(var(--ui-safe-right) + 24%); }
 .scroll-portfolio .scroll-footer-controls { display: none; }
+/* Clean case-study presentation; the CRT layers return outside project pages. */
+.project-case-open #projects-view { z-index: 32; }
+.project-case-open #crt-head-feature { visibility: hidden; opacity: 0; }
+.project-case-open #crt-fx,
+.project-case-open .noise,
+.project-case-open .scanlines { display: none; }
+.project-case-open .screen { filter: none; }
+
 @media (max-width: 1024px) {
   .scroll-portfolio {
     --scroll-portrait-top: max(18px, calc(var(--ui-safe-top) - 26px), var(--device-screen-top));
@@ -286,7 +294,7 @@
     text-align: left;
   }
   .scroll-portfolio.scroll-reading #projects-view .case-study-v2 {
-    padding-top: calc(var(--scroll-portrait-top) + var(--scroll-portrait-size) + 20px);
+    padding-top: var(--ui-safe-top);
   }
   .scroll-portfolio.scroll-reading #projects-view {
     padding-right: 0;

@@ -121,9 +121,16 @@
 .case-lead-v2>p{margin:0!important;max-width:42ch!important;font-size:var(--type-body-lg)!important;line-height:1.22!important;color:var(--phosphor)!important}
 .case-media-v2{margin:0;position:relative;overflow:hidden;border:1px solid rgba(199,199,199,.17);background:#080808}
 .case-media-surface{position:absolute;inset:0}
-.case-media-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(.1) contrast(1.08) brightness(.74) saturate(.8)}
+.case-media-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:none}
 .case-media-v2 figcaption{position:absolute;z-index:3;left:clamp(10px,1.2vw,16px);right:clamp(10px,1.2vw,16px);bottom:clamp(9px,1vw,14px);display:flex;justify-content:space-between;gap:12px;color:rgba(147,147,147,.78);font-size:var(--type-caption);letter-spacing:.07em}
 .case-media-v2::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(to bottom,transparent 68%,rgba(8,8,8,.22))}
+/* Original project artwork keeps its full frame and unmodified colors. */
+.case-media-v2.has-original-media{aspect-ratio:auto;min-height:0}
+.case-gallery-v2:has(.has-original-media){grid-template-columns:minmax(0,1fr);grid-auto-rows:auto}
+.case-gallery-v2 .case-media-v2.has-original-media{height:auto;min-width:0}
+.case-media-v2.has-original-media .case-media-img{position:static;display:block;height:auto}
+.case-media-v2.has-original-media::after{content:none}
+.case-media-v2.has-original-media figcaption{position:static;padding:10px 14px}
 .media-visual-1 .case-media-surface{background:radial-gradient(circle at 62% 46%,rgba(199,199,199,.22),transparent 0 18%,rgba(199,199,199,.04) 18.5% 31%,transparent 31.5%),linear-gradient(118deg,transparent 40%,rgba(199,199,199,.13) 40.2% 40.5%,transparent 40.7%)}
 .media-visual-2 .case-media-surface{background:repeating-linear-gradient(0deg,transparent 0 36px,rgba(199,199,199,.045) 36px 37px),linear-gradient(32deg,transparent 44%,rgba(199,199,199,.12) 44.2% 44.5%,transparent 44.8%)}
 .media-visual-3 .case-media-surface{inset:10%;border:1px solid rgba(199,199,199,.12);transform:rotate(6deg);background:linear-gradient(90deg,transparent 49.8%,rgba(199,199,199,.12) 50%,transparent 50.2%),linear-gradient(0deg,transparent 49.8%,rgba(199,199,199,.12) 50%,transparent 50.2%)}
@@ -350,8 +357,8 @@
   .case-gallery-v2 .case-media-v2{
     grid-column:1/-1!important;
     grid-row:auto!important;
-    aspect-ratio:4/3!important;
-    min-height:220px;
+    aspect-ratio:auto!important;
+    min-height:0;
   }
 }
 

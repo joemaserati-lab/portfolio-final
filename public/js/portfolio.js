@@ -182,13 +182,13 @@
   }
 
 
-  function mediaPlaceholder(media,index,project,{galleryIndex=null,galleryCount=0}={}){
+  function renderProjectMedia(media,index,project){
+    const src=media.src || (media.type==='hero' ? project.cover : null);
+    // Show only supplied artwork; decorative placeholders are not project media.
+    if(!src) return '';
     const cls={hero:'case-media-hero-v2',landscape:'case-media-landscape-v2',portrait:'case-media-portrait-v2',wide:'case-media-wide-v2'}[media.type]||'';
-    const variant=((projects.indexOf(project)+index-1)%4)+1;
-    const bentoClass=galleryIndex===null ? '' : ` bento-slot-${galleryIndex%4}${galleryCount%2===1 && galleryIndex===galleryCount-1 ? ' bento-full' : ''}`;
-    const image=media.type==='hero' && project.cover ? `<img class="case-media-img" src="${esc(project.cover)}" alt="${esc(project.title)}" loading="lazy" decoding="async">` : '<div class="case-media-surface" aria-hidden="true"></div>';
-    return `<figure class="case-media-v2 ${cls} media-visual-${variant}${bentoClass}">
-      ${image}
+    return `<figure class="case-media-v2 ${cls} has-original-media">
+      <img class="case-media-img" src="${esc(src)}" alt="${esc(media.alt || project.title)}" loading="lazy" decoding="async">
       <figcaption><span>${String(index).padStart(2,'0')}</span><span>${esc(media.label)}</span></figcaption>
     </figure>`;
   }
@@ -203,13 +203,14 @@
     const index=projects.indexOf(p);
     const prev=projects[(index-1+projects.length)%projects.length];
     const next=projects[(index+1)%projects.length];
+    document.body.classList.add('project-case-open');
     projectsView.classList.add('case-mode');
     projectsView.dataset.view='case';
     projectsView.dataset.project=p.slug;
     const media=p.media||[];
-    const hero=media[0] ? mediaPlaceholder(media[0],1,p) : '';
-    const galleryMedia=media.slice(1);
-    const gallery=galleryMedia.map((m,i)=>mediaPlaceholder(m,i+2,p,{galleryIndex:i,galleryCount:galleryMedia.length})).join('');
+    const hero=media[0] ? renderProjectMedia(media[0],1,p) : '';
+    const galleryMedia=media.slice(1).filter(item=>item.src);
+    const gallery=galleryMedia.map((m,i)=>renderProjectMedia(m,i+2,p)).join('');
     const outputs=(p.outputs||[]).length ? `
         <section class="case-outputs-v2">
           <div class="case-story-label">${esc(t('case.outputs'))}</div>
@@ -242,7 +243,7 @@
             <article><span>02 / ${esc(t('case.direction'))}</span><p>${esc(p.direction)}</p></article>
           </div>
         </section>
-        <section class="case-gallery-v2" aria-label="${esc(t('case.gallery'))}">${gallery}</section>
+        ${gallery ? `<section class="case-gallery-v2" aria-label="${esc(t('case.gallery'))}">${gallery}</section>` : ''}
         <section class="case-tags-v2"><span>${esc(t('case.disciplines'))}</span>${tagList(p.tags)}</section>
         ${outputs}
         <nav class="case-nav-v2" aria-label="${esc(t('case.nav'))}">
@@ -266,7 +267,7 @@
     delete projectsView.dataset.view;
     delete projectsView.dataset.project;
     layer.replaceChildren();
-    document.body.classList.remove('projects-open','content-panel-open');
+    document.body.classList.remove('projects-open','content-panel-open','project-case-open');
   }
   function openProjectsView() {
     layer.replaceChildren();

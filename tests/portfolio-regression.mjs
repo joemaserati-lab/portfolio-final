@@ -149,9 +149,11 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  await page.locator('#scroll-work .project-tile-v2').first().click();await page.waitForTimeout(700);
  assert.equal(await page.locator('#projects-view').getAttribute('data-view'),'case');
  assert(page.url().endsWith('/work/tovadu/'));
- assert(await page.locator('#crt-head-feature').evaluate(e=>e.classList.contains('is-ready')));
+ assert.equal(await page.locator('#crt-head-feature').isVisible(),false,'Head remains visible inside project');
  await page.locator('.projects-close').click();await page.waitForTimeout(700);
  assert(await page.locator('#projects-view').evaluate(e=>e.hidden));
+ await page.waitForFunction(()=>document.querySelector('#crt-head-feature').classList.contains('is-ready'));
+ assert(await page.locator('#crt-head-feature').isVisible(),'Head did not resume after closing project');
  if(width<=1024) assert(await page.locator('#scroll-work .is-color-preview').count()<=1,'More than one mobile card is colored');
  await select('about');await settle('about');
  assert.equal(await page.locator('.scroll-index [aria-current]').getAttribute('data-scroll-section'),'about');

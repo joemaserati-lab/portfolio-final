@@ -23,9 +23,9 @@ if (feature && canvas && screenElement) {
 
   function sync() {
     if (disposed || !effect) return;
-    // The portrait remains present on the scroll route, including project cases.
-
-    const shouldBeVisible = ready && booted && pageVisible;
+    // Case studies show the project alone; resume the same head on return.
+    const projectCaseOpen = projectsView && !projectsView.hidden && projectsView.dataset.view === 'case';
+    const shouldBeVisible = ready && booted && pageVisible && !projectCaseOpen;
     feature.classList.toggle('is-ready', shouldBeVisible);
     effect.setPaused(!shouldBeVisible);
   }
@@ -97,7 +97,7 @@ if (feature && canvas && screenElement) {
     if (projectsView) {
       observer.observe(projectsView, {
         attributes: true,
-        attributeFilter: ['hidden', 'class'],
+        attributeFilter: ['hidden', 'class', 'data-view'],
         childList: true
       });
     }
