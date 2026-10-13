@@ -304,6 +304,8 @@
     padding-right: var(--ui-safe-right);
   }
   .scroll-portfolio .scroll-portrait-docked {
+    /* Keep the moving portrait behind the hero readability backgrounds. */
+    z-index: 9;
     will-change: transform;
   }
   .scroll-portfolio #scroll-work .project-tile-v2 .project-cover-img {
