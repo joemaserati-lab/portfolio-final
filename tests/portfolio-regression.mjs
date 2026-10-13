@@ -119,7 +119,10 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
      await page.waitForTimeout(400);
    }
    assert(samples.every(p=>Math.abs(p.yaw)<=.091&&Math.abs(p.pitch+.015)<=.026),'Hero motion is too strong');
-   assert(Math.max(...samples.map(p=>p.yaw))-Math.min(...samples.map(p=>p.yaw))>.001,'Mobile hero portrait is static');
+   // Software WebGL and the orbit turning point can make a short sample look still.
+   // Keep the same motion threshold, but wait for real rendered movement.
+   const range={min:Math.min(...samples.map(p=>p.yaw)),max:Math.max(...samples.map(p=>p.yaw))};
+   await page.waitForFunction(({min,max})=>{const yaw=window.PortfolioMotion.getPose().yaw;return Math.max(max,yaw)-Math.min(min,yaw)>.001},range,{timeout:15000});
    for(const fraction of [.25,.5,.75,1]) {
      await page.locator('#scroll-viewport').evaluate((e,p)=>e.scrollTop=(e.scrollHeight-e.clientHeight)*p,fraction);
      await page.waitForFunction(p=>Math.abs(window.PortfolioMotion.getPose().yaw-p*Math.PI*2)<.01,fraction);
