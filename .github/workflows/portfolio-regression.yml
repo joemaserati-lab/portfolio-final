@@ -36,7 +36,9 @@ jobs:
         env:
           AUDIT_URL: http://127.0.0.1:4321/portfolio-final/
           QA_DIR: /tmp/portfolio-qa
-        run: node tests/portfolio-regression.mjs
+        run: |
+          node tests/boot-regression.mjs
+          node tests/portfolio-regression.mjs
       - name: Verify source and bundle style parity
         env:
           AUDIT_URL: http://127.0.0.1:4321/portfolio-final/

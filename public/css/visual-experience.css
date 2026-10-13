@@ -153,7 +153,7 @@ body.booting .shell{
 }
 .shell{
   opacity:1;
-  transition:opacity .86s cubic-bezier(.22,.61,.36,1);
+  transition:none;
 }
 .boot-loader{
   transition:opacity .58s cubic-bezier(.22,.61,.36,1),visibility .58s ease;

@@ -11,14 +11,8 @@
   const progressBar = document.getElementById('boot-progress-bar');
   if (!loader || !out || !enter || !gateTitle || !gateStatus || !progress || !progressBar) return;
 
-  const bootStart = performance.now();
   const BOOT_SEEN_KEY = 'portfolioBootSeen';
   const returningVisit = document.documentElement.classList.contains('returning-visit');
-  const MIN_VISIBLE_MS = 1300;
-  const TITLE_SCRAMBLE_MS = 700;
-  const TITLE_SCRAMBLE_STEP_MS = 42;
-  const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&@';
-  const READY_HOLD_MS = 40;
   const ROW_STEP_MS = 55;
   const HEAD_READY_TIMEOUT_MS = 12000;
   const SCRIPT_LOAD_TIMEOUT_MS = 12000;
@@ -28,7 +22,6 @@
   const touchDevice = isTouchDevice();
   let finished = false;
   let sequenceStarted = false;
-  let resourcesReady = false;
   let headOk = false;
   let applicationPromise = null;
   let headPromise = null;
@@ -48,7 +41,6 @@
   let progressTarget = 0;
   let progressValue = 0;
   let progressRaf = 0;
-  let progressDoneResolve = null;
 
   const rows = new Map();
   const rowOrder = [];
@@ -96,46 +88,6 @@
     gateTitle.textContent = target;
   }
 
-  function scrambleTitle(key) {
-    const target = t(key).toUpperCase();
-    gateTitle.setAttribute('aria-label', target);
-
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      gateTitle.textContent = target;
-      return Promise.resolve();
-    }
-
-    const revealAt = [...target].map(char => char === ' ' ? 0 : 0.2 + Math.random() * 0.72);
-
-    return new Promise(resolve => {
-      const startTime = performance.now();
-      let lastPaint = 0;
-
-      const paint = now => {
-        const progress = Math.min(1, (now - startTime) / TITLE_SCRAMBLE_MS);
-
-        if (progress === 1 || now - lastPaint >= TITLE_SCRAMBLE_STEP_MS) {
-          lastPaint = now;
-          gateTitle.textContent = [...target].map((char, index) => {
-            if (char === ' ') return ' ';
-            if (progress >= revealAt[index]) return char;
-            return SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
-          }).join('');
-        }
-
-        if (progress < 1) {
-          requestAnimationFrame(paint);
-          return;
-        }
-
-        gateTitle.textContent = target;
-        resolve();
-      };
-
-      requestAnimationFrame(paint);
-    });
-  }
-
   function setGate(text, note) {
     gateStatus.removeAttribute('data-i18n');
     gateStatus.textContent = text;
@@ -156,11 +108,6 @@
       progressValue = progressTarget;
       renderProgress();
       progressRaf = 0;
-      if (progressValue >= 100 && progressDoneResolve) {
-        const resolve = progressDoneResolve;
-        progressDoneResolve = null;
-        resolve();
-      }
       return;
     }
     progressValue += delta * 0.24;
@@ -173,11 +120,6 @@
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
       progressValue = progressTarget;
       renderProgress();
-      if (progressValue >= 100 && progressDoneResolve) {
-        const resolve = progressDoneResolve;
-        progressDoneResolve = null;
-        resolve();
-      }
       return;
     }
     if (!progressRaf) progressRaf = requestAnimationFrame(animateProgress);
@@ -204,14 +146,6 @@
         throw error;
       }
     );
-  }
-
-  function finishProgress() {
-    setProgressTarget(100);
-    if (progressValue >= 99.88) return Promise.resolve();
-    return new Promise(resolve => {
-      progressDoneResolve = resolve;
-    });
   }
 
   setTitle('boot.title');
@@ -433,16 +367,15 @@
   const trackedVideoReady = trackProgress('video', videoReady);
 
   // Start the real application work immediately, behind the opaque loader.
-  // The enter button is enabled only after the interface, project covers and
-  // 3D pipeline have settled, so the terminal boot remains purely scenic.
+  // The terminal animation overlaps loading; reveal waits for the interface
+  // and 3D pipeline, while project covers remain deferred.
   const applicationReady = trackProgress('app', loadApplication());
   // Project covers are not required to enter the homepage. Mark the loader
   // task complete immediately and decode covers later during browser idle time.
   const coversReady = trackProgress('covers', Promise.resolve({ ok: true, deferred: true }));
 
-  // Warm the touch portrait behind the loader. Desktop can start on Enter;
-  // both modes wait for the same readiness promise before revealing the page.
-  const headReady = touchDevice ? Promise.all([trackedDomReady, trackedFontsReady]).then(() => loadHead()) : Promise.resolve({ ok: true, gated: true });
+  // Warm the portrait on every device before revealing the interface.
+  const headReady = trackProgress('head', Promise.all([trackedDomReady, trackedFontsReady]).then(() => loadHead()));
   setRow('head', '06 MODEL', 'waiting for entry', 'pending');
 
   function scheduleDeferredCovers() {
@@ -472,6 +405,9 @@
     setTimeout(startCrt, 900);
   }
 
+  // One terminal experience runs alongside actual loading, never after it.
+  if (!returningVisit) beginSequence();
+
   (async () => {
     try {
       await applicationReady;
@@ -479,47 +415,20 @@
       recoverApplicationLoad(error);
       return;
     }
-
     await Promise.allSettled([
-      trackedDomReady,
-      trackedFontsReady,
-      trackedPageReady,
-      trackedVideoReady,
-      coversReady,
-      headReady
+      trackedDomReady, trackedFontsReady, trackedPageReady,
+      trackedVideoReady, coversReady, headReady
     ]);
-
-    await finishProgress();
-    loader.classList.add('is-loaded');
-    resourcesReady = true;
-
-    if (returningVisit) {
-      // The full loader stays hidden on repeat visits, but the shell remains
-      // unrevealed until the hero head is ready. Cached assets make this fast
-      // while preventing a visible late 3D pop-in.
-      await loadHead();
-      if (touchDevice) {
-        scheduleDeferredTouchVisuals();
-      } else {
-        startAmbientVideo();
-        loadCrtRuntime();
-      }
-      launch(true);
-      return;
+    // Progress is decorative: completion must not gate the ready interface.
+    setProgressTarget(100);
+    setRow('ready', '07 READY', 'portfolio environment online', 'done');
+    if (!touchDevice) {
+      startAmbientVideo();
+      loadCrtRuntime();
     }
-
-    // Let the completed bar disappear before changing the loader copy.
-    await new Promise(resolve => setTimeout(resolve, 180));
-    await scrambleTitle('boot.readyTitle');
-
-    const note = isTouchDevice()
-      ? t('boot.readyNote')
-      : t('boot.readyNoteDesktop');
-    setGate(t('boot.readyStatus'), note);
-    loader.classList.add('is-ready');
-    enter.disabled = false;
-    enter.focus({ preventScroll: true });
-
+    try { sessionStorage.setItem(BOOT_SEEN_KEY, '1'); } catch {}
+    try { localStorage.setItem(BOOT_SEEN_KEY, '1'); } catch {}
+    launch(returningVisit);
   })();
 
   function beginSequence() {
@@ -533,6 +442,7 @@
 
   function recoverApplicationLoad(error) {
     console.error('Portfolio application failed to load.', error);
+    document.documentElement.classList.remove('returning-visit');
     setRow('ready', '07 READY', 'application load failed - retry available', 'warn');
 
     fatalLoadError = true;
@@ -558,79 +468,34 @@
     if (finished) return;
     finished = true;
 
-    const elapsed = performance.now() - bootStart;
-    const rowSequenceFloor = 120 + (rowDefs.length - 1) * ROW_STEP_MS + 180;
-    const remainingToMinimum = Math.max(0, MIN_VISIBLE_MS - elapsed);
-    const remainingToRows = Math.max(0, rowSequenceFloor);
-    const holdBeforeRelease = fast ? 0 : Math.max(remainingToMinimum, remainingToRows) + READY_HOLD_MS;
+    // Prepare the composition while the loader still covers it. Both desktop
+    // and touch release the visibility/scroll gate in this same frame.
+    if (!fast) document.body.classList.add('site-entering');
+    document.body.classList.remove('booting', 'entry-prewarm');
+    window.dispatchEvent(new CustomEvent('portfolio:booted'));
 
-    setTimeout(() => {
-      if (!touchDevice) document.body.classList.remove('booting');
+    const finishReveal = () => {
+      document.body.classList.remove('site-entering');
+      document.body.classList.add('site-ready');
+      window.dispatchEvent(new CustomEvent('portfolio:site-ready'));
+      scheduleDeferredCovers();
+      if (touchDevice) scheduleDeferredTouchVisuals();
+    };
+    // Use actual CSS completion, including reduced motion, rather than timers.
+    const animations = [...document.querySelectorAll('.shell, .hero-intro > *, .desktop-icons .desktop-icon, .crt-head-feature')]
+      .flatMap(element => element.getAnimations());
+    if (fast) finishReveal();
+    else Promise.allSettled(animations.map(animation => animation.finished)).then(finishReveal);
 
-      if (fast) {
-        if (touchDevice) document.body.classList.remove('booting','entry-prewarm');
-        document.body.classList.add('site-ready');
-        window.dispatchEvent(new CustomEvent('portfolio:booted'));
-        loader.classList.add('done');
-        setTimeout(() => loader.remove(), 500);
-        return;
-      }
-
-      document.body.classList.add('site-entering');
-      if (!touchDevice) window.dispatchEvent(new CustomEvent('portfolio:booted'));
-
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => loader.classList.add('done'));
-      });
-
-      setTimeout(() => {
-        document.body.classList.remove('site-entering');
-        if (touchDevice) document.body.classList.remove('booting','entry-prewarm');
-        document.body.classList.add('site-ready');
-        if (touchDevice) window.dispatchEvent(new CustomEvent('portfolio:booted'));
-        window.dispatchEvent(new CustomEvent('portfolio:site-ready'));
-        scheduleDeferredCovers();
-        if (touchDevice) scheduleDeferredTouchVisuals();
-      }, 760);
-
-      setTimeout(() => loader.remove(), 640);
-    }, holdBeforeRelease);
+    const removeLoader = () => loader.remove();
+    loader.addEventListener('transitionend', event => {
+      if (event.target === loader && event.propertyName === 'opacity') removeLoader();
+    });
+    loader.classList.add('done');
+    if (fast || matchMedia('(prefers-reduced-motion: reduce)').matches) removeLoader();
   }
 
-  // Desktop hover can opportunistically warm the head, but it remains inside
-  // the loader lifecycle: no page reveal happens until loadHead() settles.
-  enter.addEventListener('pointerenter', () => {
-    if (touchDevice || headPromise) return;
-    loadHead().catch(error => console.warn('3D head prewarm failed.', error));
-  }, { once: true, passive: true });
-
-  enter.addEventListener('click', async () => {
-    if (fatalLoadError) {
-      location.reload();
-      return;
-    }
-    if (!resourcesReady || sequenceStarted) return;
-    enter.disabled = true;
-
-    if (!beginSequence()) return;
-
-    // The loader/terminal remains visible while the 3D hero initializes.
-    // This keeps WebGL out of the initial page critical path without allowing
-    // the head to appear after the homepage has already been revealed.
-    await loadHead();
-
-    if (touchDevice) {
-      setRow('ready', '07 READY', 'scroll motion ready / launching sequence', 'done');
-    } else {
-      startAmbientVideo();
-      loadCrtRuntime();
-      setRow('ready', '07 READY', 'desktop pointer mode / launching sequence', 'done');
-    }
-
-    if ((rowState.get('ready')?.state || 'pending') === 'pending') {
-      setRow('ready', '07 READY', 'portfolio environment online', 'done');
-    }
-    try { sessionStorage.setItem(BOOT_SEEN_KEY, '1'); } catch {}
-    launch();
+  enter.addEventListener('click', () => {
+    if (fatalLoadError) location.reload();
   });
 })();
