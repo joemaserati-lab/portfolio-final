@@ -30,7 +30,7 @@ if (feature && canvas && screenElement) {
     effect.setPaused(!shouldBeVisible);
   }
   function onScrollPose(event) {
-    effect?.setScrollRotation(event.detail.yaw);
+    effect?.setScrollRotation(event.detail.yaw, event.detail.heroPresence);
     effect?.setPresentationScale(event.detail.renderScale);
   }
   addEventListener('portfolio:scroll-pose', onScrollPose);

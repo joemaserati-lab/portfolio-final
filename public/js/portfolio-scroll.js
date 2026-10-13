@@ -221,7 +221,7 @@
       desktop.prepend(head); head.classList.remove('scroll-portrait-docked'); head.removeAttribute('style'); docked = false;
     }
     const progress = clamp(y / Math.max(1, viewport.scrollHeight - h));
-    dispatchEvent(new CustomEvent('portfolio:scroll-pose', {detail:{yaw:compact.matches ? (reduced.matches ? 0 : progress * Math.PI * 2) : null, renderScale:compact.matches && pose === 1 ? portraitSlot.clientHeight / headRect.height : 1}}));
+    dispatchEvent(new CustomEvent('portfolio:scroll-pose', {detail:{heroPresence:compact.matches ? 1 - pose : 0, yaw:compact.matches ? (reduced.matches ? 0 : progress * Math.PI * 2) : null, renderScale:compact.matches && pose === 1 ? portraitSlot.clientHeight / headRect.height : 1}}));
     const handoff = reduced.matches ? Number(pose > 0) : clamp(y/(h*HANDOFF_END));
     const menuVisible = !compact.matches && (handoff > 0 || overlay);
     miniMenu.style.visibility = menuVisible ? 'visible' : 'hidden';
