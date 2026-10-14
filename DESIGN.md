@@ -15,7 +15,7 @@ Intermediate black/gray values may exist in the CRT shader, alpha transparency a
 - Mint must **not** be used on backgrounds, panels, window chrome, default icon borders or secondary hover states.
 - Window surfaces stay charcoal with dark-gray titlebars. Text hierarchy: white for primary content, light gray for secondary copy.
 - The 3D portrait is white/gray with only a few mint contours. Avoid broad luminous color effects.
-- Keep the layout, font system, animation, clipping and mobile safe zones intact.
+- Preserve CRT framing, animation, clipping and mobile safe zones. Redaction remains the editorial display voice. Doto is retained for project titles, interface and all reading copy; long-form copy and case facts use a 16–18 px reading scale with generous line-height.
 - Make all visual color adjustments in `public/css/monochrome-theme.css`; it is the canonical palette and **the only stylesheet defining the UI color tokens**.
 - The `:root` rules in `foundation.css`, `visual-experience.css`, `adaptive.css`, `fixes.css` and `crt-outline.css` are reserved for geometry, typography and responsive measurements.
 - The separate 404 page has an inline palette by design. Its bouncing portrait uses mint in only one of six phases.
@@ -30,3 +30,6 @@ The `PORTFOLIO PRONTO` title wraps inside the responsive CRT safe area, without 
 
 ## Permanent scroll layout
 `portfolio-scroll.css` is the final source layer in the production bundle. Mobile language and privacy controls belong to the footer; privacy panels remain accessible above navigation. The retired window manager and build-time preview adapters must not be reintroduced.
+
+## Case-study reading hierarchy
+Role precedes original artwork; client, deliverables and year follow it. Distinguish titles and reading copy through scale, line-height and spacing, preserve full-frame covers and use neutral rules and spacing rather than decorative panels. Body copy must not shrink below 16 px on narrow or short viewports.

@@ -241,11 +241,11 @@
         <header class="case-lead-v2">
           <div class="case-title-v2"><h2 tabindex="-1">${esc(p.displayTitle || p.title).replace(/\n/g,'<br>')}</h2></div>
           <p>${esc(p.intro)}</p>
+          <div class="case-role-v2"><span>${esc(t('case.role'))}</span><p>${esc(p.role)}</p></div>
         </header>
         ${hero}
         <dl class="case-facts-v2">
           <div><dt>${esc(t('case.client'))}</dt><dd>${esc(p.client)}</dd></div>
-          <div><dt>${esc(t('case.role'))}</dt><dd>${esc(p.role)}</dd></div>
           <div><dt>${esc(t('case.deliverables'))}</dt><dd>${esc(p.deliverables)}</dd></div>
           <div><dt>${esc(t('case.year'))}</dt><dd>${esc(p.year)}</dd></div>
         </dl>

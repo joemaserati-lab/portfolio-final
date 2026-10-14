@@ -43,6 +43,7 @@ body { color: var(--white); }
 .crt-background-video { filter: grayscale(1) brightness(.7) contrast(1.1); }
 .hero-intro h1 { color: var(--white); filter: drop-shadow(0 0 3px rgba(245,245,245,.19)); }
 .hero-copy,.window-body p,.case-story-copy p { color: var(--gray-light); text-shadow: none; }
+.case-facts-v2 dd,.case-story-copy p,.case-output-list p,.resume-row p { color: var(--white); }
 .desktop-icon > span:nth-child(2) { color: var(--white); }
 .desktop-icon small,.window-eyebrow,.resume-section-title { color: var(--gray-light); }
 
