@@ -13,7 +13,8 @@ const sources = [
   'project-covers.css',
   'monochrome-theme.css',
   'crt-outline.css',
-  'portfolio-scroll.css'
+  'portfolio-scroll.css',
+  'typography.css'
 ];
 const contents = sources.map(name =>
   `/* Source: ${name} */\n` + readFileSync(resolve(root, 'public/css', name), 'utf8')

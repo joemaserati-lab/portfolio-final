@@ -106,15 +106,15 @@
   margin: 0;
   min-height: 20px;
   color: var(--white);
-  font-size: 13px;
-  line-height: 1.4;
+
+
   text-align: center;
 }
 .scroll-portfolio .desktop-icons .desktop-icon { transform-origin: top left; }
 .scroll-portfolio .scroll-index {
   display: none;
-  font-size: 11px;
-  line-height: 1.2;
+
+
 }
 .scroll-portfolio .scroll-index a { color: var(--gray-light); text-decoration: none; }
 .scroll-portfolio .scroll-index a:focus-visible { outline: 1px solid var(--mint); outline-offset: 4px; }
@@ -174,7 +174,7 @@
     bottom: max(12px, env(safe-area-inset-bottom));
     display: flex;
     gap: 4px;
-    font-size: 11px;
+
     padding: 0;
     background: var(--black);
     height: 48px;
@@ -233,7 +233,7 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     align-content: center;
-    line-height: 20px;
+
   }
   .scroll-portfolio .scroll-index a[aria-current] .icon-glyph {
     width: 28px;

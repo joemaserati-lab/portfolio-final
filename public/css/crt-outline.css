@@ -18,7 +18,7 @@
   }
 
   .desktop-icon > span:nth-child(2) {
-    font-size: var(--type-small);
+
     white-space: nowrap;
   }
 
@@ -86,7 +86,7 @@
   }
 
   .desktop-icon > span:nth-child(2) {
-    font-size: clamp(10px, 2.9vw, 12px);
+
     white-space: nowrap;
   }
 
@@ -116,14 +116,10 @@
 /* Very short phone landscape keeps the same four-item row and the reserved
    bottom control strip, while reducing vertical density above it. */
 @media (max-width: 720px) and (max-height: 520px) {
-  .hero-intro h1 {
-    font-size: clamp(48px, 14vh, 64px);
-  }
-
   .hero-copy {
     max-width: min(48vw, 300px);
     margin: 6px 0 8px;
-    line-height: 1.2;
+
   }
 
   .primary-action {
@@ -138,10 +134,6 @@
   .desktop-icon {
     gap: 2px;
     padding: 2px 1px;
-  }
-
-  .desktop-icon > span:nth-child(2) {
-    font-size: clamp(9px, 1.8vw, 10px);
   }
 
   .icon-glyph {
@@ -343,7 +335,7 @@ body.content-panel-open .privacy-widget{
     justify-content:center;
     overflow:hidden;
     white-space:nowrap;
-    font-size:clamp(9px,2.55vw,12px);
+
   }
 
   .privacy-panel{
@@ -375,7 +367,7 @@ body.content-panel-open .privacy-widget{
     overflow:hidden;
     white-space:nowrap;
     text-align:center;
-    font-size:clamp(9px,2.65vw,11px);
+
   }
 
   /* Full CRT background, protected scroll viewport. The margin-bottom is
@@ -417,7 +409,7 @@ body.content-panel-open .privacy-widget{
     text-align:center;
     overflow:hidden;
     white-space:nowrap;
-    font-size:clamp(10px,3vw,13px)!important;
+
   }
 
   .window-controls{
@@ -507,12 +499,12 @@ body.content-panel-open .privacy-widget{
   }
 
   .boot-gate h2{
-    
+
     min-height:2.6em;
     margin:0;
     display:grid;
     place-items:center;
-    font-size:clamp(34px,11vw,52px);
+
   }
 
   .boot-enter{
@@ -556,7 +548,7 @@ body.content-panel-open .privacy-widget{
     --mobile-control-width:42px;
     --mobile-control-gap:6px;
   }
-  .privacy-toggle{padding-inline:5px;font-size:8.5px}
+  .privacy-toggle{padding-inline:5px;}
   .desktop-icons{column-gap:2px!important}
   .icon-glyph{width:34px;height:30px}
 }
@@ -578,7 +570,6 @@ body.content-panel-open .privacy-widget{
   }
 
   .boot-gate-note{display:none!important}
-  .boot-gate h2{font-size:clamp(28px,10vh,42px)}
   .boot-enter{padding:7px 10px}
 
   .desktop-icons{
@@ -590,22 +581,18 @@ body.content-panel-open .privacy-widget{
      from crossing the primary CTA on 667x375-class viewports. */
   @media (max-width:720px){
     .hero-intro{
-      max-width:50%!important;
+      max-width:62%!important;
       padding:0!important;
-    }
-    .hero-intro h1{
-      font-size:clamp(34px,11.5vh,44px)!important;
-      line-height:.82!important;
     }
     .hero-copy{
       max-width:100%!important;
       margin:5px 0 7px!important;
-      font-size:clamp(11px,3.4vh,14px)!important;
-      line-height:1.12!important;
+
+
     }
     .primary-action{
       padding:5px 7px!important;
-      font-size:clamp(10px,3.1vh,13px)!important;
+
     }
     .desktop-icons{
       left:auto!important;
@@ -623,9 +610,6 @@ body.content-panel-open .privacy-widget{
     .icon-glyph{
       width:28px!important;
       height:25px!important;
-    }
-    .desktop-icon>span:nth-child(2){
-      font-size:clamp(8px,2.1vw,10px)!important;
     }
   }
 
@@ -648,22 +632,18 @@ body.content-panel-open .privacy-widget{
    occupy the same central area. */
 @media (min-width:721px) and (max-width:900px) and (max-height:430px){
   .hero-intro{
-    max-width:50%!important;
+    max-width:62%!important;
     padding:0!important;
-  }
-  .hero-intro h1{
-    font-size:clamp(36px,11.5vh,48px)!important;
-    line-height:.82!important;
   }
   .hero-copy{
     max-width:100%!important;
     margin:6px 0 8px!important;
-    font-size:clamp(12px,3.5vh,15px)!important;
-    line-height:1.12!important;
+
+
   }
   .primary-action{
     padding:6px 8px!important;
-    font-size:clamp(11px,3.2vh,14px)!important;
+
   }
   .desktop-icons{
     left:auto!important;
@@ -681,9 +661,6 @@ body.content-panel-open .privacy-widget{
   .icon-glyph{
     width:30px!important;
     height:27px!important;
-  }
-  .desktop-icon>span:nth-child(2){
-    font-size:clamp(9px,1.45vw,11px)!important;
   }
   .desktop-icon small{
     display:none!important;
@@ -723,8 +700,8 @@ body.content-panel-open .privacy-widget{
     overflow-wrap: normal;
     word-break: normal;
     text-wrap: balance;
-    font-size: clamp(22px,7vw,38px);
-    line-height: 1.02;
+
+
     min-height: 2.08em;
   }
 }
@@ -741,8 +718,8 @@ body.content-panel-open .privacy-widget{
     overflow-wrap: normal;
     word-break: normal;
     text-wrap: balance;
-    font-size: clamp(20px,5vw,32px);
-    line-height: 1;
+
+
     min-height: auto;
   }
 }

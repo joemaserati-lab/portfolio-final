@@ -50,6 +50,8 @@ jobs:
         run: |
           node tests/routes-regression.mjs
           node tests/technical-regression.mjs
+          node tests/typography-regression.mjs
+          TYPO_LANG=it node tests/typography-regression.mjs
       - name: Audit candidate performance and accessibility
         run: |
           npx --yes lighthouse@12 http://127.0.0.1:4321/portfolio-final/ --chrome-flags="--headless --no-sandbox" --output=json --output=html --output-path=/tmp/portfolio-qa/lighthouse-mobile

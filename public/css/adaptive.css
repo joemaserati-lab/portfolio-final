@@ -31,17 +31,7 @@ body.booting .crt-background-video{
    floating inside excess empty space. */
 @media (min-width:1921px) and (min-height:1081px){
   :root{
-    --type-caption:min(.78125vw,1.388889vh);
-    --type-small:min(.885417vw,1.574074vh);
-    --type-ui:min(.9375vw,1.666667vh);
-    --type-base:min(1.041667vw,1.851852vh);
-    --type-body:min(1.145833vw,2.037037vh);
-    --type-body-lg:min(1.302083vw,2.314815vh);
-    --type-lead:min(1.458333vw,2.592593vh);
-    --type-subhead:min(1.5625vw,2.777778vh);
-    --type-heading:min(3.020833vw,5.37037vh);
-    --type-display:min(6.666667vw,11.851852vh);
-    --type-boot:min(1.875vw,3.333333vh);
+
 
     --screen-safe-top:min(2.1875vw,3.888889vh);
     --screen-safe-right:min(3.75vw,6.666667vh);
@@ -133,7 +123,7 @@ body.booting .crt-background-video{
   }
   .projects-index-head h2{
     margin-top:min(.625vw,1.111111vh);
-    font-size:min(5vw,8.888889vh);
+
   }
   .projects-index-side{gap:min(.208333vw,.37037vh)}
   .projects-grid-v2{gap:min(1.666667vw,2.962963vh)}
@@ -142,7 +132,7 @@ body.booting .crt-background-video{
     padding-top:min(.833333vw,1.481481vh);
   }
   .project-tile-main strong{
-    font-size:min(1.979167vw,3.518519vh);
+
     margin-top:min(.15625vw,.277778vh);
   }
 
@@ -159,7 +149,7 @@ body.booting .crt-background-video{
   }
   .case-title-v2 h2{
     margin-top:min(.625vw,1.111111vh);
-    font-size:min(6.145833vw,10.925926vh);
+
   }
   .case-facts-v2{
     margin-top:min(1.458333vw,2.592593vh);
@@ -204,10 +194,6 @@ body.booting .crt-background-video{
     padding:min(1.145833vw,2.037037vh);
     gap:min(.520833vw,.925926vh);
   }
-  .case-nav-v2 b{
-    font-size:min(1.979167vw,3.518519vh);
-  }
-
   .contact-panel{
     gap:min(1.25vw,2.222222vh);
   }

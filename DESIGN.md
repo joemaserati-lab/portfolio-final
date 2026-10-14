@@ -20,7 +20,7 @@ Intermediate black/gray values may exist in the CRT shader, alpha transparency a
 - The `:root` rules in `foundation.css`, `visual-experience.css`, `adaptive.css`, `fixes.css` and `crt-outline.css` are reserved for geometry, typography and responsive measurements.
 - The separate 404 page has an inline palette by design. Its bouncing portrait uses mint in only one of six phases.
 
-Astro serves `public/` and builds from `src/layouts/PortfolioShell.astro`. Root-level legacy snapshots are removed; `public/` and `src/` are authoritative. Production bundles the ten CSS source files in the documented order; development loads those same sources separately. The former monolithic `style.css` is split in place without changing rules or cascade order.
+Astro serves `public/` and builds from `src/layouts/PortfolioShell.astro`. Root-level legacy snapshots are removed; `public/` and `src/` are authoritative. Production bundles the eleven CSS source files in the documented order; development loads those same sources separately. The former monolithic `style.css` is split in place without changing rules or cascade order.
 
 ## Project covers
 Project directory covers are grayscale at rest. Desktop hover or keyboard focus reveals the original artwork; on touch devices, a **single tap** reveals the original colors and opens the project after a 280 ms preview. On mobile, only the most visible project card receives color, with a 650 ms CRT scan transition and hysteresis between adjacent cards.
@@ -33,3 +33,6 @@ The `PORTFOLIO PRONTO` title wraps inside the responsive CRT safe area, without 
 
 ## Case-study reading hierarchy
 Role precedes original artwork; client, deliverables and year follow it. Distinguish titles and reading copy through scale, line-height and spacing, preserve full-frame covers and use neutral rules and spacing rather than decorative panels. Body copy must not shrink below 16 px on narrow or short viewports.
+
+## Complete typography system
+`public/css/typography.css` is the canonical source for type roles, sizes, leading, tracking and font families. It follows the existing structural layers in source and production. See `TYPOGRAPHY.md`. Component modules may define icon glyph geometry and font-face registration, but must not reintroduce content type scales.
