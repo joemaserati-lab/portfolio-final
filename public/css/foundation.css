@@ -1,6 +1,6 @@
 ::selection{background:var(--phosphor);color:var(--bg);text-shadow:none}
 @font-face{
-  font-family:"Doto";
+  font-family:"Doto Fallback";
   src:url("../assets/font/Doto-500.woff2") format("woff2");
   font-style:normal;
   font-weight:500;
