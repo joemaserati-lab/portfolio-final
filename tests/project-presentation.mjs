@@ -26,6 +26,14 @@ try {
      src:img.getAttribute('src'),expected:window.PORTFOLIO_DATA.projects.find(p=>p.slug===document.querySelector('#projects-view').dataset.project).cover,
      effects:[...document.querySelectorAll('#crt-fx,.noise,.scanlines')].map(e=>getComputedStyle(e).display),ancestors};
    });
+   const reading=await page.evaluate(()=>{
+    const role=document.querySelector('.case-role-v2');
+    const cover=document.querySelector('.case-media-hero-v2');
+    const paragraphs=[...document.querySelectorAll('.case-lead-v2>p,.case-role-v2>p,.case-story-copy p,.case-output-list p,.case-facts-v2 dd')];
+    return {roleBeforeCover:Boolean(role.compareDocumentPosition(cover)&Node.DOCUMENT_POSITION_FOLLOWING),sizes:paragraphs.map(p=>parseFloat(getComputedStyle(p).fontSize))};
+   });
+   assert(reading.roleBeforeCover,'Role must precede artwork');
+   assert(reading.sizes.every(size=>size>=16),'Case body text shrank below 16px');
    assert.equal(await page.locator('#projects-view .case-media-surface').count(),0,'Decorative placeholder presented as project media');
    assert.equal(clean.filter,'none');assert.equal(clean.opacity,'1');assert.equal(clean.objectFit,'contain');
    assert(Math.abs(clean.imageRatio-clean.originalRatio)<.01,'Image cropped or stretched');

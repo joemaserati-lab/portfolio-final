@@ -12,6 +12,9 @@ select {
 /* Doto has a larger visual footprint than the previous interface typeface.
    Rebuild the interface scale around it instead of inheriting the former terminal proportions. */
 :root {
+  --font-reading: "Doto", "Courier New", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --type-reading: clamp(16px, calc(15px + .15vw), 18px);
+  --type-reading-lead: clamp(18px, calc(17px + .2vw), 20px);
   --type-micro: clamp(9px, calc(8.7px + .10vw), 11px);
   --type-caption: clamp(10px, calc(9.4px + .14vw), 12px);
   --type-small: clamp(11px, calc(10.2px + .18vw), 13.5px);
@@ -101,8 +104,11 @@ body {
 .case-story-copy p,
 .resume-row p,
 .projects-index-side p {
-  font-size: var(--type-body) !important;
-  line-height: 1.38 !important;
+  font-family: var(--font-reading);
+  font-weight: 500;
+  font-size: var(--type-reading) !important;
+  line-height: 1.6 !important;
+  letter-spacing: 0;
 }
 
 .window-body h2,
@@ -474,7 +480,7 @@ body {
 
   .case-title-v2 h2 {
     width: 100%;
-    font-size: clamp(24px, 8.4vw, 46px);
+    font-size: clamp(32px, 9.4vw, 52px);
     text-wrap: balance;
   }
 
