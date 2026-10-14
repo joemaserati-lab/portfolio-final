@@ -12,6 +12,7 @@ on:
       - 'DESIGN.md'
       - 'public/**'
       - 'package.json'
+      - 'package-lock.json'
       - 'astro.config.mjs'
       - '.github/workflows/astro-build.yml'
       - '.github/workflows/astro-pages.yml'
@@ -35,7 +36,7 @@ jobs:
           node-version: '22'
 
       - name: Install Astro
-        run: npm install --no-package-lock --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
 
       - name: Build static site
         run: npm run build

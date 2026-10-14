@@ -353,7 +353,7 @@
   });
 
   function startAmbientVideo() {
-    if (!ambientVideo) return;
+    if (!ambientVideo || document.body.classList.contains('project-case-open')) return;
     try {
       ambientVideo.preload = 'auto';
       const playing = ambientVideo.play();
@@ -368,14 +368,24 @@
 
   // Start the real application work immediately, behind the opaque loader.
   // The terminal animation overlaps loading; reveal waits for the interface
-  // and 3D pipeline, while project covers remain deferred.
+  // content runtime; the 3D pipeline and project covers are optional enhancements.
   const applicationReady = trackProgress('app', loadApplication());
   // Project covers are not required to enter the homepage. Mark the loader
   // task complete immediately and decode covers later during browser idle time.
   const coversReady = trackProgress('covers', Promise.resolve({ ok: true, deferred: true }));
 
-  // Warm the portrait on every device before revealing the interface.
-  const headReady = trackProgress('head', Promise.all([trackedDomReady, trackedFontsReady]).then(() => loadHead()));
+  // Direct case-study routes do not display the portrait. Load it only when
+  // the visitor returns to a section that actually uses it.
+  const workPath = new URL('work/', document.baseURI).pathname;
+  const initialCase = location.pathname.startsWith(workPath) && location.pathname !== workPath;
+  const headReady = trackProgress('head', initialCase
+    ? Promise.resolve({ ok:true, deferred:true })
+    : Promise.all([trackedDomReady, trackedFontsReady]).then(() => loadHead()));
+  if (initialCase) addEventListener('portfolio:project-closed', () => {
+    loadHead();
+    if (touchDevice) scheduleDeferredTouchVisuals();
+    else { startAmbientVideo(); loadCrtRuntime(); }
+  }, {once:true});
   setRow('head', '06 MODEL', 'waiting for entry', 'pending');
 
   function scheduleDeferredCovers() {
@@ -391,7 +401,7 @@
   function scheduleDeferredTouchVisuals() {
     const startCrt = () => {
       startAmbientVideo();
-      const run = () => loadCrtRuntime();
+      const run = () => { if (!document.body.classList.contains('project-case-open')) loadCrtRuntime(); };
 
       if ('requestIdleCallback' in window) {
         requestIdleCallback(run, { timeout: 6000 });
@@ -417,12 +427,12 @@
     }
     await Promise.allSettled([
       trackedDomReady, trackedFontsReady, trackedPageReady,
-      trackedVideoReady, coversReady, headReady
+      trackedVideoReady, coversReady
     ]);
     // Progress is decorative: completion must not gate the ready interface.
     setProgressTarget(100);
     setRow('ready', '07 READY', 'portfolio environment online', 'done');
-    if (!touchDevice) {
+    if (!touchDevice && !initialCase) {
       startAmbientVideo();
       loadCrtRuntime();
     }
@@ -441,6 +451,8 @@
   }
 
   function recoverApplicationLoad(error) {
+    document.body.classList.add('reader-mode');
+    document.body.classList.remove('booting');
     console.error('Portfolio application failed to load.', error);
     document.documentElement.classList.remove('returning-visit');
     setRow('ready', '07 READY', 'application load failed - retry available', 'warn');

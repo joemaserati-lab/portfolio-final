@@ -4,7 +4,7 @@ Static Astro portfolio with a native scroll layout, CRT transitions and a Three.
 
 ## Development
 
-Requires Node.js 22 or newer. Run `npm install`, then `npm run dev`.
+Requires Node.js 22 or newer. Run `npm ci`, then `npm run dev`.
 Run `npm run build && npm run check` before publishing; `npm run preview` serves `dist/`. For browser tests, run `npx playwright install chromium`, start the preview server, then `npm run test:ui`.
 
 ## Source map
@@ -13,7 +13,9 @@ Run `npm run build && npm run check` before publishing; `npm run preview` serves
 - `src/components/ScrollSections.astro`, `ScrollNavigation.astro`, `PortfolioFooter.astro`: permanent scroll structure.
 - `src/pages/`: indexable homepage, sections and project URLs. `/scroll-preview/` is only a compatibility redirect.
 - `src/data/routes.mjs`: route metadata and sitemap registry.
-- `public/js/content.js`: English and Italian portfolio content.
+- `src/data/portfolio.mjs`: shared English and Italian content, including project results.
+- `public/js/content.js`: selects the shared dictionaries embedded by Astro.
+- `src/components/StaticReader.astro`: complete static reading view if JavaScript is disabled or the runtime fails.
 - `public/js/portfolio.js`: canonical routing, content rendering, project cases and CV overlay.
 - `public/js/portfolio-scroll.js`: native scroll, icon navigation, portrait docking and mobile viewport color.
 - `public/js/boot.js`, `head3d.js`, `head-scan-effect.js`: loader and 3D lifecycle. There are no generated runtime adapters.
@@ -37,4 +39,8 @@ GitHub Actions runs the static build and browser regression suite. GitHub Pages 
 
 Production URL: https://joemaserati-lab.github.io/portfolio-final/
 
-GA4 remains consent-first and inactive while its Measurement ID is `G-XXXXXXXXXX`. No analytics settings are changed by this migration.
+GA4 remains consent-first and inactive while its Measurement ID is `G-XXXXXXXXXX`. The consent panel does not open automatically while analytics is unconfigured.
+
+`tests/technical-regression.mjs` checks direct-route title alignment, project keyboard focus, metadata after navigation and the no-JavaScript/runtime-failure reading view.
+
+Direct project visits defer the 3D portrait and CRT until returning to a scroll section. Homepage content is revealed as soon as its runtime is ready; the portrait settles independently.

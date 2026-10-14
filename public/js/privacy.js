@@ -18,14 +18,16 @@
       revoke: 'REVOKE CONSENT',
       unset: 'ANALYTICS: NOT SET',
       granted: 'ANALYTICS: ENABLED',
-      denied: 'ANALYTICS: DISABLED'
+      denied: 'ANALYTICS: DISABLED',
+      unavailable: 'ANALYTICS: NOT CONFIGURED'
     },
     it: {
       reject: 'RIFIUTA ANALYTICS',
       revoke: 'REVOCA CONSENSO',
       unset: 'ANALYTICS: NON IMPOSTATO',
       granted: 'ANALYTICS: ATTIVO',
-      denied: 'ANALYTICS: DISATTIVATO'
+      denied: 'ANALYTICS: DISATTIVATO',
+      unavailable: 'ANALYTICS: NON CONFIGURATO'
     }
   };
 
@@ -49,7 +51,7 @@
 
     reject.textContent = text.reject;
     revoke.textContent = text.revoke;
-    status.textContent = text[state] || text.unset;
+    status.textContent = analytics()?.configured ? text[state] || text.unset : text.unavailable;
 
     accept.hidden = state === 'granted';
     reject.hidden = state === 'denied' || state === 'granted';
@@ -64,7 +66,9 @@
   };
 
   const hide = () => {
+    const containedFocus = panel.contains(document.activeElement);
     panel.hidden = true;
+    if (containedFocus) toggle.focus({preventScroll:true});
     toggle.setAttribute('aria-expanded', 'false');
   };
 
@@ -100,7 +104,7 @@
 
   const prompt = () => {
     renderState();
-    if (!hasAck()) setTimeout(open, 900);
+    if (analytics()?.configured && !hasAck()) setTimeout(open, 900);
   };
 
   if (document.body.classList.contains('booting')) addEventListener('portfolio:booted', prompt, { once: true });

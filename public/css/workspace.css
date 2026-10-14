@@ -60,7 +60,7 @@
 .projects-index-side p{max-width:34ch;margin:8px 0 0!important;color:#dedede!important;font-size:var(--type-body)!important;line-height:1.18!important;letter-spacing:.02em}
 .projects-grid-v2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(18px,2.2vw,32px)}
 .project-tile-v2{
-  display:flex;flex-direction:column;min-width:0;padding:0;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer
+  display:flex;flex-direction:column;min-width:0;padding:0;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer;text-decoration:none
 }
 .project-cover-v2{
   position:relative;display:block;overflow:hidden;aspect-ratio:16/10;border:1px solid rgba(199,199,199,.18);

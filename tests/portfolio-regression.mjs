@@ -25,12 +25,12 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')console.log('CONSOLE',m.text())});
  await page.goto(url);
  await page.waitForFunction(()=>document.body.classList.contains('site-ready'),null,{timeout:45000});
- assert(await page.evaluate(()=>window.__portfolioHeadState?.ready), 'Head was not ready at reveal');
+ await page.waitForFunction(()=>window.__portfolioHeadState?.ready, null, {timeout:30000});
+ await page.locator('#boot-loader').waitFor({state:'detached'});
  assert.equal(await page.locator('#boot-loader').count(),0);
  assert.equal(await page.locator('.shell').evaluate(e=>getComputedStyle(e).opacity),'1');
  await page.waitForTimeout(800);
- await page.locator('#privacy-panel').waitFor({state:'visible',timeout:15000});
- await page.locator('#privacy-reject').click();
+ assert.equal(await page.locator('#privacy-panel').isVisible(),false,'Unconfigured analytics should not request consent');
  assert.equal(await page.locator('.desktop-icons .desktop-icon').count(),4);
  assert.equal(await page.locator('#scroll-work .project-tile-v2').count(),5);
  await page.waitForFunction(()=>document.querySelector('#crt-head-feature').classList.contains('is-ready'),null,{timeout:30000});
@@ -184,6 +184,7 @@ const reduced=await browser.newPage({viewport:{width:390,height:844},hasTouch:tr
 await reduced.addInitScript(()=>{sessionStorage.setItem('portfolioBootSeen','1');localStorage.setItem('portfolioPrivacyAck','1')});
 await reduced.goto(url);
 await reduced.waitForFunction(()=>document.body.classList.contains('site-ready'),null,{timeout:50000});
+await reduced.waitForFunction(()=>window.__portfolioHeadState?.ready);
 const stillPose=await reduced.evaluate(()=>window.PortfolioMotion.getPose());
 await reduced.waitForTimeout(500);
 assert.deepEqual(await reduced.evaluate(()=>window.PortfolioMotion.getPose()),stillPose,'Reduced motion hero should remain still');
@@ -200,6 +201,7 @@ const returningDesktop=await browser.newPage({viewport:{width:1440,height:900}})
 await returningDesktop.addInitScript(()=>{sessionStorage.setItem('portfolioBootSeen','1');localStorage.setItem('portfolioPrivacyAck','1')});
 await returningDesktop.goto(url);
 await returningDesktop.waitForFunction(()=>document.body.classList.contains('site-ready'),null,{timeout:50000});
+await returningDesktop.waitForFunction(()=>window.__portfolioHeadState?.ready,null,{timeout:30000});
 await returningDesktop.mouse.move(1250,450);
 await returningDesktop.waitForFunction(()=>Math.abs(window.PortfolioMotion.getPose().yaw)>.1,null,{timeout:20000});
 console.log('PASS returning desktop mouse animation');

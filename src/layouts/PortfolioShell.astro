@@ -3,7 +3,8 @@ import ScrollSections from '../components/ScrollSections.astro';
 import ScrollNavigation from '../components/ScrollNavigation.astro';
 import PortfolioFooter from '../components/PortfolioFooter.astro';
 import packageInfo from '../../package.json';
-import ProjectFallback from '../components/ProjectFallback.astro';
+import StaticReader from '../components/StaticReader.astro';
+import { portfolioDictionaries } from '../data/portfolio.mjs';
 
 const {
   title = 'Edoardo Rappanello — Multidisciplinary Designer',
@@ -23,7 +24,7 @@ const canonicalUrl = new URL(canonicalPath, rootUrl);
 const ogImageUrl = new URL(ogImage, rootUrl);
 ---
 <!doctype html>
-<html lang="en">
+<html lang="en" class="no-js">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -46,6 +47,7 @@ const ogImageUrl = new URL(ogImage, rootUrl);
   <link rel="icon" href="assets/favicon/favicon-64.png" sizes="64x64" type="image/png" />
   <link rel="shortcut icon" href="assets/favicon/favicon-32.png" type="image/png" />
   <script is:inline define:vars={{assetVersion}}>
+    document.documentElement.classList.remove('no-js');
     window.PORTFOLIO_ASSET_VERSION = assetVersion;
     try {
       if (sessionStorage.getItem('portfolioBootSeen') === '1') {
@@ -182,7 +184,9 @@ const ogImageUrl = new URL(ogImage, rootUrl);
     </div>
   </main>
 
-  {project && <ProjectFallback project={project} basePath={basePath} />}
+  <StaticReader canonicalPath={canonicalPath} basePath={basePath} lang="en" />
+  <StaticReader canonicalPath={canonicalPath} basePath={basePath} lang="it" />
+  <script is:inline define:vars={{portfolioDictionaries}}>window.PORTFOLIO_DICTIONARIES = portfolioDictionaries;</script>
 
   <script is:inline defer src={asset('js/i18n.js')}></script>
   <script is:inline defer src={asset('js/cursor.js')}></script>

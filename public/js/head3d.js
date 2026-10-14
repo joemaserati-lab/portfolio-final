@@ -18,6 +18,9 @@ const projectsView = document.getElementById('projects-view');
 
 if (feature && canvas && screenElement) {
   const touch = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const onReduced = () => effect?.setReducedMotion(reduced.matches);
+  reduced.addEventListener('change', onReduced);
   let effect, observer, ready = false, disposed = false, pageVisible = !document.hidden;
   let booted = !document.body.classList.contains('booting');
 
@@ -61,6 +64,7 @@ if (feature && canvas && screenElement) {
     disposed = true;
     removeEventListener('portfolio:scroll-pose', onScrollPose);
     observer?.disconnect();
+    reduced.removeEventListener('change', onReduced);
     removeEventListener('pointermove', onPointerMove);
     document.removeEventListener('visibilitychange', onVisibility);
     removeEventListener('portfolio:booted', onBooted);

@@ -16,7 +16,7 @@ const jsonLd = {
   '@type': 'CreativeWork',
   name: project.name,
   description: project.description,
-  image: project.image,
+  image: new URL(`${import.meta.env.BASE_URL.replace(/\/?$/, '/')}${project.image}`, Astro.site).href,
   author: { '@type': 'Person', name: profile.name }
 };
 ---

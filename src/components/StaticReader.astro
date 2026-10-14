@@ -1,0 +1,52 @@
+---
+import { portfolioDictionaries } from '../data/portfolio.mjs';
+const { canonicalPath = '', basePath, lang = 'en' } = Astro.props;
+const labels = lang === 'it'
+  ? {work:'Lavori selezionati',about:'Profilo',resume:'CV',contact:'Contatti',role:'Ruolo',deliverables:'Deliverable',year:'Anno',visit:'Visita il sito pubblicato',context:'Contesto',approach:'Approccio',outputs:'Output selezionati',experience:'Esperienza',education:'Formazione',capabilities:'Competenze',tools:'Strumenti'}
+  : {work:'Selected work',about:'About',resume:'Resume',contact:'Contact',role:'Role',deliverables:'Deliverables',year:'Year',visit:'Visit published website',context:'Context',approach:'Approach',outputs:'Selected outputs',experience:'Experience',education:'Education',capabilities:'Capabilities',tools:'Tools'};
+const { profile, resume, projects } = portfolioDictionaries[lang];
+const kind = canonicalPath.split('/')[0] || 'home';
+const project = canonicalPath.startsWith('work/') ? projects.find(item => canonicalPath === `work/${item.slug}/`) : null;
+const paragraphs = value => [].concat(value || []);
+---
+<main class:list={['static-reader', { 'project-fallback': Boolean(project) }]} aria-label="Portfolio reading view" data-reader-lang={lang} lang={lang}>
+  <nav aria-label="Portfolio pages">
+    <a href={basePath}>Home</a><a href={basePath + 'work/'}>{labels.work}</a>
+    <a href={basePath + 'about/'}>{labels.about}</a><a href={basePath + 'resume/'}>{labels.resume}</a><a href={basePath + 'contact/'}>{labels.contact}</a>
+  </nav>
+  {project ? <article>
+    <h1>{project.title}</h1><p>{project.intro}</p>
+    <dl><dt>{labels.role}</dt><dd>{project.role}</dd><dt>{labels.deliverables}</dt><dd>{project.deliverables}</dd><dt>{labels.year}</dt><dd>{project.year}</dd></dl>
+    <img src={basePath + project.cover} alt={project.title + ' project cover'} width="1280" height="720" />
+    <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">{labels.visit}</a>
+    <h2>{labels.context}</h2><p>{project.context}</p><h2>{labels.approach}</h2><p>{project.direction}</p>
+    {project.proof && <section><h2>{project.proof.label}</h2><p>{project.proof.text}</p></section>}
+    <h2>{labels.outputs}</h2>{project.outputs.map(output => <section><h3>{output.title}</h3><p>{output.description}</p></section>)}
+  </article> : <>
+    <h1>{kind === 'resume' ? labels.resume + ' — Edoardo Rappanello' : kind === 'work' ? labels.work : kind === 'contact' ? labels.contact + ' — Edoardo Rappanello' : 'Edoardo Rappanello'}</h1>
+    {(kind === 'home' || kind === 'about') && <section><p>{profile.role}</p>{profile.intro.map(text => <p>{text}</p>)}</section>}
+    {(kind === 'home' || kind === 'work') && <section aria-label="Selected projects">{projects.map(item => <article><h2><a href={basePath + `work/${item.slug}/`}>{item.title}</a></h2><p>{item.intro}</p><p>{item.role}</p></article>)}</section>}
+    {kind === 'resume' && <>
+      <p>{resume.intro}</p><h2>{labels.experience}</h2>{resume.experience.map(item => <section><h3>{item.role}</h3><p>{item.period} · {item.company} · {item.location}</p>{paragraphs(item.description).map(text => <p>{text}</p>)}</section>)}
+      <h2>{labels.education}</h2>{resume.education.map(item => <section><h3>{item.course}</h3><p>{item.period} · {item.school}</p><p>{item.description}</p></section>)}
+      <h2>{labels.capabilities}</h2><p>{resume.capabilities.join(' · ')}</p><h2>{labels.tools}</h2><p>{resume.tools.join(' · ')}</p>
+    </>}
+  </>}
+  <footer><a href={'mailto:' + profile.email}>{profile.email}</a><a href={profile.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a></footer>
+</main>
+<style is:global>
+  .static-reader { display: none; }
+  html.no-js body, body.reader-mode { overflow: auto; }
+  html.no-js .shell, html.no-js .boot-loader, body.reader-mode .shell, body.reader-mode .boot-loader { display: none; }
+  html.no-js .static-reader, body.reader-mode .static-reader { display: block; max-width: 880px; margin: 0 auto; padding: clamp(24px, 5vw, 72px); color: #f5f5f5; font: 17px/1.6 system-ui, sans-serif; }
+  html[lang="en"] .static-reader[data-reader-lang="it"], html[lang="it"] .static-reader[data-reader-lang="en"] { display: none; }
+  .static-reader nav, .static-reader footer { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 32px; }
+  .static-reader footer { margin: 48px 0 0; }
+  .static-reader a { color: inherit; overflow-wrap: anywhere; }
+  .static-reader h1 { font: 400 clamp(36px, 7vw, 72px)/1.1 Georgia, serif; }
+  .static-reader h2 { margin-top: 32px; }
+  .static-reader p { max-width: 64ch; }
+  .static-reader img { width: 100%; height: auto; margin: 24px 0; }
+  .static-reader dd { margin: 0 0 12px; }
+  .static-reader a:focus-visible { outline: 2px solid #80ffcc; outline-offset: 4px; }
+</style>
