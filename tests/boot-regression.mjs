@@ -31,7 +31,10 @@ try {
    await page.waitForFunction(()=>document.body.classList.contains('site-ready')&&!document.getElementById('boot-loader'),null,{timeout:45000});
    const events=await page.evaluate(()=>window.__bootEvents);
    assert.deepEqual(events.map(e=>e.name),['booted','ready']);
-   assert.deepEqual(events[0],{name:'booted',booting:false,opacity:'1',head:true,headVisible:true});
+   assert.equal(events[0].booting,false);
+   assert.equal(events[0].opacity,'1');
+   await page.waitForFunction(()=>window.__portfolioHeadState?.ready && document.querySelector('#crt-head-feature').classList.contains('is-ready'));
+   assert.equal(await page.locator('#crt-head-feature').isVisible(),true);
    await page.unroute('**/js/content.js*');
    // A fresh browser session still skips the scenic first-visit boot.
    assert.equal(await page.evaluate(()=>localStorage.getItem('portfolioBootSeen')),'1');
@@ -50,12 +53,8 @@ try {
  await page.addInitScript(()=>sessionStorage.setItem('portfolioBootSeen','1'));
  await page.route('**/js/content.js*',route=>route.abort());
  await page.goto(url);
- await page.locator('#boot-enter').waitFor({state:'visible'});
- assert.equal(await page.locator('#boot-enter').isEnabled(),true);
- assert.equal(await page.locator('#boot-loader').isVisible(),true);
- assert.equal(await page.evaluate(()=>document.body.classList.contains('booting')),true);
- await page.unroute('**/js/content.js*');
- await page.locator('#boot-enter').click();
- await page.waitForFunction(()=>document.body.classList.contains('site-ready'),null,{timeout:45000});
- console.log('BOOT PASS returning application error / retry');
+ await page.locator('.static-reader:visible').waitFor({state:'visible'});
+ assert.equal(await page.locator('#boot-loader').isVisible(),false);
+ assert((await page.locator('.static-reader:visible').innerText()).includes('EDOARDO') || (await page.locator('.static-reader:visible').innerText()).includes('Edoardo'));
+ console.log('BOOT PASS application error / static reading fallback');
 } finally {await browser.close()}

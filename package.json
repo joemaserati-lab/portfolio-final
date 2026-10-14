@@ -1,6 +1,6 @@
 {
   "name": "edoardo-rappanello-portfolio",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "private": true,
   "type": "module",
   "engines": {
@@ -12,7 +12,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "node scripts/verify-build.mjs",
-    "test:ui": "node tests/project-presentation.mjs && node tests/boot-regression.mjs && node tests/portfolio-regression.mjs && node tests/routes-regression.mjs"
+    "test:ui": "node tests/project-presentation.mjs && node tests/boot-regression.mjs && node tests/portfolio-regression.mjs && node tests/routes-regression.mjs && node tests/technical-regression.mjs"
   },
   "dependencies": {
     "astro": "7.3.4"

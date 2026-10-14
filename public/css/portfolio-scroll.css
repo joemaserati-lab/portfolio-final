@@ -249,7 +249,7 @@
   .scroll-portfolio .scroll-section {
     display: flex;
     min-height: 0;
-    padding: calc(var(--scroll-portrait-top) + var(--scroll-portrait-size) + 20px) var(--ui-safe-right) 24px var(--ui-safe-left);
+    padding: calc(var(--scroll-portrait-top) + var(--scroll-portrait-size) + 28px) var(--ui-safe-right) 24px var(--ui-safe-left);
   }
   .scroll-portfolio .scroll-window.os-window {
     flex: 1 1 100%;

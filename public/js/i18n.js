@@ -216,7 +216,7 @@
     const toggle = document.getElementById('language-toggle');
     if (toggle) {
       toggle.textContent = currentLang === 'it' ? 'EN' : 'IT';
-      toggle.setAttribute('aria-label', t('lang.label'));
+      toggle.setAttribute('aria-label', `${toggle.textContent} — ${t('lang.label')}`);
     }
   }
 

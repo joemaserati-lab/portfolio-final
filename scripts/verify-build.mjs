@@ -37,7 +37,7 @@ assert.ok(bundle.includes('grayscale('), 'Project grayscale interaction missing'
 assert.ok(!existsSync(dir('public/css/style.css')), 'Monolithic style.css was reintroduced');
 
 /* Keep the Astro route registry aligned with the browser project directory. */
-const runtimeSource = readFileSync(dir('public/js/content.js'), 'utf8');
+const runtimeSource = readFileSync(dir('src/data/portfolio.mjs'), 'utf8');
 const browserSlugs = [...runtimeSource.matchAll(/slug:'([^']+)'/g)].map(match => match[1]);
 const routeSlugs = projects.map(project => project.slug);
 assert.deepEqual(browserSlugs, routeSlugs, 'Astro and browser project slugs differ');
@@ -57,3 +57,11 @@ assert.ok(!existsSync(dir('dist/scroll-preview/runtime')), 'Experimental runtime
 assert.ok(!existsSync(dir('public/js/scroll-preview.js')), 'Duplicate scroll controller remains');
 assert.ok(!existsSync(dir('src/lib/scroll-preview-runtime.mjs')), 'Build-time runtime adapter remains');
 console.log(`Build verified: ${routes.length} routes, static project summaries, single CSS bundle, no root mirrors.`);
+
+for (const route of ['about/', 'resume/', 'contact/', 'work/platinum-technologies/']) {
+  const html = readFileSync(dir(`dist/${route}index.html`), 'utf8');
+  assert.ok(html.includes('static-reader'), `Missing static content: ${route}`);
+  if (route === 'contact/') assert.ok(html.includes('mailto:edoardo.rappanello@gmail.com'), 'Static email missing');
+  if (route === 'resume/') assert.ok(html.includes('SWS PRINTING'), 'Static resume missing');
+  if (route === 'work/platinum-technologies/') assert.ok(html.includes('ten times'), 'Static project results missing');
+}

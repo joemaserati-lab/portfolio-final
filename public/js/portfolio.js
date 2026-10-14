@@ -8,6 +8,8 @@
   const BASE_URL = new URL(document.baseURI);
   const BASE_PATH = BASE_URL.pathname;
   let returnSection = 'work';
+  let projectTrigger = null;
+  const scrollViewport = document.getElementById('scroll-viewport');
   let transitionSwap = null, transitionEnd = null;
   function cancelTransition() {
     clearTimeout(transitionSwap); clearTimeout(transitionEnd);
@@ -90,6 +92,18 @@
     setMeta('meta[name="twitter:title"]',title);
     setMeta('meta[name="twitter:description"]',description);
     setMeta('link[rel="canonical"]',canonical,'href');
+    const project = route.type === 'project' ? projectBySlug(route.slug) : null;
+    const image = new URL(project?.cover || 'assets/images/profilephoto.webp', BASE_URL).href;
+    setMeta('meta[property="og:image"]', image);
+    setMeta('meta[name="twitter:image"]', image);
+    setMeta('meta[property="og:type"]', project ? 'article' : 'website');
+    const schema = document.querySelector('script[type="application/ld+json"]');
+    if (schema) schema.textContent = JSON.stringify(project ? {
+      '@context':'https://schema.org', '@type':'CreativeWork', name:project.title,
+      description:project.intro, image, url:canonical,
+      author:{'@type':'Person',name:'Edoardo Rappanello'}
+    } : {'@context':'https://schema.org','@type':'Person',name:'Edoardo Rappanello',
+      url:BASE_URL.href,sameAs:[profile.linkedin]});
   }
 
   const tagList = items => `<div class="tags">${items.map(t=>`<span>${esc(t)}</span>`).join('')}</div>`;
@@ -158,7 +172,7 @@
         </header>
         <div class="projects-grid-v2">
           ${projects.map((p,i)=>`
-            <button class="project-tile-v2 project-visual-${(i%4)+1}" data-project-slug="${esc(p.slug)}" aria-label="${esc(t('portfolio.openProject'))} ${esc(p.title)}">
+            <a href="${BASE_PATH}work/${esc(p.slug)}/" class="project-tile-v2 project-visual-${(i%4)+1}" data-project-slug="${esc(p.slug)}" aria-label="${esc(t('portfolio.openProject'))} ${esc(p.title)}">
               <span class="project-cover-v2">
                 <span class="project-cover-id">${esc(p.id)}</span>
                 <span class="project-cover-type">${esc(p.type.toUpperCase())}</span>
@@ -169,7 +183,7 @@
                 <span class="project-tile-main"><small>${esc(p.id)} / ${esc(p.year)}</small><strong>${esc(p.displayTitle || p.title).replace(/\n/g,'<br>')}</strong></span>
                 <span class="project-tile-details"><small>${esc(p.client)}</small><small>${esc(p.type.toUpperCase())}</small></span>
               </span>
-            </button>`).join('')}
+            </a>`).join('')}
         </div>
       </section>`
   };
@@ -225,7 +239,7 @@
           <span>${String(index+1).padStart(2,'0')} / ${String(projects.length).padStart(2,'0')}</span>
         </div>
         <header class="case-lead-v2">
-          <div class="case-title-v2"><h2>${esc(p.displayTitle || p.title).replace(/\n/g,'<br>')}</h2></div>
+          <div class="case-title-v2"><h2 tabindex="-1">${esc(p.displayTitle || p.title).replace(/\n/g,'<br>')}</h2></div>
           <p>${esc(p.intro)}</p>
         </header>
         ${hero}
@@ -244,6 +258,7 @@
           </div>
         </section>
         ${gallery ? `<section class="case-gallery-v2" aria-label="${esc(t('case.gallery'))}">${gallery}</section>` : ''}
+        ${p.proof ? `<section class="case-story-v2 case-proof-v2"><div class="case-story-label">${esc(p.proof.label)}</div><div class="case-story-copy"><article><span>${esc(p.proof.eyebrow)}</span><p>${esc(p.proof.text)}</p></article></div></section>` : ''}
         <section class="case-tags-v2"><span>${esc(t('case.disciplines'))}</span>${tagList(p.tags)}</section>
         ${outputs}
         <nav class="case-nav-v2" aria-label="${esc(t('case.nav'))}">
@@ -255,12 +270,17 @@
     bindProjectChrome(projectsView);
     projectsView.querySelector('[data-back-projects]').addEventListener('click',()=>navigateProjects({back:true}));
     bindProjectLinks(projectsView);
+    projectsView.querySelector('.case-title-v2 h2').focus({preventScroll:true});
     return true;
   }
 
 
   function close() {
     if (transitionSwap !== null) cancelTransition();
+    const wasOpen = !projectsView.hidden;
+    const focusTarget = projectTrigger;
+    projectTrigger = null;
+    scrollViewport.inert = false;
     projectsView.hidden = true;
     projectsView.classList.remove('is-open','case-mode');
     projectsView.innerHTML = '';
@@ -268,8 +288,15 @@
     delete projectsView.dataset.project;
     layer.replaceChildren();
     document.body.classList.remove('projects-open','content-panel-open','project-case-open');
+    if (wasOpen) dispatchEvent(new CustomEvent('portfolio:project-closed'));
+    return focusTarget;
   }
   function openProjectsView() {
+    if (projectsView.hidden) {
+      const active = document.activeElement;
+      projectTrigger = active?.closest('[data-project-slug]') || null;
+    }
+    scrollViewport.inert = true;
     layer.replaceChildren();
     projectsView.hidden = false;
     projectsView.classList.add('is-open');
@@ -286,9 +313,9 @@
     renderProjectCase(project);
   }
   function returnToScroll(kind=returnSection) {
-    close();
+    const focusTarget = close();
     navigateSection(kind,{replace:true});
-    dispatchEvent(new CustomEvent('portfolio:scroll-return',{detail:kind}));
+    dispatchEvent(new CustomEvent('portfolio:scroll-return',{detail:{kind,focusTarget}}));
   }
   function navigateProjects() { crtTransition(()=>returnToScroll('work')); }
   function bindProjectChrome(root) {

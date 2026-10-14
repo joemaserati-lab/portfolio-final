@@ -378,7 +378,7 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
     slowFrameStreak = 0;
     if (disposed || paused || !loaded) return;
     render(performance.now());
-    raf = requestAnimationFrame(animate);
+    if (!reducedMotion) raf = requestAnimationFrame(animate);
   }
   function resize() {
     if (disposed || !composer) return;
@@ -399,6 +399,7 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
     // Optical fit leaves the reference's view-space scan field and line density intact.
     camera.zoom = 0.95 * halfView / Math.max(fitY, fitX / camera.aspect);
     camera.updateProjectionMatrix();
+    if (loaded && reducedMotion && !paused) render(performance.now());
     camera.projectionMatrix.elements[8] = fitCenter.x * camera.zoom / (halfView * camera.aspect);
     camera.projectionMatrix.elements[9] = fitCenter.y * camera.zoom / halfView;
     camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();

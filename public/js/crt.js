@@ -142,8 +142,9 @@
   }
 
   function animate(now){
+    if (state.caseOpen) { state.frameHandle = 0; return; }
     state.frameHandle = requestAnimationFrame(animate);
-    if(document.hidden) return;
+    if(document.hidden || state.caseOpen) return;
     const frameMs=1000/currentFps();
     if(!state.lastDraw || now - state.lastDraw >= frameMs - 1.0){
       state.lastDraw = now;
@@ -152,17 +153,27 @@
   }
 
   document.addEventListener('visibilitychange', () => {
-    if(document.hidden) return;
+    if(document.hidden || state.caseOpen) return;
     state.lastDraw = 0;
     draw(performance.now());
   }, {passive:true});
 
   const syncContentState=()=>{
     state.contentOpen=document.body.classList.contains('content-panel-open') || document.body.classList.contains('projects-open');
+    state.caseOpen = document.body.classList.contains('project-case-open');
+    const video = document.querySelector('.crt-background-video');
+    if (state.caseOpen) {
+      cancelAnimationFrame(state.frameHandle);
+      state.frameHandle = 0;
+      if (video && !video.paused) { video.dataset.resumeAfterCase = '1'; video.pause(); }
+    } else {
+      if (!state.frameHandle) state.frameHandle = requestAnimationFrame(animate);
+      if (video?.dataset.resumeAfterCase) { delete video.dataset.resumeAfterCase; video.play().catch(() => {}); }
+    }
     state.lastDraw=0;
   };
   new MutationObserver(syncContentState).observe(document.body,{attributes:true,attributeFilter:['class']});
   syncContentState();
 
-  state.frameHandle = requestAnimationFrame(animate);
+  if (!state.frameHandle && !state.caseOpen) state.frameHandle = requestAnimationFrame(animate);
 })();

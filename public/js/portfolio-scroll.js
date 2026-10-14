@@ -19,6 +19,7 @@
   });
   const HANDOFF_END = .22;
   const OPEN_END = .8;
+  let navigationEpoch = 0;
   let ready = false, frame = 0, scramble = 0, current = 'home', headRect, launcherRects = new Map(), docked = false, smoothDock = 0, dockTime = 0;
   const clamp = value => Math.max(0, Math.min(1, value));
   const mix = (a,b,p) => a + (b-a)*p;
@@ -112,6 +113,8 @@
     document.querySelectorAll('#scroll-work [data-project-slug]').forEach(button => {
       let pending = false;
       button.addEventListener('click', event => {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
         if (pending) return;
         const open = () => { pending = false; delete button.dataset.scrollTap; api.openProject(button.dataset.projectSlug); schedule(); };
         if (matchMedia('(hover: none), (pointer: coarse)').matches && event.detail > 0 && !reduced.matches) {
@@ -286,20 +289,30 @@
     }
   }
   function schedule() { if (!frame) frame = requestAnimationFrame(update); }
-  function go(kind, {historyUpdate = true, closeOverlay = true} = {}) {
+  async function go(kind, {historyUpdate = true, closeOverlay = true, focusTarget = null} = {}) {
     const section = document.getElementById(`scroll-${kind}`);
     if (!section || !ready) return;
     if (closeOverlay) window.Portfolio?.close();
     if (historyUpdate) window.Portfolio.navigateSection(kind);
+    const epoch = ++navigationEpoch;
+    // Text fitting uses two animation frames after content mutations. Measure
+    // only after that pass; previous section heights can otherwise shift.
+    await document.fonts?.ready;
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    if (epoch !== navigationEpoch) return;
+    measure();
     viewport.scrollTo({top:section.offsetTop, behavior:reduced.matches?'instant':'smooth'});
     section.tabIndex = -1;
-    if (closeOverlay) section.focus({preventScroll:true});
+    if (closeOverlay) (focusTarget?.isConnected ? focusTarget : section).focus({preventScroll:true});
     schedule();
   }
   document.querySelector('.scroll-footer a').addEventListener('click', event => { event.preventDefault(); go('home'); });
   links.forEach(link => link.addEventListener('click', event => { event.preventDefault(); go(link.dataset.scrollSection); }));
   addEventListener('portfolio:scroll-to', event => typeof event.detail === 'string' ? go(event.detail) : go(event.detail.kind, {historyUpdate:false}));
-  addEventListener('portfolio:scroll-return', event => go(event.detail || current, {historyUpdate:false}));
+  addEventListener('portfolio:scroll-return', event => {
+    const detail = event.detail;
+    go(typeof detail === 'string' ? detail : detail?.kind || current, {historyUpdate:false, focusTarget:detail?.focusTarget});
+  });
   viewport.addEventListener('scroll', schedule, {passive:true});
   addEventListener('resize', () => { if (docked) { desktop.prepend(head); head.removeAttribute('style'); head.classList.remove('scroll-portrait-docked'); docked = false; } measure(); schedule(); });
   addEventListener('portfolio:runtime-ready', renderContents);
