@@ -4,7 +4,7 @@ const {chromium}=await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 import assert from 'node:assert/strict';
 
 const root = resolve(import.meta.dirname, '..');
-const sourceFiles = ['foundation.css','workspace.css','visual-experience.css','adaptive.css','fixes.css','crt-outline-base.css','project-covers.css','monochrome-theme.css','crt-outline.css','portfolio-scroll.css'];
+const sourceFiles = ['foundation.css','workspace.css','visual-experience.css','adaptive.css','fixes.css','crt-outline-base.css','project-covers.css','monochrome-theme.css','crt-outline.css','portfolio-scroll.css','typography.css'];
 const rawCss = sourceFiles.map(name =>
   readFileSync(resolve(root,'public/css',name),'utf8')
 ).join('\n\n');

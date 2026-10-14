@@ -31,10 +31,12 @@
   document.body.appendChild(textProbe);
 
   const minFitSize = el => {
-    if (el.matches('.project-tile-details small')) return 10;
-    if (el.matches('.resume-row h3, .meta-card b, .contact-link b, .archive-row b')) return 13;
-    if (el.matches('.project-tile-main strong')) return 15;
-    return 20;
+    const tokens = getComputedStyle(document.documentElement);
+    const size = role => parseFloat(tokens.getPropertyValue(role));
+    if (el.matches('.project-tile-details small')) return size('--type-fit-caption-min');
+    if (el.matches('.resume-row h3, .meta-card b, .contact-link b, .archive-row b')) return size('--type-fit-text-min');
+    if (el.matches('.project-tile-main strong')) return size('--type-fit-text-min');
+    return size('--type-fit-heading-min');
   };
 
   const fitLongWords = () => {
@@ -78,6 +80,7 @@
     if (!matchMedia('(max-width: 720px)').matches || !title.clientWidth) return;
 
     const available = title.clientWidth;
+    const baseSize = parseFloat(getComputedStyle(title).fontSize);
     const referenceSize = 100;
 
     /* Measure the real two-line title at a known size, including the blinking
@@ -90,8 +93,8 @@
       return;
     }
 
-    const minSize = 24;
-    const maxSize = 96;
+    const minSize = Math.min(baseSize, parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--type-fit-display-min')));
+    const maxSize = baseSize;
     let size = Math.max(minSize, Math.min(maxSize, referenceSize * (available / measured)));
     size = Math.floor(size * 10) / 10;
     title.style.fontSize = `${size}px`;

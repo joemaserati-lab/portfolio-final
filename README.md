@@ -44,3 +44,6 @@ GA4 remains consent-first and inactive while its Measurement ID is `G-XXXXXXXXXX
 `tests/technical-regression.mjs` checks direct-route title alignment, project keyboard focus, metadata after navigation and the no-JavaScript/runtime-failure reading view.
 
 Direct project visits defer the 3D portrait and CRT until returning to a scroll section. Homepage content is revealed as soon as its runtime is ready; the portrait settles independently.
+
+## Typography
+The complete site typography is defined in `public/css/typography.css` and documented in `TYPOGRAPHY.md`. Run `node tests/typography-regression.mjs` against the local preview to verify reading, controls, captions, narrow/short layouts and the 404 page.
