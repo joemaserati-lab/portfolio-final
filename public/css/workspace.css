@@ -383,6 +383,7 @@
 {
 
 
+
   text-transform:none;
 }
 .hero-intro h1{
@@ -390,6 +391,10 @@
 
   filter:drop-shadow(0 0 4px rgba(222,222,222,.50)) drop-shadow(0 0 13px rgba(179,179,179,.26));
 }
+.projects-index-head h2{}
+.case-title-v2 h2{}
+
+
 /* V4.6 / stronger ambient halo + Redaction secondary titles -------------
    Keep the site structure unchanged.
    1) The external halo should read as ambient light emitted by the screen.
@@ -451,9 +456,16 @@
 .hero-intro h1{
 
 
+
   text-transform:none;
 }
 .window-body h2,
+.resume-header h2{
+
+
+}
+
+
 /* V4.7 / microcopy cleanup + revert to lighter CRT halo ------------------ */
 .window-eyebrow,
 .boot-skip{display:none!important}
@@ -544,6 +556,8 @@
 .projects-view .projects-index-v2,.projects-view .case-study-v2{padding-left:var(--screen-safe-left);padding-right:var(--screen-safe-right);padding-bottom:var(--screen-safe-bottom)}
 
 /* Keep editorial lines distinct even with CRT bloom and fallback fonts. */
+.hero-intro h1{}
+.projects-index-head h2,.case-title-v2 h2{}
 .project-tile-main strong,.contact-link b{overflow-wrap:anywhere}
 .contact-link{gap:18px;align-items:baseline}
 .desktop-icon{gap:14px}
@@ -567,9 +581,11 @@
   .os-window:not(.is-maximized):not(.is-responsive-fullscreen){width:92%!important;height:78%!important}
   .os-window.is-maximized .window-titlebar{padding-left:var(--screen-safe-left);padding-right:52px}
   .window-titlebar{height:50px;flex-basis:50px;padding-left:10px}
+  .window-titlebar>span{}
   .window-controls{position:absolute;top:4px;right:52px;gap:6px}
   .window-controls button{width:44px;height:40px;font-size:23px}
   .os-window.is-maximized .window-body{padding:24px var(--screen-safe-right) var(--screen-safe-bottom) var(--screen-safe-left)}
+  .projects-index-head h2{}
   .contact-panel{grid-template-columns:1fr;gap:16px}
   .contact-photo{min-height:0;max-height:260px;aspect-ratio:5/4;order:-1}
   .contact-link{display:grid;grid-template-columns:1fr;gap:2px}

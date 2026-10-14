@@ -33,6 +33,16 @@ body.booting .crt-background-video{
   :root{
 
 
+
+
+
+
+
+
+
+
+
+
     --screen-safe-top:min(2.1875vw,3.888889vh);
     --screen-safe-right:min(3.75vw,6.666667vh);
     --screen-safe-bottom:min(2.1875vw,3.888889vh);
@@ -194,6 +204,10 @@ body.booting .crt-background-video{
     padding:min(1.145833vw,2.037037vh);
     gap:min(.520833vw,.925926vh);
   }
+  .case-nav-v2 b{
+
+  }
+
   .contact-panel{
     gap:min(1.25vw,2.222222vh);
   }

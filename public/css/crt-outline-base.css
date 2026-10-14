@@ -102,6 +102,7 @@ body::before {
   display: block;
 
 
+
   color: var(--dim);
 
 }
@@ -124,6 +125,13 @@ html[lang="it"] .project-tile-v2[data-project-slug="colorcopy-large-format"] .pr
 
 /* Internal case-study titles use the interface typeface rather than the
    editorial Redaction display face. */
+.case-title-v2 h2 {
+
+
+
+
+}
+
 /* Window chrome glyph alignment --------------------------------------------
    Keep the Doto characters as the visible icons, but position each glyph
    independently so optical centering does not depend on font side bearings. */

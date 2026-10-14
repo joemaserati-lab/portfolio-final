@@ -12,6 +12,10 @@ try {
     for (const kind of ['about','resume']) {
       await page.goto(new URL(`${kind}/`,base).href);
       await page.waitForFunction(()=>document.body.classList.contains('site-ready')&&window.Portfolio);
+      // A navigation target can temporarily have offsetTop=0 while its window
+      // is still hidden. Geometry assertions require the revealed layout.
+      await page.locator(`#scroll-${kind} .scroll-window.is-revealed`).waitFor({state:'visible'});
+      await page.evaluate(()=>document.fonts.ready);
       await page.waitForFunction(kind=>Math.abs(document.querySelector('#scroll-viewport').scrollTop-document.querySelector(`#scroll-${kind}`).offsetTop)<2,kind);
       const geometry=await page.evaluate(kind=>{
         const viewport=document.querySelector('#scroll-viewport');

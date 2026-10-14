@@ -131,7 +131,9 @@ body{background:#080808}
 }
 
 /* The longer portfolio name keeps the approved two-line hero footprint. */
+.hero-intro h1{}
 @media(max-width:720px){
+  .hero-intro h1{}
 }
 
 
@@ -232,6 +234,7 @@ body.site-entering .desktop-icons .desktop-icon:nth-child(5){animation-delay:.58
 .boot-gate-kicker,
 .boot-gate-status,
 .boot-gate-note{margin:0;color:var(--dim);text-transform:uppercase}
+.boot-gate-kicker{}
 .boot-gate h2{position:relative;width:min(100%,780px);min-height:.92em;margin:0;color:var(--bright);text-align:center;text-shadow:0 0 8px rgba(243,243,243,.24),0 0 22px rgba(199,199,199,.14)}
 .boot-gate-status{width:min(100%,760px);min-height:1.2em;text-align:center}
 .boot-gate-note{width:min(100%,520px);min-height:1.2em;text-transform:none;text-align:center;color:#b3b3b3}
@@ -287,6 +290,7 @@ body.site-entering .desktop-icons .desktop-icon:nth-child(5){animation-delay:.58
 .boot-loader.is-sequencing .boot-prompt{opacity:1;visibility:visible;transition:opacity .28s ease .16s,visibility .28s ease .16s}
 @media(max-width:720px){
   .boot-gate{gap:11px}
+  .boot-gate h2{}
   .boot-enter{width:min(100%,300px);padding:13px 14px}
   .boot-gate-note{max-width:300px}
 }
@@ -321,6 +325,7 @@ body.site-entering .desktop-icons .desktop-icon:nth-child(5){animation-delay:.58
   .privacy-widget{left:calc(var(--stage-gap) + var(--bezel-x) + var(--screen-safe-left) + 54px);right:calc(var(--stage-gap) + var(--bezel-x) + var(--screen-safe-right) + 2px);bottom:calc(var(--stage-gap) + var(--bezel-y) + var(--screen-safe-bottom) + 2px);max-width:none}
   .privacy-toggle{padding:6px 8px}
   .privacy-panel{width:100%;max-width:none;padding:13px}
+  .privacy-panel p{}
   .privacy-actions{justify-content:stretch}
   .privacy-actions button{flex:1;min-width:0}
 }
@@ -490,6 +495,8 @@ body.perf-constrained #crt-fx{
   border:1px solid rgba(243,243,243,.30);
   background:rgba(60,60,60,.24);
   color:#f4f4f4;
+
+
 
 
   text-decoration:none;

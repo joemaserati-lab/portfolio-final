@@ -116,6 +116,10 @@
 /* Very short phone landscape keeps the same four-item row and the reserved
    bottom control strip, while reducing vertical density above it. */
 @media (max-width: 720px) and (max-height: 520px) {
+  .hero-intro h1 {
+
+  }
+
   .hero-copy {
     max-width: min(48vw, 300px);
     margin: 6px 0 8px;
@@ -134,6 +138,10 @@
   .desktop-icon {
     gap: 2px;
     padding: 2px 1px;
+  }
+
+  .desktop-icon > span:nth-child(2) {
+
   }
 
   .icon-glyph {
@@ -570,6 +578,7 @@ body.content-panel-open .privacy-widget{
   }
 
   .boot-gate-note{display:none!important}
+  .boot-gate h2{}
   .boot-enter{padding:7px 10px}
 
   .desktop-icons{
@@ -583,6 +592,10 @@ body.content-panel-open .privacy-widget{
     .hero-intro{
       max-width:62%!important;
       padding:0!important;
+    }
+    .hero-intro h1{
+
+
     }
     .hero-copy{
       max-width:100%!important;
@@ -611,6 +624,9 @@ body.content-panel-open .privacy-widget{
       width:28px!important;
       height:25px!important;
     }
+    .desktop-icon>span:nth-child(2){
+
+    }
   }
 
   .os-window.is-maximized .window-body,
@@ -634,6 +650,10 @@ body.content-panel-open .privacy-widget{
   .hero-intro{
     max-width:62%!important;
     padding:0!important;
+  }
+  .hero-intro h1{
+
+
   }
   .hero-copy{
     max-width:100%!important;
@@ -661,6 +681,9 @@ body.content-panel-open .privacy-widget{
   .icon-glyph{
     width:30px!important;
     height:27px!important;
+  }
+  .desktop-icon>span:nth-child(2){
+
   }
   .desktop-icon small{
     display:none!important;
