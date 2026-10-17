@@ -61,13 +61,16 @@
     if (!video) return;
     card.dataset.videoConnected = 'true';
     const sync = () => {
-      const active = !document.hidden && (card.matches(':hover') || card.matches(':focus-within') || card.classList.contains('is-viewport-color'));
+      const mobile = matchMedia('(hover: none), (pointer: coarse)').matches;
+      const active = !document.hidden && !document.body.classList.contains('project-case-open') && (mobile ? card.classList.contains('is-viewport-color') : (card.matches(':hover') || card.matches(':focus-within')));
       if (active && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
         if (!video.src) video.src = new URL(video.dataset.src, BASE_URL).href;
         video.play().catch(() => {});
       } else video.pause();
     };
     card.addEventListener('pointerenter', sync);
+    addEventListener('portfolio:project-opened', sync);
+    addEventListener('portfolio:project-closed', sync);
     card.addEventListener('pointerleave', sync);
     card.addEventListener('focusin', sync);
     card.addEventListener('focusout', () => requestAnimationFrame(sync));
@@ -231,7 +234,7 @@
     const cls={hero:'case-media-hero-v2',landscape:'case-media-landscape-v2',portrait:'case-media-portrait-v2',wide:'case-media-wide-v2'}[media.type]||'';
     const isVideoHero = media.type === 'hero' && Boolean(project.video);
     return `<figure class="case-media-v2 ${cls} has-original-media">
-      ${isVideoHero ? `<video class="case-media-img case-media-video" src="${esc(new URL(project.video, BASE_URL).href)}" poster="${esc(new URL(project.cover, BASE_URL).href)}" autoplay muted loop playsinline preload="metadata" aria-label="${esc(media.alt || project.title)}"></video>` : `<img class="case-media-img" src="${esc(src)}" alt="${esc(media.alt || project.title)}" loading="lazy" decoding="async">`}
+      ${isVideoHero ? `<video class="case-media-img case-media-video" src="${esc(new URL(project.video, BASE_URL).href)}" poster="${esc(new URL(project.cover, BASE_URL).href)}" autoplay muted loop playsinline preload="auto" aria-label="${esc(media.alt || project.title)}"></video>` : `<img class="case-media-img" src="${esc(src)}" alt="${esc(media.alt || project.title)}" loading="lazy" decoding="async">`}
       <figcaption><span>${String(index).padStart(2,'0')}</span><span>${esc(media.label)}</span></figcaption>
     </figure>`;
   }
@@ -250,6 +253,7 @@
     projectsView.classList.add('case-mode');
     projectsView.dataset.view='case';
     projectsView.dataset.project=p.slug;
+    dispatchEvent(new CustomEvent('portfolio:project-opened'));
     const media=p.media||[];
     const hero=media[0] ? renderProjectMedia(media[0],1,p) : '';
     const galleryMedia=media.slice(1).filter(item=>item.src);
