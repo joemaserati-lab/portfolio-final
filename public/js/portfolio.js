@@ -54,46 +54,79 @@
   const projectBySlug = slug => projects.find(p => p.slug === slug);
   const backGlyph = '<span aria-hidden="true" style="display:inline-block;line-height:1;transform:translate(1px,-1px)">&lt;</span>';
   const projectImage = p => p.cover ? `<img class="project-cover-img" src="${esc(p.cover)}" alt="${esc(p.title)}" loading="lazy" decoding="async">${p.video ? `<video class="project-cover-video" data-src="${esc(p.video)}" muted loop playsinline preload="none" poster="${esc(p.cover)}" aria-hidden="true"></video>` : ''}` : '<span class="project-cover-art" aria-hidden="true"></span>';
-  // Only the active project preview is downloaded and played.
+  // Browser-native video lifecycle: mobile follows viewport visibility; desktop hover.
   function connectPreviewVideo(card) {
-    if (card.dataset.videoConnected) return;
+    if (card.dataset.videoConnected === 'true') return;
     const video = card.querySelector('.project-cover-video');
     if (!video) return;
     card.dataset.videoConnected = 'true';
-    // Prepare each clip shortly before its card becomes visible.
-    if ('IntersectionObserver' in window) {
-      const observer = new IntersectionObserver(entries => {
-        if (!entries.some(entry => entry.isIntersecting)) return;
-        if (!video.src) video.src = new URL(video.dataset.src, BASE_URL).href;
-        video.preload = 'auto';
-        video.load();
-        observer.disconnect();
-      }, {root: document.getElementById('scroll-viewport'), rootMargin: '450px 0px'});
-      observer.observe(card);
-    }
-    const sync = () => {
-      const mobile = matchMedia('(hover: none), (pointer: coarse)').matches;
-      const active = !document.hidden && !document.body.classList.contains('project-case-open') && (mobile ? card.classList.contains('is-viewport-color') : (card.matches(':hover') || card.matches(':focus-within')));
-      if (active && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        if (!video.src) video.src = new URL(video.dataset.src, BASE_URL).href;
-        video.play().catch(() => {});
-      } else video.pause();
+    const viewport = document.getElementById('scroll-viewport');
+    const mobile = matchMedia('(hover: none), (pointer: coarse)');
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    let visible = false;
+    let requested = false;
+    const load = () => {
+      if (requested) return;
+      requested = true;
+      video.src = new URL(video.dataset.src, BASE_URL).href;
+      video.preload = 'auto';
+      video.load();
     };
+    const active = () => !document.hidden &&
+      !document.body.classList.contains('project-case-open') &&
+      !reduced.matches &&
+      (mobile.matches ? visible : (card.matches(':hover') || card.matches(':focus-within')));
+    const sync = () => {
+      if (active()) {
+        load();
+        const started = video.play();
+        if (started && typeof started.catch === 'function') started.catch(() => {});
+      } else {
+        video.pause();
+        card.classList.remove('is-video-playing');
+      }
+    };
+    video.addEventListener('playing', () => { if (active()) card.classList.add('is-video-playing'); });
+    video.addEventListener('pause', () => card.classList.remove('is-video-playing'));
+    video.addEventListener('error', () => {
+      card.classList.remove('is-video-playing');
+      console.warn('Project video unavailable:', video.currentSrc || video.dataset.src);
+    });
+    if ('IntersectionObserver' in window) {
+      const nearby = new IntersectionObserver(entries => {
+        if (entries.some(entry => entry.isIntersecting)) { load(); nearby.disconnect(); }
+      }, { root: viewport, rootMargin: '500px 0px' });
+      nearby.observe(card);
+      const onScreen = new IntersectionObserver(entries => {
+        visible = entries.some(entry => entry.isIntersecting && entry.intersectionRatio >= .08);
+        sync();
+      }, { root: viewport, threshold: [0, .08, .2, .5] });
+      onScreen.observe(card);
+    } else {
+      // Fallback for browsers without IntersectionObserver.
+      const check = () => {
+        const r = card.getBoundingClientRect(), v = viewport.getBoundingClientRect();
+        visible = r.bottom > v.top && r.top < v.bottom;
+        sync();
+      };
+      viewport.addEventListener('scroll', check, { passive:true });
+      check();
+    }
     card.addEventListener('pointerenter', sync);
-    addEventListener('portfolio:project-opened', sync);
-    addEventListener('portfolio:project-closed', sync);
     card.addEventListener('pointerleave', sync);
     card.addEventListener('focusin', sync);
     card.addEventListener('focusout', () => requestAnimationFrame(sync));
     document.addEventListener('visibilitychange', sync);
-    const watcher = new MutationObserver(sync);
-    watcher.observe(card, {attributes: true, attributeFilter: ['class']});
+    addEventListener('portfolio:project-opened', sync);
+    addEventListener('portfolio:project-closed', sync);
+    mobile.addEventListener('change', sync);
+    reduced.addEventListener('change', sync);
     sync();
   }
   const previewRoot = document.getElementById('scroll-work');
   if (previewRoot) {
     const attachPreviewVideos = () => previewRoot.querySelectorAll('.project-tile-v2').forEach(connectPreviewVideo);
-    new MutationObserver(attachPreviewVideos).observe(previewRoot, {childList: true, subtree: true});
+    new MutationObserver(attachPreviewVideos).observe(previewRoot, { childList:true, subtree:true });
     attachPreviewVideos();
   }
 
@@ -245,7 +278,7 @@
     const cls={hero:'case-media-hero-v2',landscape:'case-media-landscape-v2',portrait:'case-media-portrait-v2',wide:'case-media-wide-v2'}[media.type]||'';
     const isVideoHero = media.type === 'hero' && Boolean(project.video);
     return `<figure class="case-media-v2 ${cls} has-original-media">
-      ${isVideoHero ? `<video class="case-media-img case-media-video" src="${esc(new URL(project.video, BASE_URL).href)}" poster="${esc(new URL(project.cover, BASE_URL).href)}" autoplay muted loop playsinline preload="auto" aria-label="${esc(media.alt || project.title)}"></video>` : `<img class="case-media-img" src="${esc(src)}" alt="${esc(media.alt || project.title)}" loading="lazy" decoding="async">`}
+      ${isVideoHero ? `<video class="case-media-img case-media-video" src="${esc(new URL(project.video, BASE_URL).href)}" autoplay muted loop playsinline preload="auto" aria-label="${esc(media.alt || project.title)}"></video>` : `<img class="case-media-img" src="${esc(src)}" alt="${esc(media.alt || project.title)}" loading="lazy" decoding="async">`}
       <figcaption><span>${String(index).padStart(2,'0')}</span><span>${esc(media.label)}</span></figcaption>
     </figure>`;
   }
