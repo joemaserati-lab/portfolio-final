@@ -32,3 +32,8 @@
   .project-tile-v2 .project-cover-img { transition: none; }
 }
 
+
+/* Replace the saturation treatment with motion preview only. */
+.project-tile-v2:hover .project-cover-img,
+.project-tile-v2:focus-visible .project-cover-img,
+.project-tile-v2.is-color-preview .project-cover-img { filter: grayscale(1) brightness(.86) contrast(1.05) !important; }
