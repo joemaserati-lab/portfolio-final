@@ -396,30 +396,28 @@
   .scroll-portfolio #scroll-work .is-viewport-color .project-cover-v2::after { display: none; }
 }
 
-/* Motion previews: preserve the existing B/W cover until the video plays. */
+/* Video replaces the monochrome logo only after playback starts.
+   Keep the image visible until the first decoded video frame. */
 .project-cover-v2 { position: relative; }
 .project-cover-v2 .project-cover-video {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: cover; opacity: 0; pointer-events: none;
-  filter: grayscale(1); transition: opacity .35s ease, filter .65s ease;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  pointer-events: none;
+  filter: none;
 }
-.project-tile-v2:hover .project-cover-video,
-.project-tile-v2:focus-within .project-cover-video,
-.project-tile-v2.is-viewport-color .project-cover-video {
-  opacity: 1; filter: grayscale(0);
+.project-tile-v2.is-video-playing .project-cover-video { opacity: 1; }
+.case-media-v2 .case-media-video {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  filter: none;
 }
-.case-media-v2 .case-media-video { display: block; width: 100%; height: 100%; object-fit: cover; }
 @media (prefers-reduced-motion: reduce) {
-  .project-cover-v2 .project-cover-video { display: none; }
-  .case-media-v2 .case-media-video { animation: none; }
-}
-
-/* Motion completely replaces the logo artwork while the preview is active. */
-.project-cover-v2 .project-cover-video { z-index: 1; filter: none; transition: none; }
-@media (hover: hover) and (pointer: fine) {
-  .project-tile-v2.is-viewport-color:not(:hover):not(:focus-within) .project-cover-video { opacity: 0; }
-}
-@media (hover: none), (pointer: coarse) {
-  .project-tile-v2:hover:not(.is-viewport-color) .project-cover-video { opacity: 0; }
-  .project-tile-v2.is-viewport-color .project-cover-video { opacity: 1; }
+  .project-tile-v2 .project-cover-video { display: none; }
 }
