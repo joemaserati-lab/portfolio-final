@@ -372,19 +372,7 @@
   const applicationReady = trackProgress('app', loadApplication());
   // Project covers are not required to enter the homepage. Mark the loader
   // task complete immediately and decode covers later during browser idle time.
-  const coversReady = trackProgress('covers', applicationReady.then(preloadPortfolioImages));
-  // Start downloading each project video behind the entrance screen.
-  // Non-blocking on slow connections: browsers reuse the cached responses.
-  const projectVideosReady = applicationReady.then(async () => {
-    const paths = [...new Set((window.PORTFOLIO_DATA?.projects || []).map(p => p.video).filter(Boolean))];
-    await Promise.all(paths.map(async path => {
-      try {
-        const response = await fetch(new URL(path, document.baseURI), { cache: 'force-cache' });
-        if (!response.ok) throw new Error('HTTP ' + response.status);
-        await response.blob();
-      } catch (error) { console.warn('Project video preload failed:', path, error); }
-    }));
-  });
+  const coversReady = trackProgress('covers', Promise.resolve({ ok: true, deferred: true }));
 
   // Direct case-study routes do not display the portrait. Load it only when
   // the visitor returns to a section that actually uses it.
@@ -437,7 +425,7 @@
     }
     await Promise.allSettled([
       trackedDomReady, trackedFontsReady, trackedPageReady,
-      trackedVideoReady, coversReady, headReady, projectVideosReady
+      trackedVideoReady, coversReady
     ]);
     // Progress is decorative: completion must not gate the ready interface.
     setProgressTarget(100);
@@ -500,7 +488,7 @@
       document.body.classList.remove('site-entering');
       document.body.classList.add('site-ready');
       window.dispatchEvent(new CustomEvent('portfolio:site-ready'));
-      // Visual assets were prefetched behind the loading screen.
+      scheduleDeferredCovers();
       if (touchDevice) scheduleDeferredTouchVisuals();
     };
     // Use actual CSS completion, including reduced motion, rather than timers.
