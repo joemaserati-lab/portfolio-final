@@ -85,7 +85,7 @@
 
     projects: [
       {
-        id:'01', slug:'tovadu', title:'TOVADÙ', displayTitle:'TOVADÙ', type:'Digital Experience', year:'2026', client:'Tovadù', cover:'assets/images/Tovadu.webp', liveUrl:'https://tovadu.com/',
+        id:'01', slug:'tovadu', video:'videos/Tovadu.mp4', title:'TOVADÙ', displayTitle:'TOVADÙ', type:'Digital Experience', year:'2026', client:'Tovadù', cover:'assets/images/Tovadu.webp', liveUrl:'https://tovadu.com/',
         role:'Web Design / Development', deliverables:'Website / UX / UI / Development',
         intro:'A B2B website for a consulting company working on digital transformation and business technology.',
         context:'Tovadù deals with services that become technical very quickly. The website had to explain what the company does without forcing visitors to understand its internal terminology first.',
@@ -106,7 +106,7 @@
         ]
       },
       {
-        id:'02', slug:'pholia', title:'PHOLIÀ', displayTitle:'PHOLIÀ', type:'Digital Experience', year:'2026', client:'Pholià', cover:'assets/images/Pholia.webp', liveUrl:'https://pholia.it/',
+        id:'02', slug:'pholia', video:'videos/Pholia.mp4', title:'PHOLIÀ', displayTitle:'PHOLIÀ', type:'Digital Experience', year:'2026', client:'Pholià', cover:'assets/images/Pholia.webp', liveUrl:'https://pholia.it/',
         role:'Web Design / Development', deliverables:'Website / UX / UI / Development',
         intro:'A website for a company working across innovation, strategy and intangible assets.',
         context:'Pholià brings together subjects that normally belong to different professional areas. The website therefore had to explain each one separately without making the company look like a collection of unrelated services.',
@@ -127,7 +127,7 @@
         ]
       },
       {
-        id:'03', slug:'sapy', title:'SAPY', displayTitle:'SAPY', type:'Digital Experience', year:'2026', client:'Sapy', cover:'assets/images/Sapy.webp', liveUrl:'https://www.sapy.it/',
+        id:'03', slug:'sapy', video:'videos/Sapy.mp4', title:'SAPY', displayTitle:'SAPY', type:'Digital Experience', year:'2026', client:'Sapy', cover:'assets/images/Sapy.webp', liveUrl:'https://www.sapy.it/',
         role:'Web Design / Development', deliverables:'Website / UX / UI / Development',
         intro:'A digital project built around the use of artificial intelligence in education.',
         context:'Sapy introduces AI as a tool for teachers. The website needed to explain what the product does before asking users to understand the technology behind it.',
@@ -148,7 +148,7 @@
         ]
       },
       {
-        id:'04', slug:'platinum-technologies', title:'PLATINUM TECHNOLOGIES', displayTitle:'PLATINUM\nTECHNOLOGIES', type:'Corporate Communication', year:'ONGOING', client:'Platinum Technologies', cover:'assets/images/PlatinumTechnologies.webp', liveUrl:'https://liyuprinter.it/',
+        id:'04', slug:'platinum-technologies', video:'videos/PlatinumTechnologies.mp4', title:'PLATINUM TECHNOLOGIES', displayTitle:'PLATINUM\nTECHNOLOGIES', type:'Corporate Communication', year:'ONGOING', client:'Platinum Technologies', cover:'assets/images/PlatinumTechnologies.webp', liveUrl:'https://liyuprinter.it/',
         role:'Graphic Design / Digital Marketing / Web Management', deliverables:'Corporate Design / Web / Campaigns / Editorial / Events',
         intro:'Ongoing communication work for a company operating in industrial large-format printing.',
         context:'Platinum Technologies communicates machines, applications and technical subjects to different audiences. The same product can appear in a technical article, a campaign, a trade-show graphic, a landing page or a sales presentation. Each format needs a different amount of information while still belonging to the same brand.',
@@ -170,7 +170,7 @@
         ]
       },
       {
-        id:'05', slug:'colorcopy-large-format', title:'COLORCOPY LARGE FORMAT', displayTitle:'COLORCOPY\nLARGE FORMAT', type:'Corporate Communication', year:'ONGOING', client:'Colorcopy Large Format', cover:'assets/images/ColorcopyLargeFormat.webp', liveUrl:'https://colorcopy.it/',
+        id:'05', slug:'colorcopy-large-format', video:'videos/Colorcopy.mp4', title:'COLORCOPY LARGE FORMAT', displayTitle:'COLORCOPY\nLARGE FORMAT', type:'Corporate Communication', year:'ONGOING', client:'Colorcopy Large Format', cover:'assets/images/ColorcopyLargeFormat.webp', liveUrl:'https://colorcopy.it/',
         role:'Graphic Design / Digital Marketing / Web Management', deliverables:'Graphic Design / Web / Advertising / Social / Print / Events',
         intro:'Ongoing visual and digital communication for a company selling professional printing technologies from different manufacturers.',
         context:'Colorcopy manages a broad range of products, brands and customer profiles. Communication changes constantly between product launches, commercial campaigns, events and technical content. The challenge is keeping the company recognisable without forcing every manufacturer or technology into the same visual format.',
