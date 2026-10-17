@@ -77,7 +77,7 @@ const ogImageUrl = new URL(ogImage, rootUrl);
   {!project && <>
     <link rel="modulepreload" href={asset('js/head3d.js')} fetchpriority="high" />
     <link rel="modulepreload" href={asset('js/head-scan-effect.bundle.js')} fetchpriority="high" />
-    <link rel="preload" href="assets/models/human_head_reference3.glb" as="fetch" type="model/gltf-binary" crossorigin="anonymous" fetchpriority="high" />
+    <link rel="preload" href="assets/models/human_head_reference3.glb" as="fetch" crossorigin="anonymous" fetchpriority="high" />
   </>}
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
