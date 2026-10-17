@@ -14,7 +14,7 @@
   const BOOT_SEEN_KEY = 'portfolioBootSeen';
   const returningVisit = document.documentElement.classList.contains('returning-visit');
   const ROW_STEP_MS = 55;
-  const HEAD_READY_TIMEOUT_MS = 20000;
+  const HEAD_READY_TIMEOUT_MS = 10000;
   const SCRIPT_LOAD_TIMEOUT_MS = 12000;
   const i18n = window.PortfolioI18n;
   const t = key => i18n?.t?.(key) || key;
@@ -378,7 +378,9 @@
   // the visitor returns to a section that actually uses it.
   const workPath = new URL('work/', document.baseURI).pathname;
   const initialCase = location.pathname.startsWith(workPath) && location.pathname !== workPath;
-  const headReady = trackProgress('head', Promise.all([trackedDomReady, trackedFontsReady]).then(() => loadHead()));
+  const headReady = trackProgress('head', initialCase
+    ? Promise.resolve({ ok:true, deferred:true })
+    : trackedDomReady.then(() => loadHead()));
   if (initialCase) addEventListener('portfolio:project-closed', () => {
     loadHead();
     if (touchDevice) scheduleDeferredTouchVisuals();
@@ -423,10 +425,9 @@
       recoverApplicationLoad(error);
       return;
     }
-    await Promise.allSettled([
-      trackedDomReady, trackedFontsReady, trackedPageReady,
-      trackedVideoReady, coversReady
-    ]);
+    // Only the functional application and DOM gate entry. Fonts, window.load,
+    // 3D modules and media continue loading concurrently without blocking the site.
+    await trackedDomReady;
     // Progress is decorative: completion must not gate the ready interface.
     setProgressTarget(100);
     setRow('ready', '07 READY', 'portfolio environment online', 'done');
