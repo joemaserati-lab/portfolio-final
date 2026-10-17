@@ -15,10 +15,24 @@ try {
    assert.equal(await page.locator('#crt-head-feature').isVisible(),false,'Head visible on direct project route');
    if(['platinum-technologies','colorcopy-large-format'].includes(slug)) assert.equal(await page.locator('.case-proof-v2').count(),1,'Impact/results content missing without a gallery');
    const video=page.locator('.case-media-hero-v2 video.case-media-video');
-   await page.waitForFunction(()=>{
+   const playback = await page.evaluate(async () => {
      const v=document.querySelector('.case-media-hero-v2 video.case-media-video');
-     return v && v.readyState>=2 && !v.paused && v.videoWidth>0;
-   },null,{timeout:20000});
+     const url=v?.currentSrc || v?.src;
+     let response;
+     try { const r=await fetch(url,{method:'HEAD'}); response=r.status; } catch(e) { response=String(e); }
+     return {url, response, canPlay:v?.canPlayType('video/mp4; codecs="avc1.640028"'),
+       readyState:v?.readyState,networkState:v?.networkState,error:v?.error?.message,paused:v?.paused,
+       expected:new URL(window.PORTFOLIO_DATA.projects.find(p=>p.slug===document.querySelector('#projects-view').dataset.project).video,document.baseURI).href};
+   });
+   console.log('VIDEO DIAGNOSTICS',slug,JSON.stringify(playback));
+   assert.equal(playback.response,200,'Project video URL unavailable');
+   assert.equal(playback.url,playback.expected,'Video URL does not match project');
+   if (playback.canPlay) {
+     await page.waitForFunction(()=>{
+       const v=document.querySelector('.case-media-hero-v2 video.case-media-video');
+       return v && v.readyState>=2 && !v.paused && v.videoWidth>0;
+     },null,{timeout:15000});
+   }
    const clean=await video.evaluate(v=>{
      const style=getComputedStyle(v), figure=v.closest('figure');
      const ancestors=[];
