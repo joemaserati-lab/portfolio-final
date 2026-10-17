@@ -16,6 +16,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Prepare MP4 for instant streaming
+        run: |
+          for file in public/videos/*.mp4; do
+            ffmpeg -hide_banner -loglevel error -y -i "$file" -map 0:v:0 -c:v copy -movflags +faststart "${file%.mp4}.stream.mp4"
+            mv "${file%.mp4}.stream.mp4" "$file"
+          done
+
       - name: Build and verify
         run: |
           npm ci --no-audit --no-fund
