@@ -14,7 +14,7 @@
   const BOOT_SEEN_KEY = 'portfolioBootSeen';
   const returningVisit = document.documentElement.classList.contains('returning-visit');
   const ROW_STEP_MS = 55;
-  const HEAD_READY_TIMEOUT_MS = 12000;
+  const HEAD_READY_TIMEOUT_MS = 20000;
   const SCRIPT_LOAD_TIMEOUT_MS = 12000;
   const i18n = window.PortfolioI18n;
   const t = key => i18n?.t?.(key) || key;
@@ -347,8 +347,8 @@
   });
 
   const ambientVideo = document.querySelector('.crt-background-video');
-  const videoReady = Promise.resolve({ ok: true, deferred: true }).then(value => {
-    setRow('video', '05 SIGNAL', 'deferred until entry', 'done');
+  const videoReady = Promise.resolve({ ok: true }).then(value => {
+    setRow('video', '05 SIGNAL', 'video preloading initiated', 'done');
     return value;
   });
 
@@ -372,15 +372,25 @@
   const applicationReady = trackProgress('app', loadApplication());
   // Project covers are not required to enter the homepage. Mark the loader
   // task complete immediately and decode covers later during browser idle time.
-  const coversReady = trackProgress('covers', Promise.resolve({ ok: true, deferred: true }));
+  const coversReady = trackProgress('covers', applicationReady.then(preloadPortfolioImages));
+  // Start downloading each project video behind the entrance screen.
+  // Non-blocking on slow connections: browsers reuse the cached responses.
+  const projectVideosReady = applicationReady.then(async () => {
+    const paths = [...new Set((window.PORTFOLIO_DATA?.projects || []).map(p => p.video).filter(Boolean))];
+    await Promise.all(paths.map(async path => {
+      try {
+        const response = await fetch(new URL(path, document.baseURI), { cache: 'force-cache' });
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        await response.blob();
+      } catch (error) { console.warn('Project video preload failed:', path, error); }
+    }));
+  });
 
   // Direct case-study routes do not display the portrait. Load it only when
   // the visitor returns to a section that actually uses it.
   const workPath = new URL('work/', document.baseURI).pathname;
   const initialCase = location.pathname.startsWith(workPath) && location.pathname !== workPath;
-  const headReady = trackProgress('head', initialCase
-    ? Promise.resolve({ ok:true, deferred:true })
-    : Promise.all([trackedDomReady, trackedFontsReady]).then(() => loadHead()));
+  const headReady = trackProgress('head', Promise.all([trackedDomReady, trackedFontsReady]).then(() => loadHead()));
   if (initialCase) addEventListener('portfolio:project-closed', () => {
     loadHead();
     if (touchDevice) scheduleDeferredTouchVisuals();
@@ -427,7 +437,7 @@
     }
     await Promise.allSettled([
       trackedDomReady, trackedFontsReady, trackedPageReady,
-      trackedVideoReady, coversReady
+      trackedVideoReady, coversReady, headReady, projectVideosReady
     ]);
     // Progress is decorative: completion must not gate the ready interface.
     setProgressTarget(100);
@@ -490,7 +500,7 @@
       document.body.classList.remove('site-entering');
       document.body.classList.add('site-ready');
       window.dispatchEvent(new CustomEvent('portfolio:site-ready'));
-      scheduleDeferredCovers();
+      // Visual assets were prefetched behind the loading screen.
       if (touchDevice) scheduleDeferredTouchVisuals();
     };
     // Use actual CSS completion, including reduced motion, rather than timers.
