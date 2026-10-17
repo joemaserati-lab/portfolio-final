@@ -14,17 +14,22 @@ try {
    await page.waitForFunction(()=>!document.querySelector('#crt-head-feature').classList.contains('is-ready'));
    assert.equal(await page.locator('#crt-head-feature').isVisible(),false,'Head visible on direct project route');
    if(['platinum-technologies','colorcopy-large-format'].includes(slug)) assert.equal(await page.locator('.case-proof-v2').count(),1,'Impact/results content missing without a gallery');
-   const image=page.locator('.case-media-img');
-   await image.evaluate(img=>img.decode());
-   const clean=await image.evaluate(img=>{
-    const style=getComputedStyle(img),figure=img.closest('figure');
-    const ancestors=[];for(let e=img;e;e=e.parentElement){const s=getComputedStyle(e);ancestors.push({filter:s.filter,opacity:s.opacity,blend:s.mixBlendMode})}
-    return {filter:style.filter,opacity:style.opacity,objectFit:style.objectFit,
-     imageRatio:img.getBoundingClientRect().width/img.getBoundingClientRect().height,
-     originalRatio:img.naturalWidth/img.naturalHeight,after:getComputedStyle(figure,'::after').content,
-     captionBelow:figure.querySelector('figcaption').getBoundingClientRect().top>=img.getBoundingClientRect().bottom-1,
-     src:img.getAttribute('src'),expected:window.PORTFOLIO_DATA.projects.find(p=>p.slug===document.querySelector('#projects-view').dataset.project).cover,
-     effects:[...document.querySelectorAll('#crt-fx,.noise,.scanlines')].map(e=>getComputedStyle(e).display),ancestors};
+   const video=page.locator('.case-media-hero-v2 video.case-media-video');
+   await page.waitForFunction(()=>{
+     const v=document.querySelector('.case-media-hero-v2 video.case-media-video');
+     return v && v.readyState>=2 && !v.paused && v.videoWidth>0;
+   },null,{timeout:20000});
+   const clean=await video.evaluate(v=>{
+     const style=getComputedStyle(v), figure=v.closest('figure');
+     const ancestors=[];
+     for(let e=v;e;e=e.parentElement){const s=getComputedStyle(e);ancestors.push({filter:s.filter,opacity:s.opacity,blend:s.mixBlendMode});}
+     const project=window.PORTFOLIO_DATA.projects.find(p=>p.slug===document.querySelector('#projects-view').dataset.project);
+     return {filter:style.filter,opacity:style.opacity,objectFit:style.objectFit,
+       videoRatio:v.getBoundingClientRect().width/v.getBoundingClientRect().height,
+       originalRatio:v.videoWidth/v.videoHeight,after:getComputedStyle(figure,'::after').content,
+       captionBelow:figure.querySelector('figcaption').getBoundingClientRect().top>=v.getBoundingClientRect().bottom-1,
+       src:v.src,expected:new URL(project.video,document.baseURI).href,
+       effects:[...document.querySelectorAll('#crt-fx,.noise,.scanlines')].map(e=>getComputedStyle(e).display),ancestors};
    });
    const reading=await page.evaluate(()=>{
     const role=document.querySelector('.case-role-v2');
@@ -36,16 +41,16 @@ try {
    assert(reading.sizes.every(size=>size>=16),'Case body text shrank below 16px');
    assert.equal(await page.locator('#projects-view .case-media-surface').count(),0,'Decorative placeholder presented as project media');
    assert.equal(clean.filter,'none');assert.equal(clean.opacity,'1');assert.equal(clean.objectFit,'contain');
-   assert(Math.abs(clean.imageRatio-clean.originalRatio)<.01,'Image cropped or stretched');
-   assert.equal(clean.after,'none');assert(clean.captionBelow,'Caption overlays original artwork');assert.equal(clean.src,clean.expected);
+   assert(Math.abs(clean.videoRatio-clean.originalRatio)<.01,'Hero video cropped or distorted');
+   assert.equal(clean.after,'none');assert(clean.captionBelow,'Caption overlays hero video');assert.equal(clean.src,clean.expected);
    assert(clean.effects.every(display=>display==='none'),'Global CRT effects still overlay artwork');
-   assert(clean.ancestors.every(s=>s.filter==='none'&&s.opacity==='1'&&s.blend==='normal'),'Ancestor modifies original image');
+   assert(clean.ancestors.every(s=>s.filter==='none'&&s.opacity==='1'&&s.blend==='normal'),'Ancestor modifies original video');
    assert(await page.locator('#projects-view').evaluate(e=>e.scrollWidth<=e.clientWidth),'Project horizontal overflow');
    if(process.env.QA_DIR && slug==='tovadu'){
     await mkdir(process.env.QA_DIR,{recursive:true});await page.screenshot({path:`${process.env.QA_DIR}/project-${width}.png`});
-    await image.screenshot({path:`${process.env.QA_DIR}/original-artwork-${width}.png`});
+    await video.screenshot({path:`${process.env.QA_DIR}/original-artwork-${width}.png`});
    }
-   console.log('PROJECT PASS',width,height,slug,'head hidden; original image; no CRT overlay');
+   console.log('PROJECT PASS',width,height,slug,'head hidden; original video; no CRT overlay');
   }
   await page.locator('.case-nav-v2 [data-project-slug=tovadu]').click();
   await page.waitForURL(new URL('work/tovadu/',base).href);
