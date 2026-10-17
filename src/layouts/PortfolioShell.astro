@@ -60,7 +60,6 @@ const ogImageUrl = new URL(ogImage, rootUrl);
       }
     } catch {}
   </script>
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   {import.meta.env.PROD
     ? <link rel="stylesheet" href={asset('css/portfolio.bundle.css')} />
     : <><link rel="stylesheet" href="css/foundation.css" />
@@ -82,14 +81,6 @@ const ogImageUrl = new URL(ogImage, rootUrl);
   <link rel="preload" as="image" href="assets/cursors/default-alt-mono.svg" type="image/svg+xml" media="(hover:hover) and (pointer:fine)" />
   <link rel="preload" as="image" href="assets/cursors/pointer-mono.svg" type="image/svg+xml" media="(hover:hover) and (pointer:fine)" />
   <link rel="preload" as="image" href="assets/cursors/text-mono.svg" type="image/svg+xml" media="(hover:hover) and (pointer:fine)" />
-  <script type="importmap" is:inline>
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.185.1/examples/jsm/"
-    }
-  }
-  </script>
   {jsonLd && <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)}></script>}
 </head>
 <body class="booting scroll-portfolio">

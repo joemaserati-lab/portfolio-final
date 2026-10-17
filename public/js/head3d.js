@@ -6,7 +6,7 @@ function settleHead(ready, error=null) {
   window.dispatchEvent(new CustomEvent('portfolio:head-settled', { detail: window.__portfolioHeadState }));
 }
 
-const effectUrl = new URL('./head-scan-effect.js', import.meta.url);
+const effectUrl = new URL('./head-scan-effect.bundle.js', import.meta.url);
 effectUrl.searchParams.set('v', window.PORTFOLIO_ASSET_VERSION);
 let mountHeadScanEffect;
 try {

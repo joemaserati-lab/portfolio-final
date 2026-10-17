@@ -157,6 +157,9 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
    await page.locator('#scroll-work .project-tile-v2').first().evaluate(e=>{const v=document.getElementById('scroll-viewport'),r=e.getBoundingClientRect(),top=document.getElementById('crt-head-feature').getBoundingClientRect().bottom+12,bottom=document.querySelector('.scroll-index').getBoundingClientRect().top;v.scrollTop=Math.max(document.getElementById('scroll-work').offsetTop+2,v.scrollTop+r.top+r.height/2-(top+bottom)/2)});
    await page.waitForTimeout(150);
  }
+ // Ensure the scroll transition has finished before testing a real pointer click.
+ await page.locator('#scroll-viewport').evaluate(e=>e.scrollTo({top:document.getElementById('scroll-work').offsetTop+2,behavior:'instant'}));
+ await page.waitForFunction(()=>document.querySelector('#scroll-work .scroll-window').classList.contains('is-revealed'),null,{timeout:15000});
  await page.locator('#scroll-work .project-tile-v2').first().click();await page.waitForTimeout(700);
  assert.equal(await page.locator('#projects-view').getAttribute('data-view'),'case');
  assert(page.url().endsWith('/work/tovadu/'));
