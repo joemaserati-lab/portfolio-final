@@ -131,8 +131,11 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
    const card=page.locator('#scroll-work .project-tile-v2').first();
    await card.evaluate(e=>{const v=document.getElementById('scroll-viewport');v.scrollTop=Math.max(document.getElementById('scroll-work').offsetTop,v.scrollTop+e.getBoundingClientRect().top-document.querySelector('.scroll-index').getBoundingClientRect().top+e.getBoundingClientRect().height+20)});
    await page.waitForFunction(()=>document.querySelectorAll('.is-viewport-color').length===1);
-   await page.waitForFunction(()=>{const image=document.querySelector('.is-viewport-color .project-cover-img');return image&&getComputedStyle(image).filter==='none'});
-   assert((await page.locator('.is-viewport-color .project-cover-img').evaluate(e=>getComputedStyle(e).transitionDuration)).includes('0.65s'));
+   await page.waitForFunction(()=>{
+     const card=document.querySelector('.is-viewport-color');
+     const video=card?.querySelector('video.project-cover-video');
+     return video && !video.paused && video.readyState>=2 && card.classList.contains('is-video-playing');
+   },null,{timeout:20000});
    assert.equal(await page.locator('.is-viewport-color .project-cover-v2').evaluate(e=>getComputedStyle(e,'::after').animationName),'scroll-color-scan');
    await select('work'); await settle('work');
  } else {
