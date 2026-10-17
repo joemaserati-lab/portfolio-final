@@ -413,3 +413,13 @@
   .project-cover-v2 .project-cover-video { display: none; }
   .case-media-v2 .case-media-video { animation: none; }
 }
+
+/* Motion completely replaces the logo artwork while the preview is active. */
+.project-cover-v2 .project-cover-video { z-index: 1; filter: none; transition: none; }
+@media (hover: hover) and (pointer: fine) {
+  .project-tile-v2.is-viewport-color:not(:hover):not(:focus-within) .project-cover-video { opacity: 0; }
+}
+@media (hover: none), (pointer: coarse) {
+  .project-tile-v2:hover:not(.is-viewport-color) .project-cover-video { opacity: 0; }
+  .project-tile-v2.is-viewport-color .project-cover-video { opacity: 1; }
+}
