@@ -33,6 +33,8 @@ try {
    assert.deepEqual(events.map(e=>e.name),['booted','ready']);
    assert.equal(events[0].booting,false);
    assert.equal(events[0].opacity,'1');
+   assert.equal(events[0].head,true,'Boot released before the 3D model was ready');
+   assert.equal(events[0].headVisible,true,'Head not visible at the boot event');
    await page.waitForFunction(()=>window.__portfolioHeadState?.ready && document.querySelector('#crt-head-feature').classList.contains('is-ready'));
    assert.equal(await page.locator('#crt-head-feature').isVisible(),true);
    await page.unroute('**/js/content.js*');
@@ -44,6 +46,7 @@ try {
    assert.equal(await page.evaluate(()=>document.documentElement.classList.contains('returning-visit')),true);
    assert.equal(await page.evaluate(()=>document.body.classList.contains('site-entering')),false);
    assert.deepEqual(await page.evaluate(()=>window.__bootEvents.map(e=>e.name)),['booted','ready']);
+   assert.equal(await page.evaluate(()=>window.__bootEvents[0].head),true,'Returning visitor saw homepage before head initialized');
    assert.equal(errors.length,0,errors.join('\n'));
    console.log('BOOT PASS',`${width}x${height}`,reducedMotion,'loading gate, synchronized reveal, repeat visit');
    await context.close();
