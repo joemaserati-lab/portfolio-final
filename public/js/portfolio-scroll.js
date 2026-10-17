@@ -183,8 +183,7 @@
     cards.forEach(card => {
       const isSelected = card === selected;
       card.classList.toggle('is-viewport-color', isSelected);
-      if (isSelected) card.classList.add('is-color-preview');
-      else if (!card.dataset.scrollTap) card.classList.remove('is-color-preview');
+      card.classList.remove('is-color-preview');
     });
   }
   function update(now = performance.now()) {
