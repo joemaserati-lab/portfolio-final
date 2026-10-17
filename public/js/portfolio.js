@@ -60,6 +60,17 @@
     const video = card.querySelector('.project-cover-video');
     if (!video) return;
     card.dataset.videoConnected = 'true';
+    // Prepare each clip shortly before its card becomes visible.
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(entries => {
+        if (!entries.some(entry => entry.isIntersecting)) return;
+        if (!video.src) video.src = new URL(video.dataset.src, BASE_URL).href;
+        video.preload = 'auto';
+        video.load();
+        observer.disconnect();
+      }, {root: document.getElementById('scroll-viewport'), rootMargin: '450px 0px'});
+      observer.observe(card);
+    }
     const sync = () => {
       const mobile = matchMedia('(hover: none), (pointer: coarse)').matches;
       const active = !document.hidden && !document.body.classList.contains('project-case-open') && (mobile ? card.classList.contains('is-viewport-color') : (card.matches(':hover') || card.matches(':focus-within')));
