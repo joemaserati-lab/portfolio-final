@@ -53,7 +53,35 @@
   const projectById = id => projects.find(p => p.id === String(id).padStart(2,'0'));
   const projectBySlug = slug => projects.find(p => p.slug === slug);
   const backGlyph = '<span aria-hidden="true" style="display:inline-block;line-height:1;transform:translate(1px,-1px)">&lt;</span>';
-  const projectImage = p => p.cover ? `<img class="project-cover-img" src="${esc(p.cover)}" alt="${esc(p.title)}" loading="lazy" decoding="async">` : '<span class="project-cover-art" aria-hidden="true"></span>';
+  const projectImage = p => p.cover ? `<img class="project-cover-img" src="${esc(p.cover)}" alt="${esc(p.title)}" loading="lazy" decoding="async">${p.video ? `<video class="project-cover-video" data-src="${esc(p.video)}" muted loop playsinline preload="none" poster="${esc(p.cover)}" aria-hidden="true"></video>` : ''}` : '<span class="project-cover-art" aria-hidden="true"></span>';
+  // Only the active project preview is downloaded and played.
+  function connectPreviewVideo(card) {
+    if (card.dataset.videoConnected) return;
+    const video = card.querySelector('.project-cover-video');
+    if (!video) return;
+    card.dataset.videoConnected = 'true';
+    const sync = () => {
+      const active = !document.hidden && (card.matches(':hover') || card.matches(':focus-within') || card.classList.contains('is-viewport-color'));
+      if (active && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        if (!video.src) video.src = new URL(video.dataset.src, BASE_URL).href;
+        video.play().catch(() => {});
+      } else video.pause();
+    };
+    card.addEventListener('pointerenter', sync);
+    card.addEventListener('pointerleave', sync);
+    card.addEventListener('focusin', sync);
+    card.addEventListener('focusout', () => requestAnimationFrame(sync));
+    document.addEventListener('visibilitychange', sync);
+    const watcher = new MutationObserver(sync);
+    watcher.observe(card, {attributes: true, attributeFilter: ['class']});
+    sync();
+  }
+  const previewRoot = document.getElementById('scroll-work');
+  if (previewRoot) {
+    const attachPreviewVideos = () => previewRoot.querySelectorAll('.project-tile-v2').forEach(connectPreviewVideo);
+    new MutationObserver(attachPreviewVideos).observe(previewRoot, {childList: true, subtree: true});
+    attachPreviewVideos();
+  }
 
   function updateRouteMeta(route){
     let title=t('title');
@@ -201,8 +229,9 @@
     // Show only supplied artwork; decorative placeholders are not project media.
     if(!src) return '';
     const cls={hero:'case-media-hero-v2',landscape:'case-media-landscape-v2',portrait:'case-media-portrait-v2',wide:'case-media-wide-v2'}[media.type]||'';
+    const isVideoHero = media.type === 'hero' && Boolean(project.video);
     return `<figure class="case-media-v2 ${cls} has-original-media">
-      <img class="case-media-img" src="${esc(src)}" alt="${esc(media.alt || project.title)}" loading="lazy" decoding="async">
+      ${isVideoHero ? `<video class="case-media-img case-media-video" src="${esc(new URL(project.video, BASE_URL).href)}" poster="${esc(new URL(project.cover, BASE_URL).href)}" autoplay muted loop playsinline preload="metadata" aria-label="${esc(media.alt || project.title)}"></video>` : `<img class="case-media-img" src="${esc(src)}" alt="${esc(media.alt || project.title)}" loading="lazy" decoding="async">`}
       <figcaption><span>${String(index).padStart(2,'0')}</span><span>${esc(media.label)}</span></figcaption>
     </figure>`;
   }
