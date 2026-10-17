@@ -74,6 +74,11 @@ const ogImageUrl = new URL(ogImage, rootUrl);
        <link rel="stylesheet" href="css/portfolio-scroll.css" />
        <link rel="stylesheet" href="css/typography.css" /></>
   }
+  {!project && <>
+    <link rel="modulepreload" href={asset('js/head3d.js')} fetchpriority="high" />
+    <link rel="modulepreload" href={asset('js/head-scan-effect.bundle.js')} fetchpriority="high" />
+    <link rel="preload" href="assets/models/human_head_reference3.glb" as="fetch" crossorigin="anonymous" fetchpriority="high" />
+  </>}
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@400;500;600;700&display=swap" />

@@ -62,13 +62,14 @@ try {
   const heldHead=new Promise(resolve=>releaseHead=resolve);
   await slowHead.route('**/*.glb',async route=>{await heldHead;await route.continue();});
   await slowHead.goto(base,{waitUntil:'domcontentloaded'});
-  await slowHead.waitForFunction(()=>document.body.classList.contains('site-ready'));
-  assert.equal(await slowHead.locator('.primary-action').isVisible(),true);
+  await slowHead.waitForFunction(()=>document.querySelector('#boot-loader') && document.body.classList.contains('booting'));
   assert.equal(await slowHead.evaluate(()=>Boolean(window.__portfolioHeadState?.ready)),false);
+  assert.equal(await slowHead.locator('#boot-loader').isVisible(),true);
   releaseHead();
-  await slowHead.waitForFunction(()=>window.__portfolioHeadState?.ready);
+  await slowHead.waitForFunction(()=>document.body.classList.contains('site-ready') && window.__portfolioHeadState?.ready);
+  assert.equal(await slowHead.locator('#crt-head-feature').isVisible(),true);
   await slowHead.close();
-  console.log('TECHNICAL PASS homepage remains usable while the portrait is loading');
+  console.log('TECHNICAL PASS loader holds for the first 3D frame');
   const noJs=await browser.newContext({javaScriptEnabled:false});
   const reader=await noJs.newPage();
   for(const [path,text] of [['resume/','SWS PRINTING'],['contact/','edoardo.rappanello@gmail.com'],['work/platinum-technologies/','ten times']]){

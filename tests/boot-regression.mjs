@@ -33,8 +33,31 @@ try {
    assert.deepEqual(events.map(e=>e.name),['booted','ready']);
    assert.equal(events[0].booting,false);
    assert.equal(events[0].opacity,'1');
+   assert.equal(events[0].head,true,'Boot released before the 3D model was ready');
+   assert.equal(events[0].headVisible,true,'Head not visible at the boot event');
    await page.waitForFunction(()=>window.__portfolioHeadState?.ready && document.querySelector('#crt-head-feature').classList.contains('is-ready'));
    assert.equal(await page.locator('#crt-head-feature').isVisible(),true);
+   // CSS classes alone do not prove that the shader produced visible pixels.
+   if (width === 1440 && reducedMotion === 'no-preference') {
+     const png = (await page.locator('#crt-head-canvas').screenshot()).toString('base64');
+     const litPixels = await page.evaluate(async encoded => {
+       const bytes = Uint8Array.from(atob(encoded), char => char.charCodeAt(0));
+       const bitmap = await createImageBitmap(new Blob([bytes], { type:'image/png' }));
+       const result = document.createElement('canvas');
+       result.width = bitmap.width;
+       result.height = bitmap.height;
+       const context = result.getContext('2d', { willReadFrequently:true });
+       context.drawImage(bitmap, 0, 0);
+       const data = context.getImageData(0,0,result.width,result.height).data;
+       let lit = 0;
+       for (let i = 0; i < data.length; i += 32) {
+         if (Math.max(data[i],data[i+1],data[i+2]) > 70) lit++;
+       }
+       return lit;
+     }, png);
+     console.log('HEAD VISIBLE PIXELS:', litPixels);
+     assert(litPixels > 25, '3D canvas is blank despite reporting ready');
+   }
    await page.unroute('**/js/content.js*');
    // A fresh browser session still skips the scenic first-visit boot.
    assert.equal(await page.evaluate(()=>localStorage.getItem('portfolioBootSeen')),'1');
@@ -44,6 +67,7 @@ try {
    assert.equal(await page.evaluate(()=>document.documentElement.classList.contains('returning-visit')),true);
    assert.equal(await page.evaluate(()=>document.body.classList.contains('site-entering')),false);
    assert.deepEqual(await page.evaluate(()=>window.__bootEvents.map(e=>e.name)),['booted','ready']);
+   assert.equal(await page.evaluate(()=>window.__bootEvents[0].head),true,'Returning visitor saw homepage before head initialized');
    assert.equal(errors.length,0,errors.join('\n'));
    console.log('BOOT PASS',`${width}x${height}`,reducedMotion,'loading gate, synchronized reveal, repeat visit');
    await context.close();

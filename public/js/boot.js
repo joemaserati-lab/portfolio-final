@@ -14,7 +14,7 @@
   const BOOT_SEEN_KEY = 'portfolioBootSeen';
   const returningVisit = document.documentElement.classList.contains('returning-visit');
   const ROW_STEP_MS = 55;
-  const HEAD_READY_TIMEOUT_MS = 10000;
+  const HEAD_READY_TIMEOUT_MS = 8000;
   const SCRIPT_LOAD_TIMEOUT_MS = 12000;
   const i18n = window.PortfolioI18n;
   const t = key => i18n?.t?.(key) || key;
@@ -425,16 +425,14 @@
       recoverApplicationLoad(error);
       return;
     }
-    // Only the functional application and DOM gate entry. Fonts, window.load,
-    // 3D modules and media continue loading concurrently without blocking the site.
+    // Wait only for first composited head frame, not videos or font downloads.
     await trackedDomReady;
-    // Progress is decorative: completion must not gate the ready interface.
+    if (!initialCase) {
+      const headState = await headReady;
+      if (!headState?.ready) console.warn('3D head missed the entry deadline.', headState?.error);
+    }
     setProgressTarget(100);
     setRow('ready', '07 READY', 'portfolio environment online', 'done');
-    if (!touchDevice && !initialCase) {
-      startAmbientVideo();
-      loadCrtRuntime();
-    }
     try { sessionStorage.setItem(BOOT_SEEN_KEY, '1'); } catch {}
     try { localStorage.setItem(BOOT_SEEN_KEY, '1'); } catch {}
     launch(returningVisit);
@@ -444,7 +442,7 @@
     if (sequenceStarted || finished) return false;
     sequenceStarted = true;
     loader.classList.add('is-sequencing');
-    if (touchDevice) document.body.classList.add('entry-prewarm');
+    document.body.classList.add('entry-prewarm');
     rowDefs.forEach(([key]) => addRow(key));
     return true;
   }
@@ -490,7 +488,7 @@
       document.body.classList.add('site-ready');
       window.dispatchEvent(new CustomEvent('portfolio:site-ready'));
       scheduleDeferredCovers();
-      if (touchDevice) scheduleDeferredTouchVisuals();
+      scheduleDeferredTouchVisuals();
     };
     // Use actual CSS completion, including reduced motion, rather than timers.
     const animations = [...document.querySelectorAll('.shell, .hero-intro > *, .desktop-icons .desktop-icon, .crt-head-feature')]

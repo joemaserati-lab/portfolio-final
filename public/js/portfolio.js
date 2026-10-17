@@ -125,8 +125,12 @@
   }
   const previewRoot = document.getElementById('scroll-work');
   if (previewRoot) {
-    const attachPreviewVideos = () => previewRoot.querySelectorAll('.project-tile-v2').forEach(connectPreviewVideo);
+    const attachPreviewVideos = () => {
+      if (!document.body.classList.contains('site-ready')) return;
+      previewRoot.querySelectorAll('.project-tile-v2').forEach(connectPreviewVideo);
+    };
     new MutationObserver(attachPreviewVideos).observe(previewRoot, { childList:true, subtree:true });
+    addEventListener('portfolio:site-ready', attachPreviewVideos, { once:true });
     attachPreviewVideos();
   }
 

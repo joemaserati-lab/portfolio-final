@@ -304,3 +304,18 @@ body.booting .crt-background-video{
   }
 }
 
+
+/* Allow WebGL to compile and paint the head behind the opaque loader.
+   Opacity zero on ancestors can defer GPU work on mobile. */
+body.booting .shell,
+body.booting.entry-prewarm .shell,
+html.returning-visit body.booting .shell {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: none;
+}
+html.returning-visit .boot-loader:not(.done) {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
