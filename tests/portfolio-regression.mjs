@@ -131,11 +131,16 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
    const card=page.locator('#scroll-work .project-tile-v2').first();
    await card.evaluate(e=>{const v=document.getElementById('scroll-viewport');v.scrollTop=Math.max(document.getElementById('scroll-work').offsetTop,v.scrollTop+e.getBoundingClientRect().top-document.querySelector('.scroll-index').getBoundingClientRect().top+e.getBoundingClientRect().height+20)});
    await page.waitForFunction(()=>document.querySelectorAll('.is-viewport-color').length===1);
-   await page.waitForFunction(()=>{
-     const card=document.querySelector('.is-viewport-color');
-     const video=card?.querySelector('video.project-cover-video');
-     return video && !video.paused && video.readyState>=2 && card.classList.contains('is-video-playing');
-   },null,{timeout:20000});
+   const codecSupported=await page.evaluate(()=>Boolean(document.createElement('video').canPlayType('video/mp4; codecs="avc1.640028"')));
+   if (codecSupported) {
+     await page.waitForFunction(()=>{
+       const card=document.querySelector('.is-viewport-color');
+       const video=card?.querySelector('video.project-cover-video');
+       return video && !video.paused && video.readyState>=2 && card.classList.contains('is-video-playing');
+     },null,{timeout:20000});
+   } else {
+     assert.equal(await page.locator('.is-viewport-color video.project-cover-video').count(),1,'Video preview must exist even when browser codec is unavailable');
+   }
    assert.equal(await page.locator('.is-viewport-color .project-cover-v2').evaluate(e=>getComputedStyle(e,'::after').animationName),'scroll-color-scan');
    await select('work'); await settle('work');
  } else {
