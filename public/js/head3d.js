@@ -8,7 +8,14 @@ function settleHead(ready, error=null) {
 
 const effectUrl = new URL('./head-scan-effect.js', import.meta.url);
 effectUrl.searchParams.set('v', window.PORTFOLIO_ASSET_VERSION);
-const { mountHeadScanEffect } = await import(effectUrl.href);
+let mountHeadScanEffect;
+try {
+  ({ mountHeadScanEffect } = await import(effectUrl.href));
+} catch (error) {
+  // Prevent a failed CDN/module import from leaving the head forever pending.
+  settleHead(false, error);
+  throw error;
+}
 
 const feature = document.getElementById('crt-head-feature');
 const canvas = document.getElementById('crt-head-canvas');
