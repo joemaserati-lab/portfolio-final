@@ -57,7 +57,8 @@
   // One shared lifecycle for the directory, including language rerenders.
   const previewRoot = document.getElementById('scroll-work');
   const previewVideos = new Map();
-  const previewMobile = matchMedia('(max-width: 1024px), (hover: none), (pointer: coarse)');
+  // Match the scroll layout; touch support alone must not disable desktop hover.
+  const previewMobile = matchMedia('(max-width: 1024px)');
   const previewReduced = matchMedia('(prefers-reduced-motion: reduce)');
   const loadPreview = video => {
     if (video.getAttribute('src')) return;

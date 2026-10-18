@@ -161,7 +161,9 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  // Ensure the scroll transition has finished before testing a real pointer click.
  await page.locator('#scroll-viewport').evaluate(e=>e.scrollTo({top:document.getElementById('scroll-work').offsetTop+2,behavior:'instant'}));
  await page.waitForFunction(()=>document.querySelector('#scroll-work .scroll-window').classList.contains('is-revealed'),null,{timeout:15000});
- await page.locator('#scroll-work .project-tile-v2').first().click();await page.waitForTimeout(700);
+ // Click the visible cover: centering the entire tall card can scroll back
+ // into the section's intentional CRT reveal boundary on narrow layouts.
+ await page.locator('#scroll-work .project-tile-v2 .project-cover-v2').first().click();await page.waitForTimeout(700);
  assert.equal(await page.locator('#projects-view').getAttribute('data-view'),'case');
  assert(page.url().endsWith('/work/tovadu/'));
  assert.equal(await page.locator('#crt-head-feature').isVisible(),false,'Head remains visible inside project');
