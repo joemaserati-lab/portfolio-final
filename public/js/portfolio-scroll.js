@@ -180,11 +180,13 @@
       });
     }
     if (currentCard && currentScore > 0 && currentScore >= best - .12) selected = currentCard;
+    const changed = currentCard !== selected;
     cards.forEach(card => {
       const isSelected = card === selected;
       card.classList.toggle('is-viewport-color', isSelected);
       card.classList.remove('is-color-preview');
     });
+    if (changed) dispatchEvent(new Event('portfolio:preview-change'));
   }
   function update(now = performance.now()) {
     frame = 0;
@@ -204,21 +206,18 @@
       if (!docked) { screen.appendChild(head); head.classList.add('scroll-portrait-docked'); docked = true; }
       const slot = portraitSlot.getBoundingClientRect(), sr = screen.getBoundingClientRect();
       const target = compact.matches ? {left:slot.left-sr.left,top:slot.top-sr.top,width:slot.width,height:slot.height} : {left:w*.75,top:h*.22,width:w*.22,height:h*.55};
-      if (compact.matches) {
-        const scale = mix(1, target.height / headRect.height, pose);
-        const finalWidth = headRect.width * target.height / headRect.height;
-        const left = mix(headRect.left, target.left + (target.width - finalWidth) / 2, pose);
-        const top = mix(headRect.top, target.top, pose);
-        head.style.width = `${headRect.width}px`;
-        head.style.height = `${headRect.height}px`;
-        head.style.left = `${headRect.left}px`;
-        head.style.top = `${headRect.top}px`;
-        head.style.transformOrigin = '0 0';
-        head.style.transform = `translate3d(${left-headRect.left}px, ${top-headRect.top}px, 0) scale(${scale})`;
-      } else {
-        Object.entries(target).forEach(([key,value]) => { head.style[key] = `${mix(headRect[key],value,pose)}px`; });
-        head.style.transform = 'none';
-      }
+      // Keep the WebGL drawing surface stable during docking. Resizing it on
+      // every scroll clears its buffers and reallocates post-processing targets.
+      const targetScale = target.height / headRect.height;
+      const scale = mix(1, targetScale, pose);
+      const left = mix(headRect.left, target.left + (target.width - headRect.width * targetScale) / 2, pose);
+      const top = mix(headRect.top, target.top + (target.height - headRect.height * targetScale) / 2, pose);
+      head.style.width = `${headRect.width}px`;
+      head.style.height = `${headRect.height}px`;
+      head.style.left = `${headRect.left}px`;
+      head.style.top = `${headRect.top}px`;
+      head.style.transformOrigin = '0 0';
+      head.style.transform = `translate3d(${left-headRect.left}px, ${top-headRect.top}px, 0) scale(${scale})`;
     } else if (docked) {
       desktop.prepend(head); head.classList.remove('scroll-portrait-docked'); head.removeAttribute('style'); docked = false;
     }
