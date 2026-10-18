@@ -24,7 +24,8 @@ const windowLayer = document.getElementById('window-layer');
 const projectsView = document.getElementById('projects-view');
 
 if (feature && canvas && screenElement) {
-  const touch = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
+  // Touch-capable notebooks still have a mouse; follow the actual pointer.
+  const mouse = matchMedia('(any-pointer: fine)');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const onReduced = () => effect?.setReducedMotion(reduced.matches);
   reduced.addEventListener('change', onReduced);
@@ -45,7 +46,7 @@ if (feature && canvas && screenElement) {
   }
   addEventListener('portfolio:scroll-pose', onScrollPose);
   function onPointerMove(event) {
-    if (touch || event.pointerType !== 'mouse') return;
+    if (event.pointerType !== 'mouse' || reduced.matches) return;
     const rect = feature.getBoundingClientRect();
     const x = (event.clientX - rect.left) / Math.max(rect.width, 1) * 2 - 1;
     const y = (event.clientY - rect.top) / Math.max(rect.height, 1) * 2 - 1;
@@ -53,7 +54,7 @@ if (feature && canvas && screenElement) {
   }
   function getMotionStatus() {
     if (disposed) return 'unavailable';
-    return touch ? 'scroll' : 'mouse';
+    return mouse.matches ? 'mouse' : 'scroll';
   }
   function recenterMotion() { effect?.setPointer(0, 0); }
   function onVisibility() { pageVisible = !document.hidden; sync(); }

@@ -54,83 +54,87 @@
   const projectBySlug = slug => projects.find(p => p.slug === slug);
   const backGlyph = '<span aria-hidden="true" style="display:inline-block;line-height:1;transform:translate(1px,-1px)">&lt;</span>';
   const projectImage = p => p.cover ? `<img class="project-cover-img" src="${esc(p.cover)}" alt="${esc(p.title)}" loading="lazy" decoding="async">${p.video ? `<video class="project-cover-video" data-src="${esc(p.video)}" muted loop playsinline preload="none" poster="${esc(p.cover)}" aria-hidden="true"></video>` : ''}` : '<span class="project-cover-art" aria-hidden="true"></span>';
-  // Browser-native video lifecycle: mobile follows viewport visibility; desktop hover.
-  function connectPreviewVideo(card) {
-    if (card.dataset.videoConnected === 'true') return;
-    const video = card.querySelector('.project-cover-video');
-    if (!video) return;
-    card.dataset.videoConnected = 'true';
-    const viewport = document.getElementById('scroll-viewport');
-    const mobile = matchMedia('(hover: none), (pointer: coarse)');
-    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-    let visible = false;
-    let requested = false;
-    const load = () => {
-      if (requested) return;
-      requested = true;
-      video.src = new URL(video.dataset.src, BASE_URL).href;
-      video.preload = 'auto';
-      video.load();
-    };
-    const active = () => !document.hidden &&
+  // One shared lifecycle for the directory, including language rerenders.
+  const previewRoot = document.getElementById('scroll-work');
+  const previewVideos = new Map();
+  // Match the scroll layout; touch support alone must not disable desktop hover.
+  const previewMobile = matchMedia('(max-width: 1024px)');
+  const previewReduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const loadPreview = video => {
+    if (video.getAttribute('src')) return;
+    video.src = new URL(video.dataset.src, BASE_URL).href;
+    video.preload = 'auto';
+    video.load();
+  };
+  function previewActive(card) {
+    return card.isConnected && !document.hidden &&
       !document.body.classList.contains('project-case-open') &&
-      !reduced.matches &&
-      (mobile.matches ? visible : (card.matches(':hover') || card.matches(':focus-within')));
-    const sync = () => {
-      if (active()) {
-        load();
-        const started = video.play();
-        if (started && typeof started.catch === 'function') started.catch(() => {});
-      } else {
+      document.body.classList.contains('site-ready') && !previewReduced.matches &&
+      (previewMobile.matches ? card.classList.contains('is-viewport-color') :
+        card.matches(':hover, :focus-within'));
+  }
+  function syncPreviewVideos() {
+    // Stop the previous preview before starting the newly selected one.
+    for (const [card, video] of previewVideos) {
+      if (!previewActive(card)) {
         video.pause();
         card.classList.remove('is-video-playing');
       }
-    };
-    video.addEventListener('playing', () => { if (active()) card.classList.add('is-video-playing'); });
-    video.addEventListener('pause', () => card.classList.remove('is-video-playing'));
-    video.addEventListener('error', () => {
-      card.classList.remove('is-video-playing');
-      console.warn('Project video unavailable:', video.currentSrc || video.dataset.src);
-    });
-    if ('IntersectionObserver' in window) {
-      const nearby = new IntersectionObserver(entries => {
-        if (entries.some(entry => entry.isIntersecting)) { load(); nearby.disconnect(); }
-      }, { root: viewport, rootMargin: '500px 0px' });
-      nearby.observe(card);
-      const onScreen = new IntersectionObserver(entries => {
-        visible = entries.some(entry => entry.isIntersecting && entry.intersectionRatio >= .08);
-        sync();
-      }, { root: viewport, threshold: [0, .08, .2, .5] });
-      onScreen.observe(card);
-    } else {
-      // Fallback for browsers without IntersectionObserver.
-      const check = () => {
-        const r = card.getBoundingClientRect(), v = viewport.getBoundingClientRect();
-        visible = r.bottom > v.top && r.top < v.bottom;
-        sync();
-      };
-      viewport.addEventListener('scroll', check, { passive:true });
-      check();
     }
-    card.addEventListener('pointerenter', sync);
-    card.addEventListener('pointerleave', sync);
-    card.addEventListener('focusin', sync);
-    card.addEventListener('focusout', () => requestAnimationFrame(sync));
-    document.addEventListener('visibilitychange', sync);
-    addEventListener('portfolio:project-opened', sync);
-    addEventListener('portfolio:project-closed', sync);
-    mobile.addEventListener('change', sync);
-    reduced.addEventListener('change', sync);
-    sync();
+    for (const [card, video] of previewVideos) {
+      if (!previewActive(card)) continue;
+      loadPreview(video);
+      if (video.paused) video.play()?.catch(() => {});
+    }
   }
-  const previewRoot = document.getElementById('scroll-work');
+  const nearbyPreviews = 'IntersectionObserver' in window ? new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting || previewReduced.matches) continue;
+      const video = previewVideos.get(entry.target);
+      if (video) loadPreview(video);
+      nearbyPreviews.unobserve(entry.target);
+    }
+  }, {root: scrollViewport, rootMargin: '300px 0px'}) : null;
+  function attachPreviewVideos() {
+    if (!document.body.classList.contains('site-ready')) return;
+    for (const [card, video] of previewVideos) {
+      if (card.isConnected) continue;
+      nearbyPreviews?.unobserve(card);
+      video.pause();
+      video.removeAttribute('src');
+      video.load();
+      previewVideos.delete(card);
+    }
+    previewRoot.querySelectorAll('.project-tile-v2').forEach(card => {
+      const video = card.querySelector('.project-cover-video');
+      if (!video || previewVideos.has(card)) return;
+      previewVideos.set(card, video);
+      const showFrame = () => {
+        if (previewActive(card) && !video.paused && video.readyState >= 2) card.classList.add('is-video-playing');
+      };
+      video.addEventListener('playing', () => {
+        if (video.requestVideoFrameCallback) video.requestVideoFrameCallback(showFrame);
+        else showFrame();
+      });
+      video.addEventListener('pause', () => card.classList.remove('is-video-playing'));
+      video.addEventListener('error', () => card.classList.remove('is-video-playing'));
+      nearbyPreviews?.observe(card);
+    });
+    syncPreviewVideos();
+  }
   if (previewRoot) {
-    const attachPreviewVideos = () => {
-      if (!document.body.classList.contains('site-ready')) return;
-      previewRoot.querySelectorAll('.project-tile-v2').forEach(connectPreviewVideo);
-    };
-    new MutationObserver(attachPreviewVideos).observe(previewRoot, { childList:true, subtree:true });
-    addEventListener('portfolio:site-ready', attachPreviewVideos, { once:true });
+    new MutationObserver(attachPreviewVideos).observe(previewRoot, {childList:true, subtree:true});
+    // Delegated pointer/focus handlers avoid retaining cards removed by a rerender.
+    for (const name of ['pointerover', 'pointerout', 'focusin', 'focusout']) {
+      previewRoot.addEventListener(name, () => queueMicrotask(syncPreviewVideos));
+    }
+    document.addEventListener('visibilitychange', syncPreviewVideos);
+    for (const name of ['portfolio:preview-change', 'portfolio:project-opened', 'portfolio:project-closed']) {
+      addEventListener(name, syncPreviewVideos);
+    }
+    previewMobile.addEventListener('change', syncPreviewVideos);
+    previewReduced.addEventListener('change', syncPreviewVideos);
+    addEventListener('portfolio:site-ready', attachPreviewVideos, {once:true});
     attachPreviewVideos();
   }
 

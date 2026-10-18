@@ -25,6 +25,7 @@ try {
    await page.goto(url,{waitUntil:'domcontentloaded'});
    await page.waitForFunction(()=>document.querySelector('#boot-loader').classList.contains('is-sequencing'));
    assert(await page.locator('#boot-loader').isVisible());
+   assert.equal(await page.locator('#boot-loader').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(5, 5, 5)','Loader needs an opaque background');
    assert.equal(await page.evaluate(()=>document.body.classList.contains('booting')),true);
    assert.equal(await page.locator('#boot-enter').isVisible(),false);
    release();

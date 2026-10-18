@@ -314,7 +314,7 @@
   .scroll-portfolio #scroll-work .project-tile-v2 .project-cover-img {
     transition: filter .65s cubic-bezier(.22,.61,.36,1), transform .35s ease, opacity .65s ease;
   }
-  .scroll-portfolio #scroll-work .is-viewport-color .project-cover-v2::after {
+  .scroll-portfolio #scroll-work .is-viewport-color .project-cover-v2:not(:has(.project-cover-video))::after {
     content: '';
     position: absolute;
     z-index: 2;

@@ -141,7 +141,8 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
    } else {
      assert.equal(await page.locator('.is-viewport-color video.project-cover-video').count(),1,'Video preview must exist even when browser codec is unavailable');
    }
-   assert.equal(await page.locator('.is-viewport-color .project-cover-v2').evaluate(e=>getComputedStyle(e,'::after').animationName),'scroll-color-scan');
+   assert.notEqual(await page.locator('.is-viewport-color .project-cover-v2').evaluate(e=>getComputedStyle(e,'::after').animationName),'scroll-color-scan');
+   assert.equal(await page.locator('#scroll-work .is-video-playing').count(),codecSupported ? 1 : 0,'Only the selected preview may play');
    await select('work'); await settle('work');
  } else {
    await page.mouse.move(1300,450);
@@ -160,7 +161,9 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  // Ensure the scroll transition has finished before testing a real pointer click.
  await page.locator('#scroll-viewport').evaluate(e=>e.scrollTo({top:document.getElementById('scroll-work').offsetTop+2,behavior:'instant'}));
  await page.waitForFunction(()=>document.querySelector('#scroll-work .scroll-window').classList.contains('is-revealed'),null,{timeout:15000});
- await page.locator('#scroll-work .project-tile-v2').first().click();await page.waitForTimeout(700);
+ // Click the visible cover: centering the entire tall card can scroll back
+ // into the section's intentional CRT reveal boundary on narrow layouts.
+ await page.locator('#scroll-work .project-tile-v2 .project-cover-v2').first().click();await page.waitForTimeout(700);
  assert.equal(await page.locator('#projects-view').getAttribute('data-view'),'case');
  assert(page.url().endsWith('/work/tovadu/'));
  assert.equal(await page.locator('#crt-head-feature').isVisible(),false,'Head remains visible inside project');
@@ -208,12 +211,18 @@ await reduced.locator('#scroll-viewport').evaluate(e=>e.scrollTop=e.scrollHeight
 await reduced.locator('#language-toggle').click();await reduced.waitForTimeout(100);
 assert.notEqual(await reduced.locator('#scroll-about .window-body').innerText(),before);
 console.log('PASS returning visit, reduced motion, language');
-const returningDesktop=await browser.newPage({viewport:{width:1440,height:900}});
+// Hybrid desktop: touch support must not disable real mouse input.
+const returningDesktop=await browser.newPage({viewport:{width:1440,height:900},hasTouch:true});
 await returningDesktop.addInitScript(()=>{sessionStorage.setItem('portfolioBootSeen','1');localStorage.setItem('portfolioPrivacyAck','1')});
 await returningDesktop.goto(url);
 await returningDesktop.waitForFunction(()=>document.body.classList.contains('site-ready'),null,{timeout:50000});
 await returningDesktop.waitForFunction(()=>window.__portfolioHeadState?.ready,null,{timeout:30000});
 await returningDesktop.mouse.move(1250,450);
 await returningDesktop.waitForFunction(()=>Math.abs(window.PortfolioMotion.getPose().yaw)>.1,null,{timeout:20000});
-console.log('PASS returning desktop mouse animation');
+const canvasSize=await returningDesktop.locator('#crt-head-canvas').evaluate(e=>[e.width,e.height]);
+await returningDesktop.locator('#scroll-viewport').evaluate(e=>e.scrollTop=900);
+await returningDesktop.waitForTimeout(500);
+assert(await returningDesktop.locator('#crt-head-feature').isVisible(),'Hybrid desktop head disappeared after scroll');
+assert.deepEqual(await returningDesktop.locator('#crt-head-canvas').evaluate(e=>[e.width,e.height]),canvasSize,'Desktop scroll reallocates the WebGL drawing surface');
+console.log('PASS returning hybrid desktop mouse animation and stable scroll canvas');
 await browser.close();
