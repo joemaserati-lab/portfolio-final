@@ -87,5 +87,10 @@ try{
     headClass:head.className,compact:matchMedia('(max-width:1024px)').matches};
  });
  console.log('HYBRID DESKTOP SCROLL DIAGNOSTICS',JSON.stringify(debug));
+ assert.equal(debug.scrollTop,900,'Hybrid desktop did not scroll');
+ assert.equal(debug.headParent,'desktop','Hybrid WebGL was reparented');
+ assert(debug.classes.includes('scroll-head-hidden'),'Hybrid desktop did not enter reading mode');
+ assert.equal(debug.headVisibility,'hidden','Hybrid head still overlays reading');
+ assert.equal(Number(debug.headOpacity),0,'Hybrid head opacity should be zero');
  await hybrid.close();
 }finally{await browser.close()}

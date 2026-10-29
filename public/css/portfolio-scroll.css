@@ -716,9 +716,12 @@
   /* Once scroll leaves the hero, keep WebGL rooted in the original hero.
      Desktop reparenting used an obsolete coordinate frame and caused glitches. */
   .scroll-portfolio.scroll-head-hidden #desktop > .crt-head-feature {
-    opacity:0;
-    visibility:hidden;
-    transition:opacity .18s ease,visibility .18s;
+    /* The 3D transition was still compositing mid-frame after docking:
+       hide synchronously to keep it from flashing over section text. */
+    opacity:0!important;
+    visibility:hidden!important;
+    transition:none!important;
+    pointer-events:none!important;
   }
   /* The work heading avoids the fixed launcher cluster, the grid uses
      the actual available section width. */

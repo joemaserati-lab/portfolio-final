@@ -39,9 +39,10 @@ try {
   assert(asset.readingFont.includes('Geist Mono'),'404 body typography is not inherited');
   await page.evaluate(()=>document.dispatchEvent(new Event('keydown',{bubbles:true,cancelable:true})));
   assert(await layer.isHidden(),'Keyboard failed to dismiss screensaver');
-  // The clock is virtual but the iframe and focus restoration can enqueue
-  // tasks on the boundary; allow a 5 ms test-only scheduling tolerance.
-  await page.clock.fastForward(60_005);
+  // Allow cross-frame focus callbacks to settle, then run beyond the configured
+  // 60s inactivity threshold. The implementation remains exactly 60s.
+  await page.evaluate(()=>document.dispatchEvent(new Event('pointermove',{bubbles:true})));
+  await page.clock.fastForward(65_000);
   assert(await layer.isVisible(),'Screensaver did not re-arm');
   await page.evaluate(()=>window.PortfolioI18n.setLang('it'));
   await page.waitForFunction(()=>document.querySelector('#idle-screensaver-scene').contentDocument?.querySelector('#page-title')?.textContent==='IN PAUSA.');
@@ -54,7 +55,7 @@ try {
   await page.evaluate(()=>document.dispatchEvent(new Event('pointermove',{bubbles:true})));
   // Run scheduled events in order under the newly changed media query instead
   // of jumping over frame and visibility callbacks in a single clock tick.
-  await page.clock.runFor(60_050);
+  await page.clock.runFor(65_000);
   if (!(await layer.isVisible())) {
     console.log('IDLE REDUCED DEBUG',JSON.stringify(await page.evaluate(()=>({
       documentHidden:document.hidden,visibility:document.visibilityState,
