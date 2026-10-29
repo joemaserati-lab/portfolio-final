@@ -27,5 +27,7 @@ jobs:
           done
           exit 1
       - run: npx playwright install --with-deps chromium
+      - name: Verify full-width desktop layout and stable 3D scroll
+        run: node tests/desktop-layout-regression.mjs
       - name: Verify inactivity, wake-up, language and reduced motion
         run: node tests/idle-screensaver-regression.mjs
