@@ -189,17 +189,12 @@
       url:BASE_URL.href,sameAs:[profile.linkedin]});
   }
 
-  const tagList = items => `<div class="tags">${items.map(t=>`<span>${esc(t)}</span>`).join('')}</div>`;
+  const tagList = (items, className = '') => `<div class="tags${className ? ` ${className}` : ''}">${items.map(t=>`<span>${esc(t)}</span>`).join('')}</div>`;
 
   const contents = {
     about:() => `
       <h2>${esc(profile.name)}</h2>
-      ${paragraphs(profile.intro)}
-      <div class="meta-grid">
-        <div class="meta-card"><small>${esc(t('about.role'))}</small><b>${esc(profile.role)}</b></div>
-        <div class="meta-card"><small>${esc(t('about.experience'))}</small><b>${esc(profile.experience)}</b></div>
-        <div class="meta-card"><small>${esc(t('about.focus'))}</small><b>${profile.focus.map(esc).join(' / ')}</b></div>
-      </div>`,
+      ${paragraphs(profile.intro)}`,
 
     contact:() => `
       <div class="contact-panel">
@@ -236,8 +231,8 @@
             <article class="resume-row compact"><div class="resume-period">${esc(item.period)}</div><div><h3>${esc(item.course)}</h3><strong>${esc(item.school)}</strong>${paragraphs(item.description)}</div></article>`).join('')}</div>
         </section>
         <div class="resume-columns">
-          <section><div class="resume-section-title">${esc(t('resume.capabilities'))}</div>${tagList(resume.capabilities)}</section>
-          <section><div class="resume-section-title">${esc(t('resume.tools'))}</div>${tagList(resume.tools)}</section>
+          <section><div class="resume-section-title">${esc(t('resume.capabilities'))}</div>${tagList(resume.capabilities, 'skill-list')}</section>
+          <section><div class="resume-section-title">${esc(t('resume.tools'))}</div>${tagList(resume.tools, 'skill-list')}</section>
         </div>
       </section>`,
 
@@ -248,8 +243,6 @@
             <h2>${t('portfolio.selectedWork')}</h2>
           </div>
           <div class="projects-index-side">
-            <span>${esc(t('portfolio.period'))}</span>
-            <span>DESIGN / WEB / DIGITAL MARKETING</span>
             <p>${esc(t('portfolio.selectedCopy'))}</p>
           </div>
         </header>
