@@ -32,7 +32,7 @@ try {
     await page.clock.fastForward(1000);
     const after = await page.locator('#idle-screensaver-dvd').evaluate(el => getComputedStyle(el).transform);
     assert.equal(before,after, `${width}: reduced motion must disable bouncing`);
-    await page.locator('#idle-screensaver-resume').click();
+    await page.evaluate(() => document.dispatchEvent(new Event('pointerdown', {bubbles:true})));
     assert(await layer.isHidden());
     assert.equal(await page.locator('#scroll-home').count(),1);
     console.log('IDLE PASS',width,height,'timing, rearm, keyboard/pointer, IT/EN, reduced motion');

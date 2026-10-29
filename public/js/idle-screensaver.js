@@ -120,7 +120,6 @@
   document.addEventListener('visibilitychange', visibility);
   window.addEventListener('resize', () => { if (active) measure(); }, {passive:true});
   reduced.addEventListener('change', () => { if (active) startFrame(); });
-  layer.querySelector('#idle-screensaver-resume')?.addEventListener('click', hide);
   addEventListener('pagehide', () => { clearTimeout(timer); stopFrame(); });
   addEventListener('pageshow', () => { if (started) visibility(); });
   const ready = () => { if (started) return; started = true; arm(); };
