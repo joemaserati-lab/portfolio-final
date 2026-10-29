@@ -20,7 +20,7 @@ try{
   assert(Math.abs(shape.screen.width/shape.screen.height-fitRatio)<.002,`${width}: centered 5:3-or-viewport-fit ratio`);
   assert(shape.title.right < shape.icons.left-12,`${width}: hero intersects launchers`);
   assert(shape.iconItems.every(x=>x.box.right <= shape.screen.right+eps),`${width}: launcher out of bounds`);
-  assert(shape.iconItems.every(x=>x.bg.includes('0, 0, 0') || x.bg.startsWith('rgba(8, 8, 8'))),`${width}: missing icon backing`);
+  assert(shape.iconItems.every(x=>x.bg.startsWith('rgba(8, 8, 8') || x.bg.startsWith('rgb(8, 8, 8')),`${width}: missing icon backing`);
   for (const kind of ['work','resume','contact']) {
    await page.evaluate(kind=>dispatchEvent(new CustomEvent('portfolio:scroll-to',{detail:kind})),kind);
    await page.waitForFunction(kind=>document.querySelector('.scroll-index [aria-current]')?.dataset.scrollSection===kind,kind);

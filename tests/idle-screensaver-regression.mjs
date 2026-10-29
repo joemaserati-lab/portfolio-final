@@ -47,7 +47,10 @@ try {
   await page.evaluate(()=>document.dispatchEvent(new Event('pointermove',{bubbles:true})));
   assert(await layer.isHidden(),'Pointer failed to dismiss screensaver');
   await page.emulateMedia({reducedMotion:'reduce'});
-  await page.clock.fastForward(60_000);
+  // Media-query responsive changes can dispatch scroll events. Define the
+  // new 60-second idle window from an explicit interaction.
+  await page.evaluate(()=>document.dispatchEvent(new Event('pointermove',{bubbles:true})));
+  await page.clock.fastForward(60_005);
   assert(await layer.isVisible(),'Reduced-motion users still need screensaver');
   const before=await embedded.locator('.dvd').evaluate(el=>getComputedStyle(el).transform);
   await page.clock.fastForward(1000);
