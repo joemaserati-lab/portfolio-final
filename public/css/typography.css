@@ -50,7 +50,7 @@
   --type-heading: var(--type-h2);
   --type-project-title: clamp(23px, 1.81vw, 26px);
   --type-display: clamp(44px, 5.56vw, 80px);
-  --type-boot: clamp(28px, min(5vw, 8vh), 48px);
+  --type-boot: var(--type-micro); /* 13px: smallest shared interface role */
   --type-fit-caption-min: 13px;
   --type-fit-text-min: 16px;
   --type-fit-heading-min: 23px;
@@ -226,7 +226,7 @@ button {
   letter-spacing: var(--tracking-label);
 }
 .boot-loader { font-family: var(--font-ui); font-size: var(--type-ui); line-height: var(--leading-ui); }
-.boot-gate h2 { font-family: var(--font-ui); font-size: var(--type-boot); font-weight: 500; line-height: var(--leading-heading); letter-spacing: 0; }
+.boot-gate h2 { font-family: var(--font-ui); font-size: var(--type-boot); font-weight: 400; line-height: var(--leading-ui); letter-spacing: var(--tracking-label); }
 .terminal-output, .prompt-row, #terminal-input {
   font-family: var(--font-ui); font-size: var(--type-ui); font-weight: 500;
   line-height: 1.5; letter-spacing: 0;
@@ -248,7 +248,7 @@ button {
   }
 }
 @media (max-height: 520px) and (max-width: 900px) {
-  :root { --type-display: clamp(32px, 9vh, 44px); --type-boot: clamp(24px, 7vh, 36px); }
+  :root { --type-display: clamp(32px, 9vh, 44px); }
   .hero-copy { font-size: var(--type-body); }
 }
 
@@ -299,9 +299,12 @@ button {
   .resume-row p { margin-top: 12px; }
 }
 
-:root[data-typography="doto-mono"] .project-tile-main strong,
-:root[data-typography="doto-mono"] .boot-gate h2 {
+:root[data-typography="doto-mono"] .project-tile-main strong {
   font-weight: 700;
+}
+/* Keep the loader a lightweight Doto micro-label, not a display heading. */
+:root[data-typography="doto-mono"] .boot-gate h2 {
+  font-weight: 400;
 }
 /* Geist Pixel Square = large titles / editorial subheads, never body copy.
    The same rule covers JS-rendered case studies and static-reader fallback. */
