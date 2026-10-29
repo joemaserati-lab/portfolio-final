@@ -38,7 +38,7 @@ try {
     assert(Math.abs(output.y-Math.round(y-offsets[type][1]))<1,
       `${width}: ${type} hotspot Y is misaligned`);
   };
-  await check('default',300,250,'body');
+  await check('default',10,10,'body');
   await check('pointer',450,300,'.desktop-icon');
   await check('text',130,170,'input');
   const icons=await page.evaluate(()=>({
