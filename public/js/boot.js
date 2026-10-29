@@ -1,156 +1,71 @@
 (() => {
-  // Initial CLS sources are captured by the Playwright performance audit.
-  // Post-entry timing is verified by the Lighthouse workflow (click-scoped long-task measurement).
+  // Minimal loading state: keep the loading title and progress bar visible for
+  // at least two seconds on every visit. No terminal sequence or entry click.
   const loader = document.getElementById('boot-loader');
-  const out = document.getElementById('boot-output');
-  const enter = document.getElementById('boot-enter');
-  const gateTitle = document.querySelector('#boot-gate h2');
-  const gateStatus = document.getElementById('boot-gate-status');
-  const gateNote = document.getElementById('boot-gate-note');
+  const bar = document.getElementById('boot-progress-bar');
   const progress = document.getElementById('boot-progress');
-  const progressBar = document.getElementById('boot-progress-bar');
-  if (!loader || !out || !enter || !gateTitle || !gateStatus || !progress || !progressBar) return;
+  const title = document.querySelector('#boot-gate h2');
+  if (!loader || !bar || !progress || !title) return;
 
-  const BOOT_SEEN_KEY = 'portfolioBootSeen';
-  const returningVisit = document.documentElement.classList.contains('returning-visit');
-  const ROW_STEP_MS = 55;
+  const MINIMUM_VISIBLE_MS = 2000;
   const HEAD_READY_TIMEOUT_MS = 8000;
   const SCRIPT_LOAD_TIMEOUT_MS = 12000;
-  const i18n = window.PortfolioI18n;
-  const t = key => i18n?.t?.(key) || key;
-  const isTouchDevice = () => Boolean(i18n?.isTouchDevice?.()) || matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
-  const touchDevice = isTouchDevice();
-  let finished = false;
-  let sequenceStarted = false;
-  let headOk = false;
+  const startedAt = performance.now();
+  const touchDevice = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
+  const t = key => window.PortfolioI18n?.t?.(key) || key;
   let applicationPromise = null;
   let headPromise = null;
   let crtPromise = null;
-  let fatalLoadError = false;
-
-  const progressWeights = new Map([
-    ['dom', 5],
-    ['fonts', 10],
-    ['page', 5],
-    ['video', 5],
-    ['app', 15],
-    ['covers', 10],
-    ['head', 50]
-  ]);
-  const completedProgressTasks = new Set();
+  let finished = false;
   let progressTarget = 0;
   let progressValue = 0;
   let progressRaf = 0;
 
-  const rows = new Map();
-  const rowOrder = [];
-  const rowState = new Map();
-  const rowDefs = [
-    ['init', '01 INIT', 'environment initialized', 'done'],
-    ['dom', '02 DOM', 'building interface', 'pending'],
-    ['fonts', '03 TYPE', 'loading system fonts', 'pending'],
-    ['page', '04 ASSETS', 'loading visual resources', 'pending'],
-    ['video', '05 SIGNAL', 'initializing CRT layer', 'pending'],
-    ['head', '06 MODEL', 'waiting for entry', 'pending'],
-    ['ready', '07 READY', 'checking resources', 'pending']
-  ];
-
-  rowDefs.forEach(([key, label, text, state]) => rowState.set(key, { label, text, state }));
-
-  function addRow(key) {
-    const current = rowState.get(key);
-    if (!current) return null;
-    let row = rows.get(key);
-    if (!row) {
-      row = document.createElement('div');
-      row.className = 'boot-line';
-      row.innerHTML = `<span class="tag"></span> <span class="muted"></span>`;
-      out.appendChild(row);
-      rows.set(key, row);
-      rowOrder.push(row);
-      const index = rowOrder.length - 1;
-      setTimeout(() => row.classList.add('is-shown'), 120 + index * ROW_STEP_MS);
-    }
-    row.dataset.state = current.state;
-    row.querySelector('.tag').textContent = current.label.padEnd(10, ' ');
-    row.querySelector('.muted').textContent = current.text;
-    return row;
+  title.textContent = t('boot.title').toUpperCase();
+  title.setAttribute('aria-label', title.textContent);
+  function drawProgress() {
+    const percent = Math.max(0, Math.min(100, progressValue));
+    bar.style.transform = `scaleX(${percent / 100})`;
+    progress.setAttribute('aria-valuenow', String(Math.round(percent)));
   }
-
-  function setRow(key, label, text, state = 'pending') {
-    rowState.set(key, { label, text, state });
-    if (sequenceStarted) addRow(key);
-  }
-
-  function setTitle(key) {
-    const target = t(key).toUpperCase();
-    gateTitle.setAttribute('aria-label', target);
-    gateTitle.textContent = target;
-  }
-
-  function setGate(text, note) {
-    gateStatus.removeAttribute('data-i18n');
-    gateStatus.textContent = text;
-    if (gateNote && note) {
-      gateNote.removeAttribute('data-i18n');
-      gateNote.textContent = note;
-      gateNote.hidden = !note;
-    }
-  }
-
-  function renderProgress() {
-    progressBar.style.transform = `scaleX(${Math.max(0, Math.min(1, progressValue / 100))})`;
-  }
-
   function animateProgress() {
-    const delta = progressTarget - progressValue;
-    if (Math.abs(delta) <= 0.12) {
+    const difference = progressTarget - progressValue;
+    if (Math.abs(difference) < 0.2) {
       progressValue = progressTarget;
-      renderProgress();
+      drawProgress();
       progressRaf = 0;
       return;
     }
-    progressValue += delta * 0.24;
-    renderProgress();
+    progressValue += difference * 0.24;
+    drawProgress();
     progressRaf = requestAnimationFrame(animateProgress);
   }
-
-  function setProgressTarget(value) {
-    progressTarget = Math.max(progressTarget, Math.min(100, value));
+  function setProgressTarget(next) {
+    progressTarget = Math.max(progressTarget, Math.min(next, 100));
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
       progressValue = progressTarget;
-      renderProgress();
-      return;
+      drawProgress();
+    } else if (!progressRaf) {
+      progressRaf = requestAnimationFrame(animateProgress);
     }
-    if (!progressRaf) progressRaf = requestAnimationFrame(animateProgress);
   }
-
-  function completeProgressTask(key) {
-    if (completedProgressTasks.has(key)) return;
-    completedProgressTasks.add(key);
-    let total = 0;
-    completedProgressTasks.forEach(task => {
-      total += progressWeights.get(task) || 0;
-    });
+  const completedTasks = new Set();
+  const progressWeights = { dom: 5, fonts: 10, page: 5, app: 25, head: 55 };
+  function completeTask(name) {
+    completedTasks.add(name);
+    const total = [...completedTasks].reduce((sum, key) => sum + progressWeights[key], 0);
     setProgressTarget(Math.min(96, total));
   }
-
-  function trackProgress(key, promise) {
+  function track(name, promise) {
     return Promise.resolve(promise).then(
-      value => {
-        completeProgressTask(key);
-        return value;
-      },
-      error => {
-        completeProgressTask(key);
-        throw error;
-      }
+      result => { completeTask(name); return result; },
+      error => { completeTask(name); throw error; }
     );
   }
-
-  setTitle('boot.title');
-
-  setProgressTarget(1.5);
+  setProgressTarget(2);
+  const minimumVisible = new Promise(resolve => {
+    setTimeout(resolve, Math.max(0, MINIMUM_VISIBLE_MS - (performance.now() - startedAt)));
+  });
 
   function assetUrl(path) {
     const url = new URL(path, document.baseURI);
@@ -280,7 +195,6 @@
 
   function loadHead() {
     if (headPromise) return headPromise;
-    setRow('head', '06 MODEL', 'loading 3D model / shaders', 'pending');
     headPromise = new Promise(resolve => {
       let settled = false;
       let timer = null;
@@ -289,8 +203,6 @@
         settled = true;
         removeEventListener('portfolio:head-settled', onSettled);
         if (timer) clearTimeout(timer);
-        headOk = Boolean(detail?.ready);
-        setRow('head', '06 MODEL', headOk ? 'model ready' : '3D fallback active', headOk ? 'done' : 'warn');
         resolve(detail || { settled: true, ready: false });
       };
       const onSettled = event => done(event.detail || { settled: true, ready: false });
@@ -309,84 +221,38 @@
     return headPromise;
   }
 
-  if (gateNote && !touchDevice) gateNote.setAttribute('aria-hidden', 'true');
-
-  const domReady = new Promise(resolve => {
+  const domReady = track('dom', new Promise(resolve => {
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => resolve({ ok: true }), { once: true });
-    } else resolve({ ok: true });
-  }).then(value => {
-    setRow('dom', '02 DOM', 'interface ready', 'done');
-    return value;
-  });
-
-  const fontsReady = (async () => {
-    if (!document.fonts) {
-      setRow('fonts', '03 TYPE', 'font API unavailable - fallback armed', 'warn');
-      return { ok: false };
-    }
-    try {
-      await Promise.all([
+      document.addEventListener('DOMContentLoaded', resolve, { once: true });
+    } else resolve();
+  }));
+  const fontsReady = track('fonts', document.fonts
+    ? Promise.all([
         document.fonts.load('500 20px "Doto"'),
-        document.fonts.load('400 48px "Redaction 50"')
-      ]);
-      setRow('fonts', '03 TYPE', 'fonts ready', 'done');
-      return { ok: true };
-    } catch (error) {
-      setRow('fonts', '03 TYPE', 'font fallback armed', 'warn');
-      return { ok: false, error };
-    }
-  })();
-
-  const pageReady = new Promise(resolve => {
-    if (document.readyState === 'complete') resolve({ ok: true });
-    else addEventListener('load', () => resolve({ ok: true }), { once: true });
-  }).then(value => {
-    setRow('page', '04 ASSETS', 'assets ready', 'done');
-    return value;
-  });
-
+        document.fonts.load('400 16px "Geist Mono"')
+      ]).catch(() => {})
+    : Promise.resolve());
+  const pageReady = track('page', new Promise(resolve => {
+    if (document.readyState === 'complete') resolve();
+    else addEventListener('load', resolve, { once: true });
+  }));
   const ambientVideo = document.querySelector('.crt-background-video');
-  const videoReady = Promise.resolve({ ok: true }).then(value => {
-    setRow('video', '05 SIGNAL', 'video preloading initiated', 'done');
-    return value;
-  });
-
   function startAmbientVideo() {
     if (!ambientVideo || document.body.classList.contains('project-case-open')) return;
     try {
       ambientVideo.preload = 'auto';
-      const playing = ambientVideo.play();
-      if (playing?.catch) playing.catch(() => {});
+      ambientVideo.play()?.catch(() => {});
     } catch {}
   }
-
-  const trackedDomReady = trackProgress('dom', domReady);
-  const trackedFontsReady = trackProgress('fonts', fontsReady);
-  const trackedPageReady = trackProgress('page', pageReady);
-  const trackedVideoReady = trackProgress('video', videoReady);
-
-  // Start the real application work immediately, behind the opaque loader.
-  // The terminal animation overlaps loading; reveal waits for the interface
-  // content runtime; the 3D pipeline and project covers are optional enhancements.
-  const applicationReady = trackProgress('app', loadApplication());
-  // Project covers are not required to enter the homepage. Mark the loader
-  // task complete immediately and decode covers later during browser idle time.
-  const coversReady = trackProgress('covers', Promise.resolve({ ok: true, deferred: true }));
-
-  // Direct case-study routes do not display the portrait. Load it only when
-  // the visitor returns to a section that actually uses it.
+  const applicationReady = track('app', loadApplication());
   const workPath = new URL('work/', document.baseURI).pathname;
   const initialCase = location.pathname.startsWith(workPath) && location.pathname !== workPath;
-  const headReady = trackProgress('head', initialCase
-    ? Promise.resolve({ ok:true, deferred:true })
-    : trackedDomReady.then(() => loadHead()));
+  const headReady = track('head', initialCase ? Promise.resolve({ready:true,deferred:true}) : domReady.then(loadHead));
   if (initialCase) addEventListener('portfolio:project-closed', () => {
     loadHead();
     if (touchDevice) scheduleDeferredTouchVisuals();
     else { startAmbientVideo(); loadCrtRuntime(); }
-  }, {once:true});
-  setRow('head', '06 MODEL', 'waiting for entry', 'pending');
+  }, { once: true });
 
   function scheduleDeferredCovers() {
     const start = () => {
@@ -415,96 +281,51 @@
     setTimeout(startCrt, 900);
   }
 
-  // One terminal experience runs alongside actual loading, never after it.
-  if (!returningVisit) beginSequence();
-
-  (async () => {
-    try {
-      await applicationReady;
-    } catch (error) {
-      recoverApplicationLoad(error);
+  function dismissLoader() {
+    loader.classList.add('done');
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      loader.remove();
       return;
     }
-    // Wait only for first composited head frame, not videos or font downloads.
-    await trackedDomReady;
-    if (!initialCase) {
-      const headState = await headReady;
-      if (!headState?.ready) console.warn('3D head missed the entry deadline.', headState?.error);
-    }
-    setProgressTarget(100);
-    setRow('ready', '07 READY', 'portfolio environment online', 'done');
-    try { sessionStorage.setItem(BOOT_SEEN_KEY, '1'); } catch {}
-    try { localStorage.setItem(BOOT_SEEN_KEY, '1'); } catch {}
-    launch(returningVisit);
-  })();
-
-  function beginSequence() {
-    if (sequenceStarted || finished) return false;
-    sequenceStarted = true;
-    loader.classList.add('is-sequencing');
-    document.body.classList.add('entry-prewarm');
-    rowDefs.forEach(([key]) => addRow(key));
-    return true;
+    loader.addEventListener('transitionend', event => {
+      if (event.target === loader && event.propertyName === 'opacity') loader.remove();
+    }, { once: true });
+    // A non-animated browser must not leave a hidden overlay in the DOM.
+    setTimeout(() => loader.remove(), 500);
   }
-
-  function recoverApplicationLoad(error) {
-    document.body.classList.add('reader-mode');
-    document.body.classList.remove('booting');
-    console.error('Portfolio application failed to load.', error);
-    document.documentElement.classList.remove('returning-visit');
-    setRow('ready', '07 READY', 'application load failed - retry available', 'warn');
-
-    fatalLoadError = true;
-    sequenceStarted = false;
-    applicationPromise = null;
-    loader.classList.remove('is-sequencing');
-    loader.classList.add('is-ready');
-
-    const italian = document.documentElement.lang === 'it';
-    setGate(
-      italian ? 'ERRORE CARICAMENTO APPLICAZIONE' : 'APPLICATION LOAD ERROR',
-      italian
-        ? 'Controlla la connessione e clicca RIPROVA per ricaricare il portfolio.'
-        : 'Check your connection and click RETRY to reload the portfolio.'
-    );
-    enter.removeAttribute('data-i18n');
-    enter.textContent = italian ? 'RIPROVA' : 'RETRY';
-    enter.disabled = false;
-    requestAnimationFrame(() => enter.focus({ preventScroll: true }));
-  }
-
-  function launch(fast = false) {
+  function reveal() {
     if (finished) return;
     finished = true;
-
-    // Prepare the composition while the loader still covers it. Both desktop
-    // and touch release the visibility/scroll gate in this same frame.
-    if (!fast) document.body.classList.add('site-entering');
-    document.body.classList.remove('booting', 'entry-prewarm');
+    document.body.classList.remove('booting', 'entry-prewarm', 'site-entering');
+    document.body.classList.add('site-ready');
     window.dispatchEvent(new CustomEvent('portfolio:booted'));
-
-    const finishReveal = () => {
-      document.body.classList.remove('site-entering');
-      document.body.classList.add('site-ready');
-      window.dispatchEvent(new CustomEvent('portfolio:site-ready'));
-      scheduleDeferredCovers();
-      scheduleDeferredTouchVisuals();
-    };
-    // Use actual CSS completion, including reduced motion, rather than timers.
-    const animations = [...document.querySelectorAll('.shell, .hero-intro > *, .desktop-icons .desktop-icon, .crt-head-feature')]
-      .flatMap(element => element.getAnimations());
-    if (fast) finishReveal();
-    else Promise.allSettled(animations.map(animation => animation.finished)).then(finishReveal);
-
-    const removeLoader = () => loader.remove();
-    loader.addEventListener('transitionend', event => {
-      if (event.target === loader && event.propertyName === 'opacity') removeLoader();
-    });
-    loader.classList.add('done');
-    if (fast || matchMedia('(prefers-reduced-motion: reduce)').matches) removeLoader();
+    window.dispatchEvent(new CustomEvent('portfolio:site-ready'));
+    scheduleDeferredCovers();
+    scheduleDeferredTouchVisuals();
+    dismissLoader();
   }
-
-  enter.addEventListener('click', () => {
-    if (fatalLoadError) location.reload();
-  });
+  async function fallback(error) {
+    await minimumVisible;
+    console.error('Portfolio application failed to load.', error);
+    document.body.classList.remove('booting', 'entry-prewarm', 'site-entering');
+    document.body.classList.add('reader-mode');
+    document.documentElement.classList.remove('returning-visit');
+    loader.remove();
+  }
+  (async () => {
+    try {
+      await Promise.all([applicationReady, domReady, headReady]);
+      await minimumVisible;
+      setProgressTarget(100);
+      try { sessionStorage.setItem('portfolioBootSeen', '1'); } catch {}
+      try { localStorage.setItem('portfolioBootSeen', '1'); } catch {}
+      reveal();
+    } catch (error) {
+      await fallback(error);
+    }
+  })();
+  // Fonts and passive page resources continue loading, but do not hold up the
+  // application once its runtime and first 3D frame are available.
+  void fontsReady;
+  void pageReady;
 })();
