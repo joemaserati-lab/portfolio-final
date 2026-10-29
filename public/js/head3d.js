@@ -36,13 +36,14 @@ if (feature && canvas && screenElement) {
     if (disposed || !effect) return;
     // Case studies show the project alone; resume the same head on return.
     const projectCaseOpen = projectsView && !projectsView.hidden && projectsView.dataset.view === 'case';
-    const shouldBeVisible = ready && booted && pageVisible && !projectCaseOpen && !document.body.classList.contains('screensaver-on');
+    const shouldBeVisible = ready && booted && pageVisible && !projectCaseOpen && !document.body.classList.contains('screensaver-on') && !document.body.classList.contains('scroll-head-hidden');
     feature.classList.toggle('is-ready', shouldBeVisible);
     effect.setPaused(!shouldBeVisible);
   }
   function onScrollPose(event) {
     effect?.setScrollRotation(event.detail.yaw, event.detail.heroPresence);
     effect?.setPresentationScale(event.detail.renderScale);
+    sync();
   }
   addEventListener('portfolio:scroll-pose', onScrollPose);
   function onPointerMove(event) {

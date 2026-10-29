@@ -100,7 +100,8 @@
   document.addEventListener('touchmove', activity, {passive:true,capture:true});
   document.addEventListener('keydown', activity, {capture:true});
   document.addEventListener('wheel', activity, {passive:false,capture:true});
-  document.addEventListener('scroll', activity, {passive:true,capture:true});
+  // Pointer, wheel, touch and keyboard input define activity. Programmatic
+  // scrolls from responsive layout/animated navigation must not reset idle.
   document.addEventListener('visibilitychange', visibility);
   addEventListener('pagehide', () => { clearTimeout(timer); send('pause'); });
   addEventListener('pageshow', () => { if (started) visibility(); });

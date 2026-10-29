@@ -3,7 +3,7 @@ import { chromium } from 'playwright';
 const base=process.env.AUDIT_URL||'http://127.0.0.1:4321/portfolio-final/';
 const browser=await chromium.launch({headless:true,args:['--use-gl=swiftshader','--enable-webgl']});
 try {
- for(const [width,height] of [[320,568],[390,844],[667,375],[1024,768],[1440,900],[1835,831],[1920,1080],[2560,1440]]) {
+ for(const [width,height] of [[320,568],[390,844],[667,375],[1024,768],[1440,900],[1600,1000],[1835,831],[1920,1080],[2560,1440]]) {
   const page=await browser.newPage({viewport:{width,height},hasTouch:width<768,isMobile:width<768});
   await page.goto(base,{waitUntil:'domcontentloaded'});
   const boot=await page.evaluate(()=>{
@@ -14,7 +14,8 @@ try {
   for(const key of ['x','y','width','height']) assert(Math.abs(boot.screen[key]-boot.loader[key])<1,`${width}: loader misaligned (${key})`);
   assert(Math.abs(boot.screen.x-boot.outlineLeft)<1,`${width}: outline misaligned`);
   if(width>1024) {
-   assert(Math.abs(boot.screen.width/boot.screen.height-3/2)<.002,`${width}: expected centered 3:2`);
+   const fitRatio=Math.min(5/3,(width-2*(14+34))/(height-2*(14+28)));
+   assert(Math.abs(boot.screen.width/boot.screen.height-fitRatio)<.002,`${width}: expected 5:3 maximum, centered within viewport`);
    assert(Math.abs(boot.screen.left-(width-boot.screen.right))<1,`${width}: screen not centered`);
   }
   await page.waitForFunction(()=>document.body.classList.contains('site-ready')&&!document.getElementById('boot-loader'),null,{timeout:45000});
@@ -59,8 +60,13 @@ try {
   await page.waitForFunction(()=>document.body.classList.contains('site-ready')&&document.querySelector('#projects-view').dataset.view==='case');
   assert.equal(await page.locator('.crt-stage').evaluate(e=>getComputedStyle(e).filter),'none',`${width}: case study must not use SVG optics`);
   await page.locator('.projects-close').click();
-  await page.waitForFunction(()=>document.querySelector('#projects-view').hidden&&document.querySelector('#crt-head-feature').classList.contains('is-ready'));
-  console.log('CRT PASS',width,height,'geometry, mobile parity, no SVG filter, CTA, case close/head resume');
+  await page.waitForFunction(()=>document.querySelector('#projects-view').hidden);
+  if(width<=1024) await page.waitForFunction(()=>document.querySelector('#crt-head-feature').classList.contains('is-ready'));
+  else {
+    assert.equal(await page.locator('#crt-head-feature').evaluate(e=>e.parentElement.id),'desktop');
+    assert.equal(await page.locator('#crt-head-feature').isVisible(),false,'Desktop head must remain in hero');
+  }
+  console.log('CRT PASS',width,height,'geometry, mobile parity, no SVG filter, CTA, case close/head state');
   await page.close();
  }
  const page=await browser.newPage({viewport:{width:800,height:600}});
