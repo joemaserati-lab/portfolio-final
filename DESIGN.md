@@ -15,7 +15,7 @@ Intermediate black/gray values may exist in the CRT shader, alpha transparency a
 - Mint must **not** be used on backgrounds, panels, window chrome, default icon borders or secondary hover states.
 - Window surfaces stay charcoal with dark-gray titlebars. Text hierarchy: white for primary content, light gray for secondary copy.
 - The 3D portrait is white/gray with only a few mint contours. Avoid broad luminous color effects.
-- Preserve CRT framing, animation, clipping and mobile safe zones. Redaction remains the editorial display voice. Doto is retained for project titles, interface and all reading copy; long-form copy and case facts use a 16–18 px reading scale with generous line-height.
+- Preserve CRT framing, animation, clipping and mobile safe zones. Redaction remains the editorial display voice. In balanced mode it also handles individual case-study titles; Doto handles interface, project-directory titles and metadata; Inter handles long-form copy, case facts and informative subheads. The original all-Doto reading voice is reversible via the typography configuration.
 - Make all visual color adjustments in `public/css/monochrome-theme.css`; it is the canonical palette and **the only stylesheet defining the UI color tokens**.
 - The `:root` rules in `foundation.css`, `visual-experience.css`, `adaptive.css`, `fixes.css` and `crt-outline.css` are reserved for geometry, typography and responsive measurements.
 - The separate 404 page has an inline palette by design. Its bouncing portrait uses mint in only one of six phases.
@@ -35,4 +35,4 @@ The `PORTFOLIO PRONTO` title wraps inside the responsive CRT safe area, without 
 Role precedes original artwork; client, deliverables and year follow it. Distinguish titles and reading copy through scale, line-height and spacing, preserve full-frame covers and use neutral rules and spacing rather than decorative panels. Body copy must not shrink below 16 px on narrow or short viewports.
 
 ## Complete typography system
-`public/css/typography.css` is the canonical source for type roles, sizes, leading, tracking and font families. It follows the existing structural layers in source and production. See `TYPOGRAPHY.md`. Component modules may define icon glyph geometry and font-face registration, but must not reintroduce content type scales.
+`public/css/typography.css` is the canonical source for type roles, sizes, leading, tracking and font families. The mode is configured once in `src/data/typography.mjs`, and shared by the main shell and the 404 page. It follows the existing structural layers in source and production. See `TYPOGRAPHY.md`. Component modules may define icon glyph geometry and font-face registration, but must not reintroduce content type scales.
