@@ -1,8 +1,8 @@
-/* Typography modes (src/data/typography.mjs):
-   digital (default): Doto headings, subheadings and interface; Geist Pixel Square reading.
-   balanced: Redaction 50 display; Doto UI; Inter reading.
-   original: Redaction 50 display; Doto UI and reading. 
-   Size, geometry and palette stay centralized and independent of the chosen mode. */
+/* Typography modes: src/data/typography.mjs is the single switch.
+   pixel-editorial: Geist Pixel Square headings, Geist Sans body, Doto micro-UI.
+   digital: Doto headings, Geist Pixel Square body (previous published version).
+   balanced: Redaction 50 headings, Inter body; original: Redaction 50 + Doto.
+   Text sizing and palette are independent of modes; maintain rollback support. */
 :root {
   --font-ui: "Doto", "Doto Fallback", "Courier New", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --font-display: "Redaction 50", Georgia, serif;
@@ -14,6 +14,10 @@
   --font-display-weight: 400;
   --font-display-tracking: -.025em;
   --font-reading-settings: normal;
+  --font-display-settings: normal;
+  --font-case-title-settings: normal;
+  --font-content-subhead-settings: normal;
+  --font-content-subhead-weight: 600;
   --type-micro: 13px;
   --type-caption: 13px;
   --type-small: var(--type-caption);
@@ -66,6 +70,22 @@
   --type-body: clamp(17px, 1.32vw, 19px);
   --type-body-lg: clamp(18px, 1.48vw, 20px);
 }
+/* At display scale, the Square texture is distinct; extended reading uses Geist.
+   Keep Doto confined to UI controls, system indicators, micro-labels and metadata. */
+:root[data-typography="pixel-editorial"] {
+  --font-display: "Geist Pixel", "Geist", Arial, sans-serif;
+  --font-display-settings: "ELSH" 1;
+  --font-display-weight: 400;
+  --font-display-tracking: 0;
+  --font-reading: "Geist", Arial, sans-serif;
+  --font-case-title: var(--font-display);
+  --font-case-title-settings: "ELSH" 1;
+  --font-case-title-weight: 400;
+  --font-content-subhead: var(--font-display);
+  --font-content-subhead-settings: "ELSH" 1;
+  --font-content-subhead-weight: 400;
+  --font-resume-heading-weight: 400;
+}
 body, button, input, textarea, select {
   font-family: var(--font-reading);
   font-variation-settings: var(--font-reading-settings);
@@ -101,6 +121,7 @@ button, input, textarea, select { font-family: var(--font-ui); }
 .hero-intro h1, .window-body h2, .resume-header h2, .projects-index-head h2,
 .not-found-panel h1, .scene__copy h1, .static-reader h1 {
   font-family: var(--font-display);
+  font-variation-settings: var(--font-display-settings);
   font-weight: var(--font-display-weight);
   font-style: normal;
   line-height: var(--leading-display);
@@ -111,6 +132,7 @@ button, input, textarea, select { font-family: var(--font-ui); }
 .static-reader h1 { font-size: var(--type-heading); }
 .case-title-v2 h2 {
   font-family: var(--font-case-title);
+  font-variation-settings: var(--font-case-title-settings);
   font-weight: var(--font-case-title-weight);
   font-size: var(--type-project-title);
   line-height: var(--leading-heading);
@@ -126,6 +148,7 @@ button, input, textarea, select { font-family: var(--font-ui); }
 }
 .resume-row h3, .case-output-list h3, .static-reader h2, .static-reader h3 {
   font-family: var(--font-content-subhead);
+  font-variation-settings: var(--font-content-subhead-settings);
 }
 .resume-row strong, .meta-card b, .contact-link, .contact-link b {
   font-family: var(--font-ui);
@@ -170,7 +193,7 @@ button, input, textarea, select { font-family: var(--font-ui); }
   line-height: 1.5; letter-spacing: 0;
 }
 .scene__copy h1 { font-size: clamp(80px, min(18vw, 24vh), 200px); }
-.dvd__fallback { font-family: var(--font-display); font-size: clamp(100px, 11vw, 158px); font-weight: var(--font-display-weight); line-height: 1; letter-spacing: 0; }
+.dvd__fallback { font-family: var(--font-display); font-variation-settings: var(--font-display-settings); font-size: clamp(100px, 11vw, 158px); font-weight: var(--font-display-weight); line-height: 1; letter-spacing: 0; }
 @media (max-width: 720px) {
   :root {
     --type-display: 44px;
@@ -219,7 +242,7 @@ button, input, textarea, select { font-family: var(--font-ui); }
   line-height: 1.45;
 }
 .case-output-list h3, .case-nav-v2 b, .privacy-panel h2,
-.static-reader h2, .static-reader h3 { font-weight: 600; }
+.static-reader h2, .static-reader h3 { font-weight: var(--font-content-subhead-weight); }
 .resume-section-title {
   font-size: clamp(15px, 1.12vw, 16px);
   font-weight: 600;
@@ -235,4 +258,26 @@ button, input, textarea, select { font-family: var(--font-ui); }
   .resume-section { gap: 14px; }
   .resume-row { gap: 10px; padding-block: 22px; }
   .resume-row p { margin-top: 12px; }
+}
+
+/* Geist Pixel Square = large titles / editorial subheads, never body copy.
+   The same rule covers JS-rendered case studies and static-reader fallback. */
+:root[data-typography="pixel-editorial"] .project-tile-main strong,
+:root[data-typography="pixel-editorial"] .case-nav-v2 b,
+:root[data-typography="pixel-editorial"] .privacy-panel h2 {
+  font-family: var(--font-display);
+  font-variation-settings: var(--font-display-settings);
+  font-weight: 400;
+}
+:root[data-typography="pixel-editorial"] .boot-gate h2 {
+  font-family: var(--font-display);
+  font-variation-settings: var(--font-display-settings);
+  font-weight: 400;
+}
+:root[data-typography="pixel-editorial"] .resume-row strong,
+:root[data-typography="pixel-editorial"] .meta-card b,
+:root[data-typography="pixel-editorial"] .contact-link,
+:root[data-typography="pixel-editorial"] .contact-link b {
+  font-family: var(--font-reading);
+  font-variation-settings: normal;
 }
