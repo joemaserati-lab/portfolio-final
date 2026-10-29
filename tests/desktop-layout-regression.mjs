@@ -33,7 +33,10 @@ try{
      scrollWidth:document.getElementById('scroll-viewport').scrollWidth,
      clientWidth:document.getElementById('scroll-viewport').clientWidth,
      headParent:document.getElementById('crt-head-feature').parentElement.id,
-     headHidden:document.body.classList.contains('scroll-head-hidden'),
+     headDocked:document.getElementById('crt-head-feature').classList.contains('scroll-portrait-docked'),
+     headBox:box(document.getElementById('crt-head-feature')),
+     screenBox:box(document.getElementById('screen')),
+     headOpacity:getComputedStyle(document.getElementById('crt-head-feature')).opacity,
      grid:getComputedStyle(root.querySelector('.projects-grid-v2')||root.querySelector('.resume-section')||root.querySelector('.contact-panel')).gridTemplateColumns,
      rows:[...root.querySelectorAll('.project-tile-v2')].map(x=>box(x)),
      covers:[...root.querySelectorAll('.project-cover-v2')].map(x=>({box:box(x),ratio:getComputedStyle(x).aspectRatio})),
@@ -50,8 +53,12 @@ try{
    },kind);
    assert(info.win.width>=info.section.width*.70,`${width} ${kind}: desktop window still narrow`);
    assert(info.scrollWidth<=info.clientWidth+eps,`${width} ${kind}: horizontal overflow`);
-   assert.equal(info.headParent,'desktop',`${width} ${kind}: desktop WebGL head was reparented`);
-   assert(info.headHidden,`${width} ${kind}: WebGL must not obstruct scroll reading`);
+   assert.equal(info.headParent,'screen',`${width} ${kind}: WebGL must dock to the CRT screen`);
+   assert(info.headDocked,`${width} ${kind}: missing bottom-center dock`);
+   assert(Math.abs((info.headBox.left+info.headBox.right)/2-(info.screenBox.left+info.screenBox.right)/2)<6,
+     `${width} ${kind}: portrait not horizontally centered`);
+   assert(info.headBox.height<205 && info.headBox.height>115,`${width} ${kind}: portrait should be small`);
+   assert(info.headBox.bottom <= info.screenBox.bottom-25,`${width} ${kind}: dock is below CRT safe zone`);
    if(kind==='work'){
     assert.equal(info.rows.length,5,`${width}: expected five projects`);
     for(let i=1;i<info.rows.length;i++) assert(info.rows[i].top>=info.rows[i-1].bottom-1,`${width}: projects not in one column`);
@@ -69,7 +76,7 @@ try{
    }
   }
   await page.close();
-  console.log('LAYOUT PASS',width,'5:3, hero, work video, CV, contacts, stationary head');
+  console.log('LAYOUT PASS',width,'5:3, hero, work video, CV, contacts, centered desktop head');
  }
  const hybrid=await browser.newPage({viewport:{width:1440,height:900},hasTouch:true});
  await hybrid.addInitScript(()=>{sessionStorage.setItem('portfolioBootSeen','1');localStorage.setItem('portfolioPrivacyAck','1')});
@@ -88,9 +95,41 @@ try{
  });
  console.log('HYBRID DESKTOP SCROLL DIAGNOSTICS',JSON.stringify(debug));
  assert.equal(debug.scrollTop,900,'Hybrid desktop did not scroll');
- assert.equal(debug.headParent,'desktop','Hybrid WebGL was reparented');
- assert(debug.classes.includes('scroll-head-hidden'),'Hybrid desktop did not enter reading mode');
- assert.equal(debug.headVisibility,'hidden','Hybrid head still overlays reading');
- assert.equal(Number(debug.headOpacity),0,'Hybrid head opacity should be zero');
+ assert.equal(debug.headParent,'screen','Hybrid WebGL did not dock to CRT');
+ assert(debug.classes.includes('scroll-head-docked'),'Hybrid desktop did not enter docked mode');
+ assert.equal(debug.headVisibility,'visible','Hybrid head must remain visible during reading');
+ assert(Number(debug.headOpacity)>.6,'Hybrid docked head must be legible');
+ // Verify real pointer-driven yaw after scrolling into a section, including
+ // touch-capable laptops. The pointer is relative to the CRT, not the icon.
+ const sr=await hybrid.locator('#screen').boundingBox();
+ await hybrid.mouse.move(sr.x+sr.width*.18,sr.y+sr.height*.5);
+ await hybrid.waitForTimeout(450);
+ const leftYaw=await hybrid.evaluate(()=>window.PortfolioMotion.getPose().yaw);
+ await hybrid.mouse.move(sr.x+sr.width*.82,sr.y+sr.height*.5);
+ await hybrid.waitForTimeout(450);
+ const rightYaw=await hybrid.evaluate(()=>window.PortfolioMotion.getPose().yaw);
+ assert(rightYaw-leftYaw>.03,'Docket portrait does not follow mouse across CRT');
+ // One viewport-selected preview automatically plays on desktop without hover.
+ await hybrid.evaluate(()=>dispatchEvent(new CustomEvent('portfolio:scroll-to',{detail:'work'})));
+ await hybrid.waitForFunction(()=>document.querySelector('#scroll-work .scroll-window').classList.contains('is-revealed'));
+ await hybrid.locator('#scroll-work .project-cover-v2').first().evaluate(e=>{
+   const v=document.getElementById('scroll-viewport'), r=e.getBoundingClientRect(), sr=v.getBoundingClientRect();
+   v.scrollTop+=r.top-(sr.top+Math.min(95,sr.height*.13));
+ });
+ await hybrid.waitForFunction(()=>document.querySelectorAll('#scroll-work .is-viewport-color').length===1);
+ assert.equal(await hybrid.locator('#scroll-work .is-viewport-color').count(),1,'Desktop preview not selected by viewport');
+ const playback=await hybrid.locator('#scroll-work .is-viewport-color video').evaluate(v=>({
+   src:v.getAttribute('src'),canPlay:Boolean(v.canPlayType('video/mp4; codecs="avc1.640028"')),muted:v.muted
+ }));
+ assert(playback.src && playback.muted,'Viewport preview should load automatically as a muted video');
+ if(playback.canPlay){
+   await hybrid.waitForFunction(()=>{
+     const card=document.querySelector('#scroll-work .is-viewport-color');
+     const video=card?.querySelector('video');
+     return video && !video.paused && video.readyState>=2 && card.classList.contains('is-video-playing');
+   },null,{timeout:20000});
+ }
+ const playing=await hybrid.locator('#scroll-work .project-cover-video').evaluateAll(videos=>videos.filter(v=>!v.paused).length);
+ assert(playing<=1,'More than one desktop project preview is playing');
  await hybrid.close();
 }finally{await browser.close()}
