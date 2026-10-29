@@ -23,7 +23,7 @@ try {
       overflow:[...document.querySelectorAll('#projects-view,#scroll-viewport,.scene')].filter(e=>e.getBoundingClientRect().width).map(e=>e.scrollWidth>e.clientWidth+1),
       families:[...document.querySelectorAll(reading)].map(e=>getComputedStyle(e).fontFamily),
       readingAxes:[...document.querySelectorAll(reading)].map(e=>getComputedStyle(e).fontVariationSettings),
-      display:[...document.querySelectorAll('.hero-intro h1,.scene__copy h1,.static-reader h1')].map(e=>({family:getComputedStyle(e).fontFamily,axes:getComputedStyle(e).fontVariationSettings})),
+      display:[...document.querySelectorAll('.hero-intro h1,.scene__copy h1,.static-reader h1')].map(e=>({family:getComputedStyle(e).fontFamily,axes:getComputedStyle(e).fontVariationSettings,weight:getComputedStyle(e).fontWeight})),
       caseTitles:[...document.querySelectorAll('.case-title-v2 h2')].map(e=>({family:getComputedStyle(e).fontFamily,axes:getComputedStyle(e).fontVariationSettings})),
       subheads:[...document.querySelectorAll('.resume-row h3,.case-output-list h3,.static-reader h2,.static-reader h3,.project-tile-main strong')].map(e=>({family:getComputedStyle(e).fontFamily,axes:getComputedStyle(e).fontVariationSettings})),
       interface:[...document.querySelectorAll('.primary-action,.language-toggle,.privacy-toggle,.scene__home,.system-label')].map(e=>getComputedStyle(e).fontFamily),
@@ -33,10 +33,10 @@ try {
    assert.deepEqual(result.small,[],`${width} ${route}: reading text too small`);
    assert.deepEqual(result.ui,[],`${width} ${route}: interface text too small`);
    assert.deepEqual(result.labels,[],`${width} ${route}: metadata too small`);
-   assert(['pixel-editorial','digital','balanced','original'].includes(result.mode),`${route}: unknown typography mode`);
+   assert(['doto-mono','pixel-editorial','digital','balanced','original'].includes(result.mode),`${route}: unknown typography mode`);
    const editorial=result.mode==='pixel-editorial';
-   const expectedReading=editorial?'Geist':result.mode==='digital'?'Geist Pixel':result.mode==='balanced'?'Inter':'Doto';
-   const expectedDisplay=editorial?'Geist Pixel':result.mode==='digital'?'Doto':'Redaction 50';
+   const expectedReading=result.mode==='doto-mono'?'Geist Mono':editorial?'Geist':result.mode==='digital'?'Geist Pixel':result.mode==='balanced'?'Inter':'Doto';
+   const expectedDisplay=editorial?'Geist Pixel':(['digital','doto-mono'].includes(result.mode))?'Doto':'Redaction 50';
    const expectedCase=editorial?'Geist Pixel':result.mode==='balanced'?'Redaction 50':'Doto';
    assert(result.families.every(f=>f.includes(expectedReading)),`${route}: reading voice should be ${expectedReading}`);
    assert(result.display.every(x=>x.family.includes(expectedDisplay)),`${route}: display voice should be ${expectedDisplay}`);
@@ -51,6 +51,11 @@ try {
      assert(result.actualFonts.some(f=>f==='Geist Pixel'),`${route}: Geist Pixel webfont not loaded`);
    } else if(result.mode==='digital') {
      assert(result.readingAxes.every(a=>a.includes('ELSH')&&a.includes('1')),`${route}: Geist Pixel Square ELSH=1 missing`);
+   } else if(result.mode==='doto-mono') {
+     assert(result.display.every(x=>x.weight==='700'),`${route}: Doto display must be bold for visual impact`);
+     assert(result.readingAxes.every(x=>x==='normal'),`${route}: Geist Mono body retained pixel font axes`);
+     assert(result.subheads.every(x=>x.family.includes('Geist Mono')),`${route}: informative subhead should use Geist Mono`);
+     assert(result.actualFonts.some(f=>f==='Geist Mono'),`${route}: Geist Mono webfont not loaded`);
    }
    assert(result.interface.every(f=>f.includes('Doto')),`${route}: interface voice changed`);
    assert(result.overflow.every(o=>!o),`${width} ${route}: horizontal overflow`);
