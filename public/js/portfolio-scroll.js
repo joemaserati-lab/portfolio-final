@@ -231,8 +231,12 @@
            width: desktopWidth, height: desktopHeight};
       const targetScale = target.height / headRect.height;
       const scale = mix(1, targetScale, pose);
-      const left = mix(headRect.left, target.left, pose);
-      const top = mix(headRect.top, target.top, pose);
+      // Mobile's square dock slot must center the aspect-ratio-preserving
+      // head. Desktop already supplies the exact scaled width/height.
+      const finalLeft = target.left + (target.width-headRect.width*targetScale)/2;
+      const finalTop = target.top + (target.height-headRect.height*targetScale)/2;
+      const left = mix(headRect.left, finalLeft, pose);
+      const top = mix(headRect.top, finalTop, pose);
       head.style.width = `${headRect.width}px`;
       head.style.height = `${headRect.height}px`;
       head.style.left = `${headRect.left}px`;
