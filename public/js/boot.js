@@ -9,6 +9,7 @@
 
   const MINIMUM_VISIBLE_MS = 2000;
   const HEAD_READY_TIMEOUT_MS = 8000;
+  const FONT_READY_TIMEOUT_MS = 9000;
   const SCRIPT_LOAD_TIMEOUT_MS = 12000;
   const startedAt = performance.now();
   const touchDevice = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
@@ -226,12 +227,55 @@
       document.addEventListener('DOMContentLoaded', resolve, { once: true });
     } else resolve();
   }));
-  const fontsReady = track('fonts', document.fonts
-    ? Promise.all([
-        document.fonts.load('500 20px "Doto"'),
-        document.fonts.load('400 16px "Geist Mono"')
-      ]).catch(() => {})
-    : Promise.resolve());
+  const fontsReady = track('fonts', (async () => {
+    const root = document.documentElement;
+    const wanted = [
+      ['400 20px "Doto"','PORTFOLIO LOADING'],
+      ['500 20px "Doto"','PORTFOLIO LOADING'],
+      ['600 48px "Doto"','EDOARDO RAPPANELLO'],
+      ['700 48px "Doto"','EDOARDO RAPPANELLO'],
+      ['400 17px "Geist Mono"','Graphic design and digital marketing'],
+      ['500 17px "Geist Mono"','GRAPHIC DESIGNER'],
+      ['600 17px "Geist Mono"','PROJECTS'],
+      ['700 17px "Geist Mono"','Selected works']
+    ];
+    let timer;
+    try {
+      if (!document.fonts) throw new Error('FontFaceSet unavailable');
+      const timeout = new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error('Typography loading exceeded 9 seconds')), FONT_READY_TIMEOUT_MS);
+      });
+      await Promise.race([
+        Promise.all(wanted.map(async ([descriptor,sample]) => {
+          const faces = await document.fonts.load(descriptor,sample);
+          if (!faces.length || !faces.every(face => face.status === 'loaded'))
+            throw new Error('Font face not available: '+descriptor);
+        })),
+        timeout
+      ]);
+      await document.fonts.ready;
+      root.classList.remove('fonts-pending');
+      root.classList.add('fonts-ready');
+      return {source:'Doto + Geist Mono'};
+    } catch (error) {
+      console.warn('Web fonts unavailable; using bundled Doto without system fallback.',error);
+      // The locally hosted Doto font has a compatible visual identity, and is
+      // available even when fonts.googleapis.com or fonts.gstatic.com is down.
+      if (document.fonts) {
+        const faces = await document.fonts.load('500 18px "Doto Fallback"','PORTFOLIO LOADING');
+        if (!faces.length || !faces.every(face => face.status==='loaded'))
+          throw new Error('The local Doto font also failed to load; do not reveal substitute fonts.');
+      } else {
+        throw new Error('No font loader available; avoid exposing system fonts.');
+      }
+      root.classList.add('fonts-local-fallback');
+      root.classList.remove('fonts-pending');
+      root.classList.add('fonts-ready');
+      return {source:'bundled Doto',reason:String(error)};
+    } finally {
+      clearTimeout(timer);
+    }
+  })());
   const pageReady = track('page', new Promise(resolve => {
     if (document.readyState === 'complete') resolve();
     else addEventListener('load', resolve, { once: true });
@@ -306,6 +350,8 @@
   }
   async function fallback(error) {
     await minimumVisible;
+    // Fallback reader content is text too: never expose browser fonts.
+    await fontsReady;
     console.error('Portfolio application failed to load.', error);
     document.body.classList.remove('booting', 'entry-prewarm', 'site-entering');
     document.body.classList.add('reader-mode');
@@ -314,7 +360,7 @@
   }
   (async () => {
     try {
-      await Promise.all([applicationReady, domReady, headReady]);
+      await Promise.all([applicationReady, domReady, headReady, fontsReady]);
       await minimumVisible;
       setProgressTarget(100);
       progressValue = 100;
@@ -326,8 +372,7 @@
       await fallback(error);
     }
   })();
-  // Fonts and passive page resources continue loading, but do not hold up the
-  // application once its runtime and first 3D frame are available.
-  void fontsReady;
+  // Page resources can remain passive; correct typography is an explicit
+  // precondition of revealing the loader title or the application.
   void pageReady;
 })();

@@ -209,6 +209,7 @@
     const pose = smoothDock;
     document.body.classList.toggle('scroll-reading', pose > 0);
     viewport.style.setProperty('--scroll-dock', pose.toFixed(4));
+    screen.style.setProperty('--scroll-dock', pose.toFixed(4));
     // Dock the existing WebGL canvas (never duplicate the renderer). Its
     // drawing buffer remains unchanged while scrolling; the same element is
     // moved only at the hero/docked boundary.
@@ -221,13 +222,14 @@
       }
       const sr = screen.getBoundingClientRect();
       const slot = portraitSlot.getBoundingClientRect();
-      // Small, centered and inside the CRT safe bottom area on desktop.
-      const desktopHeight = Math.min(165, Math.max(125, h * .205));
+      // Small at the CENTER TOP, in the same dark header band as the mini
+      // navigation. The head remains interactive and pointer-transparent.
+      const desktopHeight = Math.min(148, Math.max(110, h * .185));
       const desktopWidth = headRect.width * desktopHeight / headRect.height;
-      const bottomClearance = Math.max(34, Math.min(58, h * .064));
+      const topClearance = Math.max(10, Math.min(22, h * .026));
       const target = compact.matches
         ? {left: slot.left - sr.left, top: slot.top - sr.top, width: slot.width, height: slot.height}
-        : {left: (w - desktopWidth) / 2, top: h - bottomClearance - desktopHeight,
+        : {left: (w - desktopWidth) / 2, top: topClearance,
            width: desktopWidth, height: desktopHeight};
       const targetScale = target.height / headRect.height;
       const scale = mix(1, targetScale, pose);

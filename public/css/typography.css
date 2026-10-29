@@ -406,3 +406,18 @@ button {
     font-size: clamp(44px, 4.3cqw, 68px);
   }
 }
+
+/* Network-independent last resort: if Google Fonts cannot initialize, the
+   existing locally bundled Doto file is the only visible typeface. The font
+   gate does not open until this local file has loaded successfully. */
+:root.fonts-local-fallback,
+:root.fonts-local-fallback[data-typography] {
+  --font-ui: "Doto Fallback", monospace;
+  --font-display: "Doto Fallback", monospace;
+  --font-reading: "Doto Fallback", monospace;
+  --font-case-title: "Doto Fallback", monospace;
+  --font-content-subhead: "Doto Fallback", monospace;
+}
+:root.fonts-local-fallback :is(body,body *) {
+  font-family: "Doto Fallback", monospace !important;
+}

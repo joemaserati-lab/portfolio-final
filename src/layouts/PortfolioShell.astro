@@ -36,9 +36,18 @@ const canonicalUrl = new URL(canonicalPath, rootUrl);
 const ogImageUrl = new URL(ogImage, rootUrl);
 ---
 <!doctype html>
-<html lang="en" class="no-js" data-typography={typographyMode} data-crt-format={crtExperiment.classicDesktop ? "classic" : "wide"} style={`--crt-desktop-ratio: ${crtExperiment.desktopRatio}`}>
+<html lang="en" class="no-js fonts-pending" data-typography={typographyMode} data-crt-format={crtExperiment.classicDesktop ? "classic" : "wide"} style={`--crt-desktop-ratio: ${crtExperiment.desktopRatio}`}>
 <head>
   <meta charset="utf-8" />
+  <style is:inline>
+    /* First paint protection: not one frame of system-font fallback, even
+       before bundled CSS or remote font stylesheets have been received. */
+    html.fonts-pending .boot-gate h2,
+    html.fonts-pending .shell,
+    html.fonts-pending .static-reader {
+      visibility:hidden!important;
+    }
+  </style>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <base href={basePath} />
   <meta name="theme-color" content="#050505" />
@@ -167,6 +176,7 @@ const ogImageUrl = new URL(ogImage, rootUrl);
         <PortfolioFooter basePath={basePath} />
         </div>
         <ScrollNavigation basePath={basePath} />
+        <div class="scroll-top-rail" aria-hidden="true"></div>
         <div class="scroll-portrait-slot" aria-hidden="true"></div>
         <div class="scroll-folder-morph" aria-hidden="true"></div>
 
