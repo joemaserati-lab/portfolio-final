@@ -10,6 +10,7 @@ try {
    const errors=[];page.on('pageerror',e=>errors.push(e.message));
    await page.addInitScript(()=>{
     window.__bootEvents=[];
+    window.__bootStart=performance.now();
     addEventListener('portfolio:booted',()=>{
      const record={name:'booted',booting:document.body.classList.contains('booting'),
       opacity:getComputedStyle(document.querySelector('.shell')).opacity,
@@ -23,13 +24,18 @@ try {
    const held = new Promise(resolve=>release=resolve);
    await page.route('**/js/content.js*',async route=>{await held;await route.continue()});
    await page.goto(url,{waitUntil:'domcontentloaded'});
-   await page.waitForFunction(()=>document.querySelector('#boot-loader').classList.contains('is-sequencing'));
+   await page.locator('#boot-gate h2').waitFor({state:'visible'});
    assert(await page.locator('#boot-loader').isVisible());
    assert.equal(await page.locator('#boot-loader').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(5, 5, 5)','Loader needs an opaque background');
    assert.equal(await page.evaluate(()=>document.body.classList.contains('booting')),true);
-   assert.equal(await page.locator('#boot-enter').isVisible(),false);
+   assert.equal(await page.locator('#boot-progress').isVisible(),true,'Progress bar should remain visible');
+   assert.equal(await page.locator('#boot-enter').count(),0,'Boot entry button should be removed');
+   assert.equal(await page.locator('#boot-output').count(),0,'Terminal boot text should be removed');
+   assert.equal(await page.locator('#boot-prompt').count(),0,'Terminal prompt should be removed');
    release();
    await page.waitForFunction(()=>document.body.classList.contains('site-ready')&&!document.getElementById('boot-loader'),null,{timeout:45000});
+   const visibleDuration=await page.evaluate(()=>performance.now()-window.__bootStart);
+   assert(visibleDuration>=1950,`Loader must remain for at least 2000ms (observed ${Math.round(visibleDuration)}ms)`);
    const events=await page.evaluate(()=>window.__bootEvents);
    assert.deepEqual(events.map(e=>e.name),['booted','ready']);
    assert.equal(events[0].booting,false);
@@ -65,12 +71,14 @@ try {
    await page.evaluate(()=>sessionStorage.removeItem('portfolioBootSeen'));
    await page.reload();
    await page.waitForFunction(()=>document.body.classList.contains('site-ready')&&!document.getElementById('boot-loader'),null,{timeout:45000});
+   const repeatDuration=await page.evaluate(()=>performance.now()-window.__bootStart);
+   assert(repeatDuration>=1950,`Return-visit loader too short: ${Math.round(repeatDuration)}ms`);
    assert.equal(await page.evaluate(()=>document.documentElement.classList.contains('returning-visit')),true);
    assert.equal(await page.evaluate(()=>document.body.classList.contains('site-entering')),false);
    assert.deepEqual(await page.evaluate(()=>window.__bootEvents.map(e=>e.name)),['booted','ready']);
    assert.equal(await page.evaluate(()=>window.__bootEvents[0].head),true,'Returning visitor saw homepage before head initialized');
    assert.equal(errors.length,0,errors.join('\n'));
-   console.log('BOOT PASS',`${width}x${height}`,reducedMotion,'loading gate, synchronized reveal, repeat visit');
+   console.log('BOOT PASS',`${width}x${height}`,reducedMotion,'minimal 2s progress screen, synchronized reveal, repeat visit');
    await context.close();
   }
  }
