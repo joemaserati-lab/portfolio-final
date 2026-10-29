@@ -1,19 +1,21 @@
 # Regola tipografica del portfolio
 
-Fonte unica: `public/css/typography.css`. Questo documento descrive la regola implementata, non una proposta. Tutti i moduli strutturali precedenti mantengono il loro ordine; il modulo tipografico viene applicato dopo di essi in sviluppo e nel bundle di produzione. La 404 usa lo stesso file con cache legata alla versione.
+Fonte unica per i ruoli e le misure: `public/css/typography.css`. Modalità selezionabile in `src/data/typography.mjs` impostando `typographyMode` su `'balanced'` oppure `'original'`. Il valore è condiviso dal layout Astro e dalla 404. Questo documento descrive la regola implementata. Tutti i moduli strutturali precedenti mantengono il loro ordine; il modulo tipografico viene applicato dopo di essi in sviluppo e nel bundle di produzione. La 404 usa lo stesso file con cache legata alla versione.
 
 ## Famiglie e pesi
 
-- Doto 500: testi, titoli dei casi, sottotitoli, controlli, navigazione, etichette, loader e terminale. Fallback: Courier New e monospace di sistema.
-- Redaction 50, normale 400: titolo di apertura e titoli editoriali di sezione; grande 404. Fallback: Georgia e serif di sistema.
-- Nessun grassetto sintetico o corsivo aggiunto per generare gerarchie. Il contrasto si costruisce con dimensione, interlinea, distanza e colore.
+- Redaction 50, normale 400: titolo di apertura, titoli editoriali di sezione, grande 404; in modalità `balanced` anche titolo del singolo case study. Fallback: Georgia e serif di sistema.
+- Doto 400/500/600/700: navigazione, azioni, etichette, interfaccia CRT, lista progetti, loader, terminale e metadati. Fallback locale `Doto Fallback`, quindi Courier New e monospace di sistema.
+- Inter 400/500/600: paragrafi, introduzioni, CV, dettagli dei progetti, privacy e sottotitoli informativi nella modalità `balanced`. Fallback: Helvetica Neue, Arial e sans-serif di sistema.
+- `original` ripristina Doto per i testi informativi, i sottotitoli e il titolo del case study; tutte le altre misure e componenti restano invariati.
+- Il contrasto si costruisce soprattutto con dimensione, interlinea, distanza e colore. Redaction case-title usa 400 reale, senza peso sintetico.
 
 ## Scala per ruolo
 
 | Ruolo | Token | Dimensione | Interlinea | Impiego |
 |---|---|---|---|---|
 | Display | `--type-display` | 48–112 px desktop; 44–72 mobile; 32–44 landscape corto | 1 | Nome nella home |
-| Titolo progetto | `--type-project-title` | 32–88 px; 32–52 mobile | 1,12 | Nome del case study |
+| Titolo progetto | `--type-heading` nel case study | 32–40 px; 32 mobile | 1,18 | Redaction in `balanced`, Doto in `original` |
 | Titolo sezione | `--type-heading` | 30–48 px | 1 | Profilo, CV, directory |
 | Sottotitolo | `--type-subhead` | 20–26 px | 1,12 | Ruoli CV, output, titoli card, precedente/successivo |
 | Introduzione | `--type-body-lg` | 18–20 px | 1,5 | Intro casi, home e CV; home landscape usa il corpo 16–18 |
@@ -27,7 +29,7 @@ Le dimensioni sono fluide all’interno dei limiti indicati, non scatti fra due 
 
 ## Spaziatura, misura e colore
 
-- Corpo: tracking 0. Introduzioni: tracking 0. Metadati: tracking 0,04 em. Controlli: 0,015 em. Redaction display: −0,025 em.
+- Corpo Inter o Doto: tracking 0. Introduzioni: tracking 0. Metadati: tracking 0,04 em. Controlli: 0,015 em. Redaction display: −0,025 em.
 - Testi lunghi: misura massima 62 caratteri; le colonne possono essere più corte. Non allungare il corpo per riempire tutta la larghezza disponibile.
 - Titoli e contenuto principale: bianco `#F5F5F5`; descrizioni secondarie ed etichette: grigio `#B9B9B9`, secondo `monochrome-theme.css`. Mint resta un segnale di stato/focus, non un colore tipografico aggiuntivo per ogni livello.
 - Maiuscolo limitato alle etichette e ai nomi già previsti dall’identità. I paragrafi restano in forma discorsiva. Non introdurre testo tutto maiuscolo per supplire a una gerarchia debole.
@@ -50,4 +52,4 @@ La 404 usa la scala generale per testo, azioni e metadati; il numero 404 è un d
 
 ## Verifica
 
-`node tests/typography-regression.mjs` verifica home, directory, Profilo, CV, Contatti, caso e 404 a 320×568, 390×844, 667×375 e 1440×900. Controlla minimi di lettura, interfaccia e caption, voce Doto, overflow e separazione CTA/navigazione. Le altre suite controllano avvio, media originali, focus, History API e parità fra CSS sorgente e bundle.
+`node tests/typography-regression.mjs` verifica home, directory, Profilo, CV, Contatti, caso e 404 a 320×568, 390×844, 667×375 e 1440×900. Controlla minimi di lettura, interfaccia e caption, ruoli tipografici per entrambe le modalità, overflow e separazione CTA/navigazione. Le altre suite controllano avvio, media originali, focus, History API e parità fra CSS sorgente e bundle.

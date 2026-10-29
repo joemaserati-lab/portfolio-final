@@ -1,9 +1,14 @@
-/* Editorial Digital typography. Redaction 50 is the editorial voice; Doto 400/500/600/700
-   handles reading, interface, project titles and CV roles. Geometry and colors stay modular. */
+/* Type hierarchy: Redaction 50 = display; Doto = interface; Inter = reading.
+   Switch between "balanced" and "original" in src/data/typography.mjs.
+   "original" restores Doto reading and Doto case-study titles without changing layout. */
 :root {
   --font-ui: "Doto", "Doto Fallback", "Courier New", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --font-display: "Redaction 50", Georgia, serif;
   --font-reading: var(--font-ui);
+  --font-case-title: var(--font-ui);
+  --font-content-subhead: var(--font-ui);
+  --font-case-title-weight: 600;
+  --font-resume-heading-weight: 700;
   --type-micro: 13px;
   --type-caption: 13px;
   --type-small: var(--type-caption);
@@ -34,19 +39,27 @@
   --tracking-display: -.025em;
   --measure-body: 62ch;
 }
+:root[data-typography="balanced"] {
+  --font-reading: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-case-title: var(--font-display);
+  --font-content-subhead: var(--font-reading);
+  --font-case-title-weight: 400;
+  --font-resume-heading-weight: 600;
+}
 body, button, input, textarea, select {
-  font-family: var(--font-ui);
+  font-family: var(--font-reading);
   font-weight: 400;
   font-style: normal;
   font-size: var(--type-body);
   line-height: var(--leading-body);
   letter-spacing: var(--tracking-body);
 }
+button, input, textarea, select { font-family: var(--font-ui); }
 /* Reading roles: never contract with viewport height. */
 .window-body p, .resume-row p, .projects-index-side p, .case-story-copy p,
 .case-output-list p, .case-facts-v2 dd, .case-role-v2 > p, .privacy-panel p,
 .not-found-panel p, .scene__copy p, .static-reader p, .static-reader dd {
-  font-family: var(--font-ui);
+  font-family: var(--font-reading);
   font-size: var(--type-body);
   font-weight: 500;
   line-height: var(--leading-body);
@@ -55,7 +68,7 @@ body, button, input, textarea, select {
 .window-body p, .resume-row p, .case-story-copy p, .case-output-list p,
 .static-reader p { max-width: var(--measure-body); }
 .hero-copy, .case-lead-v2 > p, .resume-header > p {
-  font-family: var(--font-ui);
+  font-family: var(--font-reading);
   font-size: var(--type-body-lg);
   font-weight: 500;
   line-height: var(--leading-lead);
@@ -74,19 +87,22 @@ body, button, input, textarea, select {
 .window-body h2, .resume-header h2, .projects-index-head h2,
 .static-reader h1 { font-size: var(--type-heading); }
 .case-title-v2 h2 {
-  font-family: var(--font-ui);
-  font-weight: 500;
+  font-family: var(--font-case-title);
+  font-weight: var(--font-case-title-weight);
   font-size: var(--type-project-title);
   line-height: var(--leading-heading);
   letter-spacing: 0;
 }
-.resume-row h3, .project-tile-main strong, .case-output-list h3,
-.case-nav-v2 b, .privacy-panel h2, .static-reader h2, .static-reader h3 {
+.resume-row h3, .case-output-list h3, .static-reader h2, .static-reader h3,
+.project-tile-main strong, .case-nav-v2 b, .privacy-panel h2 {
   font-family: var(--font-ui);
   font-weight: 500;
   font-size: var(--type-subhead);
   line-height: var(--leading-heading);
   letter-spacing: 0;
+}
+.resume-row h3, .case-output-list h3, .static-reader h2, .static-reader h3 {
+  font-family: var(--font-content-subhead);
 }
 .resume-row strong, .meta-card b, .contact-link, .contact-link b {
   font-family: var(--font-ui);
@@ -95,6 +111,7 @@ body, button, input, textarea, select {
   line-height: var(--leading-lead);
   letter-spacing: 0;
 }
+.resume-row strong, .meta-card b { font-family: var(--font-content-subhead); }
 /* Navigation, interactive labels and interface chrome. */
 .primary-action, .desktop-icon, .desktop-icon > span:nth-child(2),
 .window-titlebar, .window-titlebar > span, .footerbar, .language-toggle,
@@ -159,12 +176,12 @@ body, button, input, textarea, select {
   line-height: 1.28;
 }
 .case-title-v2 h2 {
-  font-weight: 600;
+  font-weight: var(--font-case-title-weight);
   font-size: var(--type-heading);
   line-height: var(--leading-heading);
 }
 .resume-row h3 {
-  font-weight: 700;
+  font-weight: var(--font-resume-heading-weight);
   font-size: var(--type-subhead);
   line-height: 1.35;
   margin-bottom: 8px;
