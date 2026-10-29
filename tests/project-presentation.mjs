@@ -43,8 +43,6 @@ try {
        originalRatio:v.videoWidth/v.videoHeight,after:getComputedStyle(figure,'::after').content,
        captionBelow:figure.querySelector('figcaption').getBoundingClientRect().top>=v.getBoundingClientRect().bottom-1,
        src:v.src,expected:new URL(project.video,document.baseURI).href,
-       optics:document.documentElement.dataset.crtOptics==='subtle'&&!matchMedia('(prefers-reduced-motion:reduce),(forced-colors:active)').matches,
-       opticsId:matchMedia('(max-width:1024px)').matches?'crt-optics-mobile':'crt-optics',
        effects:[...document.querySelectorAll('#crt-fx,.noise,.scanlines')].map(e=>getComputedStyle(e).display),ancestors};
    });
    const reading=await page.evaluate(()=>{
@@ -60,10 +58,7 @@ try {
    if (playback.canPlay) assert(Math.abs(clean.videoRatio-clean.originalRatio)<.01,'Hero video cropped or distorted');
    assert.equal(clean.after,'none');assert(clean.captionBelow,'Caption overlays hero video');assert.equal(clean.src,clean.expected);
    assert(clean.effects.every(display=>display==='none'),'Global CRT effects still overlay artwork');
-   assert(clean.ancestors.every(s=>{
-     const allowedGlass=clean.optics&&s.id==='crt-stage'&&new RegExp(`#${clean.opticsId}["']?\\)$`).test(s.filter);
-     return (s.filter==='none'||allowedGlass)&&s.opacity==='1'&&s.blend==='normal';
-   }),'Only the explicitly enabled shared glass warp may affect original artwork');
+   assert(clean.ancestors.every(s=>s.filter==='none'&&s.opacity==='1'&&s.blend==='normal'),'Original artwork must have no ancestor filter, opacity or blend effects');
    assert(await page.locator('#projects-view').evaluate(e=>e.scrollWidth<=e.clientWidth),'Project horizontal overflow');
    if(process.env.QA_DIR && slug==='tovadu'){
     await mkdir(process.env.QA_DIR,{recursive:true});await page.screenshot({path:`${process.env.QA_DIR}/project-${width}.png`});
