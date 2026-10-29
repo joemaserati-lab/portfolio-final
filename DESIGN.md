@@ -15,7 +15,7 @@ Intermediate black/gray values may exist in the CRT shader, alpha transparency a
 - Mint must **not** be used on backgrounds, panels, window chrome, default icon borders or secondary hover states.
 - Window surfaces stay charcoal with dark-gray titlebars. Text hierarchy: white for primary content, light gray for secondary copy.
 - The 3D portrait is white/gray with only a few mint contours. Avoid broad luminous color effects.
-- Preserve CRT framing, animation, clipping and mobile safe zones. Redaction remains the editorial display voice. In balanced mode it also handles individual case-study titles; Doto handles interface, project-directory titles and metadata; Inter handles long-form copy, case facts and informative subheads. The original all-Doto reading voice is reversible via the typography configuration.
+- Preserve CRT framing, animation, clipping and mobile safe zones. The live `digital` mode uses Doto for display, headings, subheads, navigation and interface; Geist Pixel Square for paragraphs, case facts, resumes and longer descriptions. Legacy `balanced` (Redaction/Doto/Inter) and `original` (Redaction/Doto) remain available via the shared typography configuration. Do not add decorative pixel effects on top of the fonts.
 - Make all visual color adjustments in `public/css/monochrome-theme.css`; it is the canonical palette and **the only stylesheet defining the UI color tokens**.
 - The `:root` rules in `foundation.css`, `visual-experience.css`, `adaptive.css`, `fixes.css` and `crt-outline.css` are reserved for geometry, typography and responsive measurements.
 - The separate 404 page has an inline palette by design. Its bouncing portrait uses mint in only one of six phases.
