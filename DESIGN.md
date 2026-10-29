@@ -25,6 +25,12 @@ Astro serves `public/` and builds from `src/layouts/PortfolioShell.astro`. Root-
 ## Project covers
 Project directory covers are grayscale at rest. Desktop hover or keyboard focus reveals the original artwork; on touch devices, a **single tap** reveals the original colors and opens the project after a 280 ms preview. On mobile, only the most visible project card plays its video, with hysteresis between adjacent cards. The previous card immediately returns to its logo cover; the cover stays visible until a decoded video frame is available. Cards without a video retain the 650 ms CRT color scan.
 
+## Current interface simplification
+
+The cinematic first-visit terminal animation and its extra entry button are removed. The site displays a single localized loading label plus progress bar for a **minimum of two seconds on every visit**, and enters automatically when the application and first head frame are ready. Reduced-motion users see the same two-second minimum. The loading overlay retains an accessible progressbar. No extra hero cursor or blinking underscore is rendered.
+
+The Selected Work introductory panel retains only its description, while About no longer renders the three summary cards; its main paragraphs are unchanged. CV capabilities now include **UI & UX DESIGN** instead of WEB DESIGN, with 3D visualization/design tools removed in EN and IT. CV skill and tool tokens use literal visual angle brackets (via pseudo-elements), not bordered chips. Project discipline tags are unchanged. A separate content-editing pass will follow later.
+
 ## Mobile loader
 The `PORTFOLIO PRONTO` title wraps inside the responsive CRT safe area, without character breaking or horizontal overflow. Maintain this behavior at portrait widths and short landscape heights.
 
