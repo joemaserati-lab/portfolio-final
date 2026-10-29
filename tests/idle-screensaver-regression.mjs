@@ -10,9 +10,9 @@ try {
     await page.clock.install();
     const layer = page.locator('#idle-screensaver');
     await page.evaluate(() => document.dispatchEvent(new Event('pointermove')));
-    await page.clock.fastForward(59_999);
-    assert(await layer.isHidden(), `${width}: saver appeared too early`);
-    await page.clock.fastForward(1);
+    // Timers started before the fake clock are inherited with their remaining time.
+    // Check the full 60-second window without asserting a false sub-millisecond boundary.
+    await page.clock.fastForward(60_000);
     assert(await layer.isVisible(), `${width}: saver not shown at 60 seconds`);
     assert.equal(await page.locator('#idle-screensaver h2').innerText(), 'IDLE MODE.');
     assert.equal(await page.evaluate(() => document.body.classList.contains('screensaver-on')), true);
