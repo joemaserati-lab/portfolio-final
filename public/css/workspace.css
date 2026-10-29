@@ -591,3 +591,26 @@
   .contact-link{display:grid;grid-template-columns:1fr;gap:2px}
 }
 
+
+/* Skill tokens are console-like labels, not bordered chips.
+   This applies only to CV capabilities and tools, not project disciplines. */
+.resume-columns .skill-list {
+  gap: clamp(12px, 1.5vw, 22px);
+  row-gap: clamp(10px, 1.2vw, 17px);
+}
+.resume-columns .skill-list span {
+  display: inline-flex;
+  align-items: baseline;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  padding: 0;
+  font-family: var(--font-ui);
+  font-size: var(--type-caption);
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: var(--tracking-label);
+  white-space: normal;
+}
+.resume-columns .skill-list span::before { content: "<"; }
+.resume-columns .skill-list span::after { content: ">"; }
