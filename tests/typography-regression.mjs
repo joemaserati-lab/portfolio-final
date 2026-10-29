@@ -22,6 +22,7 @@ try {
       labels:check('.case-facts-v2 dt,.case-media-v2 figcaption,.case-role-v2>span',11),
       overflow:[...document.querySelectorAll('#projects-view,#scroll-viewport,.scene')].filter(e=>e.getBoundingClientRect().width).map(e=>e.scrollWidth>e.clientWidth+1),
       families:[...document.querySelectorAll(reading)].map(e=>getComputedStyle(e).fontFamily),
+      readingAxes:[...document.querySelectorAll(reading)].map(e=>getComputedStyle(e).fontVariationSettings),
       display:[...document.querySelectorAll('.hero-intro h1,.scene__copy h1,.static-reader h1')].map(e=>getComputedStyle(e).fontFamily),
       caseTitles:[...document.querySelectorAll('.case-title-v2 h2')].map(e=>getComputedStyle(e).fontFamily),
       interface:[...document.querySelectorAll('.primary-action,.language-toggle,.privacy-toggle,.scene__home')].map(e=>getComputedStyle(e).fontFamily)
@@ -30,11 +31,15 @@ try {
    assert.deepEqual(result.small,[],`${width} ${route}: reading text too small`);
    assert.deepEqual(result.ui,[],`${width} ${route}: interface text too small`);
    assert.deepEqual(result.labels,[],`${width} ${route}: metadata too small`);
-   assert(['balanced','original'].includes(result.mode),`${route}: unknown typography mode`);
-   const expectedReading=result.mode==='balanced'?'Inter':'Doto';
+   assert(['digital','balanced','original'].includes(result.mode),`${route}: unknown typography mode`);
+   const expectedReading=result.mode==='digital'?'Geist Pixel':result.mode==='balanced'?'Inter':'Doto';
+   const expectedDisplay=result.mode==='digital'?'Doto':'Redaction 50';
    const expectedCase=result.mode==='balanced'?'Redaction 50':'Doto';
    assert(result.families.every(f=>f.includes(expectedReading)),`${route}: reading voice should be ${expectedReading}`);
-   assert(result.display.every(f=>f.includes('Redaction 50')),`${route}: editorial display voice changed`);
+   if(result.mode==='digital') {
+     assert(result.readingAxes.every(a=>a.includes('ELSH')&&a.includes('1')),`${route}: Geist Pixel Square ELSH=1 missing`);
+   }
+   assert(result.display.every(f=>f.includes(expectedDisplay)),`${route}: display voice should be ${expectedDisplay}`);
    assert(result.caseTitles.every(f=>f.includes(expectedCase)),`${route}: case-title voice should be ${expectedCase}`);
    assert(result.interface.every(f=>f.includes('Doto')),`${route}: interface voice changed`);
    assert(result.overflow.every(o=>!o),`${width} ${route}: horizontal overflow`);
