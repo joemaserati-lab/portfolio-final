@@ -17,12 +17,15 @@
 /* Quiet-space composition: preserve the existing 3D portrait, CRT chrome and
    navigation. Only the text footprint and section rhythm change. */
 @media (min-width: 1025px) {
+  .scroll-portfolio { --hero-top-gap: clamp(64px, 12vh, 140px); --hero-icon-padding-top: 8px; }
+  .scroll-portfolio .desktop-icons { top: calc(var(--ui-safe-top) + var(--hero-top-gap) - var(--hero-icon-padding-top)); }
+  .scroll-portfolio .desktop-icon { padding-top: var(--hero-icon-padding-top); }
   .scroll-portfolio .hero-intro {
     box-sizing: border-box;
     width: min(35vw, 425px);
     max-width: 425px;
     padding: 0;
-    margin: clamp(64px, 12vh, 140px) 0 0 clamp(8px, 2.2vw, 34px);
+    margin: var(--hero-top-gap) 0 0 clamp(8px, 2.2vw, 34px);
   }
   .scroll-portfolio .hero-copy {
     max-width: 34ch;
@@ -598,4 +601,13 @@
   [data-crt-format="classic"] .scroll-portfolio #desktop > .crt-head-feature {
     left: 58%; top: 53%; width: 70%; height: 76%;
   }
+}
+
+/* A shrink-to-fit title wrapper plus a percentage safety inset can make the
+   wrapper narrower than its own text. Let mobile headings use their grid track. */
+@media (max-width: 1024px) {
+  .scroll-portfolio .projects-index-head > div:first-child,
+  .scroll-portfolio .case-title-v2 { justify-self: stretch; width: 100%; min-width: 0; }
+  .scroll-portfolio .projects-index-head h2,
+  .scroll-portfolio .case-title-v2 h2 { max-width: 100%; }
 }

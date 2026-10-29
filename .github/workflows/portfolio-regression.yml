@@ -63,6 +63,7 @@ jobs:
           node tests/routes-regression.mjs
           node tests/technical-regression.mjs
           node tests/crt-experiment-regression.mjs
+          node tests/containment-regression.mjs
           node tests/typography-regression.mjs
           TYPO_LANG=it node tests/typography-regression.mjs
       - name: Audit candidate performance and accessibility
