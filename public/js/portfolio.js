@@ -67,7 +67,7 @@
     video.load();
   };
   function previewActive(card) {
-    return card.isConnected && !document.hidden &&
+    return card.isConnected && !document.hidden && !document.body.classList.contains('screensaver-on') &&
       !document.body.classList.contains('project-case-open') &&
       document.body.classList.contains('site-ready') && !previewReduced.matches &&
       (previewMobile.matches ? card.classList.contains('is-viewport-color') :

@@ -36,7 +36,7 @@ if (feature && canvas && screenElement) {
     if (disposed || !effect) return;
     // Case studies show the project alone; resume the same head on return.
     const projectCaseOpen = projectsView && !projectsView.hidden && projectsView.dataset.view === 'case';
-    const shouldBeVisible = ready && booted && pageVisible && !projectCaseOpen;
+    const shouldBeVisible = ready && booted && pageVisible && !projectCaseOpen && !document.body.classList.contains('screensaver-on');
     feature.classList.toggle('is-ready', shouldBeVisible);
     effect.setPaused(!shouldBeVisible);
   }
@@ -71,6 +71,7 @@ if (feature && canvas && screenElement) {
     if (disposed) return;
     disposed = true;
     removeEventListener('portfolio:scroll-pose', onScrollPose);
+    removeEventListener('portfolio:screensaver-change', sync);
     observer?.disconnect();
     reduced.removeEventListener('change', onReduced);
     removeEventListener('pointermove', onPointerMove);
@@ -95,6 +96,7 @@ if (feature && canvas && screenElement) {
       reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches, onError: fail
     });
     addEventListener('pointermove', onPointerMove, { passive: true });
+    addEventListener('portfolio:screensaver-change', sync);
     document.addEventListener('visibilitychange', onVisibility);
     addEventListener('portfolio:booted', onBooted, { once: true });
     addEventListener('pagehide', onPageHide);

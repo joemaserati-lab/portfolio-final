@@ -1,6 +1,7 @@
 ---
 import { crtExperiment } from '../data/crt-experiment.mjs';
 import ScrollSections from '../components/ScrollSections.astro';
+import IdleScreensaver from '../components/IdleScreensaver.astro';
 import ScrollNavigation from '../components/ScrollNavigation.astro';
 import PortfolioFooter from '../components/PortfolioFooter.astro';
 import packageInfo from '../../package.json';
@@ -90,6 +91,7 @@ const ogImageUrl = new URL(ogImage, rootUrl);
     <link rel="modulepreload" href={asset('js/head-scan-effect.bundle.js')} fetchpriority="high" />
     <link rel="preload" href="assets/models/human_head_reference3.glb" as="fetch" crossorigin="anonymous" fetchpriority="high" />
   </>}
+  <link rel="stylesheet" href={asset('css/idle-screensaver.css')} />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href={fontSheet} />
@@ -185,6 +187,7 @@ const ogImageUrl = new URL(ogImage, rootUrl);
         </aside>
         <div class="projects-view" id="projects-view" hidden></div>
         <div class="window-layer" id="window-layer" aria-live="polite"></div>
+        <IdleScreensaver />
       </section>
     </div>
   </main>
@@ -200,5 +203,6 @@ const ogImageUrl = new URL(ogImage, rootUrl);
   <script is:inline defer src={asset('js/analytics.js')}></script>
   <script is:inline defer src={asset('js/privacy.js')}></script>
   <script is:inline defer src={asset('js/portfolio-scroll.js')}></script>
+  <script is:inline defer src={asset('js/idle-screensaver.js')}></script>
 </body>
 </html>

@@ -1,0 +1,31 @@
+name: Idle Screensaver Smoke
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  idle:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - name: Start preview
+        run: |
+          (npm run preview -- --host 127.0.0.1 --port 4321 > /tmp/portfolio-idle.log 2>&1 &)
+          for i in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:4321/portfolio-final/ > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - run: npx playwright install --with-deps chromium
+      - name: Verify inactivity, wake-up, language and reduced motion
+        run: node tests/idle-screensaver-regression.mjs
