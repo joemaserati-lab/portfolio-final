@@ -63,8 +63,8 @@ try {
   await page.waitForFunction(()=>document.querySelector('#projects-view').hidden);
   if(width<=1024) await page.waitForFunction(()=>document.querySelector('#crt-head-feature').classList.contains('is-ready'));
   else {
-    assert.equal(await page.locator('#crt-head-feature').evaluate(e=>e.parentElement.id),'desktop');
-    assert.equal(await page.locator('#crt-head-feature').isVisible(),false,'Desktop head must remain in hero');
+    await page.waitForFunction(()=>document.querySelector('#crt-head-feature').parentElement.id==='screen');
+    assert(await page.locator('#crt-head-feature').isVisible(),'Desktop dock must resume after closing project');
   }
   console.log('CRT PASS',width,height,'geometry, mobile parity, no SVG filter, CTA, case close/head state');
   await page.close();
