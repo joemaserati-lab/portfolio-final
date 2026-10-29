@@ -28,6 +28,10 @@ Project directory covers are grayscale at rest. Desktop hover or keyboard focus 
 ## Mobile loader
 The `PORTFOLIO PRONTO` title wraps inside the responsive CRT safe area, without character breaking or horizontal overflow. Maintain this behavior at portrait widths and short landscape heights.
 
+## Deliberate whitespace
+
+The opening screen uses a restrained editorial footprint inside the CRT safe area: a narrower hero column, reduced Doto display scale, smaller Geist Mono introduction, and larger gaps between name, description and CTA. The 3D head stays in its original position and remains the visual counterweight. Spacing changes are in `public/css/portfolio-scroll.css`; the two hero font-size tokens (`--type-hero-display`, `--type-hero-copy`) are scoped to `doto-mono` in `public/css/typography.css`. Desktop scroll sections use larger top/bottom breathing space. Mobile portrait receives moderate extra spacing, while short landscape keeps existing collision-safe geometry. Keep these changes reversible through the branch/PR and do not increase paragraph font sizes to fill whitespace.
+
 ## Permanent scroll layout
 `portfolio-scroll.css` is the final source layer in the production bundle. Mobile language and privacy controls belong to the footer; privacy panels remain accessible above navigation. The retired window manager and build-time preview adapters must not be reintroduced.
 

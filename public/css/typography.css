@@ -99,6 +99,8 @@
   --font-case-title-weight: 700;
   --font-resume-heading-weight: 600;
   --measure-body: 58ch;
+  --type-hero-display: clamp(44px, 4.3vw, 68px);
+  --type-hero-copy: clamp(16px, 1.12vw, 17px);
 }
 body, button, input, textarea, select {
   font-family: var(--font-reading);
@@ -298,4 +300,14 @@ button, input, textarea, select { font-family: var(--font-ui); }
 :root[data-typography="pixel-editorial"] .contact-link b {
   font-family: var(--font-reading);
   font-variation-settings: normal;
+}
+
+/* In the Doto/Geist Mono identity, hierarchy comes from air and scale rather
+   than a louder dot texture. These two tokens are independent of UI and cases. */
+:root[data-typography="doto-mono"] .hero-intro h1 {
+  font-size: var(--type-hero-display);
+}
+:root[data-typography="doto-mono"] .hero-copy {
+  font-size: var(--type-hero-copy);
+  line-height: 1.6;
 }
