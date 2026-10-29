@@ -1,6 +1,8 @@
-/* Type hierarchy: Redaction 50 = display; Doto = interface; Inter = reading.
-   Switch between "balanced" and "original" in src/data/typography.mjs.
-   "original" restores Doto reading and Doto case-study titles without changing layout. */
+/* Typography modes (src/data/typography.mjs):
+   digital (default): Doto headings, subheadings and interface; Geist Pixel Square reading.
+   balanced: Redaction 50 display; Doto UI; Inter reading.
+   original: Redaction 50 display; Doto UI and reading. 
+   Size, geometry and palette stay centralized and independent of the chosen mode. */
 :root {
   --font-ui: "Doto", "Doto Fallback", "Courier New", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --font-display: "Redaction 50", Georgia, serif;
@@ -9,6 +11,9 @@
   --font-content-subhead: var(--font-ui);
   --font-case-title-weight: 600;
   --font-resume-heading-weight: 700;
+  --font-display-weight: 400;
+  --font-display-tracking: -.025em;
+  --font-reading-settings: normal;
   --type-micro: 13px;
   --type-caption: 13px;
   --type-small: var(--type-caption);
@@ -46,8 +51,24 @@
   --font-case-title-weight: 400;
   --font-resume-heading-weight: 600;
 }
+/* Square is the ELSH=1 stop in Google's single Geist Pixel variable family. */
+:root[data-typography="digital"] {
+  --font-display: var(--font-ui);
+  --font-display-weight: 600;
+  --font-display-tracking: 0;
+  --font-reading: "Geist Pixel", "Courier New", monospace;
+  --font-reading-settings: "ELSH" 1;
+  --font-case-title: var(--font-ui);
+  --font-content-subhead: var(--font-ui);
+  --font-case-title-weight: 600;
+  --font-resume-heading-weight: 700;
+  --measure-body: 55ch;
+  --type-body: clamp(17px, 1.32vw, 19px);
+  --type-body-lg: clamp(18px, 1.48vw, 20px);
+}
 body, button, input, textarea, select {
   font-family: var(--font-reading);
+  font-variation-settings: var(--font-reading-settings);
   font-weight: 400;
   font-style: normal;
   font-size: var(--type-body);
@@ -60,6 +81,7 @@ button, input, textarea, select { font-family: var(--font-ui); }
 .case-output-list p, .case-facts-v2 dd, .case-role-v2 > p, .privacy-panel p,
 .not-found-panel p, .scene__copy p, .static-reader p, .static-reader dd {
   font-family: var(--font-reading);
+  font-variation-settings: var(--font-reading-settings);
   font-size: var(--type-body);
   font-weight: 500;
   line-height: var(--leading-body);
@@ -69,6 +91,7 @@ button, input, textarea, select { font-family: var(--font-ui); }
 .static-reader p { max-width: var(--measure-body); }
 .hero-copy, .case-lead-v2 > p, .resume-header > p {
   font-family: var(--font-reading);
+  font-variation-settings: var(--font-reading-settings);
   font-size: var(--type-body-lg);
   font-weight: 500;
   line-height: var(--leading-lead);
@@ -78,10 +101,10 @@ button, input, textarea, select { font-family: var(--font-ui); }
 .hero-intro h1, .window-body h2, .resume-header h2, .projects-index-head h2,
 .not-found-panel h1, .scene__copy h1, .static-reader h1 {
   font-family: var(--font-display);
-  font-weight: 400;
+  font-weight: var(--font-display-weight);
   font-style: normal;
   line-height: var(--leading-display);
-  letter-spacing: var(--tracking-display);
+  letter-spacing: var(--font-display-tracking);
 }
 .hero-intro h1, .not-found-panel h1 { font-size: var(--type-display); }
 .window-body h2, .resume-header h2, .projects-index-head h2,
@@ -147,7 +170,7 @@ button, input, textarea, select { font-family: var(--font-ui); }
   line-height: 1.5; letter-spacing: 0;
 }
 .scene__copy h1 { font-size: clamp(80px, min(18vw, 24vh), 200px); }
-.dvd__fallback { font-family: var(--font-display); font-size: clamp(100px, 11vw, 158px); font-weight: 400; line-height: 1; letter-spacing: 0; }
+.dvd__fallback { font-family: var(--font-display); font-size: clamp(100px, 11vw, 158px); font-weight: var(--font-display-weight); line-height: 1; letter-spacing: 0; }
 @media (max-width: 720px) {
   :root {
     --type-display: 44px;
@@ -156,6 +179,10 @@ button, input, textarea, select { font-family: var(--font-ui); }
     --type-subhead: 20px;
     --type-body: 16px;
     --type-body-lg: 17px;
+  }
+  :root[data-typography="digital"] {
+    --type-body: 17px;
+    --type-body-lg: 18px;
   }
 }
 @media (max-height: 520px) and (max-width: 900px) {
