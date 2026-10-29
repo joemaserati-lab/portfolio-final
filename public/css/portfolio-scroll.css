@@ -778,7 +778,7 @@
   .scroll-portfolio #scroll-contact .contact-photo {margin-inline:auto;}
 }
 
-/* V33 / DESKTOP TOP DOCK + COMPACT ICONS -----------------------------------
+/* V33 / DESKTOP TOP DOCK WITH ORIGINAL ICONS -----------------------------------
    One dark, pointer-transparent header unifies the miniature navigation and
    the live 3D portrait. Only desktop: mobile keeps its own portrait slot. */
 @media (min-width:1025px) {
@@ -799,28 +799,7 @@
     opacity:var(--scroll-dock,1);
   }
   .scroll-portfolio .scroll-portrait-docked { z-index:17; }
-  /* Preserve useful hit areas while decreasing the graphic footprint. */
-  .scroll-portfolio .scroll-minimenu {
-    grid-template-columns:repeat(4,40px);
-    gap:4px;
-  }
-  .scroll-portfolio .scroll-mini-icon {
-    width:40px;height:40px;padding:6px;
-  }
-  .scroll-portfolio .scroll-mini-icon .icon-glyph {
-    width:21px;height:21px;
-  }
-  .scroll-portfolio .desktop-icons {
-    grid-template-columns:repeat(2,minmax(0,104px));
-    column-gap:12px;row-gap:12px;
-  }
-  .scroll-portfolio .desktop-icons .desktop-icon {
-    padding:6px 6px 7px;
-    gap:5px;
-  }
-  .scroll-portfolio .desktop-icons .desktop-icon .icon-glyph {
-    width:48px;height:40px;
-  }
+  /* Reuse original full-size hero and mini icons from the existing rules. */
   .project-case-open .scroll-top-rail { opacity:0!important;visibility:hidden!important; }
 }
 @media (max-width:1024px) {

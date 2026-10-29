@@ -279,21 +279,21 @@
 
 /* Pixelarticons cursor system -------------------------------------------------
    Self-hosted default-alt + pointer + text, adapted to the amber phosphor palette.
-   Original cursor grid: 32x32. Render size: 80x80 (2.5x; every 2px source
-   pixel becomes a crisp 5px block). Assets are preloaded before the UI scripts.
+   Original cursor grid: 32x32. Render size: 48x48 (1.5x). Assets are preloaded before the UI scripts.
 */
+ :root { --pixel-cursor-size:48px; }
 .pixelart-cursor{
   position:fixed;
   left:0;
   top:0;
   z-index:2147483647;
-  width:80px;
-  height:80px;
+  width:var(--pixel-cursor-size);
+  height:var(--pixel-cursor-size);
   pointer-events:none;
   opacity:0;
   background-repeat:no-repeat;
   background-position:0 0;
-  background-size:80px 80px;
+  background-size:var(--pixel-cursor-size) var(--pixel-cursor-size);
   image-rendering:pixelated;
   transform:translate3d(-200px,-200px,0);
   will-change:transform;
