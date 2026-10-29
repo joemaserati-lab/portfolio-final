@@ -771,3 +771,29 @@ body.content-panel-open .privacy-widget{
 @media (prefers-reduced-motion: reduce) {
   .boot-loader { transition: none; }
 }
+
+/* Reversible classic-screen preview. Width follows available screen height;
+   mobile geometry and the existing typography scale are untouched. */
+@media (min-width: 1025px) and (min-aspect-ratio: 4/3) {
+  :root[data-crt-format="classic"] {
+    --crt-classic-width: calc((100vh - 2 * (var(--stage-gap) + var(--bezel-y))) * var(--crt-desktop-ratio) + 2 * var(--bezel-x));
+    --crt-side-gap: max(var(--stage-gap), calc((100vw - var(--crt-classic-width)) / 2));
+  }
+  [data-crt-format="classic"] .crt-stage { left: var(--crt-side-gap); right: var(--crt-side-gap); container-type: inline-size; }
+  [data-crt-format="classic"] body::before,
+  [data-crt-format="classic"] .boot-loader {
+    left: calc(var(--crt-side-gap) + var(--bezel-x));
+    right: calc(var(--crt-side-gap) + var(--bezel-x));
+  }
+}
+/* Small static radial displacement, strongest at the glass edges. It keeps
+   accessible/selectable HTML and introduces neither RGB ghosts nor flicker. */
+.crt-optics-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+[data-crt-optics="subtle"] .crt-stage { filter: url(#crt-optics); }
+@media (max-width: 1024px) {
+  [data-crt-optics="subtle"] .crt-stage { filter: url(#crt-optics-mobile); }
+}
+@media (prefers-reduced-motion: reduce), (forced-colors: active) {
+  [data-crt-optics="subtle"] .crt-stage { filter: none; }
+}
+body.reader-mode .crt-stage { filter: none; }

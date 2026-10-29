@@ -11,6 +11,7 @@
     '.window-body h2',
     '.resume-header h2',
     '.resume-row h3',
+    '.resume-row h4',
     '.meta-card b',
     '.project-tile-main strong',
     '.project-tile-details small',
@@ -34,7 +35,7 @@
     const tokens = getComputedStyle(document.documentElement);
     const size = role => parseFloat(tokens.getPropertyValue(role));
     if (el.matches('.project-tile-details small')) return size('--type-fit-caption-min');
-    if (el.matches('.resume-row h3, .meta-card b, .contact-link b, .archive-row b')) return size('--type-fit-text-min');
+    if (el.matches('.resume-row h3, .resume-row h4, .meta-card b, .contact-link b, .archive-row b')) return size('--type-fit-text-min');
     if (el.matches('.project-tile-main strong')) return size('--type-fit-text-min');
     return size('--type-fit-heading-min');
   };

@@ -48,7 +48,7 @@
 .projects-view{scrollbar-gutter:stable}
 .projects-index-v2{padding:clamp(18px,2.2vw,34px);min-height:100%}
 .projects-index-head{
-  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:clamp(24px,5vw,80px);
+  display:grid;grid-template-columns:minmax(min-content,1fr) minmax(0,1.3fr);gap:clamp(24px,5vw,80px);
   align-items:end;padding:0 0 clamp(20px,2.5vw,34px);margin-bottom:clamp(18px,2.2vw,30px);
   border-bottom:1px solid var(--line)
 }
