@@ -39,7 +39,9 @@ try {
   assert(asset.readingFont.includes('Geist Mono'),'404 body typography is not inherited');
   await page.evaluate(()=>document.dispatchEvent(new Event('keydown',{bubbles:true,cancelable:true})));
   assert(await layer.isHidden(),'Keyboard failed to dismiss screensaver');
-  await page.clock.fastForward(60_000);
+  // The clock is virtual but the iframe and focus restoration can enqueue
+  // tasks on the boundary; allow a 5 ms test-only scheduling tolerance.
+  await page.clock.fastForward(60_005);
   assert(await layer.isVisible(),'Screensaver did not re-arm');
   await page.evaluate(()=>window.PortfolioI18n.setLang('it'));
   await page.waitForFunction(()=>document.querySelector('#idle-screensaver-scene').contentDocument?.querySelector('#page-title')?.textContent==='IN PAUSA.');
