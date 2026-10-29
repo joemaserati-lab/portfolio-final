@@ -32,6 +32,10 @@ The `PORTFOLIO PRONTO` title wraps inside the responsive CRT safe area, without 
 
 The opening screen uses a restrained editorial footprint inside the CRT safe area: a narrower hero column, reduced Doto display scale, smaller Geist Mono introduction, and larger gaps between name, description and CTA. The 3D head stays in its original position and remains the visual counterweight. Spacing changes are in `public/css/portfolio-scroll.css`; the two hero font-size tokens (`--type-hero-display`, `--type-hero-copy`) are scoped to `doto-mono` in `public/css/typography.css`. Desktop scroll sections use larger top/bottom breathing space. Mobile portrait receives moderate extra spacing, while short landscape keeps existing collision-safe geometry. Keep these changes reversible through the branch/PR and do not increase paragraph font sizes to fill whitespace.
 
+## Sitewide rhythm and typographic identities
+
+The quiet-space direction extends from home to About, Selected Work, Resume, Contact and the five case studies. `public/css/portfolio-scroll.css` holds the source for spacing, section rhythm, media separation and responsive compacting; do not add spacer elements or rewrite content to create whitespace. In `doto-mono`, professional role titles, employers, clients, and the profile role use Doto, while descriptive paragraphs and informative subheadings use Geist Mono. The no-JavaScript reading view keeps the same identity distinction. Narrow/short mobile layouts keep their protected navigation and existing behavior. The next phase of content/element cleanup is intentionally **not** included here.
+
 ## Permanent scroll layout
 `portfolio-scroll.css` is the final source layer in the production bundle. Mobile language and privacy controls belong to the footer; privacy panels remain accessible above navigation. The retired window manager and build-time preview adapters must not be reintroduced.
 

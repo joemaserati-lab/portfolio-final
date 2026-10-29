@@ -442,6 +442,125 @@
   .scroll-portfolio #scroll-work .is-viewport-color .project-cover-v2::after { display: none; }
 }
 
+
+/* Sitewide whitespace system — shared by the four scroll sections, project
+   directory and case studies. Keep copy, media, interactive geometry and the
+   3D portrait unchanged; space does the work instead of extra decoration. */
+.scroll-portfolio .scroll-window .window-body > h2 {
+  margin-bottom: clamp(24px, 3.4vw, 46px);
+}
+.scroll-portfolio #scroll-about .window-body > p {
+  max-width: 56ch;
+  margin-bottom: clamp(18px, 2vw, 28px);
+}
+.scroll-portfolio #scroll-about .meta-grid {
+  margin-top: clamp(40px, 5vw, 80px);
+  gap: clamp(14px, 1.7vw, 26px);
+}
+.scroll-portfolio #scroll-about .meta-card {
+  padding: clamp(16px, 1.5vw, 24px);
+}
+.scroll-portfolio #scroll-contact .contact-panel {
+  gap: clamp(34px, 5vw, 88px);
+}
+.scroll-portfolio #scroll-contact .contact-copy > p {
+  max-width: 46ch;
+  margin: 0 0 clamp(30px, 4vw, 54px);
+}
+.scroll-portfolio #scroll-contact .contact-links {
+  gap: clamp(13px, 1.7vw, 22px);
+}
+.scroll-portfolio #scroll-contact .contact-link {
+  padding: clamp(12px, 1.35vw, 18px);
+}
+.scroll-portfolio #scroll-resume .resume-view {
+  gap: clamp(44px, 5.4vw, 86px);
+}
+.scroll-portfolio #scroll-resume .resume-header {
+  padding-bottom: clamp(30px, 3.5vw, 54px);
+}
+.scroll-portfolio #scroll-resume .resume-section {
+  gap: clamp(24px, 4vw, 62px);
+}
+.scroll-portfolio #scroll-resume .resume-row {
+  padding-block: clamp(26px, 3.1vw, 46px);
+}
+.scroll-portfolio #scroll-resume .resume-row p {
+  max-width: 55ch;
+  margin-top: clamp(16px, 1.8vw, 24px);
+}
+.scroll-portfolio #scroll-resume .resume-row.compact {
+  padding-block: clamp(20px, 2.3vw, 32px);
+}
+.scroll-portfolio #scroll-work .projects-index-head,
+.scroll-portfolio #projects-view .projects-index-head {
+  padding-bottom: clamp(30px, 4vw, 56px);
+  margin-bottom: clamp(38px, 5vw, 76px);
+}
+.scroll-portfolio #scroll-work .projects-grid-v2,
+.scroll-portfolio #projects-view .projects-grid-v2 {
+  gap: clamp(32px, 3.6vw, 62px);
+}
+.scroll-portfolio #scroll-work .project-tile-copy,
+.scroll-portfolio #projects-view .project-tile-copy {
+  padding-top: clamp(17px, 1.9vw, 27px);
+}
+.scroll-portfolio #projects-view .case-lead-v2 {
+  padding-top: clamp(60px, 7vw, 108px);
+  padding-bottom: clamp(46px, 5.5vw, 84px);
+}
+.scroll-portfolio #projects-view .case-facts-v2 {
+  margin-block: clamp(36px, 4.5vw, 68px);
+}
+.scroll-portfolio #projects-view .case-story-v2,
+.scroll-portfolio #projects-view .case-outputs-v2,
+.scroll-portfolio #projects-view .case-tags-v2 {
+  margin-bottom: clamp(52px, 6vw, 100px);
+}
+.scroll-portfolio #projects-view .case-story-copy article,
+.scroll-portfolio #projects-view .case-output-list article {
+  padding-top: clamp(17px, 2vw, 28px);
+}
+.scroll-portfolio #projects-view .case-gallery-v2 {
+  margin-block: clamp(44px, 5vw, 82px);
+}
+@media (max-width: 1024px) {
+  /* Modest spacing on tablets/phones: keep the CRT-safe scroll region
+     usable, while retaining the larger rhythm of desktop layouts. */
+  .scroll-portfolio .scroll-window .window-body > h2 { margin-bottom: 25px; }
+  .scroll-portfolio #scroll-about .window-body > p { margin-bottom: 18px; }
+  .scroll-portfolio #scroll-about .meta-grid { margin-top: 30px; gap: 12px; }
+  .scroll-portfolio #scroll-about .meta-card { padding: 16px; }
+  .scroll-portfolio #scroll-contact .contact-panel { gap: 24px; }
+  .scroll-portfolio #scroll-contact .contact-copy > p { margin-bottom: 26px; }
+  .scroll-portfolio #scroll-contact .contact-links { gap: 12px; }
+  .scroll-portfolio #scroll-contact .contact-link { padding: 12px; }
+  .scroll-portfolio #scroll-resume .resume-view { gap: 36px; }
+  .scroll-portfolio #scroll-resume .resume-header { padding-bottom: 28px; }
+  .scroll-portfolio #scroll-resume .resume-section { gap: 16px; }
+  .scroll-portfolio #scroll-resume .resume-row { padding-block: 24px; }
+  .scroll-portfolio #scroll-resume .resume-row.compact { padding-block: 20px; }
+  .scroll-portfolio #scroll-resume .resume-row p { margin-top: 14px; }
+  .scroll-portfolio #scroll-work .projects-index-head,
+  .scroll-portfolio #projects-view .projects-index-head {
+    padding-bottom: 24px; margin-bottom: 32px;
+  }
+  .scroll-portfolio #scroll-work .projects-grid-v2,
+  .scroll-portfolio #projects-view .projects-grid-v2 { gap: 28px; }
+  .scroll-portfolio #scroll-work .project-tile-copy,
+  .scroll-portfolio #projects-view .project-tile-copy { padding-top: 16px; }
+  .scroll-portfolio #projects-view .case-lead-v2 {
+    padding-top: 34px; padding-bottom: 32px;
+  }
+  .scroll-portfolio #projects-view .case-facts-v2 { margin-block: 28px; }
+  .scroll-portfolio #projects-view .case-story-v2,
+  .scroll-portfolio #projects-view .case-outputs-v2,
+  .scroll-portfolio #projects-view .case-tags-v2 { margin-bottom: 42px; }
+  .scroll-portfolio #projects-view .case-story-copy article,
+  .scroll-portfolio #projects-view .case-output-list article { padding-top: 14px; }
+  .scroll-portfolio #projects-view .case-gallery-v2 { margin-block: 36px; }
+}
+
 /* Video replaces the monochrome logo only after playback starts.
    Keep the image visible until the first decoded video frame. */
 .project-cover-v2 { position: relative; }

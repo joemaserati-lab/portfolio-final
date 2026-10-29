@@ -311,3 +311,29 @@ button, input, textarea, select { font-family: var(--font-ui); }
   font-size: var(--type-hero-copy);
   line-height: 1.6;
 }
+
+/* Selected identity roles: Doto makes professional roles, employers, project
+   responsibilities and client names feel like part of the same digital system.
+   Long-form descriptions continue to use Geist Mono. */
+:root[data-typography="doto-mono"] .resume-row h3,
+:root[data-typography="doto-mono"] .resume-row strong,
+:root[data-typography="doto-mono"] .meta-card b,
+:root[data-typography="doto-mono"] .case-role-v2 > p,
+:root[data-typography="doto-mono"] .case-facts-v2 > div:first-child dd,
+:root[data-typography="doto-mono"] .static-reader .reader-role,
+:root[data-typography="doto-mono"] .static-reader .reader-company {
+  font-family: var(--font-ui);
+  font-variation-settings: normal;
+  font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: .005em;
+  overflow-wrap: anywhere;
+}
+:root[data-typography="doto-mono"] .resume-row h3 {
+  font-weight: 600;
+  line-height: 1.3;
+}
+:root[data-typography="doto-mono"] .resume-row strong,
+:root[data-typography="doto-mono"] .static-reader .reader-company {
+  font-weight: 500;
+}

@@ -15,18 +15,23 @@ try {
    const result=await page.evaluate(()=>{
     const check=(selector,min)=>[...document.querySelectorAll(selector)].filter(e=>e.getBoundingClientRect().width&&e.getBoundingClientRect().height).filter(e=>parseFloat(getComputedStyle(e).fontSize)<min).map(e=>({selector:e.className,size:getComputedStyle(e).fontSize}));
     const reading='.window-body p,.case-story-copy p,.case-output-list p,.case-facts-v2 dd,.case-role-v2>p,.privacy-panel p,.scene__copy p';
+    const mode=document.documentElement.dataset.typography;
+    const readingElements=[...document.querySelectorAll(reading)].filter(e=>
+      mode!=='doto-mono' || !e.matches('.case-role-v2>p,.case-facts-v2>div:first-child dd')
+    );
     return {
       mode:document.documentElement.dataset.typography,
       small:check(reading,16),
       ui:check('.scroll-index,.language-toggle,.privacy-toggle,.primary-action,.scene__home',12),
       labels:check('.case-facts-v2 dt,.case-media-v2 figcaption,.case-role-v2>span',11),
       overflow:[...document.querySelectorAll('#projects-view,#scroll-viewport,.scene')].filter(e=>e.getBoundingClientRect().width).map(e=>e.scrollWidth>e.clientWidth+1),
-      families:[...document.querySelectorAll(reading)].map(e=>getComputedStyle(e).fontFamily),
-      readingAxes:[...document.querySelectorAll(reading)].map(e=>getComputedStyle(e).fontVariationSettings),
+      families:readingElements.map(e=>getComputedStyle(e).fontFamily),
+      readingAxes:readingElements.map(e=>getComputedStyle(e).fontVariationSettings),
       display:[...document.querySelectorAll('.hero-intro h1,.scene__copy h1,.static-reader h1')].map(e=>({family:getComputedStyle(e).fontFamily,axes:getComputedStyle(e).fontVariationSettings,weight:getComputedStyle(e).fontWeight})),
       caseTitles:[...document.querySelectorAll('.case-title-v2 h2')].map(e=>({family:getComputedStyle(e).fontFamily,axes:getComputedStyle(e).fontVariationSettings})),
       subheads:[...document.querySelectorAll('.resume-row h3,.case-output-list h3,.static-reader h2,.static-reader h3,.project-tile-main strong')].map(e=>({family:getComputedStyle(e).fontFamily,axes:getComputedStyle(e).fontVariationSettings})),
-      informativeSubheads:[...document.querySelectorAll('.resume-row h3,.case-output-list h3,.static-reader h2,.static-reader h3')].map(e=>getComputedStyle(e).fontFamily),
+      informativeSubheads:[...document.querySelectorAll('.case-output-list h3,.static-reader h2,.static-reader h3:not(.reader-role)')].map(e=>getComputedStyle(e).fontFamily),
+      identityRoles:[...document.querySelectorAll('.resume-row h3,.resume-row strong,.meta-card b,.case-role-v2>p,.case-facts-v2>div:first-child dd,.static-reader .reader-role,.static-reader .reader-company')].map(e=>getComputedStyle(e).fontFamily),
       interface:[...document.querySelectorAll('.primary-action,.language-toggle,.privacy-toggle,.scene__home,.system-label')].map(e=>getComputedStyle(e).fontFamily),
       actualFonts:[...document.fonts].filter(f=>f.status==='loaded').map(f=>f.family),
       hero:document.querySelector('.hero-intro')?{
@@ -61,6 +66,7 @@ try {
      assert(result.display.every(x=>x.weight==='700'),`${route}: Doto display must be bold for visual impact`);
      assert(result.readingAxes.every(x=>x==='normal'),`${route}: Geist Mono body retained pixel font axes`);
      assert(result.informativeSubheads.every(f=>f.includes('Geist Mono')),`${route}: informative subhead should use Geist Mono`);
+     assert(result.identityRoles.every(f=>f.includes('Doto')),`${route}: role/company/client identity must use Doto`);
      assert(result.actualFonts.some(f=>f==='Geist Mono'),`${route}: Geist Mono webfont not loaded`);
    }
    assert(result.interface.every(f=>f.includes('Doto')),`${route}: interface voice changed`);
