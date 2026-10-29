@@ -17,7 +17,9 @@ const {
   project = null
 } = Astro.props;
 
-const fontSheet = typographyMode === 'pixel-editorial'
+const fontSheet = typographyMode === 'doto-mono'
+  ? 'https://fonts.googleapis.com/css2?family=Doto:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap'
+  : typographyMode === 'pixel-editorial'
   ? 'https://fonts.googleapis.com/css2?family=Doto:wght@400;500;600;700&family=Geist+Pixel:ELSH@0..100&family=Geist:wght@400;500;600;700&display=swap'
   : typographyMode === 'balanced'
   ? 'https://fonts.googleapis.com/css2?family=Doto:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap'

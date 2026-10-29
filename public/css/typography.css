@@ -1,4 +1,5 @@
 /* Typography modes: src/data/typography.mjs is the single switch.
+   doto-mono: Doto headings/UI, Geist Mono reading.
    pixel-editorial: Geist Pixel Square headings, Geist Sans body, Doto micro-UI.
    digital: Doto headings, Geist Pixel Square body (previous published version).
    balanced: Redaction 50 headings, Inter body; original: Redaction 50 + Doto.
@@ -85,6 +86,19 @@
   --font-content-subhead-settings: "ELSH" 1;
   --font-content-subhead-weight: 400;
   --font-resume-heading-weight: 400;
+}
+/* Doto carries the visual identity; Geist Mono supports precise, readable copy.
+   Higher Doto weight is deliberately limited to headings, not small UI text. */
+:root[data-typography="doto-mono"] {
+  --font-display: var(--font-ui);
+  --font-display-weight: 700;
+  --font-display-tracking: -.02em;
+  --font-reading: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-content-subhead: var(--font-reading);
+  --font-case-title: var(--font-ui);
+  --font-case-title-weight: 700;
+  --font-resume-heading-weight: 600;
+  --measure-body: 58ch;
 }
 body, button, input, textarea, select {
   font-family: var(--font-reading);
@@ -260,6 +274,10 @@ button, input, textarea, select { font-family: var(--font-ui); }
   .resume-row p { margin-top: 12px; }
 }
 
+:root[data-typography="doto-mono"] .project-tile-main strong,
+:root[data-typography="doto-mono"] .boot-gate h2 {
+  font-weight: 700;
+}
 /* Geist Pixel Square = large titles / editorial subheads, never body copy.
    The same rule covers JS-rendered case studies and static-reader fallback. */
 :root[data-typography="pixel-editorial"] .project-tile-main strong,
