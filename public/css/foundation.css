@@ -84,7 +84,7 @@ button{color:inherit}
 .hero-intro{position:relative;z-index:2;max-width:480px;padding-left:30px;padding-top:12px}
  .system-label{margin:0 0 18px;color:var(--dim);padding-left:2px}
  .hero-intro h1{margin:0;color:var(--bright);filter:drop-shadow(0 0 12px rgba(199,199,199,.22))}
-.blink-dot{font-size:.56em;color:var(--phosphor-2);animation:blink 1s steps(2,end) infinite}
+
  .hero-copy{max-width:420px;margin:24px 0 24px;color:#b3b3b3;}
  .primary-action{border:1px solid var(--line-strong);background:rgba(199,199,199,.06);padding:11px 14px;cursor:pointer;color:var(--bright)}
 .primary-action:hover{background:rgba(199,199,199,.18);color:#f3f3f3;box-shadow:0 0 24px rgba(199,199,199,.15)}

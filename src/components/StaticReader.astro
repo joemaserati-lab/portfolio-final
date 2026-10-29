@@ -29,7 +29,7 @@ const paragraphs = value => [].concat(value || []);
     {kind === 'resume' && <>
       <p>{resume.intro}</p><h2>{labels.experience}</h2>{resume.experience.map(item => <section><h3 class="reader-role">{item.role}</h3><p>{item.period} · <strong class="reader-company">{item.company}</strong> · {item.location}</p>{paragraphs(item.description).map(text => <p>{text}</p>)}</section>)}
       <h2>{labels.education}</h2>{resume.education.map(item => <section><h3>{item.course}</h3><p>{item.period} · <strong class="reader-company">{item.school}</strong></p><p>{item.description}</p></section>)}
-      <h2>{labels.capabilities}</h2><p>{resume.capabilities.join(' · ')}</p><h2>{labels.tools}</h2><p>{resume.tools.join(' · ')}</p>
+      <h2>{labels.capabilities}</h2><div class="reader-skills">{resume.capabilities.map(item => <span>{item}</span>)}</div><h2>{labels.tools}</h2><div class="reader-skills">{resume.tools.map(item => <span>{item}</span>)}</div>
     </>}
   </>}
   <footer><a href={'mailto:' + profile.email}>{profile.email}</a><a href={profile.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a></footer>

@@ -19,7 +19,16 @@ try {
     const readingElements=[...document.querySelectorAll(reading)].filter(e=>
       mode!=='doto-mono' || !e.matches('.case-role-v2>p,.case-facts-v2>div:first-child dd')
     );
+    const probe=document.createElement('section');
+    probe.innerHTML='<h1>Title</h1><h2>Section</h2><h3>Topic</h3><h4>Detail</h4><h5>Minor</h5><p class="type-body">Body <span>inline</span></p><span class="type-caption">Caption</span><span class="type-label">Label</span><button class="type-button">Action</button>';
+    document.body.append(probe);
+    const scale=[...probe.querySelectorAll('h1,h2,h3,h4,h5')].map(e=>({size:parseFloat(getComputedStyle(e).fontSize),family:getComputedStyle(e).fontFamily}));
+    const inherited=getComputedStyle(probe.querySelector('p')).font===getComputedStyle(probe.querySelector('p span')).font;
+    probe.remove();
     return {
+      scale, inherited,
+      emptyHeadings:[...document.querySelectorAll('h1,h2,h3,h4,h5')].filter(e=>!e.textContent.trim()).length,
+      cvHierarchy:[...document.querySelectorAll('.resume-section-title')].every(e=>e.tagName==='H3') && [...document.querySelectorAll('.resume-row .resume-role')].every(e=>e.tagName==='H4'),
       mode:document.documentElement.dataset.typography,
       small:check(reading,16),
       ui:check('.scroll-index,.language-toggle,.privacy-toggle,.primary-action,.scene__home',12),
@@ -29,9 +38,9 @@ try {
       readingAxes:readingElements.map(e=>getComputedStyle(e).fontVariationSettings),
       display:[...document.querySelectorAll('.hero-intro h1,.scene__copy h1,.static-reader h1')].map(e=>({family:getComputedStyle(e).fontFamily,axes:getComputedStyle(e).fontVariationSettings,weight:getComputedStyle(e).fontWeight})),
       caseTitles:[...document.querySelectorAll('.case-title-v2 h2')].map(e=>({family:getComputedStyle(e).fontFamily,axes:getComputedStyle(e).fontVariationSettings})),
-      subheads:[...document.querySelectorAll('.resume-row h3,.case-output-list h3,.static-reader h2,.static-reader h3,.project-tile-main strong')].map(e=>({family:getComputedStyle(e).fontFamily,axes:getComputedStyle(e).fontVariationSettings})),
+      subheads:[...document.querySelectorAll('.resume-row :is(h3, h4),.case-output-list h3,.static-reader h2,.static-reader h3,.project-tile-main strong')].map(e=>({family:getComputedStyle(e).fontFamily,axes:getComputedStyle(e).fontVariationSettings})),
       informativeSubheads:[...document.querySelectorAll('.case-output-list h3,.static-reader h2,.static-reader h3:not(.reader-role)')].map(e=>getComputedStyle(e).fontFamily),
-      identityRoles:[...document.querySelectorAll('.resume-row h3,.resume-row strong,.meta-card b,.case-role-v2>p,.case-facts-v2>div:first-child dd,.static-reader .reader-role,.static-reader .reader-company')].map(e=>getComputedStyle(e).fontFamily),
+      identityRoles:[...document.querySelectorAll('.resume-row :is(h3, h4),.resume-row strong,.meta-card b,.case-role-v2>p,.case-facts-v2>div:first-child dd,.static-reader .reader-role,.static-reader .reader-company')].map(e=>getComputedStyle(e).fontFamily),
       interface:[...document.querySelectorAll('.primary-action,.language-toggle,.privacy-toggle,.scene__home,.system-label')].map(e=>getComputedStyle(e).fontFamily),
       actualFonts:[...document.fonts].filter(f=>f.status==='loaded').map(f=>f.family),
       hero:document.querySelector('.hero-intro')?{
@@ -41,6 +50,11 @@ try {
       }:null
     };
    });
+   assert(result.scale.every((x,i,a)=>!i||a[i-1].size>x.size),`${width} ${route}: H1–H5 must descend strictly`);
+   assert.equal(result.emptyHeadings,0,`${route}: empty heading`);
+   assert(result.cvHierarchy,`${route}: CV hierarchy must be H2/H3/H4`);
+   assert(result.inherited,`${route}: unclassified span must inherit its role`);
+   if(result.mode==='doto-mono') assert(result.scale.every(x=>x.family.includes('Doto')),`${route}: semantic headings must use Doto`);
    assert.deepEqual(result.small,[],`${width} ${route}: reading text too small`);
    assert.deepEqual(result.ui,[],`${width} ${route}: interface text too small`);
    assert.deepEqual(result.labels,[],`${width} ${route}: metadata too small`);
@@ -65,7 +79,7 @@ try {
    } else if(result.mode==='doto-mono') {
      assert(result.display.every(x=>x.weight==='700'),`${route}: Doto display must be bold for visual impact`);
      assert(result.readingAxes.every(x=>x==='normal'),`${route}: Geist Mono body retained pixel font axes`);
-     assert(result.informativeSubheads.every(f=>f.includes('Geist Mono')),`${route}: informative subhead should use Geist Mono`);
+     assert(result.informativeSubheads.every(f=>f.includes('Doto')),`${route}: headings should use Doto`);
      assert(result.identityRoles.every(f=>f.includes('Doto')),`${route}: role/company/client identity must use Doto`);
      assert(result.actualFonts.some(f=>f==='Geist Mono'),`${route}: Geist Mono webfont not loaded`);
    }

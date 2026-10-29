@@ -746,3 +746,28 @@ body.content-panel-open .privacy-widget{
     min-height: auto;
   }
 }
+
+/* Minimal loading screen: label and honest progress only. The terminal scan,
+   cinematic boot overlays and entrance choreography are not used. */
+.boot-loader::after { content: none; animation: none; }
+.boot-loader { transition: opacity .26s ease, visibility .26s ease; }
+.boot-gate { gap: clamp(20px, 3vh, 30px); transition: none; }
+.boot-gate h2 { width: auto; min-height: 0; line-height: 1.1; }
+.boot-gate .boot-progress {
+  position: relative;
+  left: auto;
+  right: auto;
+  top: auto;
+  width: min(70vw, 360px);
+  max-width: 100%;
+  margin: 0;
+  opacity: 1;
+  visibility: visible;
+}
+@media (max-width: 720px) {
+  .boot-gate h2 { min-height: 0; }
+  .boot-gate .boot-progress { width: min(70vw, 270px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .boot-loader { transition: none; }
+}

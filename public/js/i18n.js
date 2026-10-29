@@ -238,13 +238,6 @@
     isTouchDevice: () => matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0
   };
 
-  window.addEventListener('portfolio:booted', () => {
-    const bootTitle = document.querySelector('#boot-gate h2');
-    if (!bootTitle) return;
-    bootTitle.removeAttribute('data-i18n-html');
-    bootTitle.textContent = t('boot.readyTitle');
-  }, { once: true });
-
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => applyStatic(), { once: true });
   else applyStatic();
 })();
