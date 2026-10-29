@@ -165,36 +165,36 @@
 .project-case-open .scanlines { display: none; }
 .project-case-open .screen { filter: none; }
 
+/* Tablet retains its bottom launcher/navigation band. */
+@media (min-width: 721px) and (max-width: 1024px) and (min-height: 650px) {
+  .scroll-portfolio .hero-intro {
+    margin-top: clamp(36px, 8vh, 84px);
+    padding: 0;
+    max-width: min(48vw, 420px);
+  }
+  .scroll-portfolio .hero-copy {
+    max-width: 34ch;
+    margin: 28px 0 28px;
+  }
+}
+/* On tall phones, let the title, copy and CTA read as three separate beats.
+   Short landscape devices keep their existing collision-safe composition. */
+@media (max-width: 720px) and (min-height: 601px) {
+  .scroll-portfolio .hero-intro {
+    margin-top: clamp(30px, 7vh, 72px);
+  }
+  .scroll-portfolio .hero-copy {
+    max-width: min(34ch, 100%);
+    margin: clamp(22px, 3.8vh, 34px) 0 clamp(22px, 3.4vh, 30px);
+    padding: 0;
+    border: 0;
+    background: transparent;
+    backdrop-filter: none;
+  }
+}
 @media (max-width: 1024px) {
   .scroll-portfolio {
     --scroll-portrait-top: max(18px, calc(var(--ui-safe-top) - 26px), var(--device-screen-top));
-  }
-  /* Tablet retains its bottom launcher/navigation band. */
-  @media (min-width: 721px) and (min-height: 650px) {
-    .scroll-portfolio .hero-intro {
-      margin-top: clamp(36px, 8vh, 84px);
-      padding: 0;
-      max-width: min(48vw, 420px);
-    }
-    .scroll-portfolio .hero-copy {
-      max-width: 34ch;
-      margin: 28px 0 28px;
-    }
-  }
-  /* On tall phones, let the title, copy and CTA read as three separate beats.
-     Short landscape devices keep their existing collision-safe composition. */
-  @media (max-width: 720px) and (min-height: 601px) {
-    .scroll-portfolio .hero-intro {
-      margin-top: clamp(30px, 7vh, 72px);
-    }
-    .scroll-portfolio .hero-copy {
-      max-width: min(34ch, 100%);
-      margin: clamp(22px, 3.8vh, 34px) 0 clamp(22px, 3.4vh, 30px);
-      padding: 0;
-      border: 0;
-      background: transparent;
-      backdrop-filter: none;
-    }
   }
   .scroll-portfolio .scroll-minimenu {
     display: none;
