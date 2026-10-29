@@ -1,0 +1,31 @@
+/* Idle screen borrows the 404 layout and bouncing DVD motif without an SVG screen filter. */
+.idle-screensaver[hidden]{display:none!important}
+.idle-screensaver{position:absolute;inset:0;z-index:85;overflow:hidden;isolation:isolate;background:#050505;color:#f5f5f5;-webkit-font-smoothing:antialiased;outline:none}
+.idle-screensaver__topline{position:absolute;z-index:2;top:clamp(22px,4vw,45px);left:clamp(24px,5vw,70px);right:clamp(24px,5vw,70px);display:flex;justify-content:space-between;align-items:baseline;gap:16px;font:500 clamp(11px,1vw,13px)/1.35 'Geist Mono',monospace;letter-spacing:.01em}
+.idle-screensaver__topline span:last-child{color:#b9b9b9;text-align:right}
+.idle-screensaver__dvd{--idle-dvd-color:#f5f5f5;position:absolute;top:0;left:0;display:flex;align-items:center;flex-direction:column;width:clamp(140px,18vw,220px);height:clamp(146px,18vw,218px);color:var(--idle-dvd-color);transform:translate3d(0,0,0);will-change:transform;pointer-events:none;user-select:none}
+.idle-screensaver__face{width:68%;height:66%;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.idle-screensaver__face img{width:100%;height:100%;object-fit:contain;filter:grayscale(1) contrast(1.1)}
+.idle-screensaver__disc{display:block;width:90%;height:20%;flex-shrink:0}
+.idle-screensaver__video{font:700 clamp(12px,1.8vw,18px)/1 'Geist Mono',monospace;letter-spacing:.24em;margin-top:1px;color:inherit}
+.idle-screensaver__copy{position:absolute;z-index:2;left:clamp(24px,5vw,70px);bottom:clamp(30px,7vh,88px);width:min(550px,calc(100% - 48px));max-width:calc(100% - 48px)}
+.idle-screensaver__copy h2{margin:0 0 24px;font:600 clamp(42px,6vw,84px)/.99 'Doto','Geist Mono',monospace;letter-spacing:-.055em;color:#f5f5f5}
+.idle-screensaver__copy p{margin:0 0 22px;max-width:32ch;font:400 clamp(14px,1.5vw,17px)/1.5 'Geist Mono',monospace;color:#b9b9b9}
+.idle-screensaver__resume{display:inline-block;width:auto;max-width:100%;padding:0 0 5px;border:0;border-bottom:1px solid currentColor;background:transparent;color:#f5f5f5;font:500 clamp(10px,1vw,12px)/1.6 'Geist Mono',monospace;letter-spacing:.035em;text-align:left;white-space:normal;cursor:pointer}
+.idle-screensaver__resume:focus-visible{outline:2px solid #80ffcc;outline-offset:6px}
+@media(max-width:700px){
+ .idle-screensaver__topline{top:23px;left:23px;right:23px;font-size:10px}
+ .idle-screensaver__topline span:last-child{max-width:120px}
+ .idle-screensaver__dvd{width:clamp(132px,40vw,185px);height:clamp(140px,42vw,195px)}
+ .idle-screensaver__copy{bottom:clamp(34px,8vh,95px);left:23px;max-width:calc(100% - 46px)}
+ .idle-screensaver__copy h2{font-size:clamp(42px,11vw,64px);margin-bottom:19px}
+ .idle-screensaver__copy p{font-size:14px;margin-bottom:16px}
+}
+@media(max-height:510px){
+ .idle-screensaver__copy{bottom:20px}
+ .idle-screensaver__copy h2{font-size:clamp(34px,7vh,47px);margin-bottom:8px}
+ .idle-screensaver__copy p{font-size:12px;line-height:1.35;margin-bottom:7px;max-width:48ch}
+ .idle-screensaver__resume{font-size:10px}
+ .idle-screensaver__dvd{width:clamp(104px,16vw,155px);height:clamp(106px,17vw,152px)}
+}
+@media(prefers-reduced-motion:reduce){.idle-screensaver__dvd{will-change:auto}}
