@@ -76,13 +76,13 @@ try {
     const head=document.getElementById('crt-head-feature');
     return document.querySelector('#projects-view').hidden &&
       (width>1024
-        ? document.body.classList.contains('scroll-head-hidden') && !head.classList.contains('is-ready')
+        ? head.parentElement.id==='screen' && head.classList.contains('is-ready')
         : head.classList.contains('is-ready'));
   },width);
   if(width>1024){
-    assert.equal(await page.locator('#crt-head-feature').isVisible(),false,'Desktop head should remain in hero during reading');
+    assert(await page.locator('#crt-head-feature').isVisible(),'Desktop head should dock at the bottom during reading');
     await page.evaluate(()=>dispatchEvent(new CustomEvent('portfolio:scroll-to',{detail:'home'})));
-    await page.waitForFunction(()=>!document.body.classList.contains('scroll-head-hidden')&&document.querySelector('#crt-head-feature').classList.contains('is-ready'));
+    await page.waitForFunction(()=>document.querySelector('#crt-head-feature').parentElement.id==='desktop'&&document.querySelector('#crt-head-feature').classList.contains('is-ready'));
     assert(await page.locator('#crt-head-feature').isVisible(),'Head did not resume on desktop hero');
   } else {
     assert(await page.locator('#crt-head-feature').isVisible(),'Mobile head did not resume on return');

@@ -57,8 +57,7 @@
   // One shared lifecycle for the directory, including language rerenders.
   const previewRoot = document.getElementById('scroll-work');
   const previewVideos = new Map();
-  // Match the scroll layout; touch support alone must not disable desktop hover.
-  const previewMobile = matchMedia('(max-width: 1024px)');
+  // Both desktop and mobile use the same scroll-viewport preview lifecycle.
   const previewReduced = matchMedia('(prefers-reduced-motion: reduce)');
   const loadPreview = video => {
     if (video.getAttribute('src')) return;
@@ -70,8 +69,7 @@
     return card.isConnected && !document.hidden && !document.body.classList.contains('screensaver-on') &&
       !document.body.classList.contains('project-case-open') &&
       document.body.classList.contains('site-ready') && !previewReduced.matches &&
-      (previewMobile.matches ? card.classList.contains('is-viewport-color') :
-        card.matches(':hover, :focus-within'));
+      card.classList.contains('is-viewport-color');
   }
   function syncPreviewVideos() {
     // Stop the previous preview before starting the newly selected one.
@@ -124,15 +122,12 @@
   }
   if (previewRoot) {
     new MutationObserver(attachPreviewVideos).observe(previewRoot, {childList:true, subtree:true});
-    // Delegated pointer/focus handlers avoid retaining cards removed by a rerender.
-    for (const name of ['pointerover', 'pointerout', 'focusin', 'focusout']) {
-      previewRoot.addEventListener(name, () => queueMicrotask(syncPreviewVideos));
-    }
+    // Hover/focus styles remain, but only viewport visibility drives playback.
     document.addEventListener('visibilitychange', syncPreviewVideos);
     for (const name of ['portfolio:preview-change', 'portfolio:project-opened', 'portfolio:project-closed']) {
       addEventListener(name, syncPreviewVideos);
     }
-    previewMobile.addEventListener('change', syncPreviewVideos);
+    // No input-device split: the same viewport selection operates at all widths.
     previewReduced.addEventListener('change', syncPreviewVideos);
     addEventListener('portfolio:site-ready', attachPreviewVideos, {once:true});
     attachPreviewVideos();

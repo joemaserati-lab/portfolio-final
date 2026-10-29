@@ -713,15 +713,17 @@
     border:1px solid rgba(245,245,245,.25);
     background:rgba(8,8,8,.90);
   }
-  /* Once scroll leaves the hero, keep WebGL rooted in the original hero.
-     Desktop reparenting used an obsolete coordinate frame and caused glitches. */
-  .scroll-portfolio.scroll-head-hidden #desktop > .crt-head-feature {
-    /* The 3D transition was still compositing mid-frame after docking:
-       hide synchronously to keep it from flashing over section text. */
-    opacity:0!important;
-    visibility:hidden!important;
-    transition:none!important;
-    pointer-events:none!important;
+  /* After the hero, the EXISTING WebGL canvas is projected into a small
+     center-bottom CRT overlay. Keep navigation and media pointer-accessible. */
+  .scroll-portfolio .scroll-portrait-docked {
+    z-index:17;
+    pointer-events:none;
+    will-change:transform;
+    transition:none;
+  }
+  .scroll-portfolio.scroll-head-docked .crt-head-feature.is-ready {
+    opacity:.89;
+    visibility:visible;
   }
   /* The work heading avoids the fixed launcher cluster, the grid uses
      the actual available section width. */
@@ -741,10 +743,10 @@
     max-width:min(35cqw,425px);
   }
   [data-crt-format="classic"] .scroll-portfolio #desktop > .crt-head-feature {
-    left:62%;
-    top:59%;
-    width:56%;
-    height:68%;
+    left:63%;
+    top:58%;
+    width:60%;
+    height:72%;
   }
 }
 /* One complete 16:9 media window per row for the selected-work index and
