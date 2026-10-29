@@ -614,3 +614,20 @@
 }
 .resume-columns .skill-list span::before { content: "<"; }
 .resume-columns .skill-list span::after { content: ">"; }
+
+/* Accessible no-JavaScript reading view uses the same bracketed CV skills. */
+.static-reader .reader-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  margin: 18px 0 30px;
+}
+.static-reader .reader-skills span {
+  font-family: var(--font-ui);
+  font-size: var(--type-caption);
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: var(--tracking-label);
+}
+.static-reader .reader-skills span::before { content: "<"; }
+.static-reader .reader-skills span::after { content: ">"; }
