@@ -613,3 +613,162 @@
   .scroll-portfolio .projects-index-head h2,
   .scroll-portfolio .case-title-v2 h2 { max-width: 100%; }
 }
+
+/* V32 / WIDESCREEN-COMPACT 5:3 CONTENT GEOMETRY -----------------------------
+   The CRT is narrower than 16:9, but the content should occupy the whole
+   readable area, rather than a fixed 76% desktop strip. These structural
+   changes apply above the tablet breakpoint; mobile scroll behavior stays. */
+@media (min-width:1025px) {
+  .scroll-portfolio .scroll-section {
+    padding-right: var(--ui-safe-right);
+    padding-left: var(--ui-safe-left);
+  }
+  .scroll-portfolio .scroll-window.os-window,
+  .scroll-portfolio .scroll-window .window-body,
+  .scroll-portfolio .scroll-window .window-body > :is(.resume-view,.contact-panel,.projects-index-v2) {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+  /* The reading sections must not use stacked half-width grids. */
+  .scroll-portfolio #scroll-resume .resume-header,
+  .scroll-portfolio #scroll-resume .resume-section {
+    display: grid;
+    grid-template-columns: minmax(0,1fr);
+    width: 100%;
+    gap: clamp(16px,2vw,28px);
+  }
+  .scroll-portfolio #scroll-resume .resume-header > p { max-width: 60ch; }
+  .scroll-portfolio #scroll-resume .resume-list,
+  .scroll-portfolio #scroll-resume .resume-row {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .scroll-portfolio #scroll-resume .resume-row {
+    grid-template-columns: minmax(120px,170px) minmax(0,1fr);
+    gap: clamp(20px,2.4vw,36px);
+    align-items: start;
+  }
+  .scroll-portfolio #scroll-resume .resume-row > div:last-child { min-width:0; }
+  .scroll-portfolio #scroll-resume .resume-row p { max-width: 65ch; }
+  /* Contact links now use full lines, not competing inline label/value columns. */
+  .scroll-portfolio #scroll-contact .contact-panel {
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(190px,280px);
+    gap:clamp(24px,4vw,62px);
+    width:100%;
+    align-items:start;
+  }
+  .scroll-portfolio #scroll-contact .contact-copy,
+  .scroll-portfolio #scroll-contact .contact-links { width:100%;max-width:none;min-width:0; }
+  .scroll-portfolio #scroll-contact .contact-link {
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    gap:8px;
+    align-content:start;
+    justify-items:start;
+    box-sizing:border-box;
+    width:100%;
+    min-width:0;
+  }
+  .scroll-portfolio #scroll-contact .contact-link b {
+    max-width:100%;
+    overflow-wrap:anywhere;
+    word-break:normal;
+    text-align:left;
+  }
+  .scroll-portfolio #scroll-contact .contact-photo {
+    box-sizing:border-box;
+    display:block;
+    justify-self:end;
+    width:min(100%,270px);
+    min-height:0;
+    max-height:338px;
+    aspect-ratio:4/5;
+    margin:clamp(12px,2vw,28px) 0 0;
+  }
+  .scroll-portfolio #scroll-contact .contact-photo img {
+    width:100%;height:100%;object-fit:contain;object-position:center;
+  }
+  /* A solid high-contrast backing, consistent with the hero CTA, protects
+     each desktop launcher from the decorative 3D artwork. */
+  .scroll-portfolio .desktop-icons { grid-template-columns:repeat(2,minmax(0,118px));column-gap:14px;row-gap:14px; }
+  .scroll-portfolio .desktop-icons .desktop-icon {
+    box-sizing:border-box;
+    min-width:0;
+    padding:calc(var(--hero-icon-padding-top) - 1px) 7px 8px;
+    border:1px solid rgba(245,245,245,.28);
+    background:rgba(8,8,8,.86);
+    text-shadow:none;
+    transition:background-color .15s ease,border-color .15s ease;
+  }
+  .scroll-portfolio .desktop-icons .desktop-icon:is(:hover,:focus-visible) {
+    background:rgba(8,8,8,.96);
+    border-color:rgba(245,245,245,.55);
+  }
+  .scroll-portfolio .scroll-mini-icon {
+    box-sizing:border-box;
+    border:1px solid rgba(245,245,245,.25);
+    background:rgba(8,8,8,.90);
+  }
+  /* Once scroll leaves the hero, keep WebGL rooted in the original hero.
+     Desktop reparenting used an obsolete coordinate frame and caused glitches. */
+  .scroll-portfolio.scroll-head-hidden #desktop > .crt-head-feature {
+    opacity:0;
+    visibility:hidden;
+    transition:opacity .18s ease,visibility .18s;
+  }
+  /* The work heading avoids the fixed launcher cluster, the grid uses
+     the actual available section width. */
+  .scroll-portfolio #scroll-work .projects-index-head {
+    grid-template-columns:minmax(0,1fr);
+    max-width:min(100%,650px);
+    gap:14px;
+    align-items:start;
+  }
+  .scroll-portfolio #scroll-work .projects-index-side {
+    align-items:flex-start;
+    text-align:left;
+  }
+  /* Preserve comfortable hero proportions without intercepting the launchers. */
+  [data-crt-format="classic"] .scroll-portfolio .hero-intro {
+    width:min(35cqw,425px);
+    max-width:min(35cqw,425px);
+  }
+  [data-crt-format="classic"] .scroll-portfolio #desktop > .crt-head-feature {
+    left:62%;
+    top:59%;
+    width:56%;
+    height:68%;
+  }
+}
+/* One complete 16:9 media window per row for the selected-work index and
+   project directory, including intermediate tablet widths. */
+.scroll-portfolio #scroll-work .projects-grid-v2,
+.scroll-portfolio #projects-view .projects-grid-v2 {
+  grid-template-columns:minmax(0,1fr);
+}
+.scroll-portfolio #scroll-work .project-cover-v2,
+.scroll-portfolio #projects-view .project-cover-v2 {
+  box-sizing:border-box;
+  aspect-ratio:16 / 9 !important;
+  width:100%;
+  min-height:0;
+}
+.scroll-portfolio #scroll-work .project-cover-video,
+.scroll-portfolio #projects-view .project-cover-video {
+  object-fit:contain;
+  background:#080808;
+}
+@media (min-width:721px) and (max-width:1024px) {
+  /* The contact labels must also remain legible on intermediate devices. */
+  .scroll-portfolio #scroll-contact .contact-link {
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    gap:6px;
+  }
+  .scroll-portfolio #scroll-contact .contact-link b {overflow-wrap:anywhere;}
+  .scroll-portfolio #scroll-contact .contact-photo {margin-inline:auto;}
+}

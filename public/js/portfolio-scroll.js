@@ -202,7 +202,18 @@
     const pose = smoothDock;
     document.body.classList.toggle('scroll-reading', pose > 0);
     viewport.style.setProperty('--scroll-dock', pose.toFixed(4));
-    if (pose > 0) {
+    // Desktop: never move the WebGL canvas between DOM coordinate systems.
+    // Its hero container scrolls away naturally; hide/pause it when reading.
+    const desktopHeadHidden = !compact.matches && (y > h * .12 || overlay);
+    document.body.classList.toggle('scroll-head-hidden', desktopHeadHidden);
+    if (!compact.matches) {
+      if (docked) {
+        desktop.prepend(head);
+        head.classList.remove('scroll-portrait-docked');
+        head.removeAttribute('style');
+        docked = false;
+      }
+    } else if (pose > 0) {
       if (!docked) { screen.appendChild(head); head.classList.add('scroll-portrait-docked'); docked = true; }
       const slot = portraitSlot.getBoundingClientRect(), sr = screen.getBoundingClientRect();
       const target = compact.matches ? {left:slot.left-sr.left,top:slot.top-sr.top,width:slot.width,height:slot.height} : {left:w*.75,top:h*.22,width:w*.22,height:h*.55};
