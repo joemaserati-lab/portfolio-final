@@ -1,0 +1,18 @@
+---
+// Native DOM optics: no screenshot canvas, external runtime or event remapping.
+const field = `<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256"><defs><linearGradient id="x"><stop stop-color="#000000"/><stop offset="1" stop-color="#ff0000"/></linearGradient><linearGradient id="y" x2="0" y2="1"><stop stop-color="#000000"/><stop offset="1" stop-color="#00ff00"/></linearGradient></defs><rect width="256" height="256" fill="url(#x)"/><rect width="256" height="256" fill="url(#y)" style="mix-blend-mode:screen"/></svg>`;
+const radial = `<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256"><defs><radialGradient id="r" r="71%"><stop stop-color="#000000"/><stop offset=".25" stop-color="#101010"/><stop offset=".5" stop-color="#404040"/><stop offset=".75" stop-color="#8f8f8f"/><stop offset="1" stop-color="#ffffff"/></radialGradient></defs><rect width="256" height="256" fill="url(#r)"/></svg>`;
+const svgUrl = value => `data:image/svg+xml,${encodeURIComponent(value)}`;
+---
+<svg class="crt-optics-defs" aria-hidden="true" width="0" height="0" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    {[['crt-optics',6],['crt-optics-mobile',2]].map(([id,scale]) =>
+      <filter id={id} x="-1%" y="-1%" width="102%" height="102%" color-interpolation-filters="sRGB">
+        <feImage href={svgUrl(field)} preserveAspectRatio="none" result="field" />
+        <feImage href={svgUrl(radial)} preserveAspectRatio="none" result="radius" />
+        <feComposite in="field" in2="radius" operator="arithmetic" k1="1" k2="0" k3="-.5" k4=".5" result="barrel" />
+        <feDisplacementMap in="SourceGraphic" in2="barrel" scale={scale} xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    )}
+  </defs>
+</svg>

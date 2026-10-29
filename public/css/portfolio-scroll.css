@@ -586,3 +586,16 @@
 @media (prefers-reduced-motion: reduce) {
   .project-tile-v2 .project-cover-video { display: none; }
 }
+
+/* Fit the three home anchors inside the narrower classic desktop surface. */
+@media (min-width: 1025px) and (min-aspect-ratio: 4/3) {
+  [data-crt-format="classic"] .scroll-portfolio .hero-intro {
+    width: min(31cqw, 425px); max-width: min(31cqw, 425px);
+  }
+  [data-crt-format="classic"] .scroll-portfolio .desktop-icons {
+    grid-template-columns: repeat(2, 98px); column-gap: 18px;
+  }
+  [data-crt-format="classic"] .scroll-portfolio #desktop > .crt-head-feature {
+    left: 58%; top: 53%; width: 70%; height: 76%;
+  }
+}

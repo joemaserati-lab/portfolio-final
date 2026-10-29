@@ -400,3 +400,9 @@ button {
 @media (max-height: 520px) and (max-width: 900px) {
   :root[data-typography="doto-mono"] { --type-hero-display: 32px; }
 }
+
+@media (min-width: 1025px) and (min-aspect-ratio: 4/3) {
+  :root[data-crt-format="classic"][data-typography="doto-mono"] .hero-intro h1 {
+    font-size: clamp(44px, 4.3cqw, 68px);
+  }
+}
