@@ -317,6 +317,8 @@
       await Promise.all([applicationReady, domReady, headReady]);
       await minimumVisible;
       setProgressTarget(100);
+      progressValue = 100;
+      drawProgress();
       try { sessionStorage.setItem('portfolioBootSeen', '1'); } catch {}
       try { localStorage.setItem('portfolioBootSeen', '1'); } catch {}
       reveal();
