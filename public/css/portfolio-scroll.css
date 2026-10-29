@@ -14,10 +14,29 @@
 }
 .scroll-portfolio.booting .scroll-viewport { overflow: hidden; }
 .scroll-portfolio .scroll-home { height: 100%; min-height: 100%; }
+/* Quiet-space composition: preserve the existing 3D portrait, CRT chrome and
+   navigation. Only the text footprint and section rhythm change. */
+@media (min-width: 1025px) {
+  .scroll-portfolio .hero-intro {
+    box-sizing: border-box;
+    width: min(35vw, 425px);
+    max-width: 425px;
+    padding: 0;
+    margin: clamp(64px, 12vh, 140px) 0 0 clamp(8px, 2.2vw, 34px);
+  }
+  .scroll-portfolio .hero-copy {
+    max-width: 34ch;
+    margin: clamp(28px, 4vh, 42px) 0 clamp(26px, 3.5vh, 36px);
+  }
+}
 .scroll-portfolio .scroll-section {
   position: relative;
   min-height: 100%;
-  padding: var(--ui-safe-top) calc(var(--ui-safe-right) + 24%) calc(var(--ui-safe-bottom) + 40px) var(--ui-safe-left);
+  padding:
+    max(var(--ui-safe-top), clamp(88px, 12vh, 144px))
+    calc(var(--ui-safe-right) + 24%)
+    max(var(--ui-safe-bottom), clamp(96px, 14vh, 160px))
+    var(--ui-safe-left);
   scroll-margin-top: 0;
 }
 .scroll-portfolio .scroll-window.os-window {
@@ -149,6 +168,33 @@
 @media (max-width: 1024px) {
   .scroll-portfolio {
     --scroll-portrait-top: max(18px, calc(var(--ui-safe-top) - 26px), var(--device-screen-top));
+  }
+  /* Tablet retains its bottom launcher/navigation band. */
+  @media (min-width: 721px) and (min-height: 650px) {
+    .scroll-portfolio .hero-intro {
+      margin-top: clamp(36px, 8vh, 84px);
+      padding: 0;
+      max-width: min(48vw, 420px);
+    }
+    .scroll-portfolio .hero-copy {
+      max-width: 34ch;
+      margin: 28px 0 28px;
+    }
+  }
+  /* On tall phones, let the title, copy and CTA read as three separate beats.
+     Short landscape devices keep their existing collision-safe composition. */
+  @media (max-width: 720px) and (min-height: 601px) {
+    .scroll-portfolio .hero-intro {
+      margin-top: clamp(30px, 7vh, 72px);
+    }
+    .scroll-portfolio .hero-copy {
+      max-width: min(34ch, 100%);
+      margin: clamp(22px, 3.8vh, 34px) 0 clamp(22px, 3.4vh, 30px);
+      padding: 0;
+      border: 0;
+      background: transparent;
+      backdrop-filter: none;
+    }
   }
   .scroll-portfolio .scroll-minimenu {
     display: none;
