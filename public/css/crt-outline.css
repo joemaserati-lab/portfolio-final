@@ -772,7 +772,7 @@ body.content-panel-open .privacy-widget{
   .boot-loader { transition: none; }
 }
 
-/* Reversible classic-screen preview. Width follows available screen height;
+/* Reversible 3:2 desktop screen. Width follows available screen height;
    mobile geometry and the existing typography scale are untouched. */
 @media (min-width: 1025px) and (min-aspect-ratio: 4/3) {
   :root[data-crt-format="classic"] {

@@ -3,7 +3,7 @@ import { chromium } from 'playwright';
 const base=process.env.AUDIT_URL||'http://127.0.0.1:4321/portfolio-final/';
 const browser=await chromium.launch({headless:true,args:['--use-gl=swiftshader','--enable-webgl']});
 try {
- for(const [width,height] of [[320,568],[390,844],[667,375],[1024,768],[1440,900],[1920,1080],[2560,1440]]) {
+ for(const [width,height] of [[320,568],[390,844],[667,375],[1024,768],[1440,900],[1835,831],[1920,1080],[2560,1440]]) {
   const page=await browser.newPage({viewport:{width,height},hasTouch:width<768,isMobile:width<768});
   await page.goto(base,{waitUntil:'domcontentloaded'});
   const boot=await page.evaluate(()=>{
@@ -14,11 +14,28 @@ try {
   for(const key of ['x','y','width','height']) assert(Math.abs(boot.screen[key]-boot.loader[key])<1,`${width}: loader misaligned (${key})`);
   assert(Math.abs(boot.screen.x-boot.outlineLeft)<1,`${width}: outline misaligned`);
   if(width>1024) {
-   assert(Math.abs(boot.screen.width/boot.screen.height-4/3)<.002,`${width}: expected classic 4:3`);
+   assert(Math.abs(boot.screen.width/boot.screen.height-3/2)<.002,`${width}: expected centered 3:2`);
    assert(Math.abs(boot.screen.left-(width-boot.screen.right))<1,`${width}: screen not centered`);
   }
   await page.waitForFunction(()=>document.body.classList.contains('site-ready')&&!document.getElementById('boot-loader'),null,{timeout:45000});
   await page.evaluate(()=>document.fonts.ready);
+  if(width>1024) {
+    const home=await page.evaluate(()=>{
+      const screen=document.getElementById('screen').getBoundingClientRect();
+      const title=document.querySelector('.hero-intro h1').getBoundingClientRect();
+      const icons=document.querySelector('.desktop-icons').getBoundingClientRect();
+      const iconItems=[...document.querySelectorAll('.desktop-icons .desktop-icon')].map(el=>el.getBoundingClientRect().toJSON());
+      const portrait=document.getElementById('crt-head-feature').getBoundingClientRect();
+      return {screen:screen.toJSON(),title:title.toJSON(),icons:icons.toJSON(),
+        iconItems,portrait:portrait.toJSON()};
+    });
+    assert(home.title.left>=home.screen.left, `${width}: title starts outside CRT`);
+    assert(home.title.right < home.icons.left-12, `${width}: title and icons collide`);
+    assert(home.iconItems.every(box=>box.left>=home.screen.left&&box.right<=home.screen.right),
+      `${width}: an icon escapes the CRT`);
+    assert(home.portrait.width < home.screen.width*.65,
+      `${width}: oversized 3D artwork crowds reading space`);
+  }
   if(width<=1024) {
    const geometry=await page.evaluate(()=>{
     const selectors=['#screen','.hero-intro','.desktop-icons','.scroll-index'];

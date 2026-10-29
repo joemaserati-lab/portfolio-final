@@ -590,16 +590,18 @@
   .project-tile-v2 .project-cover-video { display: none; }
 }
 
-/* Fit the three home anchors inside the narrower classic desktop surface. */
+/* 3:2 desktop CRT: give the heading its full measure, while keeping the
+   decorative portrait clear of the reading area and the four launchers.
+   No changes to tablet/phone geometry or the canonical type scale. */
 @media (min-width: 1025px) and (min-aspect-ratio: 4/3) {
   [data-crt-format="classic"] .scroll-portfolio .hero-intro {
-    width: min(31cqw, 425px); max-width: min(31cqw, 425px);
+    width: min(34cqw, 425px); max-width: min(34cqw, 425px);
   }
   [data-crt-format="classic"] .scroll-portfolio .desktop-icons {
     grid-template-columns: repeat(2, 98px); column-gap: 18px;
   }
   [data-crt-format="classic"] .scroll-portfolio #desktop > .crt-head-feature {
-    left: 58%; top: 53%; width: 70%; height: 76%;
+    left: 64%; top: 60%; width: 60%; height: 70%;
   }
 }
 
