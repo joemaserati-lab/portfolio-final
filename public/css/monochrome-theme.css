@@ -103,7 +103,6 @@ body { color: var(--white); }
 .project-tile-v2:focus-visible .project-cover-open { color: var(--white); }
 
 /* Mint only where it communicates a state or identifies the central portrait. */
-.blink-dot { color: var(--mint); }
 .boot-progress-bar,.boot-progress>span { background: var(--mint); }
 .primary-action:focus-visible,.boot-enter:focus-visible,
 .desktop-icon:focus-visible,.project-tile-v2:focus-visible,
