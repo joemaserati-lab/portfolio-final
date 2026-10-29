@@ -78,6 +78,25 @@ try{
   await page.close();
   console.log('LAYOUT PASS',width,'5:3, hero, work video, CV, contacts, centered desktop head');
  }
+ // Mobile handoff uses a square slot: preserve the original horizontal
+ // centering and avoid reallocating the WebGL canvas.
+ const phone=await browser.newPage({viewport:{width:390,height:844},hasTouch:true,isMobile:true});
+ await phone.addInitScript(()=>{sessionStorage.setItem('portfolioBootSeen','1');localStorage.setItem('portfolioPrivacyAck','1')});
+ await phone.goto(base);
+ await phone.waitForFunction(()=>document.body.classList.contains('site-ready'));
+ await phone.waitForFunction(()=>window.__portfolioHeadState?.ready);
+ const mobileBuffer=await phone.locator('#crt-head-canvas').evaluate(e=>[e.width,e.height]);
+ await phone.locator('.scroll-index [data-scroll-section="work"]').click();
+ await phone.waitForFunction(()=>document.querySelector('#scroll-work .scroll-window').classList.contains('is-revealed'));
+ await phone.waitForFunction(()=>{
+   const h=document.getElementById('crt-head-feature').getBoundingClientRect();
+   const s=document.querySelector('.scroll-portrait-slot').getBoundingClientRect();
+   return Math.abs((h.left+h.right-s.left-s.right)/2)<2;
+ });
+ assert.deepEqual(await phone.locator('#crt-head-canvas').evaluate(e=>[e.width,e.height]),mobileBuffer,
+   'Mobile handoff changed the WebGL drawing buffer');
+ console.log('MOBILE DOCK PASS',390,'portrait centered in original slot');
+ await phone.close();
  const hybrid=await browser.newPage({viewport:{width:1440,height:900},hasTouch:true});
  await hybrid.addInitScript(()=>{sessionStorage.setItem('portfolioBootSeen','1');localStorage.setItem('portfolioPrivacyAck','1')});
  await hybrid.goto(base);
