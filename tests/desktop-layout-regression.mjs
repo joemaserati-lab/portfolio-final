@@ -131,7 +131,7 @@ try{
  assert.equal(debug.headVisibility,'visible','Hybrid head must remain visible during reading');
  assert(Number(debug.headOpacity)>.6,'Hybrid docked head must be legible');
  assert(debug.top>=debug.screenTop+5 && debug.top<=debug.screenTop+42,'Hybrid portrait not at top');
- assert(debug.iconSize<=23,'Mini navigation icons not reduced');
+ assert(Math.abs(debug.iconSize-28)<1,'Previous 28px icon size not restored');
  // Verify real pointer-driven yaw after scrolling into a section, including
  // touch-capable laptops. The pointer is relative to the CRT, not the icon.
  const sr=await hybrid.locator('#screen').boundingBox();

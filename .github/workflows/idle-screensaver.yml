@@ -29,6 +29,8 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Verify first-paint font gate and offline fallback
         run: node tests/font-paint-regression.mjs
+      - name: Verify original navigation icons and compact pixel cursor
+        run: node tests/cursor-regression.mjs
       - name: Verify full-width desktop layout and stable 3D scroll
         run: node tests/desktop-layout-regression.mjs
       - name: Verify inactivity, wake-up, language and reduced motion

@@ -255,12 +255,7 @@ body {
   max-width: 72ch !important;
 }
 
-/* Reduce every custom cursor variant by 15% while preserving its artwork. */
-.pixelart-cursor {
-  width: 68px;
-  height: 68px;
-  background-size: 68px 68px;
-}
+/* Pixel cursor dimensions inherit the shared 48px token from workspace.css. */
 
 /* Desktop loader: remove only the duplicate ready status and auxiliary note.
    Keep the original visible CLICK TO ENTER button. */

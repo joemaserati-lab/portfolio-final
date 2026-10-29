@@ -164,11 +164,7 @@
     padding:min(.520833vw,.925926vh) min(.677083vw,1.203704vh);
   }
 
-  .pixelart-cursor {
-    width:min(3.541667vw,6.296296vh);
-    height:min(3.541667vw,6.296296vh);
-    background-size:min(3.541667vw,6.296296vh) min(3.541667vw,6.296296vh);
-  }
+  /* The custom pointer remains 48px on extra-large displays. */
 }
 
 /* V31.14 / CANONICAL CRT SAFE VIEWPORT -------------------------------------
