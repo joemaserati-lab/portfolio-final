@@ -1,5 +1,4 @@
 ---
-import CrtOptics from '../components/CrtOptics.astro';
 import { crtExperiment } from '../data/crt-experiment.mjs';
 import ScrollSections from '../components/ScrollSections.astro';
 import ScrollNavigation from '../components/ScrollNavigation.astro';
@@ -36,7 +35,7 @@ const canonicalUrl = new URL(canonicalPath, rootUrl);
 const ogImageUrl = new URL(ogImage, rootUrl);
 ---
 <!doctype html>
-<html lang="en" class="no-js" data-typography={typographyMode} data-crt-format={crtExperiment.classicDesktop ? "classic" : "wide"} data-crt-optics={crtExperiment.subtleOptics ? "subtle" : "off"} style={`--crt-desktop-ratio: ${crtExperiment.desktopRatio}`}>
+<html lang="en" class="no-js" data-typography={typographyMode} data-crt-format={crtExperiment.classicDesktop ? "classic" : "wide"} style={`--crt-desktop-ratio: ${crtExperiment.desktopRatio}`}>
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -101,7 +100,6 @@ const ogImageUrl = new URL(ogImage, rootUrl);
   {jsonLd && <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)}></script>}
 </head>
 <body class="booting scroll-portfolio">
-  <CrtOptics />
   <svg class="svg-defs" aria-hidden="true" width="0" height="0">
     <defs>
       <clipPath id="crtScreenClip" clipPathUnits="objectBoundingBox">

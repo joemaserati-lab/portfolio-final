@@ -1,6 +1,4 @@
 ---
-import CrtOptics from "../components/CrtOptics.astro";
-import { crtExperiment } from "../data/crt-experiment.mjs";
 import packageInfo from "../../package.json";
 import { typographyMode } from "../data/typography.mjs";
 const fontSheet = typographyMode === 'doto-mono'
@@ -14,7 +12,7 @@ const fontSheet = typographyMode === 'doto-mono'
   : 'https://fonts.googleapis.com/css2?family=Doto:wght@400;500;600;700&display=swap';
 ---
 <!doctype html>
-<html lang="en" data-typography={typographyMode} data-crt-optics={crtExperiment.subtleOptics ? "subtle" : "off"}>
+<html lang="en" data-typography={typographyMode}>
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
@@ -64,10 +62,6 @@ a {-webkit-tap-highlight-color:transparent}
 @media(max-height:470px) and (max-width:700px){.scene__copy {bottom:26px}.scene__copy h1 {margin-bottom:12px}.scene__copy p {margin-bottom:10px}}
 
 
-.crt-optics-defs{position:absolute;width:0;height:0;overflow:hidden}
-[data-crt-optics="subtle"] .scene{filter:url(#crt-optics)}
-@media(max-width:1024px){[data-crt-optics="subtle"] .scene{filter:url(#crt-optics-mobile)}}
-@media(prefers-reduced-motion:reduce),(forced-colors:active){[data-crt-optics="subtle"] .scene{filter:none}}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -75,7 +69,6 @@ a {-webkit-tap-highlight-color:transparent}
 <link rel="stylesheet" href={`/portfolio-final/css/typography.css?v=${packageInfo.version}`} />
 </head>
 <body>
-<CrtOptics />
 <main class="scene" data-stage aria-label="Page not found">
   <header class="topline">
     <a class="topline__brand" href="https://joemaserati-lab.github.io/portfolio-final/">EDOARDO RAPPANELLO</a>

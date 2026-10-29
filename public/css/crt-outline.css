@@ -786,14 +786,3 @@ body.content-panel-open .privacy-widget{
     right: calc(var(--crt-side-gap) + var(--bezel-x));
   }
 }
-/* Small static radial displacement, strongest at the glass edges. It keeps
-   accessible/selectable HTML and introduces neither RGB ghosts nor flicker. */
-.crt-optics-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
-[data-crt-optics="subtle"] .crt-stage { filter: url(#crt-optics); }
-@media (max-width: 1024px) {
-  [data-crt-optics="subtle"] .crt-stage { filter: url(#crt-optics-mobile); }
-}
-@media (prefers-reduced-motion: reduce), (forced-colors: active) {
-  [data-crt-optics="subtle"] .crt-stage { filter: none; }
-}
-body.reader-mode .crt-stage { filter: none; }
