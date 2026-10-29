@@ -1,11 +1,9 @@
 /**
- * Single switch for the portfolio's typography, including its standalone 404.
- *
- * 'digital'  = Doto titles, subheads and UI; Geist Pixel Square paragraph copy.
- * 'balanced' = Redaction 50 titles; Doto UI; Inter copy (previous live version).
- * 'original' = Redaction 50 titles; Doto UI and copy (initial version).
- *
- * Rollback: set the value to 'balanced' or 'original' and republish.
- * No changes to layout, CSS ordering, colors, media or interactions are required.
+ * Switch the site-wide typography without altering layout or content.
+ * 'pixel-editorial': Geist Pixel Square headings, Geist Sans body, Doto micro-UI (new).
+ * 'digital': Doto headings, Geist Pixel Square body (previous published version).
+ * 'balanced': Redaction 50 headings, Inter body, Doto UI.
+ * 'original': Redaction 50 headings, Doto UI and body.
+ * Restore any previous look by changing just the string and redeploying.
  */
-export const typographyMode = 'digital';
+export const typographyMode = 'pixel-editorial';
