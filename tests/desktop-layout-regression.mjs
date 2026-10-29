@@ -71,4 +71,21 @@ try{
   await page.close();
   console.log('LAYOUT PASS',width,'5:3, hero, work video, CV, contacts, stationary head');
  }
+ const hybrid=await browser.newPage({viewport:{width:1440,height:900},hasTouch:true});
+ await hybrid.addInitScript(()=>{sessionStorage.setItem('portfolioBootSeen','1');localStorage.setItem('portfolioPrivacyAck','1')});
+ await hybrid.goto(base);
+ await hybrid.waitForFunction(()=>document.body.classList.contains('site-ready'));
+ await hybrid.waitForFunction(()=>window.__portfolioHeadState?.ready);
+ await hybrid.locator('#scroll-viewport').evaluate(e=>e.scrollTop=900);
+ await hybrid.waitForTimeout(600);
+ const debug=await hybrid.evaluate(()=>{
+  const head=document.getElementById('crt-head-feature');
+  const viewport=document.getElementById('scroll-viewport');
+  return {scrollTop:viewport.scrollTop,scrollHeight:viewport.scrollHeight,clientHeight:viewport.clientHeight,
+    classes:document.body.className,headParent:head.parentElement.id,
+    headOpacity:getComputedStyle(head).opacity,headVisibility:getComputedStyle(head).visibility,
+    headClass:head.className,compact:matchMedia('(max-width:1024px)').matches};
+ });
+ console.log('HYBRID DESKTOP SCROLL DIAGNOSTICS',JSON.stringify(debug));
+ await hybrid.close();
 }finally{await browser.close()}
