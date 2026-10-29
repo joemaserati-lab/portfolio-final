@@ -60,8 +60,13 @@ try {
   await page.waitForFunction(()=>document.body.classList.contains('site-ready')&&document.querySelector('#projects-view').dataset.view==='case');
   assert.equal(await page.locator('.crt-stage').evaluate(e=>getComputedStyle(e).filter),'none',`${width}: case study must not use SVG optics`);
   await page.locator('.projects-close').click();
-  await page.waitForFunction(()=>document.querySelector('#projects-view').hidden&&document.querySelector('#crt-head-feature').classList.contains('is-ready'));
-  console.log('CRT PASS',width,height,'geometry, mobile parity, no SVG filter, CTA, case close/head resume');
+  await page.waitForFunction(()=>document.querySelector('#projects-view').hidden);
+  if(width<=1024) await page.waitForFunction(()=>document.querySelector('#crt-head-feature').classList.contains('is-ready'));
+  else {
+    assert.equal(await page.locator('#crt-head-feature').evaluate(e=>e.parentElement.id),'desktop');
+    assert.equal(await page.locator('#crt-head-feature').isVisible(),false,'Desktop head must remain in hero');
+  }
+  console.log('CRT PASS',width,height,'geometry, mobile parity, no SVG filter, CTA, case close/head state');
   await page.close();
  }
  const page=await browser.newPage({viewport:{width:800,height:600}});
