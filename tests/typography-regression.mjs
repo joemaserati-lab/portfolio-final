@@ -15,12 +15,28 @@ try {
    const result=await page.evaluate(()=>{
     const check=(selector,min)=>[...document.querySelectorAll(selector)].filter(e=>e.getBoundingClientRect().width&&e.getBoundingClientRect().height).filter(e=>parseFloat(getComputedStyle(e).fontSize)<min).map(e=>({selector:e.className,size:getComputedStyle(e).fontSize}));
     const reading='.window-body p,.case-story-copy p,.case-output-list p,.case-facts-v2 dd,.case-role-v2>p,.privacy-panel p,.scene__copy p';
-    return {small:check(reading,16),ui:check('.scroll-index,.language-toggle,.privacy-toggle,.primary-action,.scene__home',12),labels:check('.case-facts-v2 dt,.case-media-v2 figcaption,.case-role-v2>span',11),overflow:[...document.querySelectorAll('#projects-view,#scroll-viewport,.scene')].filter(e=>e.getBoundingClientRect().width).map(e=>e.scrollWidth>e.clientWidth+1),families:[...document.querySelectorAll(reading)].map(e=>getComputedStyle(e).fontFamily)};
+    return {
+      mode:document.documentElement.dataset.typography,
+      small:check(reading,16),
+      ui:check('.scroll-index,.language-toggle,.privacy-toggle,.primary-action,.scene__home',12),
+      labels:check('.case-facts-v2 dt,.case-media-v2 figcaption,.case-role-v2>span',11),
+      overflow:[...document.querySelectorAll('#projects-view,#scroll-viewport,.scene')].filter(e=>e.getBoundingClientRect().width).map(e=>e.scrollWidth>e.clientWidth+1),
+      families:[...document.querySelectorAll(reading)].map(e=>getComputedStyle(e).fontFamily),
+      display:[...document.querySelectorAll('.hero-intro h1,.scene__copy h1,.static-reader h1')].map(e=>getComputedStyle(e).fontFamily),
+      caseTitles:[...document.querySelectorAll('.case-title-v2 h2')].map(e=>getComputedStyle(e).fontFamily),
+      interface:[...document.querySelectorAll('.primary-action,.language-toggle,.privacy-toggle,.scene__home')].map(e=>getComputedStyle(e).fontFamily)
+    };
    });
    assert.deepEqual(result.small,[],`${width} ${route}: reading text too small`);
    assert.deepEqual(result.ui,[],`${width} ${route}: interface text too small`);
    assert.deepEqual(result.labels,[],`${width} ${route}: metadata too small`);
-   assert(result.families.every(f=>f.includes('Doto')),`${route}: reading voice changed`);
+   assert(['balanced','original'].includes(result.mode),`${route}: unknown typography mode`);
+   const expectedReading=result.mode==='balanced'?'Inter':'Doto';
+   const expectedCase=result.mode==='balanced'?'Redaction 50':'Doto';
+   assert(result.families.every(f=>f.includes(expectedReading)),`${route}: reading voice should be ${expectedReading}`);
+   assert(result.display.every(f=>f.includes('Redaction 50')),`${route}: editorial display voice changed`);
+   assert(result.caseTitles.every(f=>f.includes(expectedCase)),`${route}: case-title voice should be ${expectedCase}`);
+   assert(result.interface.every(f=>f.includes('Doto')),`${route}: interface voice changed`);
    assert(result.overflow.every(o=>!o),`${width} ${route}: horizontal overflow`);
    if(route===''&&width<=1024){
     const geometry=await page.evaluate(()=>({cta:document.querySelector('.primary-action').getBoundingClientRect().bottom,nav:document.querySelector('.scroll-index').getBoundingClientRect().top}));
