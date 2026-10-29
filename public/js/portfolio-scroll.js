@@ -167,10 +167,16 @@
     const cards = [...document.querySelectorAll('#scroll-work .project-tile-v2')];
     let selected = null, best = 0, currentScore = 0;
     const currentCard = cards.find(card => card.classList.contains('is-viewport-color'));
-    if (compact.matches && !overlay && windows[0].window.classList.contains('is-revealed')) {
-      const sr = screen.getBoundingClientRect();
-      const top = head.getBoundingClientRect().bottom + 12;
-      const bottom = document.querySelector('.scroll-index').getBoundingClientRect().top;
+    if (!overlay && windows[0].window.classList.contains('is-revealed')) {
+      // The same viewport-based preview selection now applies to desktop and
+      // mobile. One clip plays at a time; hover never starts playback.
+      const sr = viewport.getBoundingClientRect();
+      const top = compact.matches
+        ? head.getBoundingClientRect().bottom + 12
+        : sr.top + Math.min(90, sr.height * .08);
+      const bottom = compact.matches
+        ? document.querySelector('.scroll-index').getBoundingClientRect().top
+        : sr.bottom - Math.max(20, sr.height * .045);
       cards.forEach(card => {
         const rect = card.getBoundingClientRect();
         const visible = Math.max(0, Math.min(rect.bottom, bottom) - Math.max(rect.top, top));
@@ -179,7 +185,8 @@
         if (rect.right > sr.left && rect.left < sr.right && score > best) { best = score; selected = card; }
       });
     }
-    if (currentCard && currentScore > 0 && currentScore >= best - .12) selected = currentCard;
+    if (best < .14) selected = null;
+    else if (currentCard && currentScore >= .14 && currentScore >= best - .12) selected = currentCard;
     const changed = currentCard !== selected;
     cards.forEach(card => {
       const isSelected = card === selected;
@@ -202,27 +209,30 @@
     const pose = smoothDock;
     document.body.classList.toggle('scroll-reading', pose > 0);
     viewport.style.setProperty('--scroll-dock', pose.toFixed(4));
-    // Desktop: never move the WebGL canvas between DOM coordinate systems.
-    // Its hero container scrolls away naturally; hide/pause it when reading.
-    const desktopHeadHidden = !compact.matches && (y > h * .12 || overlay);
-    document.body.classList.toggle('scroll-head-hidden', desktopHeadHidden);
-    if (!compact.matches) {
-      if (docked) {
-        desktop.prepend(head);
-        head.classList.remove('scroll-portrait-docked');
-        head.removeAttribute('style');
-        docked = false;
+    // Dock the existing WebGL canvas (never duplicate the renderer). Its
+    // drawing buffer remains unchanged while scrolling; the same element is
+    // moved only at the hero/docked boundary.
+    document.body.classList.toggle('scroll-head-docked', !compact.matches && y > 1);
+    if (pose > 0) {
+      if (!docked) {
+        screen.appendChild(head);
+        head.classList.add('scroll-portrait-docked');
+        docked = true;
       }
-    } else if (pose > 0) {
-      if (!docked) { screen.appendChild(head); head.classList.add('scroll-portrait-docked'); docked = true; }
-      const slot = portraitSlot.getBoundingClientRect(), sr = screen.getBoundingClientRect();
-      const target = compact.matches ? {left:slot.left-sr.left,top:slot.top-sr.top,width:slot.width,height:slot.height} : {left:w*.75,top:h*.22,width:w*.22,height:h*.55};
-      // Keep the WebGL drawing surface stable during docking. Resizing it on
-      // every scroll clears its buffers and reallocates post-processing targets.
+      const sr = screen.getBoundingClientRect();
+      const slot = portraitSlot.getBoundingClientRect();
+      // Small, centered and inside the CRT safe bottom area on desktop.
+      const desktopHeight = Math.min(165, Math.max(125, h * .205));
+      const desktopWidth = headRect.width * desktopHeight / headRect.height;
+      const bottomClearance = Math.max(34, Math.min(58, h * .064));
+      const target = compact.matches
+        ? {left: slot.left - sr.left, top: slot.top - sr.top, width: slot.width, height: slot.height}
+        : {left: (w - desktopWidth) / 2, top: h - bottomClearance - desktopHeight,
+           width: desktopWidth, height: desktopHeight};
       const targetScale = target.height / headRect.height;
       const scale = mix(1, targetScale, pose);
-      const left = mix(headRect.left, target.left + (target.width - headRect.width * targetScale) / 2, pose);
-      const top = mix(headRect.top, target.top + (target.height - headRect.height * targetScale) / 2, pose);
+      const left = mix(headRect.left, target.left, pose);
+      const top = mix(headRect.top, target.top, pose);
       head.style.width = `${headRect.width}px`;
       head.style.height = `${headRect.height}px`;
       head.style.left = `${headRect.left}px`;
@@ -230,7 +240,10 @@
       head.style.transformOrigin = '0 0';
       head.style.transform = `translate3d(${left-headRect.left}px, ${top-headRect.top}px, 0) scale(${scale})`;
     } else if (docked) {
-      desktop.prepend(head); head.classList.remove('scroll-portrait-docked'); head.removeAttribute('style'); docked = false;
+      desktop.prepend(head);
+      head.classList.remove('scroll-portrait-docked');
+      head.removeAttribute('style');
+      docked = false;
     }
     const progress = clamp(y / Math.max(1, viewport.scrollHeight - h));
     dispatchEvent(new CustomEvent('portfolio:scroll-pose', {detail:{heroPresence:compact.matches ? 1 - pose : 0, yaw:compact.matches ? (reduced.matches ? 0 : progress * Math.PI * 2) : null, renderScale:compact.matches && pose === 1 ? portraitSlot.clientHeight / headRect.height : 1}}));

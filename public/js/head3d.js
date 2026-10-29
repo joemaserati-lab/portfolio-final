@@ -36,7 +36,7 @@ if (feature && canvas && screenElement) {
     if (disposed || !effect) return;
     // Case studies show the project alone; resume the same head on return.
     const projectCaseOpen = projectsView && !projectsView.hidden && projectsView.dataset.view === 'case';
-    const shouldBeVisible = ready && booted && pageVisible && !projectCaseOpen && !document.body.classList.contains('screensaver-on') && !document.body.classList.contains('scroll-head-hidden');
+    const shouldBeVisible = ready && booted && pageVisible && !projectCaseOpen && !document.body.classList.contains('screensaver-on');
     feature.classList.toggle('is-ready', shouldBeVisible);
     effect.setPaused(!shouldBeVisible);
   }
@@ -48,7 +48,11 @@ if (feature && canvas && screenElement) {
   addEventListener('portfolio:scroll-pose', onScrollPose);
   function onPointerMove(event) {
     if (event.pointerType !== 'mouse' || reduced.matches) return;
-    const rect = feature.getBoundingClientRect();
+    // When docked, react to the mouse across the WHOLE CRT rather than
+    // saturating as soon as the pointer leaves the small portrait bounds.
+    const rect = feature.classList.contains('scroll-portrait-docked') &&
+      matchMedia('(min-width: 1025px)').matches
+      ? screenElement.getBoundingClientRect() : feature.getBoundingClientRect();
     const x = (event.clientX - rect.left) / Math.max(rect.width, 1) * 2 - 1;
     const y = (event.clientY - rect.top) / Math.max(rect.height, 1) * 2 - 1;
     effect?.setPointer(x, y);
