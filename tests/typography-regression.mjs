@@ -4,10 +4,10 @@ import { chromium } from 'playwright';
 const base=process.env.AUDIT_URL||'http://127.0.0.1:4321/portfolio-final/';
 const browser=await chromium.launch({headless:true,args:['--use-gl=swiftshader','--enable-webgl']});
 try {
- for(const [width,height] of [[320,568],[390,844],[667,375],[1440,900]]) {
+ for(const [width,height] of [[320,568],[390,844],[667,375],[1024,768],[1200,800],[1280,800],[1440,900],[1920,1080]]) {
   const page=await browser.newPage({viewport:{width,height},hasTouch:width<768,isMobile:width<768});
   await page.addInitScript(lang=>{localStorage.setItem('portfolioBootSeen','1');localStorage.setItem('portfolioLang',lang)},process.env.TYPO_LANG||'en');
-  for(const route of ['', 'work/', 'about/', 'resume/', 'contact/', 'work/tovadu/', '404.html']) {
+  for(const route of ([1024,1200,1280,1920].includes(width)?['','work/']:['', 'work/', 'about/', 'resume/', 'contact/', 'work/tovadu/', '404.html'])) {
    await page.goto(new URL(route,base).href);
    if(route!=='404.html') await page.waitForFunction(()=>document.body.classList.contains('site-ready'));
    await page.evaluate(()=>document.fonts.ready);
@@ -29,6 +29,14 @@ try {
       scale, inherited,
       emptyHeadings:[...document.querySelectorAll('h1,h2,h3,h4,h5')].filter(e=>!e.textContent.trim()).length,
       cvHierarchy:[...document.querySelectorAll('.resume-section-title')].every(e=>e.tagName==='H3') && [...document.querySelectorAll('.resume-row .resume-role')].every(e=>e.tagName==='H4'),
+      heroSecondary:document.querySelectorAll('.desktop-icons .desktop-icon small').length,
+      heroPrimary:document.querySelectorAll('.desktop-icons .desktop-icon > [data-i18n]').length,
+      workHeadingOverlap:[...document.querySelectorAll('.projects-index-head')].some(header=>{
+        const title=header.querySelector('h2'),copy=header.querySelector('.projects-index-side p');
+        if(!title||!copy||!header.getBoundingClientRect().width) return false;
+        const rects=e=>{const r=document.createRange();r.selectNodeContents(e);return [...r.getClientRects()];};
+        return rects(title).some(a=>rects(copy).some(b=>a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top));
+      }),
       mode:document.documentElement.dataset.typography,
       small:check(reading,16),
       ui:check('.scroll-index,.language-toggle,.privacy-toggle,.primary-action,.scene__home',12),
@@ -50,6 +58,9 @@ try {
       }:null
     };
    });
+   assert.equal(result.heroSecondary,0,`${width} ${route}: secondary hero labels must be removed`);
+   if(route!=='404.html') assert.equal(result.heroPrimary,4,`${width} ${route}: four primary hero labels must remain`);
+   assert(!result.workHeadingOverlap,`${width} ${route}: Selected Work heading overlaps its description`);
    assert(result.scale.every((x,i,a)=>!i||a[i-1].size>x.size),`${width} ${route}: H1–H5 must descend strictly`);
    assert.equal(result.emptyHeadings,0,`${route}: empty heading`);
    assert(result.cvHierarchy,`${route}: CV hierarchy must be H2/H3/H4`);
