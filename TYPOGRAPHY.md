@@ -18,6 +18,12 @@ Scala condivisa per modalità: `--type-display`, `--type-heading`, `--type-proje
 
 Nota: Geist Pixel è progettato soprattutto per il display. Sui sottotitoli piccoli (20–22px) il dettaglio Square potrebbe essere meno evidente; verificare l'effetto a dimensioni reali prima di introdurre ulteriori modifiche.
 
+## Ruoli professionali e ritmo delle sezioni
+
+Nella modalità `doto-mono`, **Doto** viene utilizzato anche per titoli dei ruoli professionali, nomi delle aziende, ruolo del profilo, responsabilità nei case study e nome del cliente. **Geist Mono** resta dedicato ai paragrafi, alle descrizioni dei progetti e ai testi informativi. Le etichette dell'interfaccia conservano Doto nei pesi già approvati.
+
+La distribuzione dello whitespace riguarda Profilo, Lavori selezionati, CV, Contatti e tutti i case study, con misure e padding più generosi sui desktop e più compatti sui dispositivi mobili. I valori sono centralizzati in `public/css/portfolio-scroll.css`. La pulizia di testi ed elementi sarà affrontata separatamente, senza modifiche in questa fase.
+
 ## Rollback in un solo punto
 
 Cambiare il valore seguente nel file `src/data/typography.mjs`:
