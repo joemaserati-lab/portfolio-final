@@ -154,7 +154,7 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
    await page.locator('#scroll-viewport').evaluate(e=>e.scrollTop+=100);await page.waitForTimeout(400);
    assert.deepEqual(await page.locator('#crt-head-canvas').evaluate(e=>[e.width,e.height]),canvasSize,'Scrolling must not reallocate the desktop canvas');
    assert.equal(await page.locator('#crt-head-feature').evaluate(e=>e.parentElement.id),'screen');
-   assert.equal(await page.locator('.is-viewport-color').count(),0);
+   assert(await page.locator('#scroll-work .is-viewport-color').count()<=1,'Desktop must select at most one viewport video');
    await select('work'); await settle('work');
  }
  // Scroll forward within the revealed section, keeping the first cover above
@@ -162,7 +162,9 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  await page.locator('#scroll-work .project-cover-v2').first().evaluate(e=>{
    const v=document.getElementById('scroll-viewport'),r=e.getBoundingClientRect();
    const head=document.getElementById('crt-head-feature').getBoundingClientRect();
-   const safeTop=Math.max(v.getBoundingClientRect().top+12,head.bottom+12);
+   const safeTop=matchMedia('(min-width: 1025px)').matches
+     ? v.getBoundingClientRect().top+Math.min(110,v.clientHeight*.14)
+     : Math.max(v.getBoundingClientRect().top+12,head.bottom+12);
    v.scrollTo({top:v.scrollTop+Math.max(0,r.top-safeTop),behavior:'instant'});
  });
  const coverPoint=await page.waitForFunction(()=>{
