@@ -17,6 +17,13 @@ const {
   project = null
 } = Astro.props;
 
+const fontSheet = typographyMode === 'pixel-editorial'
+  ? 'https://fonts.googleapis.com/css2?family=Doto:wght@400;500;600;700&family=Geist+Pixel:ELSH@0..100&family=Geist:wght@400;500;600;700&display=swap'
+  : typographyMode === 'balanced'
+  ? 'https://fonts.googleapis.com/css2?family=Doto:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap'
+  : typographyMode === 'digital'
+  ? 'https://fonts.googleapis.com/css2?family=Doto:wght@400;500;600;700&family=Geist+Pixel:ELSH@0..100&display=swap'
+  : 'https://fonts.googleapis.com/css2?family=Doto:wght@400;500;600;700&display=swap';
 const assetVersion = packageInfo.version;
 const asset = path => `${path}?v=${assetVersion}`;
 const basePath = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
@@ -82,8 +89,8 @@ const ogImageUrl = new URL(ogImage, rootUrl);
   </>}
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@400;500;600;700&family=Geist+Pixel:ELSH@0..100&family=Inter:wght@400;500;600&display=swap" />
-  {typographyMode !== 'digital' && <link rel="preload" href="assets/font/redaction-50-latin-400-normal.woff" as="font" type="font/woff" crossorigin />}
+  <link rel="stylesheet" href={fontSheet} />
+  {(typographyMode === 'balanced' || typographyMode === 'original') && <link rel="preload" href="assets/font/redaction-50-latin-400-normal.woff" as="font" type="font/woff" crossorigin />}
   <link rel="preload" as="image" href="assets/cursors/default-alt-mono.svg" type="image/svg+xml" media="(hover:hover) and (pointer:fine)" />
   <link rel="preload" as="image" href="assets/cursors/pointer-mono.svg" type="image/svg+xml" media="(hover:hover) and (pointer:fine)" />
   <link rel="preload" as="image" href="assets/cursors/text-mono.svg" type="image/svg+xml" media="(hover:hover) and (pointer:fine)" />
