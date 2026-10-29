@@ -53,7 +53,11 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  await screenshot(page,`original-transition-${width}.png`);
  assert.equal(await page.locator('#scroll-work .window-body').evaluate(e=>getComputedStyle(e).visibility),'hidden','Content appeared before the outline finished');
  assert(await page.locator('#scroll-work .window-body').evaluate(e=>e.inert));
- assert(await page.locator('#crt-head-feature').evaluate(e=>e.classList.contains('scroll-portrait-docked')));
+ if(width<=1024) assert(await page.locator('#crt-head-feature').evaluate(e=>e.classList.contains('scroll-portrait-docked')));
+ else {
+   assert.equal(await page.locator('#crt-head-feature').evaluate(e=>e.parentElement.id),'desktop','Desktop portrait stays in hero');
+   assert.equal(await page.locator('#crt-head-feature').isVisible(),false,'Desktop portrait must not cover reading');
+ }
  await page.evaluate(()=>{const v=document.getElementById('scroll-viewport');v.scrollTop=v.clientHeight*.91});
  await page.waitForFunction(()=>document.querySelector('#scroll-work .scroll-window').classList.contains('is-scanning'));
  assert.notEqual(await page.locator('#scroll-work .window-body').evaluate(e=>getComputedStyle(e).clipPath),'none','Missing CRT raster reveal');
@@ -145,12 +149,11 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
    assert.equal(await page.locator('#scroll-work .is-video-playing').count(),codecSupported ? 1 : 0,'Only the selected preview may play');
    await select('work'); await settle('work');
  } else {
-   await page.mouse.move(1300,450);
-   await page.waitForFunction(()=>{const r=document.getElementById('crt-head-feature').getBoundingClientRect();const target=Math.max(-1,Math.min(1,(1300-r.left)/r.width*2-1))*.72;return Math.abs(window.PortfolioMotion.getPose().yaw-target)<.005},null,{timeout:20000});
-   const pose=await page.evaluate(()=>window.PortfolioMotion.getPose());
-   await page.locator('#scroll-viewport').evaluate(e=>e.scrollTop+=100); await page.waitForTimeout(400);
-   const after=await page.evaluate(()=>window.PortfolioMotion.getPose());
-   assert(Math.abs(after.yaw-pose.yaw)<.015,'Desktop scroll changed portrait rotation');
+   assert.equal(await page.locator('#crt-head-feature').isVisible(),false,'Reading sections must not be obstructed by the 3D head');
+   const canvasSize=await page.locator('#crt-head-canvas').evaluate(e=>[e.width,e.height]);
+   await page.locator('#scroll-viewport').evaluate(e=>e.scrollTop+=100);await page.waitForTimeout(400);
+   assert.deepEqual(await page.locator('#crt-head-canvas').evaluate(e=>[e.width,e.height]),canvasSize,'Scrolling must not reallocate the desktop canvas');
+   assert.equal(await page.locator('#crt-head-feature').evaluate(e=>e.parentElement.id),'desktop');
    assert.equal(await page.locator('.is-viewport-color').count(),0);
    await select('work'); await settle('work');
  }
@@ -182,8 +185,13 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  assert.equal(await page.locator('#crt-head-feature').isVisible(),false,'Head remains visible inside project');
  await page.locator('.projects-close').click();await page.waitForTimeout(700);
  assert(await page.locator('#projects-view').evaluate(e=>e.hidden));
- await page.waitForFunction(()=>document.querySelector('#crt-head-feature').classList.contains('is-ready'));
- assert(await page.locator('#crt-head-feature').isVisible(),'Head did not resume after closing project');
+ if(width<=1024) {
+   await page.waitForFunction(()=>document.querySelector('#crt-head-feature').classList.contains('is-ready'));
+   assert(await page.locator('#crt-head-feature').isVisible(),'Mobile head did not resume after closing project');
+ } else {
+   await page.waitForFunction(()=>document.body.classList.contains('scroll-head-hidden'));
+   assert.equal(await page.locator('#crt-head-feature').isVisible(),false,'Desktop head should stay in hero while reading');
+ }
  if(width<=1024) assert(await page.locator('#scroll-work .is-color-preview').count()<=1,'More than one mobile card is colored');
  await select('about');await settle('about');
  assert.equal(await page.locator('.scroll-index [aria-current]').getAttribute('data-scroll-section'),'about');
@@ -203,6 +211,8 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  await select('home');await settle('home');
  assert.equal(await page.locator('#scroll-viewport').evaluate(e=>e.scrollTop),0);
  assert.equal(await page.locator('#crt-head-feature').evaluate(e=>e.parentElement.id),'desktop');
+ await page.waitForFunction(()=>document.querySelector('#crt-head-feature').classList.contains('is-ready'));
+ assert(await page.locator('#crt-head-feature').isVisible(),'Head failed to resume on home');
  assert.equal(errors.length,0,errors.join('\n'));
  assert(await page.locator('#scroll-viewport').evaluate(e=>e.scrollWidth<=e.clientWidth), 'Horizontal overflow');
  console.log('PASS',width,height);await page.close();
@@ -236,7 +246,11 @@ await returningDesktop.waitForFunction(()=>Math.abs(window.PortfolioMotion.getPo
 const canvasSize=await returningDesktop.locator('#crt-head-canvas').evaluate(e=>[e.width,e.height]);
 await returningDesktop.locator('#scroll-viewport').evaluate(e=>e.scrollTop=900);
 await returningDesktop.waitForTimeout(500);
-assert(await returningDesktop.locator('#crt-head-feature').isVisible(),'Hybrid desktop head disappeared after scroll');
+assert.equal(await returningDesktop.locator('#crt-head-feature').isVisible(),false,'Hybrid desktop head must not cover scrolled content');
+assert.equal(await returningDesktop.locator('#crt-head-feature').evaluate(e=>e.parentElement.id),'desktop');
 assert.deepEqual(await returningDesktop.locator('#crt-head-canvas').evaluate(e=>[e.width,e.height]),canvasSize,'Desktop scroll reallocates the WebGL drawing surface');
-console.log('PASS returning hybrid desktop mouse animation and stable scroll canvas');
+await returningDesktop.evaluate(()=>dispatchEvent(new CustomEvent('portfolio:scroll-to',{detail:'home'})));
+await returningDesktop.waitForFunction(()=>document.querySelector('#crt-head-feature').classList.contains('is-ready'));
+assert(await returningDesktop.locator('#crt-head-feature').isVisible(),'Hybrid desktop head must resume on home');
+console.log('PASS returning hybrid desktop hero stays rooted, resumes, stable canvas');
 await browser.close();
