@@ -29,6 +29,10 @@ try {
    assert.equal(await page.locator('#boot-loader').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(5, 5, 5)','Loader needs an opaque background');
    assert.equal(await page.evaluate(()=>document.body.classList.contains('booting')),true);
    assert.equal(await page.locator('#boot-progress').isVisible(),true,'Progress bar should remain visible');
+   assert.equal(await page.locator('#boot-progress').getAttribute('role'),'progressbar');
+   assert(await page.locator('#boot-progress').getAttribute('aria-label'),'Progress needs an accessible name');
+   const value=Number(await page.locator('#boot-progress').getAttribute('aria-valuenow'));
+   assert(value>=0&&value<=100,'Progress value must remain within accessible bounds');
    assert.equal(await page.locator('#boot-enter').count(),0,'Boot entry button should be removed');
    assert.equal(await page.locator('#boot-output').count(),0,'Terminal boot text should be removed');
    assert.equal(await page.locator('#boot-prompt').count(),0,'Terminal prompt should be removed');

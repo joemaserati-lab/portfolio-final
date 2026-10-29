@@ -15,7 +15,7 @@ Intermediate black/gray values may exist in the CRT shader, alpha transparency a
 - Mint must **not** be used on backgrounds, panels, window chrome, default icon borders or secondary hover states.
 - Window surfaces stay charcoal with dark-gray titlebars. Text hierarchy: white for primary content, light gray for secondary copy.
 - The 3D portrait is white/gray with only a few mint contours. Avoid broad luminous color effects.
-- Preserve CRT framing, animation, clipping and mobile safe zones. The live `doto-mono` mode uses bold Doto for display, headings and project titles, Doto medium for UI/navigation/metadata, and Geist Mono for extended reading and informative subheads. The earlier `pixel-editorial` (Geist Pixel Square/Geist Sans/Doto), `digital` (Doto/Geist Pixel), `balanced` (Redaction/Doto/Inter), and `original` (Redaction/Doto) modes remain reversible through the single type-mode switch. Do not add decorative pixel effects on top of the fonts.
+- Preserve CRT framing, animation, clipping and mobile safe zones. The live `doto-mono` mode uses bold Doto for display, headings and project titles, Doto medium for UI/navigation/metadata, and Geist Mono for extended reading and captions; all headings use Doto. The earlier `pixel-editorial` (Geist Pixel Square/Geist Sans/Doto), `digital` (Doto/Geist Pixel), `balanced` (Redaction/Doto/Inter), and `original` (Redaction/Doto) modes remain reversible through the single type-mode switch. Do not add decorative pixel effects on top of the fonts.
 - Make all visual color adjustments in `public/css/monochrome-theme.css`; it is the canonical palette and **the only stylesheet defining the UI color tokens**.
 - The `:root` rules in `foundation.css`, `visual-experience.css`, `adaptive.css`, `fixes.css` and `crt-outline.css` are reserved for geometry, typography and responsive measurements.
 - The separate 404 page has an inline palette by design. Its bouncing portrait uses mint in only one of six phases.
@@ -40,7 +40,7 @@ The opening screen uses a restrained editorial footprint inside the CRT safe are
 
 ## Sitewide rhythm and typographic identities
 
-The quiet-space direction extends from home to About, Selected Work, Resume, Contact and the five case studies. `public/css/portfolio-scroll.css` holds the source for spacing, section rhythm, media separation and responsive compacting; do not add spacer elements or rewrite content to create whitespace. In `doto-mono`, professional role titles, employers, clients, and the profile role use Doto, while descriptive paragraphs and informative subheadings use Geist Mono. The no-JavaScript reading view keeps the same identity distinction. Narrow/short mobile layouts keep their protected navigation and existing behavior. The next phase of content/element cleanup is intentionally **not** included here.
+The quiet-space direction extends from home to About, Selected Work, Resume, Contact and the five case studies. `public/css/portfolio-scroll.css` holds the source for spacing, section rhythm, media separation and responsive compacting; do not add spacer elements or rewrite content to create whitespace. In `doto-mono`, professional role titles, employers, clients, and the profile role use Doto, while descriptive paragraphs use Geist Mono; informative headings use Doto. The no-JavaScript reading view keeps the same identity distinction. Narrow/short mobile layouts keep their protected navigation and existing behavior. The next phase of content/element cleanup is intentionally **not** included here.
 
 ## Permanent scroll layout
 `portfolio-scroll.css` is the final source layer in the production bundle. Mobile language and privacy controls belong to the footer; privacy panels remain accessible above navigation. The retired window manager and build-time preview adapters must not be reintroduced.
@@ -50,3 +50,5 @@ Role precedes original artwork; client, deliverables and year follow it. Disting
 
 ## Complete typography system
 `public/css/typography.css` is the canonical source for type roles, sizes, leading, tracking and font families. The mode is configured once in `src/data/typography.mjs`, and shared by the main shell and the 404 page. It follows the existing structural layers in source and production. See `TYPOGRAPHY.md`. Component modules may define icon glyph geometry and font-face registration, but must not reintroduce content type scales.
+
+The semantic H1–H5 scale and role classes are documented in `TYPOGRAPHY.md`. CV groups use H3 and their role titles use H4 with the existing optical size. Short landscape uses a 32px hero display to protect the fixed navigation band.

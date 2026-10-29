@@ -315,7 +315,11 @@
   addEventListener('resize', () => { if (docked) { desktop.prepend(head); head.removeAttribute('style'); head.classList.remove('scroll-portrait-docked'); docked = false; } measure(); schedule(); });
   addEventListener('portfolio:runtime-ready', renderContents);
   addEventListener('portfolio:head-settled', schedule);
-  addEventListener('portfolio:langchange', renderContents);
+  addEventListener('portfolio:langchange', () => {
+    // content.js and portfolio.js are loaded after this listener by the loader.
+    // Let both synchronous dictionary listeners finish before reading their data.
+    queueMicrotask(renderContents);
+  });
   reduced.addEventListener('change', schedule);
   new MutationObserver(schedule).observe(document.getElementById('projects-view'), {attributes:true,attributeFilter:['hidden']});
   new MutationObserver(schedule).observe(document.getElementById('window-layer'), {childList:true});

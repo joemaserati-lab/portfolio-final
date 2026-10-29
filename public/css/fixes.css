@@ -108,7 +108,7 @@ body {
 }
 
 .project-tile-main strong,
-.resume-row h3 {
+.resume-row :is(h3, h4) {
 
 
 }
@@ -437,7 +437,7 @@ body {
   .projects-index-head h2,
   .window-body h2,
   .resume-header h2,
-  .resume-row h3,
+  .resume-row :is(h3, h4),
   .meta-card b,
   .project-tile-main strong,
   .project-tile-details small,
@@ -467,7 +467,7 @@ body {
   }
 
   .project-tile-main strong,
-  .resume-row h3 {
+  .resume-row :is(h3, h4) {
 
   }
 

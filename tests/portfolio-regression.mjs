@@ -154,16 +154,29 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
    assert.equal(await page.locator('.is-viewport-color').count(),0);
    await select('work'); await settle('work');
  }
- if(width<=1024) {
-   await page.locator('#scroll-work .project-tile-v2').first().evaluate(e=>{const v=document.getElementById('scroll-viewport'),r=e.getBoundingClientRect(),top=document.getElementById('crt-head-feature').getBoundingClientRect().bottom+12,bottom=document.querySelector('.scroll-index').getBoundingClientRect().top;v.scrollTop=Math.max(document.getElementById('scroll-work').offsetTop+2,v.scrollTop+r.top+r.height/2-(top+bottom)/2)});
-   await page.waitForTimeout(150);
- }
- // Ensure the scroll transition has finished before testing a real pointer click.
- await page.locator('#scroll-viewport').evaluate(e=>e.scrollTo({top:document.getElementById('scroll-work').offsetTop+2,behavior:'instant'}));
- await page.waitForFunction(()=>document.querySelector('#scroll-work .scroll-window').classList.contains('is-revealed'),null,{timeout:15000});
- // Click the visible cover: centering the entire tall card can scroll back
- // into the section's intentional CRT reveal boundary on narrow layouts.
- await page.locator('#scroll-work .project-tile-v2 .project-cover-v2').first().click();await page.waitForTimeout(700);
+ // Scroll forward within the revealed section, keeping the first cover above
+ // fixed navigation and below the docked portrait. Never scroll back into reveal.
+ await page.locator('#scroll-work .project-cover-v2').first().evaluate(e=>{
+   const v=document.getElementById('scroll-viewport'),r=e.getBoundingClientRect();
+   const head=document.getElementById('crt-head-feature').getBoundingClientRect();
+   const safeTop=Math.max(v.getBoundingClientRect().top+12,head.bottom+12);
+   v.scrollTo({top:v.scrollTop+Math.max(0,r.top-safeTop),behavior:'instant'});
+ });
+ const coverPoint=await page.waitForFunction(()=>{
+   const e=document.querySelector('#scroll-work .project-cover-v2'),r=e.getBoundingClientRect();
+   const v=document.getElementById('scroll-viewport').getBoundingClientRect();
+   const nav=document.querySelector('.scroll-index').getBoundingClientRect();
+   const bottom=nav.height?Math.min(v.bottom,nav.top-8):v.bottom;
+   const top=Math.max(r.top,v.top+8),end=Math.min(r.bottom,bottom);
+   if(end<=top) return false;
+   const x=r.left+r.width/2,y=(top+end)/2;
+   return e.contains(document.elementFromPoint(x,y))?{x,y}:false;
+ },null,{timeout:15000});
+ const point=await coverPoint.jsonValue();
+ // A real viewport tap/click avoids locator auto-scroll crossing the CRT boundary.
+ if(width<768) await page.touchscreen.tap(point.x,point.y);
+ else await page.mouse.click(point.x,point.y);
+ await page.waitForTimeout(700);
  assert.equal(await page.locator('#projects-view').getAttribute('data-view'),'case');
  assert(page.url().endsWith('/work/tovadu/'));
  assert.equal(await page.locator('#crt-head-feature').isVisible(),false,'Head remains visible inside project');
@@ -208,7 +221,8 @@ assert.equal(await reduced.locator('.scroll-index [aria-current]').getAttribute(
 assert.equal(await reduced.locator('.scroll-folder-morph').evaluate(e=>getComputedStyle(e).visibility),'hidden');
 const before=await reduced.locator('#scroll-about .window-body').innerText();
 await reduced.locator('#scroll-viewport').evaluate(e=>e.scrollTop=e.scrollHeight);
-await reduced.locator('#language-toggle').click();await reduced.waitForTimeout(100);
+await reduced.locator('#language-toggle').click();
+await reduced.waitForFunction(before=>document.querySelector('#scroll-about .window-body').innerText!==before,before);
 assert.notEqual(await reduced.locator('#scroll-about .window-body').innerText(),before);
 console.log('PASS returning visit, reduced motion, language');
 // Hybrid desktop: touch support must not disable real mouse input.

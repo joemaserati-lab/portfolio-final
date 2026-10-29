@@ -22,7 +22,7 @@
 .resume-list{display:grid}
 .resume-row{display:grid;grid-template-columns:minmax(100px,.25fr) 1fr;gap:clamp(18px,3vw,38px);padding:clamp(14px,2vw,22px) 0;border-top:1px dashed var(--line)}
 .resume-row:first-child{border-top:1px solid var(--line)}
-.resume-row h3{margin:0 0 4px;color:var(--bright)}
+.resume-row :is(h3, h4){margin:0 0 4px;color:var(--bright)}
 .resume-row strong{display:block;}
 .resume-row small,.resume-period{display:block;color:var(--dim);}
 .resume-row p{margin:12px 0 0;max-width:62ch}

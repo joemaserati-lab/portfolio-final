@@ -218,21 +218,21 @@
           <p>${esc(resume.intro)}</p>
         </header>
         <section class="resume-section">
-          <div class="resume-section-title">${esc(t('resume.experience'))}</div>
+          <h3 class="resume-section-title">${esc(t('resume.experience'))}</h3>
           <div class="resume-list">${resume.experience.map(item=>`
             <article class="resume-row">
               <div class="resume-period">${esc(item.period)}</div>
-              <div><h3>${esc(item.role)}</h3><strong>${esc(item.company)}</strong><small>${esc(item.location)}</small>${paragraphs(item.description)}</div>
+              <div><h4 class="resume-role">${esc(item.role)}</h4><strong>${esc(item.company)}</strong><small>${esc(item.location)}</small>${paragraphs(item.description)}</div>
             </article>`).join('')}</div>
         </section>
         <section class="resume-section">
-          <div class="resume-section-title">${esc(t('resume.education'))}</div>
+          <h3 class="resume-section-title">${esc(t('resume.education'))}</h3>
           <div class="resume-list">${resume.education.map(item=>`
-            <article class="resume-row compact"><div class="resume-period">${esc(item.period)}</div><div><h3>${esc(item.course)}</h3><strong>${esc(item.school)}</strong>${paragraphs(item.description)}</div></article>`).join('')}</div>
+            <article class="resume-row compact"><div class="resume-period">${esc(item.period)}</div><div><h4 class="resume-role">${esc(item.course)}</h4><strong>${esc(item.school)}</strong>${paragraphs(item.description)}</div></article>`).join('')}</div>
         </section>
         <div class="resume-columns">
-          <section><div class="resume-section-title">${esc(t('resume.capabilities'))}</div>${tagList(resume.capabilities, 'skill-list')}</section>
-          <section><div class="resume-section-title">${esc(t('resume.tools'))}</div>${tagList(resume.tools, 'skill-list')}</section>
+          <section><h3 class="resume-section-title">${esc(t('resume.capabilities'))}</h3>${tagList(resume.capabilities, 'skill-list')}</section>
+          <section><h3 class="resume-section-title">${esc(t('resume.tools'))}</h3>${tagList(resume.tools, 'skill-list')}</section>
         </div>
       </section>`,
 

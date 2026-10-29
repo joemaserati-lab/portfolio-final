@@ -5,7 +5,7 @@ La configurazione è in `src/data/typography.mjs`; i ruoli tipografici e le dime
 ## Prova attuale — `doto-mono` (attiva)
 
 - **Doto 700**: H1 della home, titoli di sezione, nomi dei case study e grande titolo 404. Titoli della directory e del loader in Doto 700; etichette, navigazione, CTA e metadati restano in Doto 500/600. La differenza di peso e scala costruisce l'impatto visivo senza aggiungere un terzo font.
-- **Geist Mono 400/500/600**: paragrafi, introduzioni, informazioni professionali, sottotitoli descrittivi e testi dei case study, CV e privacy. Nessun asse pixel e nessuna modifica al testo.
+- **Geist Mono 400**: paragrafi, introduzioni, informazioni professionali, testi descrittivi e testi dei case study, CV e privacy. Nessun asse pixel e nessuna modifica al testo.
 - **Design preservato**: identiche palette, dimensioni minime, navigazione, funzionalità CRT/Three.js e struttura responsive. L'ampiezza massima dei testi lunghi è 58ch.
 
 ## Opzione A precedente — `pixel-editorial`
@@ -20,7 +20,7 @@ Nota: Geist Pixel è progettato soprattutto per il display. Sui sottotitoli picc
 
 ## Ruoli professionali e ritmo delle sezioni
 
-Nella modalità `doto-mono`, **Doto** viene utilizzato anche per titoli dei ruoli professionali, nomi delle aziende, ruolo del profilo, responsabilità nei case study e nome del cliente. **Geist Mono** resta dedicato ai paragrafi, alle descrizioni dei progetti e ai testi informativi. Le etichette dell'interfaccia conservano Doto nei pesi già approvati.
+Nella modalità `doto-mono`, **Doto** viene utilizzato anche per titoli dei ruoli professionali, nomi delle aziende, ruolo del profilo, responsabilità nei case study e nome del cliente. **Geist Mono** resta dedicato ai paragrafi, alle descrizioni dei progetti e ai testi informativi. Tutti i titoli, inclusi quelli informativi, usano Doto nella modalità attiva. Le etichette dell'interfaccia conservano Doto nei pesi già approvati.
 
 La distribuzione dello whitespace riguarda Profilo, Lavori selezionati, CV, Contatti e tutti i case study, con misure e padding più generosi sui desktop e più compatti sui dispositivi mobili. I valori sono centralizzati in `public/css/portfolio-scroll.css`. La pulizia di testi ed elementi sarà affrontata separatamente, senza modifiche in questa fase.
 
@@ -44,3 +44,30 @@ Dopo la modifica occorre ricompilare e pubblicare il sito. Il sistema seleziona 
 ## Controlli
 
 `tests/typography-regression.mjs` verifica 320×568, 390×844, 667×375 e 1440×900, sulle pagine home, directory, profilo, CV, contatti, singolo progetto e 404. Controlla dimensioni minime, font-family per ruolo, peso Doto 700, asse Square dove previsto, caricamento dei webfont, overflow e distanze della CTA. I controlli IT/EN, la regressione dell'interfaccia e Lighthouse rimangono parte della CI. Le valutazioni estetiche e la resa su dispositivo reale richiedono una revisione visiva separata.
+
+## Scala semantica completa
+
+Valori mobile → desktop; nessuna modifica ai testi, alla griglia o alle altre modalità.
+
+| Ruolo | Token | Dimensione | Leading | Peso | Tracking |
+| --- | --- | --- | --- | --- | --- |
+| H1 | `--type-h1` | 44–68px | 1 / 1.18 | 700 | -.02em |
+| H2 | `--type-h2` | 32–40px | 1 / 1.18 | 700 | -.02em |
+| H3 | `--type-h3` | 20–22px | 1.3 | 600 | 0 |
+| H4 | `--type-h4` | 18–20px | 1.18 | 700 | -.02em |
+| H5 | `--type-h5` | 16–17px | 1.18 | 700 | -.02em |
+| Lead | `--type-lead` | 17–19px | 1.5 | 400 | 0 |
+| Paragrafo | `--type-body` | 16–17px | 1.6 | 400 | 0 |
+| Small/caption | `--type-small` | 13px | 1.4 | 400 | 0 |
+| Label/metadati | `--type-label` | 13px | 1.4 | 500 | .04em |
+| Button | `--type-button` | 14px | 1.3 | 500 | .015em |
+
+Heading, ruoli professionali e interfaccia: Doto. Lead, paragrafi e didascalie: Geist Mono. I selettori dei componenti mantengono le eccezioni ottiche esistenti: hero 44–68px, titoli del reader 32–40px, titoli progetto nella directory 23–26px, ruoli CV 20–22px (anche come H4), privacy 20–22px. Il titolo 404 conserva la scala scenografica dedicata. In landscape breve il display mantiene il fit precedente; il testo di lettura resta almeno 16px.
+
+Gli `span` senza classe ereditano il contesto. Per nuovi contenuti usare `.type-lead`, `.type-body`, `.type-small`, `.type-caption`, `.type-label`, `.type-meta`, `.type-button` secondo il ruolo, mai una regola globale `span`. Non usare un livello heading per ottenere solo una dimensione. H4 e H5 sono disponibili senza introdurre titoli o testi artificiali. Nel CV interattivo: H2 titolo, H3 gruppi, H4 ruoli. Il reader conserva H1 pagina, H2 gruppi, H3 ruoli.
+
+### Accessibilità e verifica
+
+I test controllano scala H1–H5 strettamente decrescente, famiglia per ruolo, ereditarietà degli span, livelli CV consecutivi, heading non vuoti, minimo 16px per la lettura, overflow e separazione CTA/navigazione. La suite viene eseguita anche in italiano. I test boot verificano prima/seconda visita, reduced motion, progressbar, durata minima e fallback. Lighthouse in CI produce report di accessibilità; non equivale a una verifica completa con screen reader.
+
+Rollback del solo intervento: revertire il commit della scala semantica. Il cambio `typographyMode` continua a selezionare le identità precedenti; dimensioni e semantica restano condivise. Nessuna pubblicazione viene effettuata dalla branch di design.
