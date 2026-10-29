@@ -1,10 +1,11 @@
 /**
- * Typography configuration for the entire portfolio, including the standalone 404.
+ * Single switch for the portfolio's typography, including its standalone 404.
  *
- * 'balanced': Redaction 50 display/case titles, Doto interface, Inter reading.
- * 'original': Restores Doto reading and case titles, with Redaction 50 display.
+ * 'digital'  = Doto titles, subheads and UI; Geist Pixel Square paragraph copy.
+ * 'balanced' = Redaction 50 titles; Doto UI; Inter copy (previous live version).
+ * 'original' = Redaction 50 titles; Doto UI and copy (initial version).
  *
- * To undo the visual experiment, change only the string below to 'original'.
- * No HTML/CSS restructuring or font-file changes are needed.
+ * Rollback: set the value to 'balanced' or 'original' and republish.
+ * No changes to layout, CSS ordering, colors, media or interactions are required.
  */
-export const typographyMode = 'balanced';
+export const typographyMode = 'digital';
