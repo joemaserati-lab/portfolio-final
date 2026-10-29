@@ -16,7 +16,7 @@ const paragraphs = value => [].concat(value || []);
   </nav>
   {project ? <article>
     <h1>{project.title}</h1><p>{project.intro}</p>
-    <dl><dt>{labels.role}</dt><dd>{project.role}</dd><dt>{labels.deliverables}</dt><dd>{project.deliverables}</dd><dt>{labels.year}</dt><dd>{project.year}</dd></dl>
+    <dl><dt>{labels.role}</dt><dd class="reader-role">{project.role}</dd><dt>{labels.deliverables}</dt><dd>{project.deliverables}</dd><dt>{labels.year}</dt><dd>{project.year}</dd></dl>
     <img src={basePath + project.cover} alt={project.title + ' project cover'} width="1280" height="720" />
     <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">{labels.visit}</a>
     <h2>{labels.context}</h2><p>{project.context}</p><h2>{labels.approach}</h2><p>{project.direction}</p>
@@ -24,11 +24,11 @@ const paragraphs = value => [].concat(value || []);
     <h2>{labels.outputs}</h2>{project.outputs.map(output => <section><h3>{output.title}</h3><p>{output.description}</p></section>)}
   </article> : <>
     <h1>{kind === 'resume' ? labels.resume + ' — Edoardo Rappanello' : kind === 'work' ? labels.work : kind === 'contact' ? labels.contact + ' — Edoardo Rappanello' : 'Edoardo Rappanello'}</h1>
-    {(kind === 'home' || kind === 'about') && <section><p>{profile.role}</p>{profile.intro.map(text => <p>{text}</p>)}</section>}
-    {(kind === 'home' || kind === 'work') && <section aria-label="Selected projects">{projects.map(item => <article><h2><a href={basePath + `work/${item.slug}/`}>{item.title}</a></h2><p>{item.intro}</p><p>{item.role}</p></article>)}</section>}
+    {(kind === 'home' || kind === 'about') && <section><p class="reader-role">{profile.role}</p>{profile.intro.map(text => <p>{text}</p>)}</section>}
+    {(kind === 'home' || kind === 'work') && <section aria-label="Selected projects">{projects.map(item => <article><h2><a href={basePath + `work/${item.slug}/`}>{item.title}</a></h2><p>{item.intro}</p><p class="reader-role">{item.role}</p></article>)}</section>}
     {kind === 'resume' && <>
-      <p>{resume.intro}</p><h2>{labels.experience}</h2>{resume.experience.map(item => <section><h3>{item.role}</h3><p>{item.period} · {item.company} · {item.location}</p>{paragraphs(item.description).map(text => <p>{text}</p>)}</section>)}
-      <h2>{labels.education}</h2>{resume.education.map(item => <section><h3>{item.course}</h3><p>{item.period} · {item.school}</p><p>{item.description}</p></section>)}
+      <p>{resume.intro}</p><h2>{labels.experience}</h2>{resume.experience.map(item => <section><h3 class="reader-role">{item.role}</h3><p>{item.period} · <strong class="reader-company">{item.company}</strong> · {item.location}</p>{paragraphs(item.description).map(text => <p>{text}</p>)}</section>)}
+      <h2>{labels.education}</h2>{resume.education.map(item => <section><h3>{item.course}</h3><p>{item.period} · <strong class="reader-company">{item.school}</strong></p><p>{item.description}</p></section>)}
       <h2>{labels.capabilities}</h2><p>{resume.capabilities.join(' · ')}</p><h2>{labels.tools}</h2><p>{resume.tools.join(' · ')}</p>
     </>}
   </>}
