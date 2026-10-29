@@ -25,6 +25,10 @@ try {
    await page.route('**/js/content.js*',async route=>{await held;await route.continue()});
    await page.goto(url,{waitUntil:'domcontentloaded'});
    await page.locator('#boot-gate h2').waitFor({state:'visible'});
+    assert(await page.evaluate(()=>document.documentElement.classList.contains('fonts-ready')),
+      'Loader title appeared before font became available');
+    assert(await page.locator('#boot-gate h2').evaluate(el=>getComputedStyle(el).fontFamily.includes('Doto')),
+      'Loader title rendered with browser default font');
    assert(await page.locator('#boot-loader').isVisible());
    assert.equal(await page.locator('#boot-loader').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(5, 5, 5)','Loader needs an opaque background');
    assert.equal(await page.evaluate(()=>document.body.classList.contains('booting')),true);
@@ -46,6 +50,8 @@ try {
    assert.equal(events[0].opacity,'1');
    assert.equal(events[0].head,true,'Boot released before the 3D model was ready');
    assert.equal(events[0].headVisible,true,'Head not visible at the boot event');
+    assert(await page.evaluate(()=>document.documentElement.classList.contains('fonts-ready')),
+      'Application became visible before typography loaded');
    await page.waitForFunction(()=>window.__portfolioHeadState?.ready && document.querySelector('#crt-head-feature').classList.contains('is-ready'));
    assert.equal(await page.locator('#crt-head-feature').isVisible(),true);
    // CSS classes alone do not prove that the shader produced visible pixels.

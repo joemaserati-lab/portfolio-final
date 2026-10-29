@@ -54,10 +54,18 @@ try{
    assert(info.win.width>=info.section.width*.70,`${width} ${kind}: desktop window still narrow`);
    assert(info.scrollWidth<=info.clientWidth+eps,`${width} ${kind}: horizontal overflow`);
    assert.equal(info.headParent,'screen',`${width} ${kind}: WebGL must dock to the CRT screen`);
-   assert(info.headDocked,`${width} ${kind}: missing bottom-center dock`);
+   assert(info.headDocked,`${width} ${kind}: missing top-center dock`);
    assert(Math.abs((info.headBox.left+info.headBox.right)/2-(info.screenBox.left+info.screenBox.right)/2)<6,
      `${width} ${kind}: portrait not horizontally centered`);
    assert(info.headBox.height<205 && info.headBox.height>115,`${width} ${kind}: portrait should be small`);
+   assert(info.headBox.top>=info.screenBox.top+5 && info.headBox.top<=info.screenBox.top+42,
+    `${width} ${kind}: portrait must be at top center`);
+   assert(info.headBox.bottom<info.screenBox.top+225,`${width} ${kind}: top dock too tall`);
+   const rail=await page.locator('.scroll-top-rail').evaluate(el=>({visibility:getComputedStyle(el).visibility,
+     opacity:parseFloat(getComputedStyle(el).opacity),rect:el.getBoundingClientRect().toJSON()}));
+   assert(rail.visibility==='visible' && rail.opacity>.85,`${width} ${kind}: top black rail missing`);
+   assert(rail.rect.bottom>=info.headBox.bottom,`${width} ${kind}: portrait exceeds black rail`);
+   // Retain the old bottom assertion only as a strict upper bound on screen.
    assert(info.headBox.bottom <= info.screenBox.bottom-25,`${width} ${kind}: dock is below CRT safe zone`);
    if(kind==='work'){
     assert.equal(info.rows.length,5,`${width}: expected five projects`);
@@ -76,7 +84,7 @@ try{
    }
   }
   await page.close();
-  console.log('LAYOUT PASS',width,'5:3, hero, work video, CV, contacts, centered desktop head');
+  console.log('LAYOUT PASS',width,'5:3, hero, work video, CV, contacts, top-centered desktop head');
  }
  // Mobile handoff uses a square slot: preserve the original horizontal
  // centering and avoid reallocating the WebGL canvas.
@@ -112,6 +120,8 @@ try{
   return {scrollTop:viewport.scrollTop,scrollHeight:viewport.scrollHeight,clientHeight:viewport.clientHeight,
     classes:document.body.className,headParent:head.parentElement.id,
     headOpacity:getComputedStyle(head).opacity,headVisibility:getComputedStyle(head).visibility,
+    top:head.getBoundingClientRect().top,screenTop:document.getElementById('screen').getBoundingClientRect().top,
+    iconSize:document.querySelector('.scroll-mini-icon .icon-glyph').getBoundingClientRect().width,
     headClass:head.className,compact:matchMedia('(max-width:1024px)').matches};
  });
  console.log('HYBRID DESKTOP SCROLL DIAGNOSTICS',JSON.stringify(debug));
@@ -120,6 +130,8 @@ try{
  assert(debug.classes.includes('scroll-head-docked'),'Hybrid desktop did not enter docked mode');
  assert.equal(debug.headVisibility,'visible','Hybrid head must remain visible during reading');
  assert(Number(debug.headOpacity)>.6,'Hybrid docked head must be legible');
+ assert(debug.top>=debug.screenTop+5 && debug.top<=debug.screenTop+42,'Hybrid portrait not at top');
+ assert(debug.iconSize<=23,'Mini navigation icons not reduced');
  // Verify real pointer-driven yaw after scrolling into a section, including
  // touch-capable laptops. The pointer is relative to the CRT, not the icon.
  const sr=await hybrid.locator('#screen').boundingBox();
