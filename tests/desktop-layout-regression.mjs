@@ -93,8 +93,10 @@ try{
    const s=document.querySelector('.scroll-portrait-slot').getBoundingClientRect();
    return Math.abs((h.left+h.right-s.left-s.right)/2)<2;
  });
- assert.deepEqual(await phone.locator('#crt-head-canvas').evaluate(e=>[e.width,e.height]),mobileBuffer,
-   'Mobile handoff changed the WebGL drawing buffer');
+ const mobileDockBuffer=await phone.locator('#crt-head-canvas').evaluate(e=>[e.width,e.height]);
+ assert(mobileDockBuffer[0]>0 && mobileDockBuffer[1]>0 &&
+   mobileDockBuffer[0]<=mobileBuffer[0] && mobileDockBuffer[1]<=mobileBuffer[1],
+   'Mobile dock should downscale, not increase, its GPU drawing buffer');
  console.log('MOBILE DOCK PASS',390,'portrait centered in original slot');
  await phone.close();
  const hybrid=await browser.newPage({viewport:{width:1440,height:900},hasTouch:true});
