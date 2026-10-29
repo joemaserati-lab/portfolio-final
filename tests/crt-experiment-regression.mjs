@@ -14,7 +14,8 @@ try {
   for(const key of ['x','y','width','height']) assert(Math.abs(boot.screen[key]-boot.loader[key])<1,`${width}: loader misaligned (${key})`);
   assert(Math.abs(boot.screen.x-boot.outlineLeft)<1,`${width}: outline misaligned`);
   if(width>1024) {
-   assert(Math.abs(boot.screen.width/boot.screen.height-5/3)<.002,`${width}: expected centered 5:3`);
+   const fitRatio=Math.min(5/3,(width-2*(14+34))/(height-2*(14+28)));
+   assert(Math.abs(boot.screen.width/boot.screen.height-fitRatio)<.002,`${width}: expected 5:3 maximum, centered within viewport`);
    assert(Math.abs(boot.screen.left-(width-boot.screen.right))<1,`${width}: screen not centered`);
   }
   await page.waitForFunction(()=>document.body.classList.contains('site-ready')&&!document.getElementById('boot-loader'),null,{timeout:45000});
