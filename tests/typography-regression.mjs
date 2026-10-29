@@ -28,7 +28,12 @@ try {
       subheads:[...document.querySelectorAll('.resume-row h3,.case-output-list h3,.static-reader h2,.static-reader h3,.project-tile-main strong')].map(e=>({family:getComputedStyle(e).fontFamily,axes:getComputedStyle(e).fontVariationSettings})),
       informativeSubheads:[...document.querySelectorAll('.resume-row h3,.case-output-list h3,.static-reader h2,.static-reader h3')].map(e=>getComputedStyle(e).fontFamily),
       interface:[...document.querySelectorAll('.primary-action,.language-toggle,.privacy-toggle,.scene__home,.system-label')].map(e=>getComputedStyle(e).fontFamily),
-      actualFonts:[...document.fonts].filter(f=>f.status==='loaded').map(f=>f.family)
+      actualFonts:[...document.fonts].filter(f=>f.status==='loaded').map(f=>f.family),
+      hero:document.querySelector('.hero-intro')?{
+        introWidth:document.querySelector('.hero-intro').getBoundingClientRect().width,
+        titleSize:parseFloat(getComputedStyle(document.querySelector('.hero-intro h1')).fontSize),
+        copySize:parseFloat(getComputedStyle(document.querySelector('.hero-copy')).fontSize)
+      }:null
     };
    });
    assert.deepEqual(result.small,[],`${width} ${route}: reading text too small`);
@@ -59,6 +64,13 @@ try {
      assert(result.actualFonts.some(f=>f==='Geist Mono'),`${route}: Geist Mono webfont not loaded`);
    }
    assert(result.interface.every(f=>f.includes('Doto')),`${route}: interface voice changed`);
+   if(route==='' && result.mode==='doto-mono') {
+     assert(result.hero?.copySize>=16 && result.hero.copySize<=17,`${width}: hero copy hierarchy lost`);
+     if(width===1440) {
+       assert(result.hero.introWidth<=425,`${width}: hero column too wide for negative space`);
+       assert(result.hero.titleSize<=68,`${width}: heading overpowers composition`);
+     }
+   }
    assert(result.overflow.every(o=>!o),`${width} ${route}: horizontal overflow`);
    if(route===''&&width<=1024){
     const geometry=await page.evaluate(()=>({cta:document.querySelector('.primary-action').getBoundingClientRect().bottom,nav:document.querySelector('.scroll-index').getBoundingClientRect().top}));
