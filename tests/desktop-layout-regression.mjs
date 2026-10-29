@@ -16,7 +16,8 @@ try{
      iconItems:[...document.querySelectorAll('.desktop-icons .desktop-icon')].map(x=>({box:x.getBoundingClientRect().toJSON(),bg:getComputedStyle(x).backgroundColor})),
      screenScrollWidth:q('#scroll-viewport').scrollWidth,screenClientWidth:q('#scroll-viewport').clientWidth};
   });
-  assert(Math.abs(shape.screen.width/shape.screen.height-5/3)<.002,`${width}: ratio`);
+  const fitRatio=Math.min(5/3,(width-2*(14+34))/(height-2*(14+28)));
+  assert(Math.abs(shape.screen.width/shape.screen.height-fitRatio)<.002,`${width}: centered 5:3-or-viewport-fit ratio`);
   assert(shape.title.right < shape.icons.left-12,`${width}: hero intersects launchers`);
   assert(shape.iconItems.every(x=>x.box.right <= shape.screen.right+eps),`${width}: launcher out of bounds`);
   assert(shape.iconItems.every(x=>x.bg.includes('0, 0, 0') || x.bg.startsWith('rgba(8, 8, 8'))),`${width}: missing icon backing`);
