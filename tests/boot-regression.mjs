@@ -29,6 +29,14 @@ try {
       'Loader title appeared before font became available');
     assert(await page.locator('#boot-gate h2').evaluate(el=>getComputedStyle(el).fontFamily.includes('Doto')),
       'Loader title rendered with browser default font');
+   const loadingTypography=await page.locator('#boot-gate h2').evaluate(el=>({
+     size:getComputedStyle(el).fontSize,
+     weight:getComputedStyle(el).fontWeight,
+     family:getComputedStyle(el).fontFamily
+   }));
+   assert.equal(loadingTypography.size,'13px',`${width}x${height}: loader must use the smallest 13px type token`);
+   assert.equal(loadingTypography.weight,'400',`${width}x${height}: loader must use regular Doto`);
+   assert(loadingTypography.family.includes('Doto'),`${width}x${height}: loader must use Doto`);
    assert(await page.locator('#boot-loader').isVisible());
    assert.equal(await page.locator('#boot-loader').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(5, 5, 5)','Loader needs an opaque background');
    assert.equal(await page.evaluate(()=>document.body.classList.contains('booting')),true);
