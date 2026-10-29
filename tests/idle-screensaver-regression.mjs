@@ -52,7 +52,16 @@ try {
   // Media-query responsive changes can dispatch scroll events. Define the
   // new 60-second idle window from an explicit interaction.
   await page.evaluate(()=>document.dispatchEvent(new Event('pointermove',{bubbles:true})));
-  await page.clock.fastForward(60_005);
+  // Run scheduled events in order under the newly changed media query instead
+  // of jumping over frame and visibility callbacks in a single clock tick.
+  await page.clock.runFor(60_050);
+  if (!(await layer.isVisible())) {
+    console.log('IDLE REDUCED DEBUG',JSON.stringify(await page.evaluate(()=>({
+      documentHidden:document.hidden,visibility:document.visibilityState,
+      classes:document.body.className,iframeReady:document.querySelector('#idle-screensaver-scene')?.className,
+      overlayHidden:document.querySelector('#idle-screensaver')?.hidden,virtualNow:Date.now()
+    }))));
+  }
   assert(await layer.isVisible(),'Reduced-motion users still need screensaver');
   const before=await embedded.locator('.dvd').evaluate(el=>getComputedStyle(el).transform);
   await page.clock.fastForward(1000);
