@@ -6,13 +6,21 @@ function settleHead(ready, error=null) {
   window.dispatchEvent(new CustomEvent('portfolio:head-settled', { detail: window.__portfolioHeadState }));
 }
 
+// Chromium's OffscreenCanvas/WebGL runs the same Three.js effect in a worker,
+ // isolating shader work from clicks, scrolling, fonts and the UI main thread.
+ // Safari/Firefox and unsupported canvas implementations retain the existing
+ // main-thread module. Worker failures also fall back to that module.
 const effectUrl = new URL('./head-scan-effect.bundle.js', import.meta.url);
 effectUrl.searchParams.set('v', window.PORTFOLIO_ASSET_VERSION);
+const workerProxyUrl = new URL('./head-worker-proxy.js', import.meta.url);
+workerProxyUrl.searchParams.set('v', window.PORTFOLIO_ASSET_VERSION);
+const canUseWorker = typeof Worker === 'function' &&
+  typeof HTMLCanvasElement.prototype.transferControlToOffscreen === 'function' &&
+  /(?:Chrome|Chromium|Edg)\//.test(navigator.userAgent);
 let mountHeadScanEffect;
 try {
-  ({ mountHeadScanEffect } = await import(effectUrl.href));
+  ({ mountHeadScanEffect } = await import(canUseWorker ? workerProxyUrl.href : effectUrl.href));
 } catch (error) {
-  // Prevent a failed CDN/module import from leaving the head forever pending.
   settleHead(false, error);
   throw error;
 }

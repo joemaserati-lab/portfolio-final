@@ -103,7 +103,8 @@ const ogImageUrl = new URL(ogImage, rootUrl);
   }
   {!project && <>
     <link rel="modulepreload" href={asset('js/head3d.js')} fetchpriority="high" />
-    <link rel="modulepreload" href={asset('js/head-scan-effect.bundle.js')} fetchpriority="high" />
+    <!-- Keep the large main-thread Three.js bundle out of the preload chain:
+         Chromium uses the Worker bundle and fallback browsers request it on demand. -->
     <link rel="preload" href="assets/models/human_head_reference3.glb" as="fetch" crossorigin="anonymous" fetchpriority="high" />
   </>}
   <link rel="stylesheet" href={asset('css/idle-screensaver.css')} />

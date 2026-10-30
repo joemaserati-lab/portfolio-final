@@ -46,3 +46,11 @@ await bundleJavaScript({
   platform: 'browser', format: 'esm', target: ['es2022']
 });
 console.log('Bundled Three.js head module for same-origin delivery.');
+await bundleJavaScript({
+  absWorkingDir: root,
+  entryPoints: ['public/js/head-render-worker.js'],
+  outfile: 'public/js/head-render-worker.bundle.js',
+  bundle: true, minify: true, legalComments: 'eof',
+  platform: 'browser', format: 'esm', target: ['es2022']
+});
+console.log('Bundled identical 3D renderer for OffscreenCanvas workers.');
