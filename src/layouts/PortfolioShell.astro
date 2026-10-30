@@ -47,6 +47,12 @@ const ogImageUrl = new URL(ogImage, rootUrl);
     html.fonts-pending .static-reader {
       visibility:hidden!important;
     }
+    /* Reading mode must work without JavaScript even if fonts-pending stays set.
+       Normal scripted UI stays protected against a fallback-font flash. */
+    html.no-js.fonts-pending .static-reader,
+    html.fonts-pending body.reader-mode .static-reader {
+      visibility:visible!important;
+    }
   </style>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <base href={basePath} />

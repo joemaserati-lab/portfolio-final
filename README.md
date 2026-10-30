@@ -21,7 +21,7 @@ Run `npm run build && npm run check` before publishing; `npm run preview` serves
 - `public/js/boot.js`, `head3d.js`, `head-scan-effect.js`: loader and 3D lifecycle. There are no generated runtime adapters.
 - `public/css/portfolio-scroll.css`: scroll-specific layout and transitions. `scripts/build-css.mjs` includes it in the production CSS bundle.
 
-CSS and JavaScript URLs use the version in `package.json` to invalidate browser caches on release. Bump that version when shipping changed assets.
+CSS and JavaScript URLs use the version in `package.json` to invalidate browser caches on release. Release **2.0.19** stabilizes the no-JavaScript reader and adaptive 3D rendering. Bump both `package.json` and `package-lock.json` for subsequent releases.
 
 Edit source files only. `dist/`, `.astro/` and `public/css/portfolio.bundle.css` are generated and ignored.
 

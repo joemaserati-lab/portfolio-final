@@ -74,10 +74,22 @@ try {
   const reader=await noJs.newPage();
   for(const [path,text] of [['resume/','SWS PRINTING'],['contact/','edoardo.rappanello@gmail.com'],['work/platinum-technologies/','ten times']]){
     await reader.goto(new URL(path,base).href);
-    assert(await reader.locator('.static-reader[data-reader-lang=en]').isVisible());
+    assert(await reader.locator('.static-reader[data-reader-lang=en]').isVisible(),
+      'The no-JavaScript reading view is hidden by the font-loading gate: '+path);
+    assert(await reader.evaluate(()=>document.documentElement.classList.contains('fonts-pending')),
+      'No-JavaScript test must exercise pending-font condition');
     assert((await reader.locator('.static-reader[data-reader-lang=en]').innerText()).includes(text));
   }
   await noJs.close();
+  const pendingFallback=await browser.newPage();
+  await pendingFallback.goto(new URL('resume/',base).href);
+  await pendingFallback.evaluate(()=>{
+    document.documentElement.classList.add('fonts-pending');
+    document.body.classList.add('reader-mode');
+  });
+  assert(await pendingFallback.locator('.static-reader[data-reader-lang=en]').isVisible(),
+    'Runtime fallback hidden when fonts remain pending');
+  await pendingFallback.close();
   const broken=await browser.newPage();
   await broken.route('**/js/content.js*',route=>route.abort());
   await broken.goto(new URL('resume/',base).href);
