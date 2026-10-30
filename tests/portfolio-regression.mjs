@@ -112,8 +112,17 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
    assert.equal(await page.locator('#scroll-work .window-titlebar').isVisible(),false);
    assert.equal(await page.locator('.desktop-icons').isVisible(),false);
    assert(await page.locator('#scroll-work .scroll-window').evaluate(e=>getComputedStyle(e).borderTopWidth==='0px'));
-   const density=await page.locator('#crt-head-feature canvas').evaluate(e=>e.width/e.getBoundingClientRect().width);
-   assert(density>=Math.min(await page.evaluate(()=>devicePixelRatio),2)-.1,'Portrait resolution below requested DPR');
+   // The small mobile dock is intentionally rendered at its visible size,
+   // rather than at full-screen device DPR. Keep enough pixels for legibility.
+   const visual=await page.evaluate(()=>{
+     const canvas=document.querySelector('#crt-head-feature canvas');
+     const bounds=canvas.getBoundingClientRect();
+     return {density:canvas.width/Math.max(bounds.width,1),
+       stats:window.PortfolioMotion.getRenderStats()};
+   });
+   assert(visual.density>=.65,'Docked portrait sampling density too low');
+   assert(visual.stats.pixels>0 && visual.stats.scale<.65,
+     'Mobile dock must use the smaller GPU drawing buffer');
  }
  if(width<=1024) {
    await select('home'); await settle('home');
