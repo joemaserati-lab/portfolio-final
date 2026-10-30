@@ -275,6 +275,7 @@ export function mountHeadScanEffect({
   // Normal GPUs keep the original presentation. Slow software or repeatedly
   // stalled renderers get an automatic, bounded frame/pixel workload.
   let fallbackMode = 'none', rendererDescription = '', lastDrawMs = 0;
+  let lastMotionDt = 0, refreshCount = 0;
   let slowDrawStreak = 0, drawnFrames = 0, lastPointerAt = 0;
   const coarsePointer = typeof coarsePointerOverride === 'boolean'
     ? coarsePointerOverride : matchMedia('(pointer: coarse)').matches;
@@ -389,6 +390,7 @@ export function mountHeadScanEffect({
   function render(now) {
     if (disposed || paused || !loaded) return;
     const dt = lastTime === null ? 0 : Math.min((now - lastTime) / 1000, 0.05);
+    lastMotionDt = dt;
     lastTime = now;
     elapsed += dt;
     pointer.lerp(targetPointer, 1.0 - Math.pow(0.0007, dt));
@@ -437,6 +439,7 @@ export function mountHeadScanEffect({
     raf = requestAnimationFrame(animate);
   }
   function refresh() {
+    refreshCount++;
     cancelAnimationFrame(raf);
     raf = 0;
     lastTime = null;
@@ -658,7 +661,8 @@ export function mountHeadScanEffect({
         backend: fallbackMode, lastDrawMs: Math.round(lastDrawMs * 10) / 10,
         drawnFrames, renderer: rendererDescription,
         pointerTarget: [targetPointer.x, targetPointer.y],
-        scrollYaw, heroPresence, rootYaw: root.rotation.y
+        scrollYaw, heroPresence, rootYaw: root.rotation.y,
+        lastMotionDt, refreshCount
       };
     },
     setViewportSize(width, height) {
