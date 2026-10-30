@@ -161,7 +161,8 @@ body { color: var(--white); }
 .contact-copy h2::after,
 .resume-header h2::after,
 .projects-index-head h2::after,
-.resume-section-title::before,
+.resume-section-title--framed::before,
+.resume-section-title--framed::after,
 .case-story-label::before,
 .static-reader h1::after { color: var(--red); }
 

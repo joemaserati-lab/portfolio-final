@@ -45,9 +45,28 @@ try {
       heroActionGlyph:document.querySelector('.primary-action') ? getComputedStyle(document.querySelector('.primary-action'),'::after').content : null,
       heroActionPrefix:document.querySelector('.primary-action') ? getComputedStyle(document.querySelector('.primary-action'),'::before').content : null,
       bootBrackets,
-      projectMeta:[...document.querySelectorAll('.project-tile-main small')].map(e=>({text:e.textContent.trim(),glyphs:[...e.querySelectorAll('.doto-glyph')].map(g=>g.textContent)})),
+      projectMeta:[...document.querySelectorAll('.project-tile-main small')].map(e=>({
+        text:e.textContent.trim(),
+        glyphs:[...e.querySelectorAll('.doto-glyph')].map(g=>g.textContent),
+        after:getComputedStyle(e,'::after').content,
+        glyphTop:e.querySelector('.doto-glyph')?.getBoundingClientRect().top,
+        lineTop:e.getBoundingClientRect().top,
+        color:getComputedStyle(e).color
+      })),
       resumePeriods:[...document.querySelectorAll('.resume-period')].map(e=>[...e.querySelectorAll('.doto-glyph')].map(g=>g.textContent)),
       resumeLocations:[...document.querySelectorAll('.resume-row small')].map(e=>[...e.querySelectorAll('.doto-glyph')].map(g=>g.textContent)),
+      resumeHeadings:[...document.querySelectorAll('#scroll-resume .resume-section-title')].map(e=>({
+        text:e.textContent.trim(),
+        framed:e.classList.contains('resume-section-title--framed'),
+        prefix:getComputedStyle(e,'::before').content,
+        suffix:getComputedStyle(e,'::after').content,
+        beforeColor:getComputedStyle(e,'::before').color,
+        afterColor:getComputedStyle(e,'::after').color
+      })),
+      desktopAbout:[...document.querySelectorAll('#scroll-about .window-body > p')].map(e=>({
+        measure:e.getBoundingClientRect().width,
+        available:e.parentElement.getBoundingClientRect().width
+      })),
       contactHeading:document.querySelector('#scroll-contact .contact-copy h2')?.textContent,
       contactDotColor:document.querySelector('#scroll-contact .contact-copy h2') ? getComputedStyle(document.querySelector('#scroll-contact .contact-copy h2'),'::after').color : null,
       navigationLabel:document.querySelector('.scroll-index a[aria-current] [data-scroll-label]')?.textContent,
@@ -97,9 +116,21 @@ try {
      assert(result.heroActionPrefix?.includes('[') && result.heroActionGlyph?.includes(']'),`${route}: square-bracket CTA missing`);
      assert(!result.heroActionGlyph?.includes('<>'),`${route}: obsolete angle CTA still present`);
      assert(result.bootBrackets[0]?.includes('[') && result.bootBrackets[1]?.includes(']'),`${route}: loading label not framed`);
-     assert(result.projectMeta.length===5 && result.projectMeta.every(x=>x.glyphs.join('')==='•' && !x.text.includes('[')),`${route}: project index and date tokens not simplified`);
+     assert(result.projectMeta.length===5 && result.projectMeta.every(x=>
+       x.glyphs.join('')==='•' && !x.text.includes('[') &&
+       (x.after==='none' || x.after==='normal') &&
+       Math.abs(x.glyphTop-x.lineTop)<8 && x.color!=='rgba(0, 0, 0, 0)'
+     ),`${route}: project metadata must be a single visible bullet/date line`);
      assert(result.resumePeriods.length===8 && result.resumePeriods.every(x=>x.join('')==='•'),`${route}: CV years are missing red bullet`);
-     assert(result.resumeLocations.length===6 && result.resumeLocations.every(x=>x.join('')==='[]'),`${route}: CV locations need red brackets`);
+     assert(result.resumeLocations.length===6 && result.resumeLocations.every(x=>x.length===0),`${route}: CV locations must be unmarked`);
+     assert(result.resumeHeadings.length===4 &&
+       result.resumeHeadings.every((x,i)=>i<2
+         ? x.framed && x.prefix.includes('[') && x.suffix.includes(']') &&
+           x.beforeColor==='rgb(255, 45, 58)' && x.afterColor==='rgb(255, 45, 58)'
+         : !x.framed && (x.prefix==='none' || x.prefix==='normal')),
+       `${route}: only experience and education need red square brackets`);
+     if(width>=1025) assert(result.desktopAbout.length>0 && result.desktopAbout.every(x=>
+       x.available>0 && x.measure>=x.available-2),`${route}: desktop about paragraphs are still width-limited`);
      assert(!result.contactHeading?.endsWith('.'),`${route}: contact title contains redundant punctuation`);
      assert.equal(result.contactDotColor,'rgb(255, 45, 58)',`${route}: contact signature point is not red`);
      assert.equal(result.dockLabelColor,'rgb(255, 45, 58)',`${route}: docked navigation label is not red`);
