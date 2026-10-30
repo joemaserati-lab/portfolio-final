@@ -35,7 +35,11 @@ const PERFORMANCE = Object.freeze({
   touchFps: 30,
   slowFrameFactor: 1.42,
   slowFrameFloor: 24,
-  slowFramesToDegrade: 24
+  slowFramesToDegrade: 5,
+  // A software renderer must not compile and run the full-screen fragment
+  // program 30–60 times a second on the browser's main thread.
+  software: Object.freeze({ maxPixels: 210000, maxDpr: 0.78, fps: 8 }),
+  struggling: Object.freeze({ maxPixels: 340000, maxDpr: 0.90, fps: 12 })
 });
 
 
@@ -157,6 +161,13 @@ const fragmentShader = /* glsl */`
   void main() {
     vec3 boundsSize = max(uBoundsMax - uBoundsMin, vec3(0.0001));
     vec3 npos = clamp((vLocalPos - uBoundsMin) / boundsSize, 0.0, 1.0);
+    float lowerMask = smoothstep(uFadeLow, uFadeHigh, npos.y);
+    // The original final pixel is exactly black below this fade boundary.
+    // Do not evaluate dozens of procedural noise octaves there.
+    if (lowerMask <= 0.0) {
+      gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+      return;
+    }
 
     float scanCoord = vViewPos.x + vViewPos.z * uDepthWarp;
     float organic = noise3(vec3(
@@ -182,7 +193,14 @@ const fragmentShader = /* glsl */`
     vec3 V = normalize(-vViewPos);
     float facing = clamp(dot(N, V), 0.0, 1.0);
     float edge = pow(1.0 - facing, 1.70);
-    float lowerMask = smoothstep(uFadeLow, uFadeHigh, npos.y);
+    // A large portion of the surface is outside every contour and glow
+    // band. In those pixels, the approved shader produces only its very faint
+    // neutral rim (0.085 * 0.010 * edge), independent of expensive organic
+    // noise. Preserve that exact signal and skip the unused color field.
+    if (core <= 0.0 && innerGlow <= 0.0 && outerGlow <= 0.0 && hotCore <= 0.0) {
+      gl_FragColor = vec4(vec3(0.00085 * edge * lowerMask), 1.0);
+      return;
+    }
 
     // Continuous tonal flow across the scanned contours.
     // White, mint and graphite blend across the surface.
@@ -251,6 +269,10 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
   let disposed = false, loaded = false, paused = true, raf = 0, lastTime = null, elapsed = 0;
   let lastFrameStamp = 0, lastRafStamp = 0, slowFrameStreak = 0;
   let shaderFailed = false;
+  // Normal GPUs keep the original presentation. Slow software or repeatedly
+  // stalled renderers get an automatic, bounded frame/pixel workload.
+  let fallbackMode = 'none', rendererDescription = '', lastDrawMs = 0;
+  let slowDrawStreak = 0, drawnFrames = 0, lastPointerAt = 0;
   const coarsePointer = matchMedia('(pointer: coarse)').matches;
   const estimateSurfacePixels = () => {
     const width = Math.max(container.clientWidth, 1);
@@ -262,9 +284,17 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
   const quality = () => PERFORMANCE.quality[qualityIndex];
   // The smaller docked head needs fewer GPU frames, but the full desktop hero
   // preserves its 60fps animation and the mouse-follow effect.
-  const targetFps = () => presentationScale < .65
-    ? Math.min(30, coarsePointer ? PERFORMANCE.touchFps : quality().fps)
-    : (coarsePointer ? PERFORMANCE.touchFps : quality().fps);
+  const targetFps = () => {
+    if (fallbackMode !== 'none') {
+      const profile = PERFORMANCE[fallbackMode];
+      // Preserve pointer feedback while keeping idle software-GPU use low.
+      return lastPointerAt && performance.now() - lastPointerAt < 380
+        ? Math.min(profile.fps + 4, 16) : profile.fps;
+    }
+    return presentationScale < .65
+      ? Math.min(30, coarsePointer ? PERFORMANCE.touchFps : quality().fps)
+      : (coarsePointer ? PERFORMANCE.touchFps : quality().fps);
+  };
   const targetFrameMs = () => 1000 / targetFps();
 
   function syncPerformanceClass() {
@@ -280,13 +310,26 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
     document.body.dataset.renderQuality = coarsePointer ? 'touch' : quality().name;
   }
 
-  function degradeQuality() {
-    if (coarsePointer || qualityIndex >= PERFORMANCE.quality.length - 1) return false;
-    qualityIndex += 1;
+  function enterFallback(mode) {
+    if (fallbackMode !== 'none' || disposed) return false;
+    fallbackMode = mode;
+    slowDrawStreak = 0;
     slowFrameStreak = 0;
-    syncPerformanceClass();
-    resize();
+    document.body.dataset.headGpuFallback = mode;
+    // This is invoked after a completed draw, never inside an active FBO pass.
+    queueMicrotask(() => { if (!disposed && composer) resize(); });
     return true;
+  }
+  function degradeQuality() {
+    if (fallbackMode !== 'none') return false;
+    if (!coarsePointer && qualityIndex < PERFORMANCE.quality.length - 1) {
+      qualityIndex += 1;
+      slowFrameStreak = 0;
+      syncPerformanceClass();
+      resize();
+      return true;
+    }
+    return enterFallback('struggling');
   }
 
   function sampleFramePacing(now) {
@@ -296,7 +339,9 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
     }
     const delta = now - lastRafStamp;
     lastRafStamp = now;
-    const slowThreshold = Math.max(PERFORMANCE.slowFrameFloor, targetFrameMs() * PERFORMANCE.slowFrameFactor);
+    // rAF gaps can reflect another long task, not just the shader. Require
+    // repeated severe stalls before reducing the visual buffer.
+    const slowThreshold = Math.max(75, targetFrameMs() * 2.3);
     if (delta > slowThreshold) slowFrameStreak += 1;
     else slowFrameStreak = Math.max(0, slowFrameStreak - 2);
     if (slowFrameStreak >= PERFORMANCE.slowFramesToDegrade) degradeQuality();
@@ -359,7 +404,17 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
       material.uniforms.uTime.value = reducedMotion ? 0 : elapsed;
       material.uniforms.uPhase.value = reducedMotion ? 0 : elapsed * PRESET.drift;
     }
+    const startDraw = performance.now();
     composer.render();
+    lastDrawMs = performance.now() - startDraw;
+    drawnFrames += 1;
+    // WebGL on a CPU rasterizer can synchronously block the main thread for
+    // hundreds of ms. Adapt after two expensive draws, not after 24 frames.
+    if (fallbackMode === 'none') {
+      if (lastDrawMs >= 85) slowDrawStreak += 1;
+      else slowDrawStreak = Math.max(0, slowDrawStreak - 1);
+      if (slowDrawStreak >= 2) enterFallback('struggling');
+    }
   }
   function animate(now) {
     raf = 0;
@@ -389,8 +444,11 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
     if (disposed || !composer) return;
     const width = Math.max(container.clientWidth, 1), height = Math.max(container.clientHeight, 1);
     const q = quality();
-    const maxPixels = coarsePointer ? PERFORMANCE.touchMaxPixels : q.maxPixels;
-    const maxDpr = coarsePointer ? PERFORMANCE.touchMaxDpr : q.maxDpr;
+    const safety = fallbackMode === 'none' ? null : PERFORMANCE[fallbackMode];
+    const maxPixels = safety ? safety.maxPixels
+      : (coarsePointer ? PERFORMANCE.touchMaxPixels : q.maxPixels);
+    const maxDpr = safety ? safety.maxDpr
+      : (coarsePointer ? PERFORMANCE.touchMaxDpr : q.maxDpr);
     const nativeDpr = Math.min(devicePixelRatio || 1, maxDpr) * presentationScale;
     const budgetDpr = Math.sqrt(maxPixels / Math.max(1, width * height));
     const pixelRatio = Math.max(0.05, Math.min(nativeDpr, budgetDpr));
@@ -404,7 +462,8 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
     // Optical fit leaves the reference's view-space scan field and line density intact.
     camera.zoom = 0.95 * halfView / Math.max(fitY, fitX / camera.aspect);
     camera.updateProjectionMatrix();
-    if (loaded && reducedMotion && !paused) render(performance.now());
+    // refresh() already renders after the projection update. A second render
+    // here wasted one heavy shader frame for reduced-motion users.
     camera.projectionMatrix.elements[8] = fitCenter.x * camera.zoom / (halfView * camera.aspect);
     camera.projectionMatrix.elements[9] = fitCenter.y * camera.zoom / halfView;
     camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
@@ -414,6 +473,20 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
   try {
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, premultipliedAlpha: true, powerPreference: coarsePointer ? 'low-power' : 'high-performance' });
     renderer.outputColorSpace = THREE.SRGBColorSpace;
+    // The debug extension is optional. If available, detect software GPUs
+    // BEFORE sizing the first framebuffer, sparing SwiftShader and llvmpipe
+    // the otherwise very expensive initial full-resolution render.
+    try {
+      const gl = renderer.getContext();
+      const ext = gl.getExtension('WEBGL_debug_renderer_info');
+      rendererDescription = ext
+        ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) || '')
+        : String(gl.getParameter(gl.RENDERER) || '');
+      if (/swiftshader|llvmpipe|softpipe|software rasterizer/i.test(rendererDescription)) {
+        fallbackMode = 'software';
+        document.body.dataset.headGpuFallback = 'software';
+      }
+    } catch {}
     renderer.toneMapping = THREE.NeutralToneMapping;
     renderer.toneMappingExposure = 1.00;
     renderer.debug.onShaderError = (gl, program, vertex, fragment) => {
@@ -536,7 +609,15 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
     // Shader compilation can itself be expensive on mobile. Give layout and
     // projection work a frame to settle before compiling the first render.
     if (coarsePointer) await new Promise(resolve => requestAnimationFrame(() => resolve()));
+    // Use the same instrumented renderer for shader warm-up. It also detects
+    // a costly first draw on systems that do not expose renderer information.
+    const warmUpStart = performance.now();
     composer.render();
+    lastDrawMs = performance.now() - warmUpStart;
+    drawnFrames += 1;
+    if (fallbackMode === 'none' && lastDrawMs >= 85) {
+      slowDrawStreak = 1;
+    }
   }).catch(fail);
 
   return {
@@ -563,13 +644,16 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
         pixels: canvas.width * canvas.height,
         fpsBudget: targetFps(), scale: presentationScale,
         pixelRatio: renderer.getPixelRatio(),
-        quality: coarsePointer ? 'touch' : quality().name
+        quality: coarsePointer ? 'touch' : quality().name,
+        backend: fallbackMode, lastDrawMs: Math.round(lastDrawMs * 10) / 10,
+        drawnFrames, renderer: rendererDescription
       };
     },
     setPointer(x, y) {
       if (scrollYaw !== null) return;
       if (disposed) return;
       targetPointer.set(THREE.MathUtils.clamp(x, -1, 1), THREE.MathUtils.clamp(y, -1, 1));
+      lastPointerAt = performance.now();
     },
     setPaused(value) {
       if (paused === value || disposed) return;
