@@ -33,11 +33,13 @@ try{
   assert(metrics.stats.drawnFrames>=before.drawnFrames,'Head animation stalled');
   const rect=await page.locator('#screen').boundingBox();
   await page.mouse.move(rect.x+rect.width*.16,rect.y+rect.height*.5);
-  await page.waitForTimeout(430);
+  await page.waitForTimeout(700);
   const left=await page.evaluate(()=>window.PortfolioMotion.getPose().yaw);
   await page.mouse.move(rect.x+rect.width*.84,rect.y+rect.height*.5);
-  await page.waitForTimeout(430);
+  await page.waitForTimeout(700);
   const right=await page.evaluate(()=>window.PortfolioMotion.getPose().yaw);
+  console.log('HEAD POINTER',before.execution,JSON.stringify({left,right,delta:right-left,
+    stats:await page.evaluate(()=>window.PortfolioMotion.getRenderStats())}));
   assert(right-left>.04,'Mouse follow lost');
   await page.locator('#scroll-viewport').evaluate(e=>e.scrollTop=e.clientHeight*1.2);
   await page.waitForFunction(()=>window.PortfolioMotion?.getRenderStats?.()?.scale<.65,null,{timeout:20000});
