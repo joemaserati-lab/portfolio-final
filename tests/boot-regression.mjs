@@ -24,7 +24,7 @@ try {
             window.__degaussEvents.push(active?'degauss-start':'degauss-end');
             if(active){
               const curtain=getComputedStyle(record.target);
-              window.__degaussSignal=getComputedStyle(record.target,'::after').animationName;
+              window.__degaussSignal=getComputedStyle(record.target.querySelector('.boot-signal-line')).animationName;
               window.__degaussSnapshot={
                 opacity:curtain.opacity,
                 visibility:curtain.visibility,
