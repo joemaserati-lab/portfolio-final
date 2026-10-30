@@ -118,7 +118,7 @@ body{background:#080808}
 .project-tile-v2:hover .project-tile-main strong,.project-tile-v2:focus-visible .project-tile-main strong,.project-tile-v2.mobile-signal .project-tile-main strong,.project-tile-v2.is-pressed .project-tile-main strong{color:#f4f4f4;text-shadow:0 0 5px rgba(243,243,243,.30),0 0 14px rgba(179,179,179,.14)}
 .screen.crt-sync-hit::before{background:rgba(222,222,222,.12);box-shadow:0 -3px 12px rgba(179,179,179,.12),0 3px 12px rgba(179,179,179,.12)}
 .phosphor-ghost{border-color:rgba(243,243,243,.13);background:rgba(222,222,222,.02);box-shadow:0 0 18px rgba(179,179,179,.045),inset 0 0 22px rgba(199,199,199,.02)}
-.screen:is(.crt-degauss,.crt-boot-degauss)::after{background:rgba(244,244,244,.92);box-shadow:0 0 8px rgba(243,243,243,.92),0 0 24px rgba(199,199,199,.30),0 0 64px rgba(199,199,199,.16)}
+.screen.crt-degauss::after{background:rgba(244,244,244,.92);box-shadow:0 0 8px rgba(243,243,243,.92),0 0 24px rgba(199,199,199,.30),0 0 64px rgba(199,199,199,.16)}
 .boot-loader{text-shadow:0 0 5px rgba(243,243,243,.44),0 0 12px rgba(199,199,199,.24)}
 .scanlines{background:repeating-linear-gradient(to bottom,rgba(222,222,222,.012) 0 1px,transparent 1px 2px,rgba(8,8,8,.74) 3px 4px)}
 .crt-stage::before{
