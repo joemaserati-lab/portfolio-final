@@ -214,6 +214,29 @@
   100%{opacity:0;transform:scaleX(.12)}
 }
 
+/* On touch devices, preserve the CRT collapse and bright signal line without
+   animating a full-screen brightness filter. Transform-only compositing avoids
+   expensive software-GPU paint during the post-loader transition. */
+@media (max-width: 720px) {
+  .screen.crt-boot-degauss .desktop,
+  .screen.crt-boot-degauss .terminal-dock,
+  .screen.crt-boot-degauss .footerbar,
+  .screen.crt-boot-degauss #crt-bg,
+  .screen.crt-boot-degauss #crt-fx,
+  .screen.crt-boot-degauss .noise,
+  .screen.crt-boot-degauss .scanlines {
+    animation-name: crtBootDegaussComposite;
+  }
+}
+@keyframes crtBootDegaussComposite {
+  0% { transform:scaleY(1) scaleX(1); }
+  38% { transform:scaleY(.045) scaleX(.985); }
+  52% { transform:scaleY(.018) scaleX(.94); }
+  72% { transform:scaleY(.50) scaleX(.992); }
+  100% { transform:scaleY(1) scaleX(1); }
+}
+
+
 /* Balanced CRT tremor for secondary windows: visible, brief, never violent. */
 .screen.micro-glitch .desktop,
 .screen.micro-glitch .terminal-dock,
