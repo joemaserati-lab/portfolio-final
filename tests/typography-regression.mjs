@@ -10,6 +10,7 @@ try {
   for(const route of ([1024,1200,1280,1920].includes(width)?['','work/']:['', 'work/', 'about/', 'resume/', 'contact/', 'work/tovadu/', '404.html'])) {
    await page.goto(new URL(route,base).href);
    if(route!=='404.html') await page.waitForFunction(()=>document.body.classList.contains('site-ready'));
+   if(route==='work/' && width<=720) await page.waitForFunction(()=>document.querySelector('.scroll-index [aria-current]')?.dataset.scrollSection==='work');
    await page.evaluate(()=>document.fonts.ready);
    if(route==='') await page.waitForFunction(()=>window.__portfolioHeadState?.ready);
    const result=await page.evaluate(()=>{
@@ -25,6 +26,14 @@ try {
     const scale=[...probe.querySelectorAll('h1,h2,h3,h4,h5')].map(e=>({size:parseFloat(getComputedStyle(e).fontSize),family:getComputedStyle(e).fontFamily}));
     const inherited=getComputedStyle(probe.querySelector('p')).font===getComputedStyle(probe.querySelector('p span')).font;
     probe.remove();
+    // Loader is intentionally removed after boot: probe its CSS signature without reopening it.
+    const bootProbe=document.createElement('div');
+    bootProbe.id='boot-gate';
+    bootProbe.innerHTML='<h2>LOADING</h2>';
+    document.body.append(bootProbe);
+    const bootTitle=bootProbe.querySelector('h2');
+    const bootBrackets=[getComputedStyle(bootTitle,'::before').content,getComputedStyle(bootTitle,'::after').content];
+    bootProbe.remove();
     return {
       scale, inherited,
       emptyHeadings:[...document.querySelectorAll('h1,h2,h3,h4,h5')].filter(e=>!e.textContent.trim()).length,
@@ -34,6 +43,17 @@ try {
       glyphColors:[...document.querySelectorAll('.doto-glyph')].map(e=>getComputedStyle(e).color),
       heroHasSignature:Boolean(document.querySelector('.hero-intro h1 .doto-glyph')),
       heroActionGlyph:document.querySelector('.primary-action') ? getComputedStyle(document.querySelector('.primary-action'),'::after').content : null,
+      heroActionPrefix:document.querySelector('.primary-action') ? getComputedStyle(document.querySelector('.primary-action'),'::before').content : null,
+      bootBrackets,
+      projectMeta:[...document.querySelectorAll('.project-tile-main small')].map(e=>({text:e.textContent.trim(),glyphs:[...e.querySelectorAll('.doto-glyph')].map(g=>g.textContent)})),
+      resumePeriods:[...document.querySelectorAll('.resume-period')].map(e=>[...e.querySelectorAll('.doto-glyph')].map(g=>g.textContent)),
+      resumeLocations:[...document.querySelectorAll('.resume-row small')].map(e=>[...e.querySelectorAll('.doto-glyph')].map(g=>g.textContent)),
+      contactHeading:document.querySelector('#scroll-contact .contact-copy h2')?.textContent,
+      contactDotColor:document.querySelector('#scroll-contact .contact-copy h2') ? getComputedStyle(document.querySelector('#scroll-contact .contact-copy h2'),'::after').color : null,
+      navigationLabel:document.querySelector('.scroll-index a[aria-current] [data-scroll-label]')?.textContent,
+      navigationColor:document.querySelector('.scroll-index a[aria-current] [data-scroll-label]') ? getComputedStyle(document.querySelector('.scroll-index a[aria-current] [data-scroll-label]')).color : null,
+      dockLabelColor:document.querySelector('.scroll-section-name [data-scroll-label]') ? getComputedStyle(document.querySelector('.scroll-section-name [data-scroll-label]')).color : null,
+      desktopBodySize:parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--type-body')),
       heroSecondary:document.querySelectorAll('.desktop-icons .desktop-icon small').length,
       heroPrimary:document.querySelectorAll('.desktop-icons .desktop-icon > [data-i18n]').length,
       workHeadingOverlap:[...document.querySelectorAll('.projects-index-head')].some(header=>{
@@ -74,7 +94,20 @@ try {
      assert(result.glyphCount>0,`${route}: red Doto glyphs missing`);
      assert(result.glyphColors.every(color=>color==='rgb(255, 45, 58)'),`${route}: Doto glyph must always be red`);
      assert(result.heroHasSignature,`${route}: hero signature dot missing`);
-     assert(result.heroActionGlyph?.includes('<>'),`${route}: angle bracket CTA missing`);
+     assert(result.heroActionPrefix?.includes('[') && result.heroActionGlyph?.includes(']'),`${route}: square-bracket CTA missing`);
+     assert(!result.heroActionGlyph?.includes('<>'),`${route}: obsolete angle CTA still present`);
+     assert(result.bootBrackets[0]?.includes('[') && result.bootBrackets[1]?.includes(']'),`${route}: loading label not framed`);
+     assert(result.projectMeta.length===5 && result.projectMeta.every(x=>x.glyphs.join('')==='•' && !x.text.includes('[')),`${route}: project index and date tokens not simplified`);
+     assert(result.resumePeriods.length===8 && result.resumePeriods.every(x=>x.join('')==='•'),`${route}: CV years are missing red bullet`);
+     assert(result.resumeLocations.length===6 && result.resumeLocations.every(x=>x.join('')==='[]'),`${route}: CV locations need red brackets`);
+     assert(!result.contactHeading?.endsWith('.'),`${route}: contact title contains redundant punctuation`);
+     assert.equal(result.contactDotColor,'rgb(255, 45, 58)',`${route}: contact signature point is not red`);
+     assert.equal(result.dockLabelColor,'rgb(255, 45, 58)',`${route}: docked navigation label is not red`);
+     if(width<=720 && route==='work/') {
+       assert.equal(result.navigationLabel,'Works',`${route}: mobile active work label must be Works`);
+       assert.equal(result.navigationColor,'rgb(255, 45, 58)',`${route}: active mobile label must be red`);
+     }
+     if(width>=1025) assert.equal(result.desktopBodySize,16,`${route}: desktop reading size should be 16px`);
    }
    assert(result.inherited,`${route}: unclassified span must inherit its role`);
    if(result.mode==='doto-mono') assert(result.scale.every(x=>x.family.includes('Doto')),`${route}: semantic headings must use Doto`);
@@ -83,7 +116,7 @@ try {
    assert.deepEqual(result.labels,[],`${width} ${route}: metadata too small`);
    assert(['doto-mono','pixel-editorial','digital','balanced','original'].includes(result.mode),`${route}: unknown typography mode`);
    const editorial=result.mode==='pixel-editorial';
-   const expectedReading=result.mode==='doto-mono'?'Geist Mono':editorial?'Geist':result.mode==='digital'?'Geist Pixel':result.mode==='balanced'?'Inter':'Doto';
+   const expectedReading=result.mode==='doto-mono'?'JetBrains Mono':editorial?'Geist':result.mode==='digital'?'Geist Pixel':result.mode==='balanced'?'Inter':'Doto';
    const expectedDisplay=editorial?'Geist Pixel':(['digital','doto-mono'].includes(result.mode))?'Doto':'Redaction 50';
    const expectedCase=editorial?'Geist Pixel':result.mode==='balanced'?'Redaction 50':'Doto';
    assert(result.families.every(f=>f.includes(expectedReading)),`${route}: reading voice should be ${expectedReading}`);
@@ -101,10 +134,10 @@ try {
      assert(result.readingAxes.every(a=>a.includes('ELSH')&&a.includes('1')),`${route}: Geist Pixel Square ELSH=1 missing`);
    } else if(result.mode==='doto-mono') {
      assert(result.display.every(x=>x.weight==='700'),`${route}: Doto display must be bold for visual impact`);
-     assert(result.readingAxes.every(x=>x==='normal'),`${route}: Geist Mono body retained pixel font axes`);
+     assert(result.readingAxes.every(x=>x==='normal'),`${route}: JetBrains Mono body retained pixel font axes`);
      assert(result.informativeSubheads.every(f=>f.includes('Doto')),`${route}: headings should use Doto`);
      assert(result.identityRoles.every(f=>f.includes('Doto')),`${route}: role/company/client identity must use Doto`);
-     assert(result.actualFonts.some(f=>f==='Geist Mono'),`${route}: Geist Mono webfont not loaded`);
+     assert(result.actualFonts.some(f=>f==='JetBrains Mono'),`${route}: JetBrains Mono webfont not loaded`);
    }
    assert(result.interface.every(f=>f.includes('Doto')),`${route}: interface voice changed`);
    if(route==='' && result.mode==='doto-mono') {

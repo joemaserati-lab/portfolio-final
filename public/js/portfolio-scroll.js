@@ -10,6 +10,7 @@
   const launchers = [...heroIcons.querySelectorAll('.desktop-icon')];
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const compact = matchMedia('(max-width: 1024px)');
+  const phoneLabels = matchMedia('(max-width: 720px)');
   const kinds = ['home', 'work', 'about', 'resume', 'contact'];
   const links = [...document.querySelectorAll('.scroll-index a')];
   const menuButtons = new Map();
@@ -128,14 +129,17 @@
     schedule();
   }
   function active(kind, displayName) {
-    if (kind === current && captionLabel.dataset.scrollLabel === displayName) return;
+    const visibleName = kind === 'work' && phoneLabels.matches ? 'Works' : displayName;
+    if (kind === current && captionLabel.dataset.scrollLabel === visibleName) return;
     current = kind;
     cancelAnimationFrame(scramble);
     links.forEach(link => {
       const selected = link.dataset.scrollSection === kind;
       if (selected) link.setAttribute('aria-current', 'location'); else link.removeAttribute('aria-current');
       const label = link.querySelector('[data-scroll-label]');
-      label.textContent = label.dataset.scrollLabel;
+      const visibleLabel = selected && kind === 'work' && phoneLabels.matches ? 'Works' : label.dataset.scrollLabel;
+      label.dataset.activeLabel = visibleLabel;
+      label.textContent = visibleLabel;
       link.classList.remove('is-changing');
       if (selected && !reduced.matches) {
         void link.offsetWidth;
@@ -144,8 +148,8 @@
     });
     const displayKind = kind;
     caption.dataset.section = displayKind;
-    captionLabel.dataset.scrollLabel = displayName;
-    captionLabel.textContent = displayName;
+    captionLabel.dataset.scrollLabel = visibleName;
+    captionLabel.textContent = visibleName;
     caption.querySelector('.scroll-sr').textContent = displayName;
     menuButtons.forEach((button, name) => {
       if (name === displayKind) button.setAttribute('aria-current', 'location'); else button.removeAttribute('aria-current');
@@ -156,7 +160,7 @@
     function tick(now) {
       const p = clamp((now-start)/240);
       labels.forEach(label => {
-        const text = label.dataset.scrollLabel;
+        const text = label.dataset.activeLabel || label.dataset.scrollLabel;
         label.textContent = [...text].map((c,i) => c === ' ' || i < p*text.length ? c : '·/—'[Math.floor(now/45+i)%3]).join('');
       });
       if (p < 1) scramble = requestAnimationFrame(tick);

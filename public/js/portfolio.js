@@ -50,6 +50,7 @@
   }
   const esc = s => String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
   const paragraphs = value => [].concat(value || []).map(text => `<p>${esc(text)}</p>`).join('');
+  const projectYear = project => project.year === 'ONGOING' ? t('portfolio.ongoing') : project.year;
   const projectById = id => projects.find(p => p.id === String(id).padStart(2,'0'));
   const projectBySlug = slug => projects.find(p => p.slug === slug);
   const backGlyph = '<span class="doto-glyph" aria-hidden="true" style="display:inline-block;line-height:1;transform:translate(1px,-1px)">&lt;</span>';
@@ -216,14 +217,14 @@
           <h3 class="resume-section-title">${esc(t('resume.experience'))}</h3>
           <div class="resume-list">${resume.experience.map(item=>`
             <article class="resume-row">
-              <div class="resume-period">${esc(item.period)}</div>
-              <div><h4 class="resume-role">${esc(item.role)}</h4><strong>${esc(item.company)}</strong><small>${esc(item.location)}</small>${paragraphs(item.description)}</div>
+              <div class="resume-period"><span class="doto-glyph" aria-hidden="true">•</span> ${esc(item.period)}</div>
+              <div><h4 class="resume-role">${esc(item.role)}</h4><strong>${esc(item.company)}</strong><small><span class="doto-glyph" aria-hidden="true">[</span> ${esc(item.location)} <span class="doto-glyph" aria-hidden="true">]</span></small>${paragraphs(item.description)}</div>
             </article>`).join('')}</div>
         </section>
         <section class="resume-section">
           <h3 class="resume-section-title">${esc(t('resume.education'))}</h3>
           <div class="resume-list">${resume.education.map(item=>`
-            <article class="resume-row compact"><div class="resume-period">${esc(item.period)}</div><div><h4 class="resume-role">${esc(item.course)}</h4><strong>${esc(item.school)}</strong>${paragraphs(item.description)}</div></article>`).join('')}</div>
+            <article class="resume-row compact"><div class="resume-period"><span class="doto-glyph" aria-hidden="true">•</span> ${esc(item.period)}</div><div><h4 class="resume-role">${esc(item.course)}</h4><strong>${esc(item.school)}</strong>${paragraphs(item.description)}</div></article>`).join('')}</div>
         </section>
         <div class="resume-columns">
           <section><h3 class="resume-section-title">${esc(t('resume.capabilities'))}</h3>${tagList(resume.capabilities, 'skill-list')}</section>
@@ -251,7 +252,7 @@
                 <span class="project-cover-open">${esc(t('portfolio.viewProject'))} ↗</span>
               </span>
               <span class="project-tile-copy">
-                <span class="project-tile-main"><small><span class="doto-glyph" aria-hidden="true">[</span> ${esc(p.id)} <span class="doto-glyph" aria-hidden="true">]</span> <span class="doto-glyph" aria-hidden="true">•</span> ${esc(p.year)}</small><strong>${esc(p.displayTitle || p.title).replace(/\n/g,'<br>')}</strong></span>
+                <span class="project-tile-main"><small><span class="doto-glyph" aria-hidden="true">•</span> ${esc(projectYear(p))}</small><strong>${esc(p.displayTitle || p.title).replace(/\n/g,'<br>')}</strong></span>
                 <span class="project-tile-details"><small>${esc(p.client)}</small><small>${esc(p.type.toUpperCase())}</small></span>
               </span>
             </a>`).join('')}
@@ -309,7 +310,7 @@
       <article class="case-study-v2">
         <div class="case-topline">
           <button class="case-back-v2" data-back-projects>${backGlyph} ${esc(t('portfolio.selectedWorkText'))}</button>
-          <span><span class="doto-glyph" aria-hidden="true">[</span> ${String(index+1).padStart(2,'0')} <span class="doto-glyph" aria-hidden="true">]</span> <span class="doto-glyph" aria-hidden="true">•</span> ${String(projects.length).padStart(2,'0')}</span>
+          <span><span class="doto-glyph" aria-hidden="true">•</span> ${esc(projectYear(p))}</span>
         </div>
         <header class="case-lead-v2">
           <div class="case-title-v2"><h2 tabindex="-1">${esc(p.displayTitle || p.title).replace(/\n/g,'<br>')}</h2></div>
@@ -320,7 +321,7 @@
         <dl class="case-facts-v2">
           <div><dt>${esc(t('case.client'))}</dt><dd>${esc(p.client)}</dd></div>
           <div><dt>${esc(t('case.deliverables'))}</dt><dd>${esc(p.deliverables)}</dd></div>
-          <div><dt>${esc(t('case.year'))}</dt><dd>${esc(p.year)}</dd></div>
+          <div><dt>${esc(t('case.year'))}</dt><dd><span class="doto-glyph" aria-hidden="true">•</span> ${esc(projectYear(p))}</dd></div>
         </dl>
         ${liveSiteLink(p)}
         <section class="case-story-v2">

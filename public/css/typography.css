@@ -103,13 +103,13 @@
   --font-content-subhead-weight: 400;
   --font-resume-heading-weight: 400;
 }
-/* Doto carries the visual identity; Geist Mono supports precise, readable copy.
+/* Doto carries the visual identity; JetBrains Mono supports precise, readable copy.
    Higher Doto weight is deliberately limited to headings, not small UI text. */
 :root[data-typography="doto-mono"] {
   --font-display: var(--font-ui);
   --font-display-weight: 700;
   --font-display-tracking: -.02em;
-  --font-reading: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-reading: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --font-content-subhead: var(--font-ui);
   --font-case-title: var(--font-ui);
   --font-case-title-weight: 700;
@@ -117,6 +117,14 @@
   --measure-body: 58ch;
   --type-hero-display: var(--type-h1);
   --type-hero-copy: clamp(16px, 1.12vw, 17px);
+}
+/* Slightly quieter desktop reading while preserving 16px minimum accessibility. */
+@media (min-width: 1025px) {
+  :root[data-typography="doto-mono"] {
+    --type-body: 16px;
+    --type-body-lg: 17px;
+    --type-hero-copy: 16px;
+  }
 }
 body, button, input, textarea, select {
   font-family: var(--font-reading);
@@ -371,7 +379,7 @@ button {
   font-variation-settings: normal;
 }
 
-/* In the Doto/Geist Mono identity, hierarchy comes from air and scale rather
+/* In the Doto/JetBrains Mono identity, hierarchy comes from air and scale rather
    than a louder dot texture. These two tokens are independent of UI and cases. */
 :root[data-typography="doto-mono"] .hero-intro h1 {
   font-size: var(--type-hero-display);
@@ -383,7 +391,7 @@ button {
 
 /* Selected identity roles: Doto makes professional roles, employers, project
    responsibilities and client names feel like part of the same digital system.
-   Long-form descriptions continue to use Geist Mono. */
+   Long-form descriptions continue to use JetBrains Mono. */
 :root[data-typography="doto-mono"] .resume-row :is(h3, h4),
 :root[data-typography="doto-mono"] .resume-row strong,
 :root[data-typography="doto-mono"] .meta-card b,
@@ -486,7 +494,6 @@ button {
   margin-left: -.08em;
   vertical-align: baseline;
 }
-.primary-action::after,
 .case-live-link::after {
   content: "<>";
   display: inline-block;
@@ -521,3 +528,21 @@ button {
   line-height: 1;
   margin-right: .55em;
 }
+
+/* The bilingual hero CTA and boot label use red square brackets. */
+.primary-action::before,
+.primary-action::after,
+.boot-gate h2::before,
+.boot-gate h2::after {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 1.1em;
+  line-height: 1;
+  letter-spacing: 0;
+  vertical-align: baseline;
+}
+.primary-action::before,
+.boot-gate h2::before { content: "["; margin-right: .55em; }
+.primary-action::after,
+.boot-gate h2::after { content: "]"; margin-left: .55em; }
