@@ -69,10 +69,10 @@ const ogImageUrl = new URL(ogImage, rootUrl);
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image" content={ogImageUrl} />
   <title>{title}</title>
-  <link rel="icon" href="assets/favicon/favicon-er.svg" type="image/svg+xml" />
-  <link rel="icon" href="assets/favicon/favicon-32.png" sizes="32x32" type="image/png" />
-  <link rel="icon" href="assets/favicon/favicon-64.png" sizes="64x64" type="image/png" />
-  <link rel="shortcut icon" href="assets/favicon/favicon-32.png" type="image/png" />
+  <link rel="icon" href={asset('assets/favicon/favicon-er.svg')} type="image/svg+xml" />
+  <link rel="icon" href={asset('assets/favicon/favicon-32.png')} sizes="32x32" type="image/png" />
+  <link rel="icon" href={asset('assets/favicon/favicon-64.png')} sizes="64x64" type="image/png" />
+  <link rel="shortcut icon" href={asset('assets/favicon/favicon-32.png')} type="image/png" />
   <script is:inline define:vars={{assetVersion}}>
     document.documentElement.classList.remove('no-js');
     window.PORTFOLIO_ASSET_VERSION = assetVersion;
