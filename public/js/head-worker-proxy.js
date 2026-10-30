@@ -4,6 +4,7 @@
 // the original main-thread renderer rather than leaving the portrait blank.
 export function mountHeadScanEffect({container,canvas,modelUrl,reducedMotion=false,onError}={}) {
   let worker, fallback, initialized=false, transferred=false, settled=false;
+  let fallbackPromise, probeTimer, initializeTimer;
   let disposed=false, stats, resolveReady, rejectReady;
   const rotation={x:-.015,y:0};
   const pending={paused:true,reducedMotion,scroll:null,scale:1,pointer:null};
@@ -37,8 +38,15 @@ export function mountHeadScanEffect({container,canvas,modelUrl,reducedMotion=fal
     if(fallback)return; // Original ResizeObserver lives inside the fallback.
     send('resize',{width,height});
   }
-  async function fallbackToMain(reason){
-    if(fallback||disposed)return;
+  // Worker initialization/errors may race (probe timeout, context loss and
+  // message error). Single-flight fallback prevents two competing renderers
+  // from attaching to the same canvas.
+  function fallbackToMain(reason){
+    if(disposed)return Promise.resolve();
+    if(fallbackPromise)return fallbackPromise;
+    fallbackPromise=(async()=>{
+    clearTimeout(probeTimer);
+    clearTimeout(initializeTimer);
     worker?.terminate();
     worker=null;initialized=false;
     try {
@@ -63,6 +71,8 @@ export function mountHeadScanEffect({container,canvas,modelUrl,reducedMotion=fal
     } catch(error) {
       if(!disposed) {onError?.(error);rejectReady(error);}
     }
+    })();
+    return fallbackPromise;
   }
   const api={
     ready,
@@ -96,6 +106,8 @@ export function mountHeadScanEffect({container,canvas,modelUrl,reducedMotion=fal
     },
     destroy(){
       disposed=true;
+      clearTimeout(probeTimer);
+      clearTimeout(initializeTimer);
       resizeObserver?.disconnect();
       worker?.terminate();
       fallback?.destroy();
@@ -106,16 +118,16 @@ export function mountHeadScanEffect({container,canvas,modelUrl,reducedMotion=fal
     const url=new URL('./head-render-worker.bundle.js',import.meta.url);
     url.searchParams.set('v',window.PORTFOLIO_ASSET_VERSION);
     worker=new Worker(url,{type:'module'});
-    const timer=setTimeout(()=>fallbackToMain(new Error('Worker probe timed out')),3500);
+    probeTimer=setTimeout(()=>fallbackToMain(new Error('Worker probe timed out')),3500);
     worker.onerror=error=>{
-      clearTimeout(timer);
+      clearTimeout(probeTimer);
       if(!fallback) void fallbackToMain(error);
     };
     worker.onmessage=event=>{
       const data=event.data||{};
       if(disposed)return;
       if(data.type==='probe'){
-        clearTimeout(timer);
+        clearTimeout(probeTimer);
         if(!data.supported){void fallbackToMain(new Error('Worker WebGL2 unavailable'));return}
         try {
           const transferredCanvas=canvas.transferControlToOffscreen();
@@ -124,6 +136,8 @@ export function mountHeadScanEffect({container,canvas,modelUrl,reducedMotion=fal
           const height=Math.max(1,Math.round(container.clientHeight));
           lastSize=width+'x'+height;
           initialized=true;
+          initializeTimer=setTimeout(()=>fallbackToMain(
+            new Error('Worker model/shader initialization exceeded 15 seconds')),15000);
           worker.postMessage({
             type:'init',canvas:transferredCanvas,modelUrl,width,height,
             deviceDpr:devicePixelRatio||1,
@@ -138,6 +152,7 @@ export function mountHeadScanEffect({container,canvas,modelUrl,reducedMotion=fal
           resizeObserver.observe(container);
         } catch(error){void fallbackToMain(error)}
       } else if(data.type==='ready'){
+        clearTimeout(initializeTimer);
         stats=data.stats;
         completeReady();
       } else if(data.type==='stats'){

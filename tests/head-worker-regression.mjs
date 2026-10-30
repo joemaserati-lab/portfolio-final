@@ -33,11 +33,21 @@ try{
   assert(metrics.stats.drawnFrames>=before.drawnFrames,'Head animation stalled');
   const rect=await page.locator('#screen').boundingBox();
   await page.mouse.move(rect.x+rect.width*.16,rect.y+rect.height*.5);
-  await page.waitForTimeout(700);
+  await page.waitForFunction(()=>{
+    const s=window.PortfolioMotion.getRenderStats();
+    return s.pointerTarget?.[0]<-.5 && window.PortfolioMotion.getPose().yaw<-.06;
+  },null,{timeout:10000});
   const left=await page.evaluate(()=>window.PortfolioMotion.getPose().yaw);
   const leftStats=await page.evaluate(()=>window.PortfolioMotion.getRenderStats());
   await page.mouse.move(rect.x+rect.width*.84,rect.y+rect.height*.5);
-  await page.waitForTimeout(700);
+  // Slow software WebGL may deliver the pointer immediately, but its next
+  // animation frame arrives later. Assert actual visible motion, not a fixed
+  // wall-clock sleep or the receipt of a pointer message alone.
+  await page.waitForFunction(previous=>{
+    const s=window.PortfolioMotion.getRenderStats();
+    return s.pointerTarget?.[0]>.5 &&
+      window.PortfolioMotion.getPose().yaw>previous+.04;
+  },left,{timeout:10000});
   const right=await page.evaluate(()=>window.PortfolioMotion.getPose().yaw);
   console.log('HEAD POINTER',before.execution,JSON.stringify({left,right,delta:right-left,
     leftStats,stats:await page.evaluate(()=>window.PortfolioMotion.getRenderStats())}));
