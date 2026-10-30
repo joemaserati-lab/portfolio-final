@@ -799,7 +799,7 @@
     opacity:var(--scroll-dock,1);
   }
   .scroll-portfolio .scroll-portrait-docked { z-index:17; }
-  /* Reuse original full-size hero and mini icons from the existing rules. */
+  /* Scroll minimenu keeps its existing dimensions; only hero SVGs change. */
   .project-case-open .scroll-top-rail { opacity:0!important;visibility:hidden!important; }
 }
 @media (max-width:1024px) {
@@ -807,4 +807,25 @@
 }
 @media (prefers-reduced-motion:reduce) {
   .scroll-portfolio .scroll-top-rail { transition:none; }
+}
+
+/* V34 / HERO LAUNCHERS ONLY: glyphs shrink, click targets and labels remain.
+   Short mobile landscape already uses smaller icons for safe clearance. */
+@media (min-width:1025px) {
+  .scroll-portfolio .desktop-icons .desktop-icon .icon-glyph {
+    width:50px;
+    height:40px;
+  }
+}
+@media (min-width:721px) and (max-width:1024px) and (min-height:431px) {
+  .scroll-portfolio .desktop-icons .desktop-icon .icon-glyph {
+    width:38px;
+    height:32px;
+  }
+}
+@media (max-width:720px) and (min-height:431px) {
+  .scroll-portfolio .desktop-icons .desktop-icon .icon-glyph {
+    width:34px;
+    height:30px;
+  }
 }
