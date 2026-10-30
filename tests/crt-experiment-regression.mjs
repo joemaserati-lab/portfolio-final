@@ -63,8 +63,14 @@ try {
   await page.waitForFunction(()=>document.querySelector('#projects-view').hidden);
   if(width<=1024) await page.waitForFunction(()=>document.querySelector('#crt-head-feature').classList.contains('is-ready'));
   else {
-    await page.waitForFunction(()=>document.querySelector('#crt-head-feature').parentElement.id==='screen');
-    assert(await page.locator('#crt-head-feature').isVisible(),'Desktop dock must resume after closing project');
+    // A direct project route initially defers the renderer. The portrait
+    // can be docked in DOM before its first actual WebGL frame is ready.
+    await page.waitForFunction(()=>{
+      const head=document.querySelector('#crt-head-feature');
+      return head.parentElement.id==='screen' && head.classList.contains('is-ready');
+    },null,{timeout:30000});
+    assert(await page.locator('#crt-head-feature').isVisible(),
+      'Desktop dock did not become visible after the first 3D frame');
   }
   console.log('CRT PASS',width,height,'geometry, mobile parity, no SVG filter, CTA, case close/head state');
   await page.close();
