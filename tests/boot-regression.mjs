@@ -18,12 +18,18 @@ try {
           if(record.type==='childList'&&[...record.removedNodes].some(n=>n.id==='boot-loader'))
             window.__degaussEvents.push('loader-removed');
           if(record.type==='attributes'&&record.target.id==='screen'){
+            const previous=(record.oldValue||'').split(/\s+/).includes('crt-boot-degauss');
             const active=record.target.classList.contains('crt-boot-degauss');
+            if(previous===active)continue;
             window.__degaussEvents.push(active?'degauss-start':'degauss-end');
+            if(active){
+              window.__degaussAnimation=getComputedStyle(document.querySelector('.desktop')).animationName;
+              window.__degaussSignal=getComputedStyle(record.target,'::after').animationName;
+            }
           }
         }
       });
-      observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+      observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeOldValue:true,attributeFilter:['class']});
     });
     addEventListener('portfolio:booted',()=>{
      const record={name:'booted',booting:document.body.classList.contains('booting'),
@@ -79,6 +85,13 @@ try {
    if(reducedMotion==='no-preference'){
      assert(ignitionIndex>loaderIndex,
        'CRT Degauss must begin only AFTER the completed loader is removed');
+     const played=await page.evaluate(()=>({
+       content:window.__degaussAnimation,signal:window.__degaussSignal
+     }));
+     assert(played.content?.includes(width<=720?'crtBootDegaussComposite':'crtDegaussContent'),
+       'CRT ignition class did not activate the visible content animation');
+     assert(played.signal?.includes('crtDegaussLine'),
+       'CRT ignition did not display the original signal line');
      await page.waitForFunction(()=>!document.querySelector('#screen.crt-boot-degauss'),null,{timeout:5000});
      const finalEvents=await page.evaluate(()=>window.__degaussEvents);
      assert.equal(finalEvents.filter(x=>x==='degauss-start').length,1,
