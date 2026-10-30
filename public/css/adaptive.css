@@ -233,27 +233,8 @@ body.booting .crt-background-video{
   }
 }
 
-/* V31.15 / MOBILE ENTRY COMPOSITING ---------------------------------------
-   Mobile keeps the approved reveal timing language without blur filters,
-   which are disproportionately expensive during the loader-to-site handoff. */
+/* Mobile CRT: keep noise inexpensive, loader composited and WebGL warm. */
 @media (max-width:720px){
-  .shell{
-    transition:none;
-  }
-}
-@keyframes siteElementInMobile{
-  from{opacity:0;transform:translateY(6px)}
-  to{opacity:1;transform:translateY(0)}
-}
-
-/* V31.17 / MOBILE CLICK-TIME PREWARM --------------------------------------
-   Rasterize the CRT workspace only after explicit entry intent, while the
-   terminal boot remains opaque. The actual reveal is then a compositor-only
-   loader fade rather than a full interface paint + stagger in one frame. */
-@media (max-width:720px){
-
-  /* The loader fade is the mobile entrance animation. Avoid starting a group
-     of descendant animations at the same moment. */
 
   /* Animated SVG turbulence is expensive on touch GPUs. Preserve the noise
      texture but keep it static; the deferred CRT runtime supplies motion. */
@@ -273,7 +254,6 @@ body.booting .crt-background-video{
 /* Allow WebGL to compile and paint the head behind the opaque loader.
    Opacity zero on ancestors can defer GPU work on mobile. */
 body.booting .shell,
-
 html.returning-visit body.booting .shell{
   visibility: visible;
   opacity: 1;
