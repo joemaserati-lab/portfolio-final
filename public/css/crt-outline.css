@@ -684,9 +684,8 @@ body.content-panel-open .privacy-widget{
   }
 }
 
-/* Minimal loading screen: label and honest progress only. The terminal scan,
-   cinematic boot overlays and entrance choreography are not used. */
-.boot-loader::after { content: none; animation: none; }
+/* Minimal loading screen: label and progress only. The CRT Degauss starts
+   after the loader disappears, not inside the loading overlay. */
 .boot-loader { transition: opacity .26s ease, visibility .26s ease; }
 .boot-gate { gap: clamp(20px, 3vh, 30px); transition: none; }
 .boot-gate h2 { width: auto; min-height: 0; line-height: 1.1; }
