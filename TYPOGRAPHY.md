@@ -8,6 +8,12 @@ La configurazione è in `src/data/typography.mjs`; i ruoli tipografici e le dime
 - **Geist Mono 400**: paragrafi, introduzioni, informazioni professionali, testi descrittivi e testi dei case study, CV e privacy. Nessun asse pixel e nessuna modifica al testo.
 - **Design preservato**: identiche palette, dimensioni minime, navigazione, funzionalità CRT/Three.js e struttura responsive. L'ampiezza massima dei testi lunghi è 58ch.
 
+## Segni Doto rossi — sistema approvato
+
+Il sistema usa esclusivamente quattro glifi tipografici in Doto: `.` per la firma di titoli e nome, `•` per separatori e intestazioni, `[ ]` per indici, `<>` per richiamo ad azioni. **Questi glifi sono sempre rossi `#FF2D3A`, anche durante hover e focus**; il verde menta `#80FFCC` rimane riservato agli stati interattivi e alla testa 3D. La punteggiatura ordinaria di testi, email e URL non viene recolorata. Non sono aggiunte librerie di icone né animazioni.
+
+`public/css/monochrome-theme.css` contiene esclusivamente il token e le regole colore dei segni; `public/css/typography.css` ne controlla la famiglia Doto, il peso e l'ingombro; `src/layouts/PortfolioShell.astro` ospita il punto della firma nella hero; `public/js/portfolio.js` costruisce gli indici e i metadati delle schede. I titoli dinamici e le CTA usano pseudo-elementi, così la traduzione IT/EN e i testi accessibili restano invariati. `tests/typography-regression.mjs` verifica il rosso dei glifi e la CTA.
+
 ## Opzione A precedente — `pixel-editorial`
 
 - **Geist Pixel Square**: H1 della home, titoli di sezione, titoli dei progetti nella directory e nei case study, sottotitoli editoriali e titoli del CV. Google Fonts contiene cinque texture nella famiglia `Geist Pixel`: Square si seleziona impostando `font-variation-settings: "ELSH" 1`. L'asse è assegnato ai ruoli di titolo e non al body.

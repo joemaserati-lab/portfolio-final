@@ -11,6 +11,7 @@
   --gray-light: #b9b9b9;
   --white: #f5f5f5;
   --mint: #80FFCC;
+  --red: #FF2D3A; /* Doto glyph identity, never an interactive-state alias. */
 
   /* Existing component names are aliases, not separate palettes. */
   --bg: var(--black);
@@ -146,3 +147,17 @@ body { color: var(--white); }
 .project-cover-v2::after {
   background: linear-gradient(to bottom,transparent,rgba(255,255,255,.025),rgba(255,255,255,.045),transparent);
 }
+
+/* Doto glyph identity. Chromatic tokens and all UI color decisions live here.
+   Decorative punctuation is always red, including hover and focus. */
+.doto-glyph,
+.case-story-copy .doto-glyph { color: var(--red); }
+.primary-action::after,
+.case-live-link::after,
+.window-body > h2::after,
+.contact-copy h2::after,
+.resume-header h2::after,
+.projects-index-head h2::after,
+.resume-section-title::before,
+.case-story-label::before,
+.static-reader h1::after { color: var(--red); }

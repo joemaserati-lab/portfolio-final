@@ -1,18 +1,20 @@
 # Portfolio — visual color system
 
-The portfolio is deliberately monochromatic. Black, white, dark gray and light gray form the entire interface; mint is a deliberately limited signal. The head remains the main colored object.
+The portfolio remains predominantly monochromatic. Black, white, dark gray and light gray form the entire interface. Mint is a deliberately limited interactive signal; red is a separate, equally restrained typographic identity color. The head remains the main colored object.
 
 ## Canonical swatches
 - Black `#050505`: frame and background.
 - Dark gray `#252525`: titlebar, chrome and hover surfaces.
 - Light gray `#B9B9B9`: secondary copy and interface labels.
 - White `#F5F5F5`: primary typography, icons and main controls.
-- Mint `#80FFCC`: a **rare accent** on the portrait, blinking hero marker, selected progress, primary CTA hover, keyboard focus and text selection.
+- Mint `#80FFCC`: a **rare functional signal** on the portrait, progress, primary CTA hover, keyboard focus and text selection.
+- Red `#FF2D3A`: **Doto signature glyphs only** — `.`, `•`, `[ ]`, `<>` — used on headings, section labels, project indexes, back links and CTA punctuation.
 
 Intermediate black/gray values may exist in the CRT shader, alpha transparency and anti-aliasing; they may not introduce any green tint. Original project imagery retains its source colors.
 
 ## Usage rules
 - Mint must **not** be used on backgrounds, panels, window chrome, default icon borders or secondary hover states.
+- Red must never become a general-purpose link, hover, focus, background or status color. Decorative Doto glyphs remain red in all interaction states; ordinary punctuation in prose, email addresses and URLs is not recolored.
 - Window surfaces stay charcoal with dark-gray titlebars. Text hierarchy: white for primary content, light gray for secondary copy.
 - The 3D portrait is white/gray with only a few mint contours. Avoid broad luminous color effects.
 - Preserve CRT framing, animation, clipping and mobile safe zones. The live `doto-mono` mode uses bold Doto for display, headings and project titles, Doto medium for UI/navigation/metadata, and Geist Mono for extended reading and captions; all headings use Doto. The earlier `pixel-editorial` (Geist Pixel Square/Geist Sans/Doto), `digital` (Doto/Geist Pixel), `balanced` (Redaction/Doto/Inter), and `original` (Redaction/Doto) modes remain reversible through the single type-mode switch. Do not add decorative pixel effects on top of the fonts.
@@ -21,6 +23,9 @@ Intermediate black/gray values may exist in the CRT shader, alpha transparency a
 - The separate 404 page has an inline palette by design. Its bouncing portrait uses mint in only one of six phases.
 
 Astro serves `public/` and builds from `src/layouts/PortfolioShell.astro`. Root-level legacy snapshots are removed; `public/` and `src/` are authoritative. Production bundles the eleven CSS source files in the documented order; development loads those same sources separately. The former monolithic `style.css` is split in place without changing rules or cascade order.
+
+## Red Doto glyph language
+The visual signature is a restricted four-part vocabulary: the point `.` closes names and section headings; bullet `•` separates short metadata and labels; square brackets `[ ]` frame compact indexes; angle brackets `<>` accent explicit actions. The canonical color token is `--red` in `public/css/monochrome-theme.css`. `public/css/typography.css` owns glyph typography and pseudo-element layout; dynamic case-study and directory marks live in `public/js/portfolio.js`. Keep title fitting, physical CRT space, mobile layouts and original project covers unchanged. See `TYPOGRAPHY.md`.
 
 ## Project covers
 Project directory covers are grayscale at rest. Desktop hover or keyboard focus reveals the original artwork; on touch devices, a **single tap** reveals the original colors and opens the project after a 280 ms preview. On mobile, only the most visible project card plays its video, with hysteresis between adjacent cards. The previous card immediately returns to its logo cover; the cover stays visible until a decoded video frame is available. Cards without a video retain the 650 ms CRT color scan.
