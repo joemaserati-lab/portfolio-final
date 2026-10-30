@@ -2,6 +2,7 @@ import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import assert from 'node:assert/strict';
 import { projects } from '../src/data/routes.mjs';
+import packageInfo from '../package.json' with { type: 'json' };
 
 const root = resolve(import.meta.dirname, '..');
 const dir = path => resolve(root, path);
@@ -48,8 +49,10 @@ assert.ok(!bundle.includes('assets/images/projects/'), 'Redundant CSS project ba
 
 for (const route of routes) {
   const html=readFileSync(dir(`dist/${route}index.html`),'utf8');
-  assert.ok(/css\/portfolio\.bundle\.css\?v=/.test(html), `Unversioned stylesheet: ${route}`);
-  assert.ok(/js\/boot\.js\?v=/.test(html), `Unversioned boot runtime: ${route}`);
+  assert.ok(html.includes(`css/portfolio.bundle.css?v=${packageInfo.version}`),
+    `CSS cache version does not match package.json: ${route}`);
+  assert.ok(html.includes(`js/boot.js?v=${packageInfo.version}`),
+    `Boot cache version does not match package.json: ${route}`);
   assert.ok(html.includes('id="scroll-viewport"'), `Scroll layout missing: ${route}`);
   assert.ok(!html.includes('noindex'), `Official route is excluded from indexing: ${route}`);
 }

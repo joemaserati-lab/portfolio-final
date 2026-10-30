@@ -210,10 +210,10 @@
     document.body.classList.toggle('scroll-reading', pose > 0);
     viewport.style.setProperty('--scroll-dock', pose.toFixed(4));
     screen.style.setProperty('--scroll-dock', pose.toFixed(4));
-    // Dock the existing WebGL canvas (never duplicate the renderer). Its
-    // drawing buffer remains unchanged while scrolling; the same element is
-    // moved only at the hero/docked boundary.
+    // Reuse the single WebGL canvas. CSS transforms animate the transition;
+    // the GPU buffer changes resolution just once at the stable dock boundary.
     document.body.classList.toggle('scroll-head-docked', !compact.matches && y > 1);
+    let settledRenderScale = 1;
     if (pose > 0) {
       if (!docked) {
         screen.appendChild(head);
@@ -232,6 +232,8 @@
         : {left: (w - desktopWidth) / 2, top: topClearance,
            width: desktopWidth, height: desktopHeight};
       const targetScale = target.height / headRect.height;
+      // No per-frame framebuffer reallocations as the head slides into place.
+      if (pose >= .995) settledRenderScale = Math.min(1, targetScale);
       const scale = mix(1, targetScale, pose);
       // Mobile's square dock slot must center the aspect-ratio-preserving
       // head. Desktop already supplies the exact scaled width/height.
@@ -252,7 +254,7 @@
       docked = false;
     }
     const progress = clamp(y / Math.max(1, viewport.scrollHeight - h));
-    dispatchEvent(new CustomEvent('portfolio:scroll-pose', {detail:{heroPresence:compact.matches ? 1 - pose : 0, yaw:compact.matches ? (reduced.matches ? 0 : progress * Math.PI * 2) : null, renderScale:compact.matches && pose === 1 ? portraitSlot.clientHeight / headRect.height : 1}}));
+    dispatchEvent(new CustomEvent('portfolio:scroll-pose', {detail:{heroPresence:compact.matches ? 1 - pose : 0, yaw:compact.matches ? (reduced.matches ? 0 : progress * Math.PI * 2) : null, renderScale:settledRenderScale}}));
     const handoff = reduced.matches ? Number(pose > 0) : clamp(y/(h*HANDOFF_END));
     const menuVisible = !compact.matches && (handoff > 0 || overlay);
     miniMenu.style.visibility = menuVisible ? 'visible' : 'hidden';

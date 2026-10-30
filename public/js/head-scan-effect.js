@@ -25,12 +25,13 @@ const PERFORMANCE = Object.freeze({
   // This is what makes the same composition scale from laptop screens to 4K/5K displays.
   largeSurfaceThreshold: 3500000,
   quality: Object.freeze([
-    Object.freeze({ name: 'high',     maxPixels: 2200000, maxDpr: 1.25, fps: 60 }),
-    Object.freeze({ name: 'balanced', maxPixels: 1400000, maxDpr: 1.00, fps: 60 }),
-    Object.freeze({ name: 'low',      maxPixels: 850000,  maxDpr: 0.80, fps: 30 })
+    Object.freeze({ name: 'high',     maxPixels: 1500000, maxDpr: 1.25, fps: 60 }),
+    Object.freeze({ name: 'balanced', maxPixels: 1000000, maxDpr: 1.00, fps: 60 }),
+    Object.freeze({ name: 'low',      maxPixels: 600000,  maxDpr: 0.80, fps: 30 })
   ]),
-  touchMaxPixels: 2200000,
-  touchMaxDpr: 2,
+  // Bound the expensive fragment shader on high-density mobile screens.
+  touchMaxPixels: 1100000,
+  touchMaxDpr: 1.5,
   touchFps: 30,
   slowFrameFactor: 1.42,
   slowFrameFloor: 24,
@@ -259,7 +260,11 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
   };
   let qualityIndex = coarsePointer ? 1 : (estimateSurfacePixels() > PERFORMANCE.largeSurfaceThreshold ? 1 : 0);
   const quality = () => PERFORMANCE.quality[qualityIndex];
-  const targetFps = () => coarsePointer ? PERFORMANCE.touchFps : quality().fps;
+  // The smaller docked head needs fewer GPU frames, but the full desktop hero
+  // preserves its 60fps animation and the mouse-follow effect.
+  const targetFps = () => presentationScale < .65
+    ? Math.min(30, coarsePointer ? PERFORMANCE.touchFps : quality().fps)
+    : (coarsePointer ? PERFORMANCE.touchFps : quality().fps);
   const targetFrameMs = () => 1000 / targetFps();
 
   function syncPerformanceClass() {
@@ -545,8 +550,21 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
       if (!raf && !paused) refresh();
     },
     setPresentationScale(value) {
-      if (Math.abs(value - presentationScale) < .001) return;
-      presentationScale = value; resize();
+      // Scroll uses CSS transforms for intermediate frames. Only change the
+      // GPU framebuffer once the head reaches its final dock scale.
+      const next = THREE.MathUtils.clamp(Number.isFinite(value) ? value : 1, .1, 1);
+      if (Math.abs(next - presentationScale) < .001) return;
+      presentationScale = next;
+      resize();
+    },
+    getRenderStats() {
+      return {
+        width: canvas.width, height: canvas.height,
+        pixels: canvas.width * canvas.height,
+        fpsBudget: targetFps(), scale: presentationScale,
+        pixelRatio: renderer.getPixelRatio(),
+        quality: coarsePointer ? 'touch' : quality().name
+      };
     },
     setPointer(x, y) {
       if (scrollYaw !== null) return;

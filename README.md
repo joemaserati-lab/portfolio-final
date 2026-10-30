@@ -21,7 +21,7 @@ Run `npm run build && npm run check` before publishing; `npm run preview` serves
 - `public/js/boot.js`, `head3d.js`, `head-scan-effect.js`: loader and 3D lifecycle. There are no generated runtime adapters.
 - `public/css/portfolio-scroll.css`: scroll-specific layout and transitions. `scripts/build-css.mjs` includes it in the production CSS bundle.
 
-CSS and JavaScript URLs use the version in `package.json` to invalidate browser caches on release. Bump that version when shipping changed assets.
+CSS and JavaScript URLs use the version in `package.json` to invalidate browser caches on release. Release **2.0.19** stabilizes the no-JavaScript reader and adaptive 3D rendering. Bump both `package.json` and `package-lock.json` for subsequent releases.
 
 Edit source files only. `dist/`, `.astro/` and `public/css/portfolio.bundle.css` are generated and ignored.
 
@@ -42,6 +42,8 @@ Production URL: https://joemaserati-lab.github.io/portfolio-final/
 GA4 remains consent-first and inactive while its Measurement ID is `G-XXXXXXXXXX`. The consent panel does not open automatically while analytics is unconfigured.
 
 `tests/technical-regression.mjs` checks direct-route title alignment, project keyboard focus, metadata after navigation and the no-JavaScript/runtime-failure reading view.
+
+The 3D head retains its approved shader, colors and pointer tracking. At the stable dock boundary it uses a smaller GPU buffer and a 30fps render budget, while its hero state keeps the original interaction frame rate. Pixel/DPR budgets are capped for mobile; `window.PortfolioMotion.getRenderStats()` exposes dimensions and quality for diagnostics. GitHub Actions uses a software WebGL renderer, so Lighthouse results must be validated against physical devices.
 
 Direct project visits defer the 3D portrait and CRT until returning to a scroll section. Homepage content is revealed as soon as its runtime is ready; the portrait settles independently.
 
