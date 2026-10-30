@@ -30,6 +30,7 @@ try {
                 visibility:curtain.visibility,
                 background:curtain.backgroundColor,
                 isReady:document.body.classList.contains('site-ready'),
+                isBooting:document.body.classList.contains('booting'),
                 loaderPresent:document.body.contains(record.target),
                 // At the center of the visible CRT, the opaque loader still
                 // covers the page even though its resources are fully ready.
@@ -102,8 +103,8 @@ try {
        'CRT signal line was not animated on the loader');
      assert.deepEqual(played.snapshot,{
        opacity:'1',visibility:'visible',background:'rgb(5, 5, 5)',
-       isReady:true,loaderPresent:true,cover:true
-     },'The loader must fully conceal the prepared homepage during ignition');
+       isReady:false,isBooting:true,loaderPresent:true,cover:true
+     },'Homepage must stay inactive and concealed until the CRT ignition finishes');
      assert.equal(ignition.filter(x=>x==='degauss-start').length,1,
        'Entry Degauss must play exactly once');
    } else {
