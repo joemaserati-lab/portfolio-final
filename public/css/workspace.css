@@ -222,14 +222,15 @@
   visibility:visible!important;
   pointer-events:auto!important;
   transition:none!important;
-  background:#050505!important;
 }
 .boot-loader.crt-boot-degauss .boot-gate{
   opacity:0!important;
   visibility:hidden!important;
 }
-.boot-loader.crt-boot-degauss::after{
-  content:"";
+/* Keep the tiny signal surface allocated behind the loader title. During
+   ignition only transform and opacity change: no new full-screen background
+   or pseudo-element needs to be painted on a software-rendered mobile GPU. */
+.boot-loader .boot-signal-line{
   display:block;
   position:absolute;
   z-index:6;
@@ -239,8 +240,12 @@
   top:50%;
   height:2px;
   opacity:0;
+  transform:scaleX(.30);
+  transform-origin:center;
   background:rgba(244,244,244,.92);
   box-shadow:0 0 8px rgba(243,243,243,.92),0 0 24px rgba(199,199,199,.30),0 0 64px rgba(199,199,199,.16);
+}
+.boot-loader.crt-boot-degauss .boot-signal-line{
   animation:crtDegaussLine .34s cubic-bezier(.65,.02,.25,1) both;
 }
 
