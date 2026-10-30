@@ -334,16 +334,27 @@
   }
 
   function dismissLoader() {
-    loader.classList.add('done');
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const screen = document.getElementById('screen');
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let completed = false;
+    // Reuse the original 340 ms CRT Degauss animation on the fully loaded
+    // homepage. Start it only after the opaque loader is removed so that
+    // the simulated signal ignition is visible, never hidden behind it.
+    const finish = () => {
+      if (completed) return;
+      completed = true;
       loader.remove();
-      return;
-    }
+      if (reducedMotion || !screen || initialCase) return;
+      screen.classList.add('crt-boot-degauss');
+      setTimeout(() => screen.classList.remove('crt-boot-degauss'), 370);
+    };
+    loader.classList.add('done');
+    if (reducedMotion) { finish(); return; }
     loader.addEventListener('transitionend', event => {
-      if (event.target === loader && event.propertyName === 'opacity') loader.remove();
-    }, { once: true });
-    // A non-animated browser must not leave a hidden overlay in the DOM.
-    setTimeout(() => loader.remove(), 500);
+      if (event.target === loader && event.propertyName === 'opacity') finish();
+    });
+    // A browser that suppresses transitions must still enter the site.
+    setTimeout(finish, 500);
   }
   function reveal() {
     if (finished) return;
