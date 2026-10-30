@@ -333,12 +333,24 @@
     setTimeout(startCrt, 900);
   }
 
+  function completeReveal() {
+    // Do not activate homepage listeners, previews or CRT runtime until the
+    // ignition has ended. Commit the state and remove the opaque curtain in
+    // the same task: the first visible frame is the complete portfolio.
+    document.body.classList.remove('booting');
+    document.body.classList.add('site-ready');
+    window.dispatchEvent(new CustomEvent('portfolio:booted'));
+    window.dispatchEvent(new CustomEvent('portfolio:site-ready'));
+    scheduleDeferredCovers();
+    scheduleDeferredTouchVisuals();
+    loader.remove();
+  }
   function dismissLoader() {
     // The loader is the opaque CRT signal curtain. Keep it on top while the
     // original degauss line plays; the prepared homepage must NEVER appear
     // between the loading screen and the end of the ignition animation.
     if (initialCase || matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      loader.remove();
+      completeReveal();
       return;
     }
     let completed = false;
@@ -347,7 +359,7 @@
       if (completed) return;
       completed = true;
       clearTimeout(fallbackTimer);
-      loader.remove();
+      completeReveal();
     };
     const beam = loader.querySelector('.boot-signal-line');
     beam?.addEventListener('animationend', event => {
@@ -361,12 +373,6 @@
   function reveal() {
     if (finished) return;
     finished = true;
-    document.body.classList.remove('booting');
-    document.body.classList.add('site-ready');
-    window.dispatchEvent(new CustomEvent('portfolio:booted'));
-    window.dispatchEvent(new CustomEvent('portfolio:site-ready'));
-    scheduleDeferredCovers();
-    scheduleDeferredTouchVisuals();
     dismissLoader();
   }
   async function fallback(error) {
