@@ -349,8 +349,9 @@
       clearTimeout(fallbackTimer);
       loader.remove();
     };
-    loader.addEventListener('animationend', event => {
-      if (event.target === loader && event.animationName === 'crtDegaussLine') finish();
+    const beam = loader.querySelector('.boot-signal-line');
+    beam?.addEventListener('animationend', event => {
+      if (event.target === beam && event.animationName === 'crtDegaussLine') finish();
     });
     // The loader stays fully opaque until the 340 ms signal has completed.
     // Guard against disabled animations or throttled browser events.
