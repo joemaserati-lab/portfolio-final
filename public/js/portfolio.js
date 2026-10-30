@@ -214,15 +214,15 @@
           <p>${esc(resume.intro)}</p>
         </header>
         <section class="resume-section">
-          <h3 class="resume-section-title">${esc(t('resume.experience'))}</h3>
+          <h3 class="resume-section-title resume-section-title--framed">${esc(t('resume.experience'))}</h3>
           <div class="resume-list">${resume.experience.map(item=>`
             <article class="resume-row">
               <div class="resume-period"><span class="doto-glyph" aria-hidden="true">•</span> ${esc(item.period)}</div>
-              <div><h4 class="resume-role">${esc(item.role)}</h4><strong>${esc(item.company)}</strong><small><span class="doto-glyph" aria-hidden="true">[</span> ${esc(item.location)} <span class="doto-glyph" aria-hidden="true">]</span></small>${paragraphs(item.description)}</div>
+              <div><h4 class="resume-role">${esc(item.role)}</h4><strong>${esc(item.company)}</strong><small>${esc(item.location)}</small>${paragraphs(item.description)}</div>
             </article>`).join('')}</div>
         </section>
         <section class="resume-section">
-          <h3 class="resume-section-title">${esc(t('resume.education'))}</h3>
+          <h3 class="resume-section-title resume-section-title--framed">${esc(t('resume.education'))}</h3>
           <div class="resume-list">${resume.education.map(item=>`
             <article class="resume-row compact"><div class="resume-period"><span class="doto-glyph" aria-hidden="true">•</span> ${esc(item.period)}</div><div><h4 class="resume-role">${esc(item.course)}</h4><strong>${esc(item.school)}</strong>${paragraphs(item.description)}</div></article>`).join('')}</div>
         </section>

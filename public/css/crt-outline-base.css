@@ -68,37 +68,16 @@ body::before {
   align-items: flex-start;
 }
 
-/* The source string also contains the internal project number. Hide that
-   visually and expose only the year requested for the index. */
+/* A single translated year/status is part of the original metadata line.
+   Never hide it or regenerate it with ::after: that placed the red bullet on
+   a separate line and duplicated the year. */
 .project-tile-main small {
-
-
-  color: transparent !important;
-}
-
-.project-tile-main small::after {
-  display: block;
-
-
-
+  display: inline-flex;
+  align-items: baseline;
+  align-self: flex-start;
+  gap: .42em;
+  white-space: nowrap;
   color: var(--dim);
-
-}
-
-.project-tile-v2[data-project-slug="tovadu"] .project-tile-main small::after,
-.project-tile-v2[data-project-slug="pholia"] .project-tile-main small::after,
-.project-tile-v2[data-project-slug="sapy"] .project-tile-main small::after {
-  content: "2026";
-}
-
-html[lang="en"] .project-tile-v2[data-project-slug="platinum-technologies"] .project-tile-main small::after,
-html[lang="en"] .project-tile-v2[data-project-slug="colorcopy-large-format"] .project-tile-main small::after {
-  content: "ONGOING";
-}
-
-html[lang="it"] .project-tile-v2[data-project-slug="platinum-technologies"] .project-tile-main small::after,
-html[lang="it"] .project-tile-v2[data-project-slug="colorcopy-large-format"] .project-tile-main small::after {
-  content: "IN CORSO";
 }
 
 /* Internal case-study titles use the interface typeface rather than the

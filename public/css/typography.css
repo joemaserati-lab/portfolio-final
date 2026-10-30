@@ -519,7 +519,6 @@ button {
   letter-spacing: 0;
   margin-left: .08em;
 }
-.resume-section-title::before,
 .case-story-label::before {
   content: "•";
   font-family: var(--font-ui);
@@ -528,6 +527,19 @@ button {
   line-height: 1;
   margin-right: .55em;
 }
+/* Square brackets frame only the two major resume sections.
+   Capabilities and tools deliberately keep clean, unmarked headings. */
+.resume-section-title--framed::before,
+.resume-section-title--framed::after {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 1em;
+  line-height: 1;
+  letter-spacing: 0;
+}
+.resume-section-title--framed::before { content: "["; margin-right: .58em; }
+.resume-section-title--framed::after { content: "]"; margin-left: .58em; }
 
 /* The bilingual hero CTA and boot label use red square brackets. */
 .primary-action::before,

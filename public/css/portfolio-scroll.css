@@ -829,3 +829,12 @@
     height:30px;
   }
 }
+
+/* Desktop About: paragraph measure follows the full available content pane.
+   Compact/mobile retains its existing narrower reading measure. */
+@media (min-width: 1025px) {
+  .scroll-portfolio #scroll-about .window-body > p {
+    width: 100%;
+    max-width: 100%;
+  }
+}
