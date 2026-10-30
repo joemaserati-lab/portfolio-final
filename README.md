@@ -53,3 +53,9 @@ The complete site typography is defined in `public/css/typography.css` and docum
 ### Low-power GPU handling (v2.0.20)
 
 The Three.js portrait retains the same scanned-contour shader and mouse interaction. Its shader now skips organic-color computations for fragments where the final result is mathematically only the neutral rim or transparent fade. Hardware-accelerated GPUs keep the original 60/30 fps budgets; software WebGL (SwiftShader/llvmpipe) and repeatedly stalled renderers automatically enter lower-pixel, lower-FPS modes to keep the main browser thread responsive. The fallback is intentionally per-device: it does not alter visual layouts or project media. `PortfolioMotion.getRenderStats()` exposes `backend`, `lastDrawMs`, `drawnFrames`, `pixels` and `fpsBudget` for diagnostics. PageSpeed lab scores in software-GPU environments should still be interpreted separately from real device field metrics.
+
+### Worker compatibility and fallback (v2.0.21)
+
+Chrome/Chromium/Edge use an OffscreenCanvas WebGL2 renderer in a dedicated Worker when the browser successfully probes worker WebGL2. This preserves the shader and pointer controls while keeping the page main thread responsive. Safari, iOS WebKit and browsers without the necessary WebGL worker capabilities use the optimized adaptive main-thread renderer. An unavailable Worker, failed initialization, or lost worker context triggers a single-flight fallback and restores the canvas without duplicate renderers. Browser-emulated Safari user agents in CI verify the selection logic only; real Safari/iOS performance still requires device testing.
+
+The regression suite checks Chromium's worker path, software-GPU pacing, the main-thread path, Safari-UA routing and Worker-constructor failure. Lighthouse on software WebGL may differ substantially from real-device measurements; compare repeated runs and Core Web Vitals rather than treating a single score as universal.

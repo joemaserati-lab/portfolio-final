@@ -62,4 +62,42 @@ try{
   console.log('HEAD WORKER/FALLBACK PASS',before.execution);
   await page.close();
  }
+ // Safari/iPhone use the original GPU-safe renderer instead of trying an
+ // incompatible OffscreenCanvas path. Emulating its UA in Chromium verifies
+ // our feature gate, not Safari's actual GPU implementation.
+ const safari=await browser.newPage({
+  viewport:{width:390,height:844},isMobile:true,hasTouch:true,
+  userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1'
+ });
+ await safari.addInitScript(()=>{
+  localStorage.setItem('portfolioPrivacyAck','1');
+  sessionStorage.setItem('portfolioBootSeen','1');
+ });
+ await safari.goto(base);
+ await safari.waitForFunction(()=>document.body.classList.contains('site-ready')&&
+  window.PortfolioMotion?.getRenderStats?.()?.pixels>0,null,{timeout:60000});
+ const safariStats=await safari.evaluate(()=>window.PortfolioMotion.getRenderStats());
+ assert.equal(safariStats.execution,'main','Non-Chromium browser must retain the optimized main renderer');
+ assert(safariStats.pixels<=1102500,'Mobile fallback exceeds GPU pixel budget');
+ assert(await safari.locator('#crt-head-feature').isVisible(),'Fallback portrait missing on mobile');
+ console.log('MOBILE SAFARI-UA FALLBACK PASS (Chromium simulation)',safariStats.quality);
+ await safari.close();
+ // An actual failure to construct Worker (permissions/CSP/unsupported browser)
+ // must also transparently use the original renderer without transferring canvas.
+ const denied=await browser.newPage({viewport:{width:1440,height:900}});
+ await denied.addInitScript(()=>{
+  localStorage.setItem('portfolioPrivacyAck','1');
+  sessionStorage.setItem('portfolioBootSeen','1');
+  window.Worker=class BlockedWorker {
+   constructor(){throw new Error('Worker blocked for fallback smoke test')}
+  };
+ });
+ await denied.goto(base);
+ await denied.waitForFunction(()=>document.body.classList.contains('site-ready')&&
+  window.PortfolioMotion?.getRenderStats?.()?.pixels>0,null,{timeout:60000});
+ assert.equal(await denied.evaluate(()=>window.PortfolioMotion.getRenderStats().execution),'main',
+  'Blocked Worker must automatically fall back to the main-thread renderer');
+ assert(await denied.locator('#crt-head-feature').isVisible(),'Failed Worker left the hero without a portrait');
+ console.log('WORKER-CONSTRUCTION FAILURE FALLBACK PASS');
+ await denied.close();
 }finally{await browser.close()}
