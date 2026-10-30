@@ -34,7 +34,7 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  assert.equal(await page.locator('.desktop-icons .desktop-icon').count(),4);
  assert.equal(await page.locator('#scroll-work .project-tile-v2').count(),5);
  await page.waitForFunction(()=>document.querySelector('#crt-head-feature').classList.contains('is-ready'),null,{timeout:30000});
- const initialCanvasWidth=await page.locator("#crt-head-canvas").evaluate(e=>e.width);
+ const initialCanvasWidth=await page.evaluate(()=>window.PortfolioMotion.getRenderStats().width);
  await screenshot(page,`original-hero-${width}.png`);
  if(width>1024) {
    assert.equal(await page.locator('.scroll-minimenu button').count(),4);
@@ -49,7 +49,8 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
    assert(origin<6,'Window does not originate at the minimenu icon');
  }
  await page.evaluate(()=>{const v=document.querySelector('#scroll-viewport');v.scrollTop=v.clientHeight*.5});await page.waitForTimeout(200);
- if(width<=1024) assert.equal(await page.locator("#crt-head-canvas").evaluate(e=>e.width),initialCanvasWidth,"Head drawing buffer resized during mobile handoff");
+ if(width<=1024) assert.equal(await page.evaluate(()=>window.PortfolioMotion.getRenderStats().width),
+    initialCanvasWidth,"Head drawing buffer resized during mobile handoff");
  await screenshot(page,`original-transition-${width}.png`);
  assert.equal(await page.locator('#scroll-work .window-body').evaluate(e=>getComputedStyle(e).visibility),'hidden','Content appeared before the outline finished');
  assert(await page.locator('#scroll-work .window-body').evaluate(e=>e.inert));
@@ -117,8 +118,8 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
    const visual=await page.evaluate(()=>{
      const canvas=document.querySelector('#crt-head-feature canvas');
      const bounds=canvas.getBoundingClientRect();
-     return {density:canvas.width/Math.max(bounds.width,1),
-       stats:window.PortfolioMotion.getRenderStats()};
+     const stats=window.PortfolioMotion.getRenderStats();
+     return {density:stats.width/Math.max(bounds.width,1),stats};
    });
    assert(visual.density>=.65,'Docked portrait sampling density too low');
    assert(visual.stats.pixels>0 && visual.stats.scale<.65,
@@ -159,9 +160,10 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
    await select('work'); await settle('work');
  } else {
    assert(await page.locator('#crt-head-feature').isVisible(),'Desktop head must remain visible while reading');
-   const canvasSize=await page.locator('#crt-head-canvas').evaluate(e=>[e.width,e.height]);
+   const canvasSize=await page.evaluate(()=>{const r=window.PortfolioMotion.getRenderStats();return [r.width,r.height]});
    await page.locator('#scroll-viewport').evaluate(e=>e.scrollTop+=100);await page.waitForTimeout(400);
-   assert.deepEqual(await page.locator('#crt-head-canvas').evaluate(e=>[e.width,e.height]),canvasSize,'Scrolling must not reallocate the desktop canvas');
+   assert.deepEqual(await page.evaluate(()=>{const r=window.PortfolioMotion.getRenderStats();return [r.width,r.height]}),
+     canvasSize,'Scrolling must not reallocate the desktop canvas');
    assert.equal(await page.locator('#crt-head-feature').evaluate(e=>e.parentElement.id),'screen');
    assert(await page.locator('#scroll-work .is-viewport-color').count()<=1,'Desktop must select at most one viewport video');
    await select('work'); await settle('work');
@@ -254,12 +256,12 @@ await returningDesktop.waitForFunction(()=>document.body.classList.contains('sit
 await returningDesktop.waitForFunction(()=>window.__portfolioHeadState?.ready,null,{timeout:30000});
 await returningDesktop.mouse.move(1250,450);
 await returningDesktop.waitForFunction(()=>Math.abs(window.PortfolioMotion.getPose().yaw)>.1,null,{timeout:20000});
-const canvasSize=await returningDesktop.locator('#crt-head-canvas').evaluate(e=>[e.width,e.height]);
+const canvasSize=await returningDesktop.evaluate(()=>{const r=window.PortfolioMotion.getRenderStats();return [r.width,r.height]});
 await returningDesktop.locator('#scroll-viewport').evaluate(e=>e.scrollTop=900);
 await returningDesktop.waitForTimeout(500);
 assert(await returningDesktop.locator('#crt-head-feature').isVisible(),'Hybrid desktop head must remain visible when docked');
 assert.equal(await returningDesktop.locator('#crt-head-feature').evaluate(e=>e.parentElement.id),'screen');
-const dockSize=await returningDesktop.locator('#crt-head-canvas').evaluate(e=>[e.width,e.height]);
+const dockSize=await returningDesktop.evaluate(()=>{const r=window.PortfolioMotion.getRenderStats();return [r.width,r.height]});
  assert(dockSize[0]>0 && dockSize[1]>0 && dockSize[0]<canvasSize[0] && dockSize[1]<canvasSize[1],
    'Desktop dock should use a smaller GPU drawing buffer');
 await returningDesktop.evaluate(()=>dispatchEvent(new CustomEvent('portfolio:scroll-to',{detail:'home'})));

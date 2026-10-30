@@ -263,7 +263,10 @@ function disposeModel(model) {
 }
 
 // V31.4-A contour-line shader with monochrome scan field and occasional mint contours.
-export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion = false, onError } = {}) {
+export function mountHeadScanEffect({
+  container, canvas, modelUrl, reducedMotion = false, onError,
+  workerMode = false, coarsePointerOverride = null, deviceDpr = null, onFrame = null
+} = {}) {
   if (!container || !canvas) throw new Error('Head scan requires its container and canvas.');
   let renderer, composer, outputPass, resizeObserver, model;
   let disposed = false, loaded = false, paused = true, raf = 0, lastTime = null, elapsed = 0;
@@ -272,13 +275,16 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
   // Normal GPUs keep the original presentation. Slow software or repeatedly
   // stalled renderers get an automatic, bounded frame/pixel workload.
   let fallbackMode = 'none', rendererDescription = '', lastDrawMs = 0;
+  let lastMotionDt = 0, refreshCount = 0;
   let slowDrawStreak = 0, drawnFrames = 0, lastPointerAt = 0;
-  const coarsePointer = matchMedia('(pointer: coarse)').matches;
+  const coarsePointer = typeof coarsePointerOverride === 'boolean'
+    ? coarsePointerOverride : matchMedia('(pointer: coarse)').matches;
+  const dpr = Number.isFinite(deviceDpr) ? deviceDpr : (globalThis.devicePixelRatio || 1);
   const estimateSurfacePixels = () => {
     const width = Math.max(container.clientWidth, 1);
     const height = Math.max(container.clientHeight, 1);
-    const dpr = Math.min(devicePixelRatio || 1, 1.5);
-    return width * height * dpr * dpr;
+    const sampledDpr = Math.min(dpr, 1.5);
+    return width * height * sampledDpr * sampledDpr;
   };
   let qualityIndex = coarsePointer ? 1 : (estimateSurfacePixels() > PERFORMANCE.largeSurfaceThreshold ? 1 : 0);
   const quality = () => PERFORMANCE.quality[qualityIndex];
@@ -299,6 +305,7 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
 
   function syncPerformanceClass() {
     const estimated = estimateSurfacePixels();
+    if (workerMode) return;
     document.body.classList.toggle('perf-head-large', estimated > PERFORMANCE.largeSurfaceThreshold);
     document.body.classList.toggle('perf-constrained', qualityIndex >= 2);
     document.body.classList.toggle(
@@ -315,7 +322,7 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
     fallbackMode = mode;
     slowDrawStreak = 0;
     slowFrameStreak = 0;
-    document.body.dataset.headGpuFallback = mode;
+    if (!workerMode) document.body.dataset.headGpuFallback = mode;
     // This is invoked after a completed draw, never inside an active FBO pass.
     queueMicrotask(() => { if (!disposed && composer) resize(); });
     return true;
@@ -383,6 +390,7 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
   function render(now) {
     if (disposed || paused || !loaded) return;
     const dt = lastTime === null ? 0 : Math.min((now - lastTime) / 1000, 0.05);
+    lastMotionDt = dt;
     lastTime = now;
     elapsed += dt;
     pointer.lerp(targetPointer, 1.0 - Math.pow(0.0007, dt));
@@ -408,6 +416,7 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
     composer.render();
     lastDrawMs = performance.now() - startDraw;
     drawnFrames += 1;
+    onFrame?.(root.rotation.x, root.rotation.y, now);
     // WebGL on a CPU rasterizer can synchronously block the main thread for
     // hundreds of ms. Adapt after two expensive draws, not after 24 frames.
     if (fallbackMode === 'none') {
@@ -430,6 +439,7 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
     raf = requestAnimationFrame(animate);
   }
   function refresh() {
+    refreshCount++;
     cancelAnimationFrame(raf);
     raf = 0;
     lastTime = null;
@@ -449,7 +459,7 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
       : (coarsePointer ? PERFORMANCE.touchMaxPixels : q.maxPixels);
     const maxDpr = safety ? safety.maxDpr
       : (coarsePointer ? PERFORMANCE.touchMaxDpr : q.maxDpr);
-    const nativeDpr = Math.min(devicePixelRatio || 1, maxDpr) * presentationScale;
+    const nativeDpr = Math.min(dpr, maxDpr) * presentationScale;
     const budgetDpr = Math.sqrt(maxPixels / Math.max(1, width * height));
     const pixelRatio = Math.max(0.05, Math.min(nativeDpr, budgetDpr));
     syncPerformanceClass();
@@ -484,7 +494,7 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
         : String(gl.getParameter(gl.RENDERER) || '');
       if (/swiftshader|llvmpipe|softpipe|software rasterizer/i.test(rendererDescription)) {
         fallbackMode = 'software';
-        document.body.dataset.headGpuFallback = 'software';
+        if (!workerMode) document.body.dataset.headGpuFallback = 'software';
       }
     } catch {}
     renderer.toneMapping = THREE.NeutralToneMapping;
@@ -507,10 +517,12 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
     }`);
     composer.addPass(outputPass);
     canvas.addEventListener('webglcontextlost', onContextLost);
-    if ('ResizeObserver' in window) {
-      resizeObserver = new ResizeObserver(resize);
-      resizeObserver.observe(container);
-    } else addEventListener('resize', resize, { passive: true });
+    if (!workerMode) {
+      if ('ResizeObserver' in window) {
+        resizeObserver = new ResizeObserver(resize);
+        resizeObserver.observe(container);
+      } else addEventListener('resize', resize, { passive: true });
+    }
     resize();
   } catch (error) {
     destroy();
@@ -644,10 +656,20 @@ export function mountHeadScanEffect({ container, canvas, modelUrl, reducedMotion
         pixels: canvas.width * canvas.height,
         fpsBudget: targetFps(), scale: presentationScale,
         pixelRatio: renderer.getPixelRatio(),
+        execution: workerMode ? 'worker' : 'main',
         quality: coarsePointer ? 'touch' : quality().name,
         backend: fallbackMode, lastDrawMs: Math.round(lastDrawMs * 10) / 10,
-        drawnFrames, renderer: rendererDescription
+        drawnFrames, renderer: rendererDescription,
+        pointerTarget: [targetPointer.x, targetPointer.y],
+        scrollYaw, heroPresence, rootYaw: root.rotation.y,
+        lastMotionDt, refreshCount
       };
+    },
+    setViewportSize(width, height) {
+      if (!workerMode || disposed) return;
+      container.clientWidth = Math.max(1, Math.round(width));
+      container.clientHeight = Math.max(1, Math.round(height));
+      resize();
     },
     setPointer(x, y) {
       if (scrollYaw !== null) return;

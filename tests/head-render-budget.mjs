@@ -17,6 +17,8 @@ try {
     await page.waitForFunction(()=>document.body.classList.contains('site-ready') &&
       window.PortfolioMotion?.getRenderStats?.()?.pixels>0,null,{timeout:60000});
     const hero = await page.evaluate(()=>window.PortfolioMotion.getRenderStats());
+    assert(['main','worker'].includes(hero.execution),'Missing rendering execution mode');
+    console.log('HEAD EXECUTION',width,height,hero.execution,hero.renderer);
     assert(hero.pixels>0 && hero.fpsBudget>0,'Head GPU not initialized');
     // Software WebGL can never be equated with a dedicated GPU. On that
     // backend the governor intentionally starts below the usual FPS budget.
@@ -57,12 +59,27 @@ try {
     if (!isMobile) {
       const screen=await page.locator('#screen').boundingBox();
       await page.mouse.move(screen.x+screen.width*.16,screen.y+screen.height*.5);
-      await page.waitForTimeout(400);
+      await page.waitForFunction(()=>{
+        const stats=window.PortfolioMotion.getRenderStats();
+        return stats.pointerTarget?.[0]<-.5 &&
+          window.PortfolioMotion.getPose().yaw<-.06;
+      },null,{timeout:10000});
       const left=await page.evaluate(()=>window.PortfolioMotion.getPose().yaw);
       await page.mouse.move(screen.x+screen.width*.84,screen.y+screen.height*.5);
-      await page.waitForTimeout(400);
-      const right=await page.evaluate(()=>window.PortfolioMotion.getPose().yaw);
+      // Software-GPU workers may run at 6–10fps. Wait for rendered motion,
+      // not a fixed timeout that can elapse before the next frame.
+      // Capture yaw in the same browser animation observation that verified
+      // the rotation. A later cross-process read can race an intermediate
+      // worker pose update and falsely report that the mouse stopped working.
+      const rightHandle=await page.waitForFunction(previous=>{
+        const stats=window.PortfolioMotion.getRenderStats();
+        const yaw=window.PortfolioMotion.getPose().yaw;
+        return stats.pointerTarget?.[0]>.5 && yaw>previous+.04 ? yaw : false;
+      },left,{timeout:10000});
+      const right=await rightHandle.jsonValue();
       assert(right-left>.04,'The docked head no longer follows mouse movement');
+      console.log('DOCKED HEAD POINTER',JSON.stringify({left,right,delta:right-left,
+        stats:await page.evaluate(()=>window.PortfolioMotion.getRenderStats())}));
     }
 
     await page.locator('#scroll-viewport').evaluate(e=>e.scrollTop=0);

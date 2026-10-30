@@ -1,6 +1,6 @@
 (() => {
-  const bg = document.getElementById('crt-bg');
-  const fx = document.getElementById('crt-fx');
+  let bg = document.getElementById('crt-bg');
+  let fx = document.getElementById('crt-fx');
   const screen = document.getElementById('screen') || document.querySelector('.screen');
   if (!bg || !fx || !screen) return;
 
@@ -13,7 +13,10 @@
     frameHandle: 0,
     lastDraw: 0,
     largeSurface: false,
-    contentOpen: false
+    contentOpen: false,
+    backend: 'normal', renderer: '', lastDrawMs: 0,
+    slowDraws: 0, slowIntervals: 0, lastTick: 0,
+    surfaceResizes: 0
   };
 
   const PRESETS = {
@@ -69,9 +72,12 @@
       gl_FragColor=vec4(c,a);
     }`;
 
-  const bgP=makeProgram(bg,false,bgFrag), fxP=makeProgram(fx,true,fxFrag);
-  if (!bgP || !fxP) return;
-  fxP.gl.enable(fxP.gl.BLEND); fxP.gl.blendFunc(fxP.gl.SRC_ALPHA,fxP.gl.ONE);
+  // Delay WebGL context creation until the worker probe has completed. A
+  // canvas with a main-thread context cannot be transferred to a worker.
+  let bgP=null,fxP=null,worker=null,workerReady=false,workerBusy=false;
+  let workerTransferred=false,fallbackStarted=false,workerInitTimer=0;
+  let workerStats={backgroundPixels:0,overlayPixels:0};
+  let workerScriptUrl=null;
 
   const PERFORMANCE = Object.freeze({
     largeSurfaceThreshold: 3000000,
@@ -80,26 +86,132 @@
     maxDpr: 1.0,
     normalFps: 30,
     largeFps: 24,
-    contentFps: 12
+    contentFps: 12,
+    // Software GL renders synchronously on the UI CPU. Retain the exact
+    // shader formula while scaling pixel and frame work to available power.
+    softwareMobile: {maxPixels: 90000, maxDpr: .65, fps: 6},
+    softwareDesktop: {maxPixels: 240000, maxDpr: .65, fps: 10},
+    strugglingMobile: {maxPixels: 180000, maxDpr: .80, fps: 12},
+    strugglingDesktop: {maxPixels: 400000, maxDpr: .85, fps: 16}
   });
 
+  const coarse = matchMedia('(pointer: coarse)').matches;
+  function initializeMainRenderer() {
+    bgP=makeProgram(bg,false,bgFrag);
+    fxP=makeProgram(fx,true,fxFrag);
+    if(!bgP || !fxP) return;
+    fxP.gl.enable(fxP.gl.BLEND);
+    fxP.gl.blendFunc(fxP.gl.SRC_ALPHA,fxP.gl.ONE);
+    try {
+      const gl=bgP.gl,ext=gl.getExtension('WEBGL_debug_renderer_info');
+      state.renderer=String(ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)||'':
+        gl.getParameter(gl.RENDERER)||'');
+      if(/swiftshader|llvmpipe|softpipe|software rasterizer/i.test(state.renderer))
+        state.backend='software';
+    } catch {}
+  }
+  function fallbackToMain(error) {
+    if(fallbackStarted)return;
+    fallbackStarted=true;
+    clearTimeout(workerInitTimer);
+    worker?.terminate();worker=null;workerReady=false;workerBusy=false;
+    // A transferred canvas is irrevocable. Replace only its canvas DOM nodes,
+    // retaining their IDs, attributes, class names and positioning.
+    if(workerTransferred) {
+      const restoredBg=bg.cloneNode(false),restoredFx=fx.cloneNode(false);
+      bg.replaceWith(restoredBg);fx.replaceWith(restoredFx);
+      bg=restoredBg;fx=restoredFx;workerTransferred=false;
+    }
+    workerStats={backgroundPixels:0,overlayPixels:0};
+    if(error)console.warn('[CRT] Returning to main-thread WebGL:',error);
+    initializeMainRenderer();
+    resize();
+  }
+  function startWorker() {
+    const canTransfer=typeof Worker==='function'&&
+      typeof bg.transferControlToOffscreen==='function'&&
+      typeof fx.transferControlToOffscreen==='function'&&
+      /(?:Chrome|Chromium|Edg)\//.test(navigator.userAgent);
+    if(!canTransfer){initializeMainRenderer();return;}
+    try {
+      workerScriptUrl=new URL('./crt-render-worker.js',document.currentScript.src);
+      workerScriptUrl.searchParams.set('v',window.PORTFOLIO_ASSET_VERSION||'2.0.21');
+      worker=new Worker(workerScriptUrl,{type:'module'});
+      workerInitTimer=setTimeout(()=>fallbackToMain('Worker initialization timed out'),15000);
+      worker.onerror=e=>fallbackToMain(e.message||'Worker error');
+      worker.onmessage=event=>{
+        const d=event.data||{};
+        if(fallbackStarted)return;
+        if(d.type==='probe') {
+          if(!d.supported){fallbackToMain('OffscreenCanvas WebGL unavailable');return;}
+          try {
+            const bgSurface=bg.transferControlToOffscreen();
+            const fxSurface=fx.transferControlToOffscreen();
+            workerTransferred=true;
+            worker.postMessage({
+              type:'init',bg:bgSurface,fx:fxSurface,bgFrag,fxFrag
+            },[bgSurface,fxSurface]);
+          } catch(error){fallbackToMain(error);}
+        } else if(d.type==='ready') {
+          clearTimeout(workerInitTimer);
+          workerReady=true;
+          state.backend=d.stats.backend;
+          state.renderer=d.stats.renderer;
+          resize();
+        } else if(d.type==='resized'||d.type==='drawn') {
+          workerStats=d.stats;
+          state.lastDrawMs=d.stats.lastDrawMs;
+          state.surfaceResizes=d.stats.surfaceResizes;
+          if(d.type==='drawn')workerBusy=false;
+        } else if(d.type==='error')fallbackToMain(d.message);
+      };
+      worker.postMessage({type:'probe'});
+    } catch(error){fallbackToMain(error);}
+  }
+  const profile = () => state.backend === 'software'
+    ? PERFORMANCE[coarse ? 'softwareMobile' : 'softwareDesktop']
+    : state.backend === 'struggling'
+      ? PERFORMANCE[coarse ? 'strugglingMobile' : 'strugglingDesktop']
+      : null;
+  function enterConstrainedMode() {
+    if (state.backend !== 'normal') return;
+    state.backend='struggling';
+    // Defer allocation until the current frame has finished.
+    queueMicrotask(resize);
+  }
+
   function currentFps(){
+    const effective=profile();
+    if(effective) return effective.fps;
     if(state.contentOpen) return PERFORMANCE.contentFps;
     return state.largeSurface ? PERFORMANCE.largeFps : PERFORMANCE.normalFps;
   }
 
-  function resizeOne(canvas, P, width, height, maxPixels){
-    const nativeDpr=Math.min(devicePixelRatio||1,PERFORMANCE.maxDpr);
+  function resizeOne(canvas, P, width, height, maxPixels, maxDpr){
+    const nativeDpr=Math.min(devicePixelRatio||1,maxDpr);
     const budgetDpr=Math.sqrt(maxPixels/Math.max(1,width*height));
-    const dpr=Math.max(0.34,Math.min(nativeDpr,budgetDpr));
-    canvas.width=Math.max(1,Math.round(width*dpr)); canvas.height=Math.max(1,Math.round(height*dpr));
-    P.gl.viewport(0,0,canvas.width,canvas.height); P.gl.useProgram(P.pr); P.gl.uniform2f(P.uniforms.r,canvas.width,canvas.height);
+    const dpr=Math.max(0.12,Math.min(nativeDpr,budgetDpr));
+    const nextW=Math.max(1,Math.round(width*dpr));
+    const nextH=Math.max(1,Math.round(height*dpr));
+    // Setting unchanged canvas dimensions resets WebGL buffers and can
+    // incur expensive software-GPU reallocation.
+    if(P.lastW===nextW && P.lastH===nextH) return false;
+    canvas.width=nextW; canvas.height=nextH;
+    P.lastW=nextW;P.lastH=nextH;
+    state.surfaceResizes++;
+    P.gl.viewport(0,0,nextW,nextH);
+    P.gl.useProgram(P.pr);
+    P.gl.uniform2f(P.uniforms.r,nextW,nextH);
+    return true;
   }
   function resize(){
     const width=Math.max(screen.clientWidth,1), height=Math.max(screen.clientHeight,1);
     const estimated=width*height*Math.pow(Math.min(devicePixelRatio||1,1.5),2);
     state.largeSurface=estimated>PERFORMANCE.largeSurfaceThreshold;
-    const maxPixels=state.largeSurface?PERFORMANCE.largeMaxPixels:PERFORMANCE.maxPixels;
+    const runtime=profile();
+    const maxPixels=runtime?.maxPixels ||
+      (state.largeSurface?PERFORMANCE.largeMaxPixels:PERFORMANCE.maxPixels);
+    const maxDpr=runtime?.maxDpr || PERFORMANCE.maxDpr;
     document.body.classList.toggle('perf-crt-large',state.largeSurface);
     document.body.classList.toggle(
       'perf-large-surface',
@@ -107,18 +219,38 @@
       document.body.classList.contains('perf-crt-large') ||
       document.body.classList.contains('perf-constrained')
     );
-    resizeOne(bg,bgP,width,height,maxPixels); resizeOne(fx,fxP,width,height,maxPixels);
-    state.lastDraw=0;
+    if(workerReady) {
+      worker?.postMessage({type:'resize',width,height,maxPixels,maxDpr,
+        dpr:devicePixelRatio||1});
+      return;
+    }
+    if(!bgP || !fxP)return;
+    const bgChanged=resizeOne(bg,bgP,width,height,maxPixels,maxDpr);
+    const fxChanged=resizeOne(fx,fxP,width,height,maxPixels,maxDpr);
+    if(bgChanged || fxChanged) state.lastDraw=0;
   }
   addEventListener('resize',resize,{passive:true});
   if('ResizeObserver' in window) new ResizeObserver(resize).observe(screen);
+  startWorker();
   resize();
 
   function setPreset(name){
     state.preset=name; document.body.classList.remove('fx-medium','fx-low','fx-off');
     if(name==='medium')document.body.classList.add('fx-medium'); if(name==='low')document.body.classList.add('fx-low'); if(name==='off')document.body.classList.add('fx-off');
   }
-  window.CRT = { setPreset, getPreset:()=>state.preset, presets:['high','medium','low','off'] };
+  window.CRT = {
+    setPreset, getPreset:()=>state.preset, presets:['high','medium','low','off'],
+    getRenderStats:()=>({
+      backend:state.backend, renderer:state.renderer,
+      execution:workerReady?'worker':'main',
+      fpsBudget:currentFps(), lastDrawMs:state.lastDrawMs,
+      // A transferred canvas retains HTML width/height attributes even before
+      // its worker has allocated actual GPU buffers. Report zero until ready.
+      backgroundPixels:workerReady?workerStats.backgroundPixels:worker?0:bg.width*bg.height,
+      overlayPixels:workerReady?workerStats.overlayPixels:worker?0:fx.width*fx.height,
+      surfaceResizes:state.surfaceResizes
+    })
+  };
   if(state.reduced) setPreset('low');
 
   function syncHit(now,p){
@@ -130,15 +262,31 @@
   }
 
   function draw(now){
+    const begin=performance.now();
     const t=(now-state.start)/1000, p=PRESETS[state.preset];
-    for(const P of [bgP,fxP]){P.gl.useProgram(P.pr);P.gl.uniform1f(P.uniforms.t,t);}
-    fxP.gl.uniform1f(fxP.uniforms.raster,p.raster); fxP.gl.uniform1f(fxP.uniforms.triad,p.triad); fxP.gl.uniform1f(fxP.uniforms.noise,p.noise); fxP.gl.uniform1f(fxP.uniforms.roll,p.roll);
-    bgP.gl.drawArrays(bgP.gl.TRIANGLES,0,6); fxP.gl.clearColor(0,0,0,0); fxP.gl.clear(fxP.gl.COLOR_BUFFER_BIT); fxP.gl.drawArrays(fxP.gl.TRIANGLES,0,6);
+    if(workerReady && !workerBusy) {
+      // At most one software-GPU draw can be queued. Slow CRT rendering never
+      // backs up input, scrolling or the main animation thread.
+      workerBusy=true;
+      worker.postMessage({type:'draw',time:t,p:{
+        raster:p.raster,triad:p.triad,noise:p.noise,roll:p.roll
+      }});
+    } else if(bgP && fxP) {
+      for(const P of [bgP,fxP]){P.gl.useProgram(P.pr);P.gl.uniform1f(P.uniforms.t,t);}
+      fxP.gl.uniform1f(fxP.uniforms.raster,p.raster); fxP.gl.uniform1f(fxP.uniforms.triad,p.triad); fxP.gl.uniform1f(fxP.uniforms.noise,p.noise); fxP.gl.uniform1f(fxP.uniforms.roll,p.roll);
+      bgP.gl.drawArrays(bgP.gl.TRIANGLES,0,6); fxP.gl.clearColor(0,0,0,0); fxP.gl.clear(fxP.gl.COLOR_BUFFER_BIT); fxP.gl.drawArrays(fxP.gl.TRIANGLES,0,6);
+    }
 
     if(!state.reduced && now>state.nextJitter){ state.nextJitter=now+500+Math.random()*900; }
     const flick = 1 - p.flicker*(.35+.65*Math.abs(Math.sin(t*16.1)+Math.sin(t*3.2))*.5);
     screen.style.setProperty('--crt-brightness',flick.toFixed(4));
     syncHit(now,p);
+    if(!workerReady)state.lastDrawMs=performance.now()-begin;
+    if(!workerReady && state.backend==='normal') {
+      if(state.lastDrawMs>=75) state.slowDraws++;
+      else state.slowDraws=Math.max(0,state.slowDraws-1);
+      if(state.slowDraws>=2) enterConstrainedMode();
+    }
   }
 
   function animate(now){
@@ -146,6 +294,14 @@
     state.frameHandle = requestAnimationFrame(animate);
     if(document.hidden || state.caseOpen) return;
     const frameMs=1000/currentFps();
+    // React to sustained long rAF intervals when the GL vendor string is
+    // unavailable (for example, a browser hiding software rasterizer info).
+    if(state.backend==='normal' && state.lastTick) {
+      if(now-state.lastTick>Math.max(110,frameMs*2.8)) state.slowIntervals++;
+      else state.slowIntervals=Math.max(0,state.slowIntervals-1);
+      if(state.slowIntervals>=4) enterConstrainedMode();
+    }
+    state.lastTick=now;
     if(!state.lastDraw || now - state.lastDraw >= frameMs - 1.0){
       state.lastDraw = now;
       draw(now);

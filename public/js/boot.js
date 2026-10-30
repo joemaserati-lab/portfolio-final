@@ -253,7 +253,10 @@
         })),
         timeout
       ]);
-      await document.fonts.ready;
+      // The required Doto/Geist faces are already verified above. Do not
+      // allow unrelated, slow stylesheet font requests to keep the loader
+      // hidden forever on weak connections; use the same 9-second deadline.
+      await Promise.race([document.fonts.ready, timeout]);
       root.classList.remove('fonts-pending');
       root.classList.add('fonts-ready');
       return {source:'Doto + Geist Mono'};
@@ -291,6 +294,11 @@
   const applicationReady = track('app', loadApplication());
   const workPath = new URL('work/', document.baseURI).pathname;
   const initialCase = location.pathname.startsWith(workPath) && location.pathname !== workPath;
+  // Decode the 14 KB ambient video behind the existing opaque loader rather
+  // than starting its request ~900 ms after reveal. This retains the same video
+  // and all CRT effects while preventing a late video-frame LCP on mobile.
+  // Direct project pages keep the original deferred-video behavior.
+  if (!initialCase) startAmbientVideo();
   const headReady = track('head', initialCase ? Promise.resolve({ready:true,deferred:true}) : domReady.then(loadHead));
   if (initialCase) addEventListener('portfolio:project-closed', () => {
     loadHead();

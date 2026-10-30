@@ -101,7 +101,7 @@ try{
  await phone.goto(base);
  await phone.waitForFunction(()=>document.body.classList.contains('site-ready'));
  await phone.waitForFunction(()=>window.__portfolioHeadState?.ready);
- const mobileBuffer=await phone.locator('#crt-head-canvas').evaluate(e=>[e.width,e.height]);
+ const mobileBuffer=await phone.evaluate(()=>{const r=window.PortfolioMotion.getRenderStats();return [r.width,r.height]});
  await phone.locator('.scroll-index [data-scroll-section="work"]').click();
  await phone.waitForFunction(()=>document.querySelector('#scroll-work .scroll-window').classList.contains('is-revealed'));
  await phone.waitForFunction(()=>{
@@ -109,7 +109,7 @@ try{
    const s=document.querySelector('.scroll-portrait-slot').getBoundingClientRect();
    return Math.abs((h.left+h.right-s.left-s.right)/2)<2;
  });
- const mobileDockBuffer=await phone.locator('#crt-head-canvas').evaluate(e=>[e.width,e.height]);
+ const mobileDockBuffer=await phone.evaluate(()=>{const r=window.PortfolioMotion.getRenderStats();return [r.width,r.height]});
  assert(mobileDockBuffer[0]>0 && mobileDockBuffer[1]>0 &&
    mobileDockBuffer[0]<=mobileBuffer[0] && mobileDockBuffer[1]<=mobileBuffer[1],
    'Mobile dock should downscale, not increase, its GPU drawing buffer');
