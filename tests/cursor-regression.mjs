@@ -45,14 +45,25 @@ try {
     hero:document.querySelector('.desktop-icons .icon-glyph').getBoundingClientRect().toJSON(),
     mini:document.querySelector('.scroll-mini-icon .icon-glyph').getBoundingClientRect().toJSON()
   }));
-  assert(icons.hero.width>=58 && icons.hero.height>=48,
-    `${width}: previous hero icons not restored`);
+  assert.equal(Math.round(icons.hero.width),50,`${width}: hero icon should be 50px wide`);
+  assert.equal(Math.round(icons.hero.height),40,`${width}: hero icon should be 40px tall`);
   assert.equal(Math.round(icons.mini.width),28,`${width}: previous mini icon size not restored`);
-  console.log('CURSOR + ICONS PASS',width,'48px cursor, 3 accurate hotspots, original navigation sizes');
+  console.log('CURSOR + ICONS PASS',width,'48px cursor, precise hotspots, smaller hero icons and unchanged mini navigation');
   await page.close();
  }
+ const tablet=await browser.newPage({viewport:{width:820,height:900}});
+ await tablet.goto(base);
+ await tablet.waitForFunction(()=>document.body.classList.contains('site-ready'));
+ const tabletGlyph=await tablet.locator('.desktop-icons .desktop-icon .icon-glyph').first().boundingBox();
+ assert.equal(Math.round(tabletGlyph.width),38,'Tablet hero icon should be 38px');
+ assert.equal(Math.round(tabletGlyph.height),32,'Tablet hero icon should be 32px tall');
+ await tablet.close();
  const phone=await browser.newPage({viewport:{width:390,height:844},hasTouch:true,isMobile:true});
  await phone.goto(base);
+ await phone.waitForFunction(()=>document.body.classList.contains('site-ready'));
+ const phoneGlyph=await phone.locator('.desktop-icons .desktop-icon .icon-glyph').first().boundingBox();
+ assert.equal(Math.round(phoneGlyph.width),34,'Phone hero icon should be 34px');
+ assert.equal(Math.round(phoneGlyph.height),30,'Phone hero icon should be 30px tall');
  assert.equal(await phone.locator('#pixelart-cursor').count(),0,'Custom mouse pointer appeared on touch');
  await phone.close();
 }finally{await browser.close()}
