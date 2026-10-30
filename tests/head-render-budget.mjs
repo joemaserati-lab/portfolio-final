@@ -59,10 +59,20 @@ try {
     if (!isMobile) {
       const screen=await page.locator('#screen').boundingBox();
       await page.mouse.move(screen.x+screen.width*.16,screen.y+screen.height*.5);
-      await page.waitForTimeout(400);
+      await page.waitForFunction(()=>{
+        const stats=window.PortfolioMotion.getRenderStats();
+        return stats.pointerTarget?.[0]<-.5 &&
+          window.PortfolioMotion.getPose().yaw<-.06;
+      },null,{timeout:10000});
       const left=await page.evaluate(()=>window.PortfolioMotion.getPose().yaw);
       await page.mouse.move(screen.x+screen.width*.84,screen.y+screen.height*.5);
-      await page.waitForTimeout(400);
+      // Software-GPU workers may run at 6–10fps. Wait for rendered motion,
+      // not a fixed timeout that can elapse before the next frame.
+      await page.waitForFunction(previous=>{
+        const stats=window.PortfolioMotion.getRenderStats();
+        return stats.pointerTarget?.[0]>.5 &&
+          window.PortfolioMotion.getPose().yaw>previous+.04;
+      },left,{timeout:10000});
       const right=await page.evaluate(()=>window.PortfolioMotion.getPose().yaw);
       assert(right-left>.04,'The docked head no longer follows mouse movement');
     }
