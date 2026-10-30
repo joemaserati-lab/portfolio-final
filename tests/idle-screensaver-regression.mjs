@@ -36,7 +36,7 @@ try {
   assert(asset.videoMask.includes('data:image/png;base64,'),'Original VIDEO PNG mask missing');
   assert.equal(asset.typeMode,'doto-mono');
   assert(asset.displayFont.includes('Doto'),'404 display typography is not inherited');
-  assert(asset.readingFont.includes('Geist Mono'),'404 body typography is not inherited');
+  assert(asset.readingFont.includes('JetBrains Mono'),'404 body typography is not inherited');
   await page.evaluate(()=>document.dispatchEvent(new Event('keydown',{bubbles:true,cancelable:true})));
   assert(await layer.isHidden(),'Keyboard failed to dismiss screensaver');
   // Allow cross-frame focus callbacks to settle, then run beyond the configured
