@@ -120,7 +120,6 @@ body{background:#080808}
 .phosphor-ghost{border-color:rgba(243,243,243,.13);background:rgba(222,222,222,.02);box-shadow:0 0 18px rgba(179,179,179,.045),inset 0 0 22px rgba(199,199,199,.02)}
 .screen:is(.crt-degauss,.crt-boot-degauss)::after{background:rgba(244,244,244,.92);box-shadow:0 0 8px rgba(243,243,243,.92),0 0 24px rgba(199,199,199,.30),0 0 64px rgba(199,199,199,.16)}
 .boot-loader{text-shadow:0 0 5px rgba(243,243,243,.44),0 0 12px rgba(199,199,199,.24)}
-.boot-loader::after{background:linear-gradient(to bottom,transparent,rgba(222,222,222,.09),transparent)}
 .scanlines{background:repeating-linear-gradient(to bottom,rgba(222,222,222,.012) 0 1px,transparent 1px 2px,rgba(8,8,8,.74) 3px 4px)}
 .crt-stage::before{
   background:#f4f4f4;
@@ -158,14 +157,6 @@ body.booting .shell{
   pointer-events:none;
 }
 
-/* Site elements arrive as one composition rather than popping in at once. */
-
-@keyframes siteElementIn{
-  from{opacity:0;transform:translateY(9px);filter:blur(1.2px)}
-  55%{filter:blur(.15px)}
-  to{opacity:1;transform:translateY(0);filter:none}
-}
-
 @media(prefers-reduced-motion:reduce){
 .shell,
 .boot-loader,
@@ -173,8 +164,8 @@ body.booting .shell{
 }
 
 /* V31.6 / consent-first boot gate -------------------------------------------
-   Resources load behind this screen; the original terminal boot becomes the
-   final transition after the user's explicit enter gesture. */
+   The loader contains only the label and progress bar. The restored CRT
+   Degauss starts after the loader has been dismissed. */
 .boot-gate{
   position:absolute;
   z-index:4;
@@ -185,7 +176,6 @@ body.booting .shell{
   gap:14px;
   padding:var(--screen-safe-top) var(--screen-safe-right) var(--screen-safe-bottom) var(--screen-safe-left);
   text-align:center;
-  transition:opacity .42s cubic-bezier(.22,.61,.36,1),filter .42s ease,visibility .42s ease;
 }
 .boot-gate h2{position:relative;width:min(100%,780px);min-height:.92em;margin:0;color:var(--bright);text-align:center;text-shadow:0 0 8px rgba(243,243,243,.24),0 0 22px rgba(199,199,199,.14)}
 .boot-progress{
