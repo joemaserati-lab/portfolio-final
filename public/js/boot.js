@@ -333,38 +333,46 @@
     setTimeout(startCrt, 900);
   }
 
-  function dismissLoader() {
-    const screen = document.getElementById('screen');
-    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let completed = false;
-    // Reuse the original 340 ms CRT Degauss animation on the fully loaded
-    // homepage. Start it only after the opaque loader is removed so that
-    // the simulated signal ignition is visible, never hidden behind it.
-    const finish = () => {
-      if (completed) return;
-      completed = true;
-      loader.remove();
-      if (reducedMotion || !screen || initialCase) return;
-      screen.classList.add('crt-boot-degauss');
-      setTimeout(() => screen.classList.remove('crt-boot-degauss'), 370);
-    };
-    loader.classList.add('done');
-    if (reducedMotion) { finish(); return; }
-    loader.addEventListener('transitionend', event => {
-      if (event.target === loader && event.propertyName === 'opacity') finish();
-    });
-    // A browser that suppresses transitions must still enter the site.
-    setTimeout(finish, 500);
-  }
-  function reveal() {
-    if (finished) return;
-    finished = true;
+  function completeReveal() {
+    // Do not activate homepage listeners, previews or CRT runtime until the
+    // ignition has ended. Commit the state and remove the opaque curtain in
+    // the same task: the first visible frame is the complete portfolio.
     document.body.classList.remove('booting');
     document.body.classList.add('site-ready');
     window.dispatchEvent(new CustomEvent('portfolio:booted'));
     window.dispatchEvent(new CustomEvent('portfolio:site-ready'));
     scheduleDeferredCovers();
     scheduleDeferredTouchVisuals();
+    loader.remove();
+  }
+  function dismissLoader() {
+    // The loader is the opaque CRT signal curtain. Keep it on top while the
+    // original degauss line plays; the prepared homepage must NEVER appear
+    // between the loading screen and the end of the ignition animation.
+    if (initialCase || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      completeReveal();
+      return;
+    }
+    let completed = false;
+    let fallbackTimer;
+    const finish = () => {
+      if (completed) return;
+      completed = true;
+      clearTimeout(fallbackTimer);
+      completeReveal();
+    };
+    const beam = loader.querySelector('.boot-signal-line');
+    beam?.addEventListener('animationend', event => {
+      if (event.target === beam && event.animationName === 'crtDegaussLine') finish();
+    });
+    // The loader stays fully opaque until the 340 ms signal has completed.
+    // Guard against disabled animations or throttled browser events.
+    loader.classList.add('crt-boot-degauss');
+    fallbackTimer = setTimeout(finish, 430);
+  }
+  function reveal() {
+    if (finished) return;
+    finished = true;
     dismissLoader();
   }
   async function fallback(error) {

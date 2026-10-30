@@ -17,14 +17,25 @@ try {
         for(const record of records){
           if(record.type==='childList'&&[...record.removedNodes].some(n=>n.id==='boot-loader'))
             window.__degaussEvents.push('loader-removed');
-          if(record.type==='attributes'&&record.target.id==='screen'){
+          if(record.type==='attributes'&&record.target.id==='boot-loader'){
             const previous=(record.oldValue||'').split(/\s+/).includes('crt-boot-degauss');
             const active=record.target.classList.contains('crt-boot-degauss');
             if(previous===active)continue;
             window.__degaussEvents.push(active?'degauss-start':'degauss-end');
             if(active){
-              window.__degaussAnimation=getComputedStyle(document.querySelector('.desktop')).animationName;
-              window.__degaussSignal=getComputedStyle(record.target,'::after').animationName;
+              const curtain=getComputedStyle(record.target);
+              window.__degaussSignal=getComputedStyle(record.target.querySelector('.boot-signal-line')).animationName;
+              window.__degaussSnapshot={
+                opacity:curtain.opacity,
+                visibility:curtain.visibility,
+                background:curtain.backgroundColor,
+                isReady:document.body.classList.contains('site-ready'),
+                isBooting:document.body.classList.contains('booting'),
+                loaderPresent:document.body.contains(record.target),
+                // At the center of the visible CRT, the opaque loader still
+                // covers the page even though its resources are fully ready.
+                cover:document.elementFromPoint(innerWidth/2,innerHeight/2)?.closest('#boot-loader')!==null
+              };
             }
           }
         }
@@ -83,20 +94,19 @@ try {
    const ignitionIndex=ignition.indexOf('degauss-start');
    assert(loaderIndex>=0,'Loader removal was not observed');
    if(reducedMotion==='no-preference'){
-     assert(ignitionIndex>loaderIndex,
-       'CRT Degauss must begin only AFTER the completed loader is removed');
+     assert(ignitionIndex>=0 && ignitionIndex<loaderIndex,
+       'CRT Degauss must finish BEFORE the loader is removed and homepage revealed');
      const played=await page.evaluate(()=>({
-       content:window.__degaussAnimation,signal:window.__degaussSignal
+       signal:window.__degaussSignal, snapshot:window.__degaussSnapshot
      }));
-     assert(played.content?.includes(width<=720?'crtBootDegaussComposite':'crtDegaussContent'),
-       'CRT ignition class did not activate the visible content animation');
      assert(played.signal?.includes('crtDegaussLine'),
-       'CRT ignition did not display the original signal line');
-     await page.waitForFunction(()=>!document.querySelector('#screen.crt-boot-degauss'),null,{timeout:5000});
-     const finalEvents=await page.evaluate(()=>window.__degaussEvents);
-     assert.equal(finalEvents.filter(x=>x==='degauss-start').length,1,
+       'CRT signal line was not animated on the loader');
+     assert.deepEqual(played.snapshot,{
+       opacity:'1',visibility:'visible',background:'rgb(5, 5, 5)',
+       isReady:false,isBooting:true,loaderPresent:true,cover:true
+     },'Homepage must stay inactive and concealed until the CRT ignition finishes');
+     assert.equal(ignition.filter(x=>x==='degauss-start').length,1,
        'Entry Degauss must play exactly once');
-     assert(finalEvents.includes('degauss-end'),'Entry Degauss was not cleaned up');
    } else {
      assert.equal(ignitionIndex,-1,'Reduced-motion users must skip entry Degauss');
    }
@@ -137,11 +147,14 @@ try {
    assert.equal(await page.evaluate(()=>document.body.classList.contains('site-entering')),false);
    assert.deepEqual(await page.evaluate(()=>window.__bootEvents.map(e=>e.name)),['booted','ready']);
    assert.equal(await page.evaluate(()=>window.__bootEvents[0].head),true,'Returning visitor saw homepage before head initialized');
-   await page.waitForFunction(()=>!document.querySelector('#screen.crt-boot-degauss'),null,{timeout:5000});
    const repeatIgnition=await page.evaluate(()=>window.__degaussEvents);
    assert.equal(repeatIgnition.filter(x=>x==='degauss-start').length,
      reducedMotion==='no-preference'?1:0,
      'The entry transition must behave consistently on a return visit');
+   if(reducedMotion==='no-preference'){
+     assert(repeatIgnition.indexOf('degauss-start')<repeatIgnition.indexOf('loader-removed'),
+       'Return visit revealed homepage before completing CRT ignition');
+   }
    assert.equal(errors.length,0,errors.join('\n'));
    console.log('BOOT PASS',`${width}x${height}`,reducedMotion,'minimal 2s progress screen, synchronized reveal, repeat visit');
    await context.close();

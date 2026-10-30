@@ -182,18 +182,18 @@
 */
 
 
-/* Shared original CRT signal / Degauss: navigation and one post-loader ignition. */
-.screen:is(.crt-degauss,.crt-boot-degauss) .desktop,
-.screen:is(.crt-degauss,.crt-boot-degauss) .terminal-dock,
-.screen:is(.crt-degauss,.crt-boot-degauss) .footerbar,
-.screen:is(.crt-degauss,.crt-boot-degauss) #crt-bg,
-.screen:is(.crt-degauss,.crt-boot-degauss) #crt-fx,
-.screen:is(.crt-degauss,.crt-boot-degauss) .noise,
-.screen:is(.crt-degauss,.crt-boot-degauss) .scanlines{
+/* Original CRT collapse for navigation; post-loader ignition reuses its signal line. */
+.screen.crt-degauss .desktop,
+.screen.crt-degauss .terminal-dock,
+.screen.crt-degauss .footerbar,
+.screen.crt-degauss #crt-bg,
+.screen.crt-degauss #crt-fx,
+.screen.crt-degauss .noise,
+.screen.crt-degauss .scanlines{
   transform-origin:50% 50%;
   animation:crtDegaussContent .34s cubic-bezier(.65,.02,.25,1) both;
 }
-.screen:is(.crt-degauss,.crt-boot-degauss)::after{
+.screen.crt-degauss::after{
   content:""!important;display:block!important;position:absolute;z-index:90;pointer-events:none;
   left:4%;right:4%;top:50%;height:2px;opacity:0;
   background:rgba(243,243,243,.92);
@@ -214,26 +214,39 @@
   100%{opacity:0;transform:scaleX(.12)}
 }
 
-/* On touch devices, preserve the CRT collapse and bright signal line without
-   animating a full-screen brightness filter. Transform-only compositing avoids
-   expensive software-GPU paint during the post-loader transition. */
-@media (max-width: 720px) {
-  .screen.crt-boot-degauss .desktop,
-  .screen.crt-boot-degauss .terminal-dock,
-  .screen.crt-boot-degauss .footerbar,
-  .screen.crt-boot-degauss #crt-bg,
-  .screen.crt-boot-degauss #crt-fx,
-  .screen.crt-boot-degauss .noise,
-  .screen.crt-boot-degauss .scanlines {
-    animation-name: crtBootDegaussComposite;
-  }
+/* Entry ignition runs on the opaque loader itself. Its CRT aperture remains
+   covered until the signal line has finished, so no homepage frame leaks
+   through before the animation ends. Navigation keeps the original effect. */
+.boot-loader.crt-boot-degauss{
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  transition:none!important;
 }
-@keyframes crtBootDegaussComposite {
-  0% { transform:scaleY(1) scaleX(1); }
-  38% { transform:scaleY(.045) scaleX(.985); }
-  52% { transform:scaleY(.018) scaleX(.94); }
-  72% { transform:scaleY(.50) scaleX(.992); }
-  100% { transform:scaleY(1) scaleX(1); }
+.boot-loader.crt-boot-degauss .boot-gate{
+  opacity:0!important;
+  visibility:hidden!important;
+}
+/* Keep the tiny signal surface allocated behind the loader title. During
+   ignition only transform and opacity change: no new full-screen background
+   or pseudo-element needs to be painted on a software-rendered mobile GPU. */
+.boot-loader .boot-signal-line{
+  display:block;
+  position:absolute;
+  z-index:6;
+  pointer-events:none;
+  left:4%;
+  right:4%;
+  top:50%;
+  height:2px;
+  opacity:0;
+  transform:scaleX(.30);
+  transform-origin:center;
+  background:rgba(244,244,244,.92);
+  box-shadow:0 0 8px rgba(243,243,243,.92),0 0 24px rgba(199,199,199,.30),0 0 64px rgba(199,199,199,.16);
+}
+.boot-loader.crt-boot-degauss .boot-signal-line{
+  animation:crtDegaussLine .34s cubic-bezier(.65,.02,.25,1) both;
 }
 
 
@@ -295,8 +308,8 @@
 }
 
 @media (prefers-reduced-motion:reduce){
-  .screen:is(.crt-degauss,.crt-boot-degauss) .desktop,.screen:is(.crt-degauss,.crt-boot-degauss) .terminal-dock,.screen:is(.crt-degauss,.crt-boot-degauss) .footerbar,.screen:is(.crt-degauss,.crt-boot-degauss) #crt-bg,.screen:is(.crt-degauss,.crt-boot-degauss) #crt-fx,.screen:is(.crt-degauss,.crt-boot-degauss) .noise,.screen:is(.crt-degauss,.crt-boot-degauss) .scanlines{animation:none!important}
-  .screen:is(.crt-degauss,.crt-boot-degauss)::after,.screen.micro-glitch .desktop,.screen.micro-glitch .terminal-dock,.screen.micro-glitch .footerbar,.screen.micro-glitch #crt-fx,.project-cover-v2::after{animation:none!important}
+  .screen.crt-degauss .desktop,.screen.crt-degauss .terminal-dock,.screen.crt-degauss .footerbar,.screen.crt-degauss #crt-bg,.screen.crt-degauss #crt-fx,.screen.crt-degauss .noise,.screen.crt-degauss .scanlines{animation:none!important}
+  .screen.crt-degauss::after,.screen.micro-glitch .desktop,.screen.micro-glitch .terminal-dock,.screen.micro-glitch .footerbar,.screen.micro-glitch #crt-fx,.project-cover-v2::after{animation:none!important}
 }
 
 
