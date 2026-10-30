@@ -49,3 +49,7 @@ Direct project visits defer the 3D portrait and CRT until returning to a scroll 
 
 ## Typography
 The complete site typography is defined in `public/css/typography.css` and documented in `TYPOGRAPHY.md`. Run `node tests/typography-regression.mjs` against the local preview to verify reading, controls, captions, narrow/short layouts and the 404 page.
+
+### Low-power GPU handling (v2.0.20)
+
+The Three.js portrait retains the same scanned-contour shader and mouse interaction. Its shader now skips organic-color computations for fragments where the final result is mathematically only the neutral rim or transparent fade. Hardware-accelerated GPUs keep the original 60/30 fps budgets; software WebGL (SwiftShader/llvmpipe) and repeatedly stalled renderers automatically enter lower-pixel, lower-FPS modes to keep the main browser thread responsive. The fallback is intentionally per-device: it does not alter visual layouts or project media. `PortfolioMotion.getRenderStats()` exposes `backend`, `lastDrawMs`, `drawnFrames`, `pixels` and `fpsBudget` for diagnostics. PageSpeed lab scores in software-GPU environments should still be interpreted separately from real device field metrics.

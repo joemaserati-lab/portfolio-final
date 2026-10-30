@@ -17,12 +17,23 @@ try {
     await page.waitForFunction(()=>document.body.classList.contains('site-ready') &&
       window.PortfolioMotion?.getRenderStats?.()?.pixels>0,null,{timeout:60000});
     const hero = await page.evaluate(()=>window.PortfolioMotion.getRenderStats());
-    assert(hero.pixels>0 && hero.fpsBudget>=24,'Head GPU not initialized');
+    assert(hero.pixels>0 && hero.fpsBudget>0,'Head GPU not initialized');
+    // Software WebGL can never be equated with a dedicated GPU. On that
+    // backend the governor intentionally starts below the usual FPS budget.
+    if (hero.backend === 'none') {
+      assert(hero.fpsBudget>=24,'Hardware-GPU hero unexpectedly throttled');
+    } else {
+      assert(hero.fpsBudget<=16,'Software/stalled GPU did not enter safe pacing');
+    }
     if (isMobile) {
       assert(hero.pixels<=1102500,'Mobile hero exceeds pixel budget');
+      if (hero.backend === 'software')
+        assert(hero.pixels<=212500,'Software mobile GPU not protected');
       assert(hero.pixelRatio<=1.51,'Mobile hero DPR not capped');
     } else {
       assert(hero.pixels<=1502500,'Desktop hero exceeds pixel budget');
+      if (hero.backend === 'software')
+        assert(hero.pixels<=212500,'Software desktop GPU not protected');
     }
 
     // Once the transition settles, the visible head is much smaller.
@@ -33,6 +44,8 @@ try {
     assert(dock.pixels<hero.pixels*.55,
       `Docked head GPU buffer did not shrink at ${width}: ${hero.pixels} to ${dock.pixels}`);
     assert(dock.fpsBudget<=30,'Docked render budget exceeds 30fps');
+    assert(dock.drawnFrames>=hero.drawnFrames,'Frame accounting went backwards');
+    assert(dock.lastDrawMs>=0,'Missing draw duration diagnostics');
     assert(await page.locator('#crt-head-feature').isVisible(),'GPU optimization hid head');
 
     await page.locator('#scroll-viewport').evaluate(e=>e.scrollTop+=100);
