@@ -1,6 +1,6 @@
 /**
  * Switch the site-wide typography without altering layout or content.
- * 'doto-mono': Doto headings/interface, Geist Mono body and informational subheads (current experiment).
+ * 'doto-mono': Doto headings/interface, JetBrains Mono body and informational subheads (active).
  * 'pixel-editorial': Geist Pixel Square headings, Geist Sans body, Doto micro-UI.
  * 'digital': Doto headings, Geist Pixel Square body.
  * 'balanced': Redaction 50 headings, Inter body, Doto UI.

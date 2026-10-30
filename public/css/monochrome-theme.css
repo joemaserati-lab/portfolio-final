@@ -152,7 +152,10 @@ body { color: var(--white); }
    Decorative punctuation is always red, including hover and focus. */
 .doto-glyph,
 .case-story-copy .doto-glyph { color: var(--red); }
+.primary-action::before,
 .primary-action::after,
+.boot-gate h2::before,
+.boot-gate h2::after,
 .case-live-link::after,
 .window-body > h2::after,
 .contact-copy h2::after,
@@ -161,3 +164,9 @@ body { color: var(--white); }
 .resume-section-title::before,
 .case-story-label::before,
 .static-reader h1::after { color: var(--red); }
+
+/* Labels in the docked desktop minimenu and active mobile navigation. */
+.scroll-portfolio .scroll-section-name [data-scroll-label],
+.scroll-portfolio .scroll-index a[aria-current] [data-scroll-label] {
+  color: var(--red);
+}

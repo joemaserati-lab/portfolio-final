@@ -234,10 +234,10 @@
       ['500 20px "Doto"','PORTFOLIO LOADING'],
       ['600 48px "Doto"','EDOARDO RAPPANELLO'],
       ['700 48px "Doto"','EDOARDO RAPPANELLO'],
-      ['400 17px "Geist Mono"','Graphic design and digital marketing'],
-      ['500 17px "Geist Mono"','GRAPHIC DESIGNER'],
-      ['600 17px "Geist Mono"','PROJECTS'],
-      ['700 17px "Geist Mono"','Selected works']
+      ['400 17px "JetBrains Mono"','Graphic design and digital marketing'],
+      ['500 17px "JetBrains Mono"','GRAPHIC DESIGNER'],
+      ['600 17px "JetBrains Mono"','PROJECTS'],
+      ['700 17px "JetBrains Mono"','Selected works']
     ];
     let timer;
     try {
@@ -259,7 +259,7 @@
       await Promise.race([document.fonts.ready, timeout]);
       root.classList.remove('fonts-pending');
       root.classList.add('fonts-ready');
-      return {source:'Doto + Geist Mono'};
+      return {source:'Doto + JetBrains Mono'};
     } catch (error) {
       console.warn('Web fonts unavailable; using bundled Doto without system fallback.',error);
       // The locally hosted Doto font has a compatible visual identity, and is

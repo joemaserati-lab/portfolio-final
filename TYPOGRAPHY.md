@@ -5,12 +5,12 @@ La configurazione è in `src/data/typography.mjs`; i ruoli tipografici e le dime
 ## Prova attuale — `doto-mono` (attiva)
 
 - **Doto 700**: H1 della home, titoli di sezione, nomi dei case study e grande titolo 404. Titoli della directory e del loader in Doto 700; etichette, navigazione, CTA e metadati restano in Doto 500/600. La differenza di peso e scala costruisce l'impatto visivo senza aggiungere un terzo font.
-- **Geist Mono 400**: paragrafi, introduzioni, informazioni professionali, testi descrittivi e testi dei case study, CV e privacy. Nessun asse pixel e nessuna modifica al testo.
+- **JetBrains Mono 400**: paragrafi, introduzioni, informazioni professionali, testi descrittivi e testi dei case study, CV e privacy. Su desktop i testi di lettura usano 16 px e le introduzioni 17 px; su smartphone i minimi restano invariati.
 - **Design preservato**: identiche palette, dimensioni minime, navigazione, funzionalità CRT/Three.js e struttura responsive. L'ampiezza massima dei testi lunghi è 58ch.
 
 ## Segni Doto rossi — sistema approvato
 
-Il sistema usa esclusivamente quattro glifi tipografici in Doto: `.` per la firma di titoli e nome, `•` per separatori e intestazioni, `[ ]` per indici, `<>` per richiamo ad azioni. **Questi glifi sono sempre rossi `#FF2D3A`, anche durante hover e focus**; il verde menta `#80FFCC` rimane riservato agli stati interattivi e alla testa 3D. La punteggiatura ordinaria di testi, email e URL non viene recolorata. Non sono aggiunte librerie di icone né animazioni.
+Il sistema usa quattro glifi tipografici in Doto: `.` come firma dei titoli, `•` prima dell'anno o di `IN CORSO` nei progetti e dei periodi nel CV, `[ ]` per incorniciare l'intera CTA della homepage, il caricamento e le località delle esperienze, `<>` negli altri collegamenti dove previsto. I progetti non mostrano più il vecchio indice `[02] • 2026`. L'etichetta attiva dei lavori su smartphone è `Works`, con testi della navigazione successiva allo scroll rossi. Il titolo `PARLIAMONE` perde il punto originale e mantiene il solo punto rosso generato dal CSS. **Questi glifi sono sempre rossi `#FF2D3A`, anche durante hover e focus**; il verde menta `#80FFCC` rimane riservato agli stati interattivi e alla testa 3D. La punteggiatura ordinaria di testi, email e URL non viene recolorata. Non sono aggiunte librerie di icone né animazioni.
 
 `public/css/monochrome-theme.css` contiene esclusivamente il token e le regole colore dei segni; `public/css/typography.css` ne controlla la famiglia Doto, il peso e l'ingombro; `src/layouts/PortfolioShell.astro` ospita il punto della firma nella hero; `public/js/portfolio.js` costruisce gli indici e i metadati delle schede. I titoli dinamici e le CTA usano pseudo-elementi, così la traduzione IT/EN e i testi accessibili restano invariati. `tests/typography-regression.mjs` verifica il rosso dei glifi e la CTA.
 
@@ -26,7 +26,7 @@ Nota: Geist Pixel è progettato soprattutto per il display. Sui sottotitoli picc
 
 ## Ruoli professionali e ritmo delle sezioni
 
-Nella modalità `doto-mono`, **Doto** viene utilizzato anche per titoli dei ruoli professionali, nomi delle aziende, ruolo del profilo, responsabilità nei case study e nome del cliente. **Geist Mono** resta dedicato ai paragrafi, alle descrizioni dei progetti e ai testi informativi. Tutti i titoli, inclusi quelli informativi, usano Doto nella modalità attiva. Le etichette dell'interfaccia conservano Doto nei pesi già approvati.
+Nella modalità `doto-mono`, **Doto** viene utilizzato anche per titoli dei ruoli professionali, nomi delle aziende, ruolo del profilo, responsabilità nei case study e nome del cliente. **JetBrains Mono** resta dedicato ai paragrafi, alle descrizioni dei progetti e ai testi informativi. Tutti i titoli, inclusi quelli informativi, usano Doto nella modalità attiva. Le etichette dell'interfaccia conservano Doto nei pesi già approvati.
 
 La distribuzione dello whitespace riguarda Profilo, Lavori selezionati, CV, Contatti e tutti i case study, con misure e padding più generosi sui desktop e più compatti sui dispositivi mobili. I valori sono centralizzati in `public/css/portfolio-scroll.css`. La pulizia di testi ed elementi sarà affrontata separatamente, senza modifiche in questa fase.
 
@@ -68,7 +68,7 @@ Valori mobile → desktop; nessuna modifica ai testi, alla griglia o alle altre 
 | Label/metadati | `--type-label` | 13px | 1.4 | 500 | .04em |
 | Button | `--type-button` | 14px | 1.3 | 500 | .015em |
 
-Heading, ruoli professionali e interfaccia: Doto. Lead, paragrafi e didascalie: Geist Mono. I selettori dei componenti mantengono le eccezioni ottiche esistenti: hero 44–68px, titoli del reader 32–40px, titoli progetto nella directory 23–26px, ruoli CV 20–22px (anche come H4), privacy 20–22px. Il titolo 404 conserva la scala scenografica dedicata. In landscape breve il display mantiene il fit precedente; il testo di lettura resta almeno 16px.
+Heading, ruoli professionali e interfaccia: Doto. Lead, paragrafi e didascalie: JetBrains Mono. I selettori dei componenti mantengono le eccezioni ottiche esistenti: hero 44–68px, titoli del reader 32–40px, titoli progetto nella directory 23–26px, ruoli CV 20–22px (anche come H4), privacy 20–22px. Il titolo 404 conserva la scala scenografica dedicata. In landscape breve il display mantiene il fit precedente; il testo di lettura resta almeno 16px.
 
 Gli `span` senza classe ereditano il contesto. Per nuovi contenuti usare `.type-lead`, `.type-body`, `.type-small`, `.type-caption`, `.type-label`, `.type-meta`, `.type-button` secondo il ruolo, mai una regola globale `span`. Non usare un livello heading per ottenere solo una dimensione. H4 e H5 sono disponibili senza introdurre titoli o testi artificiali. Nel CV interattivo: H2 titolo, H3 gruppi, H4 ruoli. Il reader conserva H1 pagina, H2 gruppi, H3 ruoli.
 
