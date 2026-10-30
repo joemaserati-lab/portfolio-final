@@ -19,6 +19,10 @@ try {
   assert(first.backgroundPixels>0&&first.overlayPixels>0,'CRT shader surfaces are not initialized');
   assert.equal(first.backgroundPixels,first.overlayPixels,'CRT surfaces use different pixel budgets');
   assert(['normal','software','struggling'].includes(first.backend),'Unknown CRT performance profile');
+  // Playwright Chromium supports OffscreenCanvas WebGL. In this CI configuration,
+  // the two CRT shaders must actually run in the dedicated worker, not just
+  // compile in a main-thread fallback and conceal the software-GPU bottleneck.
+  assert.equal(first.execution,'worker','CRT WebGL did not move off the main thread');
   if(first.backend==='software') {
    const budget=isMobile?90000:240000;
    assert(first.backgroundPixels<=budget+1000,'Software CRT exceeds its per-surface pixel budget');
