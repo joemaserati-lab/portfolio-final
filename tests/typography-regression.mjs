@@ -29,6 +29,11 @@ try {
       scale, inherited,
       emptyHeadings:[...document.querySelectorAll('h1,h2,h3,h4,h5')].filter(e=>!e.textContent.trim()).length,
       cvHierarchy:[...document.querySelectorAll('.resume-section-title')].every(e=>e.tagName==='H3') && [...document.querySelectorAll('.resume-row .resume-role')].every(e=>e.tagName==='H4'),
+      redToken:getComputedStyle(document.documentElement).getPropertyValue('--red').trim().toLowerCase(),
+      glyphCount:document.querySelectorAll('.doto-glyph').length,
+      glyphColors:[...document.querySelectorAll('.doto-glyph')].map(e=>getComputedStyle(e).color),
+      heroHasSignature:Boolean(document.querySelector('.hero-intro h1 .doto-glyph')),
+      heroActionGlyph:document.querySelector('.primary-action') ? getComputedStyle(document.querySelector('.primary-action'),'::after').content : null,
       heroSecondary:document.querySelectorAll('.desktop-icons .desktop-icon small').length,
       heroPrimary:document.querySelectorAll('.desktop-icons .desktop-icon > [data-i18n]').length,
       workHeadingOverlap:[...document.querySelectorAll('.projects-index-head')].some(header=>{
@@ -64,6 +69,13 @@ try {
    assert(result.scale.every((x,i,a)=>!i||a[i-1].size>x.size),`${width} ${route}: H1–H5 must descend strictly`);
    assert.equal(result.emptyHeadings,0,`${route}: empty heading`);
    assert(result.cvHierarchy,`${route}: CV hierarchy must be H2/H3/H4`);
+   if(route!=='404.html' && result.mode==='doto-mono') {
+     assert.equal(result.redToken,'#ff2d3a',`${route}: red signature token changed`);
+     assert(result.glyphCount>0,`${route}: red Doto glyphs missing`);
+     assert(result.glyphColors.every(color=>color==='rgb(255, 45, 58)'),`${route}: Doto glyph must always be red`);
+     assert(result.heroHasSignature,`${route}: hero signature dot missing`);
+     assert(result.heroActionGlyph?.includes('<>'),`${route}: angle bracket CTA missing`);
+   }
    assert(result.inherited,`${route}: unclassified span must inherit its role`);
    if(result.mode==='doto-mono') assert(result.scale.every(x=>x.family.includes('Doto')),`${route}: semantic headings must use Doto`);
    assert.deepEqual(result.small,[],`${width} ${route}: reading text too small`);

@@ -52,7 +52,7 @@
   const paragraphs = value => [].concat(value || []).map(text => `<p>${esc(text)}</p>`).join('');
   const projectById = id => projects.find(p => p.id === String(id).padStart(2,'0'));
   const projectBySlug = slug => projects.find(p => p.slug === slug);
-  const backGlyph = '<span aria-hidden="true" style="display:inline-block;line-height:1;transform:translate(1px,-1px)">&lt;</span>';
+  const backGlyph = '<span class="doto-glyph" aria-hidden="true" style="display:inline-block;line-height:1;transform:translate(1px,-1px)">&lt;</span>';
   const projectImage = p => p.cover ? `<img class="project-cover-img" src="${esc(p.cover)}" alt="${esc(p.title)}" loading="lazy" decoding="async">${p.video ? `<video class="project-cover-video" data-src="${esc(p.video)}" muted loop playsinline preload="none" poster="${esc(p.cover)}" aria-hidden="true"></video>` : ''}` : '<span class="project-cover-art" aria-hidden="true"></span>';
   // One shared lifecycle for the directory, including language rerenders.
   const previewRoot = document.getElementById('scroll-work');
@@ -251,7 +251,7 @@
                 <span class="project-cover-open">${esc(t('portfolio.viewProject'))} ↗</span>
               </span>
               <span class="project-tile-copy">
-                <span class="project-tile-main"><small>${esc(p.id)} / ${esc(p.year)}</small><strong>${esc(p.displayTitle || p.title).replace(/\n/g,'<br>')}</strong></span>
+                <span class="project-tile-main"><small><span class="doto-glyph" aria-hidden="true">[</span> ${esc(p.id)} <span class="doto-glyph" aria-hidden="true">]</span> <span class="doto-glyph" aria-hidden="true">•</span> ${esc(p.year)}</small><strong>${esc(p.displayTitle || p.title).replace(/\n/g,'<br>')}</strong></span>
                 <span class="project-tile-details"><small>${esc(p.client)}</small><small>${esc(p.type.toUpperCase())}</small></span>
               </span>
             </a>`).join('')}
@@ -309,7 +309,7 @@
       <article class="case-study-v2">
         <div class="case-topline">
           <button class="case-back-v2" data-back-projects>${backGlyph} ${esc(t('portfolio.selectedWorkText'))}</button>
-          <span>${String(index+1).padStart(2,'0')} / ${String(projects.length).padStart(2,'0')}</span>
+          <span><span class="doto-glyph" aria-hidden="true">[</span> ${String(index+1).padStart(2,'0')} <span class="doto-glyph" aria-hidden="true">]</span> <span class="doto-glyph" aria-hidden="true">•</span> ${String(projects.length).padStart(2,'0')}</span>
         </div>
         <header class="case-lead-v2">
           <div class="case-title-v2"><h2 tabindex="-1">${esc(p.displayTitle || p.title).replace(/\n/g,'<br>')}</h2></div>
@@ -326,8 +326,8 @@
         <section class="case-story-v2">
           <div class="case-story-label">${esc(t('case.notes'))}</div>
           <div class="case-story-copy">
-            <article><span>01 / ${esc(t('case.context'))}</span><p>${esc(p.context)}</p></article>
-            <article><span>02 / ${esc(t('case.direction'))}</span><p>${esc(p.direction)}</p></article>
+            <article><span><span class="doto-glyph" aria-hidden="true">[</span> 01 <span class="doto-glyph" aria-hidden="true">]</span> <span class="doto-glyph" aria-hidden="true">•</span> ${esc(t('case.context'))}</span><p>${esc(p.context)}</p></article>
+            <article><span><span class="doto-glyph" aria-hidden="true">[</span> 02 <span class="doto-glyph" aria-hidden="true">]</span> <span class="doto-glyph" aria-hidden="true">•</span> ${esc(t('case.direction'))}</span><p>${esc(p.direction)}</p></article>
           </div>
         </section>
         ${gallery ? `<section class="case-gallery-v2" aria-label="${esc(t('case.gallery'))}">${gallery}</section>` : ''}
