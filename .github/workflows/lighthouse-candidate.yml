@@ -1,0 +1,49 @@
+name: Lighthouse Candidate
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build candidate
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+          npm run check
+      - name: Start candidate preview
+        run: |
+          (npm run preview -- --host 127.0.0.1 --port 4321 > /tmp/lighthouse-preview.log 2>&1 &)
+          for i in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:4321/portfolio-final/ > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Measure mobile and desktop
+        run: |
+          mkdir -p /tmp/lighthouse-candidate
+          npx --yes lighthouse@12 http://127.0.0.1:4321/portfolio-final/ --chrome-flags="--headless --no-sandbox" --output=json --output=html --output-path=/tmp/lighthouse-candidate/mobile
+          npx --yes lighthouse@12 http://127.0.0.1:4321/portfolio-final/ --preset=desktop --chrome-flags="--headless --no-sandbox" --output=json --output=html --output-path=/tmp/lighthouse-candidate/desktop
+          node --input-type=module - <<'NODE'
+          import {readFileSync} from 'node:fs';
+          for (const device of ['mobile','desktop']) {
+            const report=JSON.parse(readFileSync('/tmp/lighthouse-candidate/'+device+'.report.json','utf8'));
+            const categories=Object.fromEntries(Object.entries(report.categories).map(([key,val])=>[key,Math.round(val.score*100)]));
+            const metrics=Object.fromEntries(['first-contentful-paint','largest-contentful-paint','total-blocking-time','cumulative-layout-shift','speed-index'].map(key=>[key,report.audits[key]?.displayValue]));
+            console.log('CANDIDATE LIGHTHOUSE',device,JSON.stringify({categories,metrics,lighthouseVersion:report.lighthouseVersion,finalUrl:report.finalUrl}));
+          }
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-candidate
+          path: /tmp/lighthouse-candidate
+          retention-days: 14
