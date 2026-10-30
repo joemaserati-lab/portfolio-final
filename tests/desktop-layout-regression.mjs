@@ -21,6 +21,14 @@ try{
   assert(shape.title.right < shape.icons.left-12,`${width}: hero intersects launchers`);
   assert(shape.iconItems.every(x=>x.box.right <= shape.screen.right+eps),`${width}: launcher out of bounds`);
   assert(shape.iconItems.every(x=>x.bg.startsWith('rgba(8, 8, 8') || x.bg.startsWith('rgb(8, 8, 8')),`${width}: missing icon backing`);
+  const heroGeometry=await page.locator('.desktop-icons .desktop-icon').first().evaluate(button=>{
+    const glyph=button.querySelector('.icon-glyph');
+    return {glyph:glyph.getBoundingClientRect().toJSON(),hit:button.getBoundingClientRect().toJSON()};
+  });
+  assert.equal(Math.round(heroGeometry.glyph.width),50,`${width}: hero icon width`);
+  assert.equal(Math.round(heroGeometry.glyph.height),40,`${width}: hero icon height`);
+  assert(heroGeometry.hit.width>=heroGeometry.glyph.width && heroGeometry.hit.height>=heroGeometry.glyph.height,
+    `${width}: hero button must retain its click area`);
   for (const kind of ['work','resume','contact']) {
    await page.evaluate(kind=>dispatchEvent(new CustomEvent('portfolio:scroll-to',{detail:kind})),kind);
    await page.waitForFunction(kind=>document.querySelector('.scroll-index [aria-current]')?.dataset.scrollSection===kind,kind);
