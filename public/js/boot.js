@@ -294,6 +294,11 @@
   const applicationReady = track('app', loadApplication());
   const workPath = new URL('work/', document.baseURI).pathname;
   const initialCase = location.pathname.startsWith(workPath) && location.pathname !== workPath;
+  // Decode the 14 KB ambient video behind the existing opaque loader rather
+  // than starting its request ~900 ms after reveal. This retains the same video
+  // and all CRT effects while preventing a late video-frame LCP on mobile.
+  // Direct project pages keep the original deferred-video behavior.
+  if (!initialCase) startAmbientVideo();
   const headReady = track('head', initialCase ? Promise.resolve({ready:true,deferred:true}) : domReady.then(loadHead));
   if (initialCase) addEventListener('portfolio:project-closed', () => {
     loadHead();
