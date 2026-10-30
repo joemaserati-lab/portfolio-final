@@ -359,7 +359,7 @@
   function reveal() {
     if (finished) return;
     finished = true;
-    document.body.classList.remove('booting', 'entry-prewarm', 'site-entering');
+    document.body.classList.remove('booting');
     document.body.classList.add('site-ready');
     window.dispatchEvent(new CustomEvent('portfolio:booted'));
     window.dispatchEvent(new CustomEvent('portfolio:site-ready'));
@@ -372,7 +372,7 @@
     // Fallback reader content is text too: never expose browser fonts.
     await fontsReady;
     console.error('Portfolio application failed to load.', error);
-    document.body.classList.remove('booting', 'entry-prewarm', 'site-entering');
+    document.body.classList.remove('booting');
     document.body.classList.add('reader-mode');
     document.documentElement.classList.remove('returning-visit');
     loader.remove();
