@@ -7,6 +7,7 @@ export function mountHeadScanEffect({container,canvas,modelUrl,reducedMotion=fal
   let disposed=false, stats, resolveReady, rejectReady;
   const rotation={x:-.015,y:0};
   const pending={paused:true,reducedMotion,scroll:null,scale:1,pointer:null};
+  let sentPointers=0;
   const ready=new Promise((resolve,reject)=>{resolveReady=resolve;rejectReady=reject});
   let resizeObserver, lastSize='';
   const useLatest=()=> {
@@ -67,7 +68,7 @@ export function mountHeadScanEffect({container,canvas,modelUrl,reducedMotion=fal
     ready,
     get root(){return fallback?.root || {rotation}},
     get disposed(){return disposed || Boolean(fallback?.disposed)},
-    getRenderStats(){return fallback?.getRenderStats()||stats},
+    getRenderStats(){return {...(fallback?.getRenderStats()||stats),lastPointer:pending.pointer,sentPointers}},
     setScrollRotation(yaw,presence=0){
       pending.scroll={yaw,presence};
       if(fallback)fallback.setScrollRotation(yaw,presence);
@@ -79,7 +80,7 @@ export function mountHeadScanEffect({container,canvas,modelUrl,reducedMotion=fal
       else send('scale',{value});
     },
     setPointer(x,y){
-      pending.pointer=[x,y];
+      pending.pointer=[x,y]; sentPointers+=1;
       if(fallback)fallback.setPointer(x,y);
       else send('pointer',{x,y});
     },

@@ -656,7 +656,9 @@ export function mountHeadScanEffect({
         execution: workerMode ? 'worker' : 'main',
         quality: coarsePointer ? 'touch' : quality().name,
         backend: fallbackMode, lastDrawMs: Math.round(lastDrawMs * 10) / 10,
-        drawnFrames, renderer: rendererDescription
+        drawnFrames, renderer: rendererDescription,
+        pointerTarget: [targetPointer.x, targetPointer.y],
+        scrollYaw, heroPresence, rootYaw: root.rotation.y
       };
     },
     setViewportSize(width, height) {
