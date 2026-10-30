@@ -1,23 +1,6 @@
-/* Doto becomes the operating-system/interface voice. Redaction 50 remains
-   untouched on the large editorial display headings defined in style.css. */
-
-/* Doto has a larger visual footprint than the previous interface typeface.
-   Rebuild the interface scale around it instead of inheriting the former terminal proportions. */
-
-/* Doto already carries strong internal rhythm: keep tracking restrained and
-   use size/spacing rather than letter-spacing to establish hierarchy. */
-
-.hero-copy {
-  max-width: 460px;
-
-
-}
-
-.primary-action {
-
-
-  padding: 10px 13px;
-}
+/* Editorial interface sizing retained from the original design. */
+.hero-copy { max-width: 460px; }
+.primary-action { padding: 10px 13px; }
 
 /* Targeted UI fixes — 2026-09-15 */
 
