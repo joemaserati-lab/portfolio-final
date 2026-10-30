@@ -253,7 +253,10 @@
         })),
         timeout
       ]);
-      await document.fonts.ready;
+      // The required Doto/Geist faces are already verified above. Do not
+      // allow unrelated, slow stylesheet font requests to keep the loader
+      // hidden forever on weak connections; use the same 9-second deadline.
+      await Promise.race([document.fonts.ready, timeout]);
       root.classList.remove('fonts-pending');
       root.classList.add('fonts-ready');
       return {source:'Doto + Geist Mono'};
