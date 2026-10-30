@@ -214,9 +214,9 @@
   100%{opacity:0;transform:scaleX(.12)}
 }
 
-// Entry ignition runs on the opaque loader itself. Its CRT aperture remains
-// covered until the signal line has finished, so no homepage frame leaks
-// through before the animation ends. Navigation keeps the original effect.
+/* Entry ignition runs on the opaque loader itself. Its CRT aperture remains
+   covered until the signal line has finished, so no homepage frame leaks
+   through before the animation ends. Navigation keeps the original effect. */
 .boot-loader.crt-boot-degauss{
   opacity:1!important;
   visibility:visible!important;
