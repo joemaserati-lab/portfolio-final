@@ -156,10 +156,6 @@ button{color:inherit}
 
 @media(max-width:1024px){
   .window-caption{max-width:48vw}
-   .hero-intro h1{}
-
-   .desktop-icon{}
-  .desktop-icon small{}
   .icon-glyph{width:48px;height:40px}
 
    .desktop-note{display:none}
@@ -167,16 +163,10 @@ button{color:inherit}
   .meta-grid{grid-template-columns:1fr}
 }
 @media(max-width:720px){
-  body{}
    .footerbar{height:28px;padding:0 2px;left:calc(var(--screen-safe-left) + 2px);right:calc(var(--screen-safe-right) + 2px);bottom:12px}
-
-   .hero-intro h1{}
-  .system-label,.hero-copy, .primary-action{}
   .desktop-icons{bottom:calc(var(--screen-safe-bottom) + 42px);grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
-  .desktop-icon>span:nth-child(2){}
   .desktop-icon small{display:none}
   .icon-glyph{width:36px;height:31px;font-size:17px}
-   .window-body h2{}
   .terminal-dock{bottom:48px}
   .terminal-dock.open .terminal-panel{height:160px}
 }
@@ -198,13 +188,7 @@ body.booting .shell{visibility:hidden}
  .boot-loader{position:fixed;z-index:100;left:calc(var(--stage-gap) + var(--bezel-x));right:calc(var(--stage-gap) + var(--bezel-x));top:calc(var(--stage-gap) + var(--bezel-y));bottom:calc(var(--stage-gap) + var(--bezel-y));overflow:hidden;clip-path:url(#crtScreenClip);-webkit-clip-path:url(#crtScreenClip);background:radial-gradient(circle at 50% 46%,rgba(60,60,60,.54),rgba(15,15,15,.9) 35%,rgba(8,8,8,.985) 78%);padding:var(--screen-safe-top) var(--screen-safe-right) var(--screen-safe-bottom) var(--screen-safe-left);color:var(--phosphor);text-shadow:0 0 5px rgba(199,199,199,.9),0 0 14px rgba(179,179,179,.35);transition:opacity .7s ease,visibility .7s ease}
 .boot-loader::before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0 2px,rgba(8,8,8,.48) 3px 4px);opacity:.5;mix-blend-mode:multiply}
 .boot-loader::after{content:"";position:absolute;left:0;right:0;height:14%;top:-16%;pointer-events:none;background:linear-gradient(to bottom,transparent,rgba(199,199,199,.09),transparent);transform:translate3d(0,0,0);will-change:transform;animation:bootRoll 2.2s linear infinite}
-.boot-output{position:relative;z-index:2;max-width:min(100%,1150px);white-space:pre-wrap}
-.boot-line{min-height:1.08em;animation:bootLineIn .06s steps(2,end) both}
-.boot-line .tag{color:var(--bright)}
-.boot-line .muted{color:var(--dim)}
-.boot-prompt{position:relative;z-index:2;display:flex;gap:.5em;margin-top:.35em;color:var(--bright);max-width:min(100%,1150px)}
-.boot-cursor{animation:blink .75s steps(2,end) infinite}
- .boot-skip{position:absolute;z-index:3;right:calc(var(--screen-safe-right) + 10px);bottom:calc(var(--screen-safe-bottom) - 6px);border:0;background:transparent;color:var(--dim);cursor:pointer;}.boot-skip:hover{color:var(--bright)}
+.boot-cursor{animation:blink .75s steps(2,end) infinite}.boot-skip:hover{color:var(--bright)}
 
 @keyframes bootLineIn{from{opacity:0;transform:translateY(2px)}to{opacity:1;transform:none}}
 @keyframes bootRoll{to{transform:translate3d(0,943%,0)}}
@@ -227,7 +211,7 @@ body.booting .shell{visibility:hidden}
 /* Distortion cues without sacrificing edge legibility */
 .screen.crt-sync-hit{transform:translate(calc(var(--crt-jitter-x) + 2.2px),var(--crt-jitter-y)) skewX(.06deg) scaleY(var(--crt-scale-y));}
 .screen.crt-sync-hit::before{height:4px;box-shadow:0 -3px 12px rgba(179,179,179,.17),0 3px 12px rgba(179,179,179,.17)}
-@media(max-width:720px){ .boot-skip{right:calc(var(--screen-safe-right) - 2px);bottom:calc(var(--screen-safe-bottom) - 12px);}.icon-glyph{width:40px;height:34px}}
+@media(max-width:720px){.icon-glyph{width:40px;height:34px}}
 
 
 /* V2.5 ULTRALIGHT THREE.JS SHELL ------------------------------------------
@@ -290,14 +274,12 @@ body.booting .shell{visibility:hidden}
 .desktop{position:relative;z-index:10}
 
 .terminal-dock{z-index:19}
- .desktop-note{}
 .desktop-note p{margin:3px 0;color:var(--dim)}
 
 
 @media(max-width:900px){
   :root{--stage-gap:9px;--bezel-x:22px;--bezel-y:18px;--screen-safe-top:44px;--screen-safe-right:72px;--screen-safe-bottom:64px;--screen-safe-left:72px}
   .desktop-icons{grid-template-columns:repeat(2,110px);gap:18px 20px}
-   .hero-intro h1{}
 }
 @media(max-width:560px){
   :root{--screen-safe-right:30px;--screen-safe-bottom:58px;--screen-safe-left:30px}
@@ -343,7 +325,6 @@ body.booting .shell{visibility:hidden}
   }
   .desktop{height:100%;padding:var(--screen-safe-top) var(--screen-safe-right) var(--screen-safe-bottom) var(--screen-safe-left)}
   .hero-intro{padding-left:0;padding-top:0;max-width:min(100%,360px)}
-   .hero-intro h1{}
    .hero-copy{max-width:300px;margin:16px 0 18px}
   .desktop-icons{
     left:var(--screen-safe-left);
@@ -388,7 +369,6 @@ body.booting .shell{visibility:hidden}
   }
   .screen{clip-path:url(#crtScreenClip);-webkit-clip-path:url(#crtScreenClip);border-radius:0}
    .boot-loader{padding:var(--screen-safe-top) var(--screen-safe-right) var(--screen-safe-bottom) var(--screen-safe-left)}
-   .boot-skip{right:var(--screen-safe-right);bottom:calc(var(--screen-safe-bottom) - 12px)}
   .desktop-icons{left:var(--screen-safe-left);right:var(--screen-safe-right);bottom:calc(var(--screen-safe-bottom) + 38px)}
    .footerbar{left:var(--screen-safe-left);right:var(--screen-safe-right)}
   .terminal-dock{left:var(--screen-safe-left);right:var(--screen-safe-right)}
@@ -400,53 +380,18 @@ body.booting .shell{visibility:hidden}
    One clamp-based scale for the whole portfolio. Display sizes also react
    to viewport height so short laptop screens do not inherit oversized type.
 */
-
-
-
- .footerbar{}
- .system-label{}
- .hero-intro h1{}
- .hero-copy{}
- .primary-action{}
- .desktop-icon{}
-.desktop-icon>span:nth-child(2){}
-.desktop-icon small{}
 .icon-glyph{font-size:var(--type-body-lg)}
 .file-glyph{font-size:var(--type-caption)}
 .disk-glyph{font-size:var(--type-base)}
 .mail-glyph{font-size:var(--type-body-lg)}
- .desktop-note{}
-
- .window-titlebar{}
 .window-controls button{font-size:var(--type-ui)}
- .window-eyebrow{}
- .window-body h2{}
- .window-body p{}
- .meta-card small{}
-.meta-card b{}
- .tags span{}
- .contact-link{}
-
- .terminal-toggle{}
- .terminal-output,.prompt-row,#terminal-input{}
-
-
- .boot-skip{}
 
 
 /* Narrow screens keep the same scale logic, with tighter UI-specific clamps. */
 @media(max-width:720px){
-  .desktop-icon>span:nth-child(2){}
-  .desktop-icon small{}
-   .footerbar{}
-   .terminal-toggle{}
-   .boot-skip{}
 }
 
 /* Short landscape displays need height-aware restraint even when width is large. */
-@media(max-height:650px) and (min-width:721px){
-
-}
 /* V2.9 / WINDOW MANAGER ----------------------------------------------------
    Secondary panels open in varied positions inside the safezone. PROJECTS
    always owns the full safezone. Window controls are maximize / restore + close.
