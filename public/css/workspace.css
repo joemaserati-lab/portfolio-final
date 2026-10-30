@@ -182,18 +182,18 @@
 */
 
 
-/* CRT power / degauss transition used for Projects and case-study changes. */
-.screen.crt-degauss .desktop,
-.screen.crt-degauss .terminal-dock,
-.screen.crt-degauss .footerbar,
-.screen.crt-degauss #crt-bg,
-.screen.crt-degauss #crt-fx,
-.screen.crt-degauss .noise,
-.screen.crt-degauss .scanlines{
+/* Shared original CRT signal / Degauss: navigation and one post-loader ignition. */
+.screen:is(.crt-degauss,.crt-boot-degauss) .desktop,
+.screen:is(.crt-degauss,.crt-boot-degauss) .terminal-dock,
+.screen:is(.crt-degauss,.crt-boot-degauss) .footerbar,
+.screen:is(.crt-degauss,.crt-boot-degauss) #crt-bg,
+.screen:is(.crt-degauss,.crt-boot-degauss) #crt-fx,
+.screen:is(.crt-degauss,.crt-boot-degauss) .noise,
+.screen:is(.crt-degauss,.crt-boot-degauss) .scanlines{
   transform-origin:50% 50%;
   animation:crtDegaussContent .34s cubic-bezier(.65,.02,.25,1) both;
 }
-.screen.crt-degauss::after{
+.screen:is(.crt-degauss,.crt-boot-degauss)::after{
   content:""!important;display:block!important;position:absolute;z-index:90;pointer-events:none;
   left:4%;right:4%;top:50%;height:2px;opacity:0;
   background:rgba(243,243,243,.92);
@@ -272,8 +272,8 @@
 }
 
 @media (prefers-reduced-motion:reduce){
-  .screen.crt-degauss .desktop,.screen.crt-degauss .terminal-dock,.screen.crt-degauss .footerbar,.screen.crt-degauss #crt-bg,.screen.crt-degauss #crt-fx,.screen.crt-degauss .noise,.screen.crt-degauss .scanlines{animation:none!important}
-  .screen.crt-degauss::after,.screen.micro-glitch .desktop,.screen.micro-glitch .terminal-dock,.screen.micro-glitch .footerbar,.screen.micro-glitch #crt-fx,.project-cover-v2::after{animation:none!important}
+  .screen:is(.crt-degauss,.crt-boot-degauss) .desktop,.screen:is(.crt-degauss,.crt-boot-degauss) .terminal-dock,.screen:is(.crt-degauss,.crt-boot-degauss) .footerbar,.screen:is(.crt-degauss,.crt-boot-degauss) #crt-bg,.screen:is(.crt-degauss,.crt-boot-degauss) #crt-fx,.screen:is(.crt-degauss,.crt-boot-degauss) .noise,.screen:is(.crt-degauss,.crt-boot-degauss) .scanlines{animation:none!important}
+  .screen:is(.crt-degauss,.crt-boot-degauss)::after,.screen.micro-glitch .desktop,.screen.micro-glitch .terminal-dock,.screen.micro-glitch .footerbar,.screen.micro-glitch #crt-fx,.project-cover-v2::after{animation:none!important}
 }
 
 
