@@ -653,6 +653,7 @@ export function mountHeadScanEffect({
         pixels: canvas.width * canvas.height,
         fpsBudget: targetFps(), scale: presentationScale,
         pixelRatio: renderer.getPixelRatio(),
+        execution: workerMode ? 'worker' : 'main',
         quality: coarsePointer ? 'touch' : quality().name,
         backend: fallbackMode, lastDrawMs: Math.round(lastDrawMs * 10) / 10,
         drawnFrames, renderer: rendererDescription

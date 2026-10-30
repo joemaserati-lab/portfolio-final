@@ -17,6 +17,8 @@ try {
     await page.waitForFunction(()=>document.body.classList.contains('site-ready') &&
       window.PortfolioMotion?.getRenderStats?.()?.pixels>0,null,{timeout:60000});
     const hero = await page.evaluate(()=>window.PortfolioMotion.getRenderStats());
+    assert(['main','worker'].includes(hero.execution),'Missing rendering execution mode');
+    console.log('HEAD EXECUTION',width,height,hero.execution,hero.renderer);
     assert(hero.pixels>0 && hero.fpsBudget>0,'Head GPU not initialized');
     // Software WebGL can never be equated with a dedicated GPU. On that
     // backend the governor intentionally starts below the usual FPS budget.

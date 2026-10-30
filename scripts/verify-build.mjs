@@ -10,6 +10,8 @@ const routes = ['', 'about/', 'contact/', 'resume/', 'work/', 'work/tovadu/', 'w
 const base = 'https://joemaserati-lab.github.io/portfolio-final/';
 assert.ok(existsSync(dir('dist/404.html')), '404.html missing');
 assert.ok(existsSync(dir('dist/css/portfolio.bundle.css')), 'CSS bundle missing');
+assert.ok(existsSync(dir('dist/js/head-render-worker.bundle.js')), 'OffscreenCanvas worker bundle missing');
+assert.ok(existsSync(dir('dist/js/head-scan-effect.bundle.js')), 'Main thread fallback missing');
 for (const route of routes) {
   const file = dir(`dist/${route}index.html`);
   assert.ok(existsSync(file), `Missing built route: ${route}`);
