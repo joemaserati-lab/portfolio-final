@@ -33,6 +33,8 @@ jobs:
         run: node tests/cursor-regression.mjs
       - name: Verify OffscreenCanvas worker, fallback and mouse interaction
         run: node tests/head-worker-regression.mjs
+      - name: Verify adaptive CRT rendering and buffer stability
+        run: node tests/crt-performance-regression.mjs
       - name: Verify adaptive 3D GPU budget and docked mouse interaction
         run: node tests/head-render-budget.mjs
       - name: Verify full-width desktop layout and stable 3D scroll
