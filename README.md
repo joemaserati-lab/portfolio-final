@@ -45,7 +45,7 @@ GA4 remains consent-first and inactive while its Measurement ID is `G-XXXXXXXXXX
 
 The 3D head retains its approved shader, colors and pointer tracking. At the stable dock boundary it uses a smaller GPU buffer and a 30fps render budget, while its hero state keeps the original interaction frame rate. Pixel/DPR budgets are capped for mobile; `window.PortfolioMotion.getRenderStats()` exposes dimensions and quality for diagnostics. GitHub Actions uses a software WebGL renderer, so Lighthouse results must be validated against physical devices.
 
-Direct project visits defer the 3D portrait and CRT until returning to a scroll section. Homepage content is revealed as soon as its runtime is ready; the portrait settles independently.
+Direct project visits defer the 3D portrait and CRT until returning to a scroll section. On the homepage the loader waits for fonts, application content and portrait readiness before revealing the composition.
 
 ## Typography
 The complete site typography is defined in `public/css/typography.css` and documented in `TYPOGRAPHY.md`. Run `node tests/typography-regression.mjs` against the local preview to verify reading, controls, captions, narrow/short layouts and the 404 page.
@@ -59,3 +59,9 @@ The Three.js portrait retains the same scanned-contour shader and mouse interact
 Chrome/Chromium/Edge use an OffscreenCanvas WebGL2 renderer in a dedicated Worker when the browser successfully probes worker WebGL2. This preserves the shader and pointer controls while keeping the page main thread responsive. Safari, iOS WebKit and browsers without the necessary WebGL worker capabilities use the optimized adaptive main-thread renderer. An unavailable Worker, failed initialization, or lost worker context triggers a single-flight fallback and restores the canvas without duplicate renderers. Browser-emulated Safari user agents in CI verify the selection logic only; real Safari/iOS performance still requires device testing.
 
 The regression suite checks Chromium's worker path, software-GPU pacing, the main-thread path, Safari-UA routing and Worker-constructor failure. Lighthouse on software WebGL may differ substantially from real-device measurements; compare repeated runs and Core Web Vitals rather than treating a single score as universal.
+
+### Post-loader CRT signal ignition and CSS maintenance (v2.0.22)
+
+After the existing 2-second-minimum resource loader has been removed, the homepage triggers the original `crtDegaussContent` / `crtDegaussLine` signal animation **once** (340 ms), with cleanup after 370 ms. This shares the original CSS animation with project/navigation transitions; it does not duplicate the Three.js or CRT WebGL shaders. Motion-sensitive users skip the effect, and direct case-study loads retain the existing deferred behavior. Mobile uses matching collapse keyframes without a full-screen brightness filter to avoid software-GPU repaint during entry.
+
+Obsolete styles for the removed click-to-enter button, terminal boot, staggered entry states and empty selector blocks were deleted. The retained styling is source-of-truth in `public/css/`, with no extra override stylesheet. `tests/boot-regression.mjs` checks loader/ignition ordering, real animation presence, one-shot cleanup and reduced-motion support. Desktop/mobile Lighthouse measurements are assessed against the v2.0.21 baseline (96/77 in the last individual lab run); software-GPU variability is expected and does not establish identical real-world scores.
