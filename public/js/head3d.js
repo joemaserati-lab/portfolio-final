@@ -109,6 +109,7 @@ if (feature && canvas && screenElement) {
     window.PortfolioMotion = {
       getStatus: getMotionStatus,
       getPose: () => ({ yaw: effect?.root.rotation.y, pitch: effect?.root.rotation.x }),
+      getRenderStats: () => effect?.getRenderStats(),
       recenter: recenterMotion
     };
     observer = new MutationObserver(sync);

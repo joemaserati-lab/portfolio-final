@@ -250,7 +250,9 @@ await returningDesktop.locator('#scroll-viewport').evaluate(e=>e.scrollTop=900);
 await returningDesktop.waitForTimeout(500);
 assert(await returningDesktop.locator('#crt-head-feature').isVisible(),'Hybrid desktop head must remain visible when docked');
 assert.equal(await returningDesktop.locator('#crt-head-feature').evaluate(e=>e.parentElement.id),'screen');
-assert.deepEqual(await returningDesktop.locator('#crt-head-canvas').evaluate(e=>[e.width,e.height]),canvasSize,'Desktop scroll reallocates the WebGL drawing surface');
+const dockSize=await returningDesktop.locator('#crt-head-canvas').evaluate(e=>[e.width,e.height]);
+ assert(dockSize[0]>0 && dockSize[1]>0 && dockSize[0]<canvasSize[0] && dockSize[1]<canvasSize[1],
+   'Desktop dock should use a smaller GPU drawing buffer');
 await returningDesktop.evaluate(()=>dispatchEvent(new CustomEvent('portfolio:scroll-to',{detail:'home'})));
 await returningDesktop.waitForFunction(()=>document.querySelector('#crt-head-feature').classList.contains('is-ready'));
 assert(await returningDesktop.locator('#crt-head-feature').isVisible(),'Hybrid desktop head must resume on home');
