@@ -11,6 +11,26 @@ try {
    await page.addInitScript(()=>{
     window.__bootEvents=[];
     window.__bootStart=performance.now();
+    window.__degaussEvents=[];
+    document.addEventListener('DOMContentLoaded',()=>{
+      const observer=new MutationObserver(records=>{
+        for(const record of records){
+          if(record.type==='childList'&&[...record.removedNodes].some(n=>n.id==='boot-loader'))
+            window.__degaussEvents.push('loader-removed');
+          if(record.type==='attributes'&&record.target.id==='screen'){
+            const previous=(record.oldValue||'').split(/\s+/).includes('crt-boot-degauss');
+            const active=record.target.classList.contains('crt-boot-degauss');
+            if(previous===active)continue;
+            window.__degaussEvents.push(active?'degauss-start':'degauss-end');
+            if(active){
+              window.__degaussAnimation=getComputedStyle(document.querySelector('.desktop')).animationName;
+              window.__degaussSignal=getComputedStyle(record.target,'::after').animationName;
+            }
+          }
+        }
+      });
+      observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeOldValue:true,attributeFilter:['class']});
+    });
     addEventListener('portfolio:booted',()=>{
      const record={name:'booted',booting:document.body.classList.contains('booting'),
       opacity:getComputedStyle(document.querySelector('.shell')).opacity,
@@ -58,6 +78,28 @@ try {
    assert.equal(events[0].opacity,'1');
    assert.equal(events[0].head,true,'Boot released before the 3D model was ready');
    assert.equal(events[0].headVisible,true,'Head not visible at the boot event');
+   const ignition=await page.evaluate(()=>window.__degaussEvents);
+   const loaderIndex=ignition.indexOf('loader-removed');
+   const ignitionIndex=ignition.indexOf('degauss-start');
+   assert(loaderIndex>=0,'Loader removal was not observed');
+   if(reducedMotion==='no-preference'){
+     assert(ignitionIndex>loaderIndex,
+       'CRT Degauss must begin only AFTER the completed loader is removed');
+     const played=await page.evaluate(()=>({
+       content:window.__degaussAnimation,signal:window.__degaussSignal
+     }));
+     assert(played.content?.includes(width<=720?'crtBootDegaussComposite':'crtDegaussContent'),
+       'CRT ignition class did not activate the visible content animation');
+     assert(played.signal?.includes('crtDegaussLine'),
+       'CRT ignition did not display the original signal line');
+     await page.waitForFunction(()=>!document.querySelector('#screen.crt-boot-degauss'),null,{timeout:5000});
+     const finalEvents=await page.evaluate(()=>window.__degaussEvents);
+     assert.equal(finalEvents.filter(x=>x==='degauss-start').length,1,
+       'Entry Degauss must play exactly once');
+     assert(finalEvents.includes('degauss-end'),'Entry Degauss was not cleaned up');
+   } else {
+     assert.equal(ignitionIndex,-1,'Reduced-motion users must skip entry Degauss');
+   }
     assert(await page.evaluate(()=>document.documentElement.classList.contains('fonts-ready')),
       'Application became visible before typography loaded');
    await page.waitForFunction(()=>window.__portfolioHeadState?.ready && document.querySelector('#crt-head-feature').classList.contains('is-ready'));
@@ -95,6 +137,11 @@ try {
    assert.equal(await page.evaluate(()=>document.body.classList.contains('site-entering')),false);
    assert.deepEqual(await page.evaluate(()=>window.__bootEvents.map(e=>e.name)),['booted','ready']);
    assert.equal(await page.evaluate(()=>window.__bootEvents[0].head),true,'Returning visitor saw homepage before head initialized');
+   await page.waitForFunction(()=>!document.querySelector('#screen.crt-boot-degauss'),null,{timeout:5000});
+   const repeatIgnition=await page.evaluate(()=>window.__degaussEvents);
+   assert.equal(repeatIgnition.filter(x=>x==='degauss-start').length,
+     reducedMotion==='no-preference'?1:0,
+     'The entry transition must behave consistently on a return visit');
    assert.equal(errors.length,0,errors.join('\n'));
    console.log('BOOT PASS',`${width}x${height}`,reducedMotion,'minimal 2s progress screen, synchronized reveal, repeat visit');
    await context.close();

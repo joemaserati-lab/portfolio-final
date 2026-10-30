@@ -1,155 +1,6 @@
-/* Doto becomes the operating-system/interface voice. Redaction 50 remains
-   untouched on the large editorial display headings defined in style.css. */
-body,
-button,
-input,
-textarea,
-select {
-
-
-}
-
-/* Doto has a larger visual footprint than the previous interface typeface.
-   Rebuild the interface scale around it instead of inheriting the former terminal proportions. */
-
-
-body {
-
-
-
-}
-
-.language-toggle,
-.privacy-toggle,
-.privacy-panel,
-.privacy-actions button,
-.boot-loader,
-.terminal-toggle,
-.terminal-output,
-.prompt-row,
-#terminal-input {
-
-
-}
-
-/* Doto already carries strong internal rhythm: keep tracking restrained and
-   use size/spacing rather than letter-spacing to establish hierarchy. */
-.system-label {
-
-
-
-}
-
-.primary-action,
-.window-titlebar,
-.window-eyebrow,
-.resume-section-title,
-.projects-index-side,
-.boot-enter,
-.language-toggle,
-.privacy-toggle {
-
-}
-
-.hero-copy {
-  max-width: 460px;
-
-
-}
-
-.primary-action {
-
-
-  padding: 10px 13px;
-}
-
-.desktop-icon,
-.desktop-icon > span:nth-child(2) {
-
-
-}
-
-.desktop-icon small {
-
-
-}
-
-.window-titlebar {
-
-
-}
-
-.window-eyebrow,
-.resume-section-title {
-
-}
-
-.window-body p,
-.case-story-copy p,
-.resume-row p,
-.projects-index-side p {
-
-
-
-
-
-}
-
-.window-body h2,
-.resume-header h2 {
-
-
-}
-
-.meta-card b,
-.resume-row strong,
-.contact-link {
-
-}
-
-.project-tile-main strong,
-.resume-row :is(h3, h4) {
-
-
-}
-
-.project-tile-details small,
-.tags span {
-
-
-}
-
-.projects-index-side {
-
-
-}
-
-.boot-loader {
-
-}
-
-.boot-enter {
-
-
-}
-
-.boot-gate-note {
-
-
-}
-
-.language-toggle,
-.privacy-toggle,
-.privacy-actions button,
-.privacy-status {
-
-
-}
-
-.privacy-panel p {
-
-
-}
+/* Editorial interface sizing retained from the original design. */
+.hero-copy { max-width: 460px; }
+.primary-action { padding: 10px 13px; }
 
 /* Targeted UI fixes — 2026-09-15 */
 
@@ -259,12 +110,6 @@ body {
 
 /* Desktop loader: remove only the duplicate ready status and auxiliary note.
    Keep the original visible CLICK TO ENTER button. */
-@media (min-width: 721px) {
-  .boot-gate-status,
-  .boot-gate-note {
-    display: none !important;
-  }
-}
 
 /* Center window/tab titles on mobile independently from back/close controls. */
 @media (max-width: 720px) {
@@ -272,24 +117,6 @@ body {
 
   /* Mobile loader: remove only the duplicate ready status. Keep both the
      visible enter button and the mobile interaction note. */
-  .boot-gate-status {
-    display: none !important;
-  }
-
-  .boot-gate-note {
-    position: relative;
-    z-index: 6;
-    display: block;
-    max-width: min(86vw, 300px);
-
-
-  }
-
-  .boot-enter {
-    width: min(100%, 270px);
-
-    padding: 11px 13px;
-  }
 
   .window-titlebar {
     position: relative;
@@ -338,16 +165,6 @@ body {
     padding: 9px 11px;
   }
 
-  .desktop-icon,
-  .desktop-icon > span:nth-child(2) {
-
-
-  }
-
-  .desktop-icon small {
-
-  }
-
   /* The hero title uses the full CRT safe width. The desktop already owns the
      left/right safe-zone padding; this matching 4px inner inset mirrors the
      project-title treatment and keeps both outer margins visually identical. */
@@ -367,17 +184,6 @@ body {
     overflow-wrap: normal;
     word-break: keep-all;
     hyphens: none;
-  }
-
-  .privacy-toggle,
-  .language-toggle {
-
-  }
-
-  .privacy-panel p,
-  .privacy-actions button,
-  .privacy-status {
-
   }
 
   .privacy-actions button {
@@ -455,25 +261,6 @@ body {
 
     text-wrap: balance;
   }
-
-  .window-body h2,
-  .resume-header h2 {
-
-  }
-
-  .project-tile-main strong,
-  .resume-row :is(h3, h4) {
-
-  }
-
-  .meta-card b,
-  .contact-link b {
-
-  }
-
-  .project-tile-details small {
-
-  }
 }
 
 /* Short-height responsive calibration -------------------------------------
@@ -544,10 +331,6 @@ body {
   .boot-gate {
     gap: 10px;
   }
-
-  .boot-enter {
-    padding: 9px 14px;
-  }
 }
 
 /* Phone/tablet landscape: preserve clear size steps while aggressively
@@ -580,14 +363,6 @@ body {
   .desktop-icon {
     gap: 2px;
     padding: 3px;
-  }
-
-  .desktop-icon > span:nth-child(2) {
-
-  }
-
-  .desktop-icon small {
-
   }
 
   .window-titlebar {
@@ -639,15 +414,6 @@ body {
 
   .boot-gate {
     gap: 7px;
-  }
-
-  .boot-enter {
-    padding: 8px 11px;
-  }
-
-  .boot-gate-note {
-    max-width: 340px;
-
   }
 
   .privacy-panel {

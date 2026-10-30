@@ -58,13 +58,13 @@ body { color: var(--white); }
 .os-window .window-titlebar { background: var(--window-chrome-bg); border-bottom-color: var(--line); }
 .projects-view { background-color: var(--panel); }
 .phosphor-ghost { box-shadow: 0 0 18px rgba(185,185,185,.045),inset 0 0 22px rgba(185,185,185,.025); }
-.screen.crt-degauss::after {
+.screen:is(.crt-degauss,.crt-boot-degauss)::after {
   box-shadow: 0 0 8px rgba(245,245,245,.70),0 0 24px rgba(185,185,185,.20),0 0 64px rgba(185,185,185,.10);
 }
 
 /* Buttons, desktop launchers and secondary controls remain monochrome.
    A mint stroke is reserved for the primary CTA on hover and keyboard focus. */
-.primary-action,.boot-enter {
+.primary-action{
   background: rgba(255,255,255,.025);
   border-color: var(--line-strong);
   color: var(--white);
@@ -73,12 +73,6 @@ body { color: var(--white); }
 .primary-action:hover,.primary-action:focus-visible {
   background: rgba(255,255,255,.065);
   border-color: var(--mint);
-  color: var(--white);
-  box-shadow: none;
-}
-.boot-enter:hover,.boot-enter:focus-visible {
-  background: rgba(255,255,255,.065);
-  border-color: var(--line-strong);
   color: var(--white);
   box-shadow: none;
 }
@@ -104,11 +98,18 @@ body { color: var(--white); }
 
 /* Mint only where it communicates a state or identifies the central portrait. */
 .boot-progress-bar,.boot-progress>span { background: var(--mint); }
-.primary-action:focus-visible,.boot-enter:focus-visible,
-.desktop-icon:focus-visible,.project-tile-v2:focus-visible,
-.language-toggle:focus-visible,.privacy-toggle:focus-visible,
-.privacy-actions button:focus-visible,.window-controls button:focus-visible,
-.case-nav-v2 button:focus-visible {
+.primary-action:focus-visible,
+
+.desktop-icon:focus-visible,
+.project-tile-v2:focus-visible,
+
+.language-toggle:focus-visible,
+.privacy-toggle:focus-visible,
+
+.privacy-actions button:focus-visible,
+.window-controls button:focus-visible,
+
+.case-nav-v2 button:focus-visible{
   outline: 2px solid var(--mint);
   outline-offset: 3px;
 }

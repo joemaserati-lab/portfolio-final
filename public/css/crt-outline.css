@@ -116,9 +116,6 @@
 /* Very short phone landscape keeps the same four-item row and the reserved
    bottom control strip, while reducing vertical density above it. */
 @media (max-width: 720px) and (max-height: 520px) {
-  .hero-intro h1 {
-
-  }
 
   .hero-copy {
     max-width: min(48vw, 300px);
@@ -138,10 +135,6 @@
   .desktop-icon {
     gap: 2px;
     padding: 2px 1px;
-  }
-
-  .desktop-icon > span:nth-child(2) {
-
   }
 
   .icon-glyph {
@@ -263,11 +256,6 @@ body.content-panel-open .privacy-widget{
   padding:var(--ui-safe-top) var(--ui-safe-right) var(--ui-safe-bottom) var(--ui-safe-left);
   overflow:auto;
   overscroll-behavior:contain;
-}
-.boot-loader.is-sequencing .boot-output,
-.boot-loader.is-sequencing .boot-prompt{
-  left:var(--ui-safe-left);
-  right:var(--ui-safe-right);
 }
 
 /* Tablet keeps launchers and persistent controls in separate bands. */
@@ -511,37 +499,8 @@ body.content-panel-open .privacy-widget{
 
   }
 
-  .boot-enter{
-    width:min(100%,270px);
-    max-width:100%;
-    margin-top:2px;
-  }
-
-  .boot-gate-note{
-    width:min(100%,290px);
-    max-width:min(100%,290px);
-    min-height:5em;
-    margin:0;
-    display:grid;
-    place-items:center;
-  }
-
   /* Terminal phase is bounded by both top and bottom safe edges, so additional
      boot lines can never overlap the prompt or leave the CRT. */
-  .boot-loader.is-sequencing{
-    --boot-terminal-bottom:calc(var(--ui-safe-bottom) + 2px);
-  }
-
-  .boot-loader.is-sequencing .boot-output{
-    top:var(--ui-safe-top)!important;
-    bottom:calc(var(--boot-terminal-bottom) + 1.8em)!important;
-    max-height:none!important;
-    overflow:hidden;
-  }
-
-  .boot-loader.is-sequencing .boot-prompt{
-    bottom:var(--boot-terminal-bottom)!important;
-  }
 }
 
 @media (max-width:359px){
@@ -573,10 +532,6 @@ body.content-panel-open .privacy-widget{
     padding-bottom:var(--ui-safe-bottom);
   }
 
-  .boot-gate-note{display:none!important}
-  .boot-gate h2{}
-  .boot-enter{padding:7px 10px}
-
   .desktop-icons{
     bottom:calc(var(--ui-safe-bottom) + var(--mobile-control-height) + 8px)!important;
   }
@@ -588,10 +543,6 @@ body.content-panel-open .privacy-widget{
     .hero-intro{
       max-width:62%!important;
       padding:0!important;
-    }
-    .hero-intro h1{
-
-
     }
     .hero-copy{
       max-width:100%!important;
@@ -620,9 +571,6 @@ body.content-panel-open .privacy-widget{
       width:28px!important;
       height:25px!important;
     }
-    .desktop-icon>span:nth-child(2){
-
-    }
   }
 
   .os-window.is-maximized .window-body,
@@ -646,10 +594,6 @@ body.content-panel-open .privacy-widget{
   .hero-intro{
     max-width:62%!important;
     padding:0!important;
-  }
-  .hero-intro h1{
-
-
   }
   .hero-copy{
     max-width:100%!important;
@@ -677,9 +621,6 @@ body.content-panel-open .privacy-widget{
   .icon-glyph{
     width:30px!important;
     height:27px!important;
-  }
-  .desktop-icon>span:nth-child(2){
-
   }
   .desktop-icon small{
     display:none!important;
@@ -743,9 +684,8 @@ body.content-panel-open .privacy-widget{
   }
 }
 
-/* Minimal loading screen: label and honest progress only. The terminal scan,
-   cinematic boot overlays and entrance choreography are not used. */
-.boot-loader::after { content: none; animation: none; }
+/* Minimal loading screen: label and progress only. The CRT Degauss starts
+   after the loader disappears, not inside the loading overlay. */
 .boot-loader { transition: opacity .26s ease, visibility .26s ease; }
 .boot-gate { gap: clamp(20px, 3vh, 30px); transition: none; }
 .boot-gate h2 { width: auto; min-height: 0; line-height: 1.1; }

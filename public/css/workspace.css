@@ -157,7 +157,7 @@
 .case-tags-v2>span{color:var(--dim);}.case-tags-v2 .tags{margin:0}
 .case-nav-v2{display:grid;grid-template-columns:1fr 1fr;gap:12px;border-top:1px solid var(--line);padding-top:clamp(14px,2vw,22px)}
 .case-nav-v2 button{min-height:clamp(84px,11vw,130px);padding:clamp(14px,1.7vw,22px);border:1px solid var(--line);background:rgba(199,199,199,.015);color:var(--bright);cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:space-between;gap:10px}
-.case-nav-v2 button:last-child{text-align:right;align-items:flex-end}.case-nav-v2 button:hover{border-color:var(--line-strong);background:rgba(199,199,199,.04)}.case-nav-v2 small{color:var(--dim);}.case-nav-v2 b{}
+.case-nav-v2 button:last-child{text-align:right;align-items:flex-end}.case-nav-v2 button:hover{border-color:var(--line-strong);background:rgba(199,199,199,.04)}.case-nav-v2 small{color:var(--dim);}
 
 @media(max-width:1024px){
   .projects-index-head{grid-template-columns:1fr}.projects-index-side{align-items:flex-start;text-align:left}
@@ -167,10 +167,10 @@
   .case-story-v2,.case-outputs-v2{grid-template-columns:1fr;gap:10px}.case-gallery-v2{grid-template-columns:1fr 1fr}.case-media-landscape-v2{grid-column:1/-1;grid-row:auto;aspect-ratio:16/9}
 }
 @media(max-width:720px){
-  .projects-index-v2{padding:14px 10px 24px}.projects-index-head h2{}
+  .projects-index-v2{padding:14px 10px 24px}
   .projects-grid-v2{grid-template-columns:1fr;gap:24px}.project-cover-v2{aspect-ratio:4/3}.project-tile-copy{grid-template-columns:1fr auto}.project-tile-details small:first-child{display:none}
   .project-cover-open{opacity:1;transform:none}
-  .case-study-v2{padding:14px 10px 24px}.case-lead-v2{padding:24px 0}.case-title-v2 h2{}.case-media-hero-v2{aspect-ratio:4/3;min-height:220px}
+  .case-study-v2{padding:14px 10px 24px}.case-lead-v2{padding:24px 0}.case-media-hero-v2{aspect-ratio:4/3;min-height:220px}
   .case-facts-v2{grid-template-columns:1fr;margin-bottom:24px}.case-facts-v2>div,.case-facts-v2>div:nth-child(2){border-right:0;border-bottom:1px solid var(--line);padding-left:0}.case-facts-v2>div:last-child{border-bottom:0}
   .case-story-copy,.case-output-list{grid-template-columns:1fr;gap:22px}.case-media-landscape-v2,.case-media-portrait-v2,.case-media-wide-v2{grid-column:auto;aspect-ratio:4/3;margin-top:0}
   .case-tags-v2{grid-template-columns:1fr;gap:12px;margin:38px 0}.case-nav-v2{grid-template-columns:1fr}.case-nav-v2 button:last-child{text-align:left;align-items:flex-start}
@@ -182,18 +182,18 @@
 */
 
 
-/* CRT power / degauss transition used for Projects and case-study changes. */
-.screen.crt-degauss .desktop,
-.screen.crt-degauss .terminal-dock,
-.screen.crt-degauss .footerbar,
-.screen.crt-degauss #crt-bg,
-.screen.crt-degauss #crt-fx,
-.screen.crt-degauss .noise,
-.screen.crt-degauss .scanlines{
+/* Shared original CRT signal / Degauss: navigation and one post-loader ignition. */
+.screen:is(.crt-degauss,.crt-boot-degauss) .desktop,
+.screen:is(.crt-degauss,.crt-boot-degauss) .terminal-dock,
+.screen:is(.crt-degauss,.crt-boot-degauss) .footerbar,
+.screen:is(.crt-degauss,.crt-boot-degauss) #crt-bg,
+.screen:is(.crt-degauss,.crt-boot-degauss) #crt-fx,
+.screen:is(.crt-degauss,.crt-boot-degauss) .noise,
+.screen:is(.crt-degauss,.crt-boot-degauss) .scanlines{
   transform-origin:50% 50%;
   animation:crtDegaussContent .34s cubic-bezier(.65,.02,.25,1) both;
 }
-.screen.crt-degauss::after{
+.screen:is(.crt-degauss,.crt-boot-degauss)::after{
   content:""!important;display:block!important;position:absolute;z-index:90;pointer-events:none;
   left:4%;right:4%;top:50%;height:2px;opacity:0;
   background:rgba(243,243,243,.92);
@@ -213,6 +213,29 @@
   60%{opacity:.55;transform:scaleX(.48)}
   100%{opacity:0;transform:scaleX(.12)}
 }
+
+/* On touch devices, preserve the CRT collapse and bright signal line without
+   animating a full-screen brightness filter. Transform-only compositing avoids
+   expensive software-GPU paint during the post-loader transition. */
+@media (max-width: 720px) {
+  .screen.crt-boot-degauss .desktop,
+  .screen.crt-boot-degauss .terminal-dock,
+  .screen.crt-boot-degauss .footerbar,
+  .screen.crt-boot-degauss #crt-bg,
+  .screen.crt-boot-degauss #crt-fx,
+  .screen.crt-boot-degauss .noise,
+  .screen.crt-boot-degauss .scanlines {
+    animation-name: crtBootDegaussComposite;
+  }
+}
+@keyframes crtBootDegaussComposite {
+  0% { transform:scaleY(1) scaleX(1); }
+  38% { transform:scaleY(.045) scaleX(.985); }
+  52% { transform:scaleY(.018) scaleX(.94); }
+  72% { transform:scaleY(.50) scaleX(.992); }
+  100% { transform:scaleY(1) scaleX(1); }
+}
+
 
 /* Balanced CRT tremor for secondary windows: visible, brief, never violent. */
 .screen.micro-glitch .desktop,
@@ -272,8 +295,8 @@
 }
 
 @media (prefers-reduced-motion:reduce){
-  .screen.crt-degauss .desktop,.screen.crt-degauss .terminal-dock,.screen.crt-degauss .footerbar,.screen.crt-degauss #crt-bg,.screen.crt-degauss #crt-fx,.screen.crt-degauss .noise,.screen.crt-degauss .scanlines{animation:none!important}
-  .screen.crt-degauss::after,.screen.micro-glitch .desktop,.screen.micro-glitch .terminal-dock,.screen.micro-glitch .footerbar,.screen.micro-glitch #crt-fx,.project-cover-v2::after{animation:none!important}
+  .screen:is(.crt-degauss,.crt-boot-degauss) .desktop,.screen:is(.crt-degauss,.crt-boot-degauss) .terminal-dock,.screen:is(.crt-degauss,.crt-boot-degauss) .footerbar,.screen:is(.crt-degauss,.crt-boot-degauss) #crt-bg,.screen:is(.crt-degauss,.crt-boot-degauss) #crt-fx,.screen:is(.crt-degauss,.crt-boot-degauss) .noise,.screen:is(.crt-degauss,.crt-boot-degauss) .scanlines{animation:none!important}
+  .screen:is(.crt-degauss,.crt-boot-degauss)::after,.screen.micro-glitch .desktop,.screen.micro-glitch .terminal-dock,.screen.micro-glitch .footerbar,.screen.micro-glitch #crt-fx,.project-cover-v2::after{animation:none!important}
 }
 
 
@@ -391,8 +414,6 @@
 
   filter:drop-shadow(0 0 4px rgba(222,222,222,.50)) drop-shadow(0 0 13px rgba(179,179,179,.26));
 }
-.projects-index-head h2{}
-.case-title-v2 h2{}
 
 
 /* V4.6 / stronger ambient halo + Redaction secondary titles -------------
@@ -459,16 +480,10 @@
 
   text-transform:none;
 }
-.window-body h2,
-.resume-header h2{
-
-
-}
 
 
 /* V4.7 / microcopy cleanup + revert to lighter CRT halo ------------------ */
-.window-eyebrow,
-.boot-skip{display:none!important}
+.window-eyebrow{display:none!important}
 
 /* Return to the lighter external bloom from the earlier approved state. */
 .crt-stage::before{
@@ -556,8 +571,6 @@
 .projects-view .projects-index-v2,.projects-view .case-study-v2{padding-left:var(--screen-safe-left);padding-right:var(--screen-safe-right);padding-bottom:var(--screen-safe-bottom)}
 
 /* Keep editorial lines distinct even with CRT bloom and fallback fonts. */
-.hero-intro h1{}
-.projects-index-head h2,.case-title-v2 h2{}
 .project-tile-main strong,.contact-link b{overflow-wrap:anywhere}
 .contact-link{gap:18px;align-items:baseline}
 .desktop-icon{gap:14px}
@@ -581,11 +594,9 @@
   .os-window:not(.is-maximized):not(.is-responsive-fullscreen){width:92%!important;height:78%!important}
   .os-window.is-maximized .window-titlebar{padding-left:var(--screen-safe-left);padding-right:52px}
   .window-titlebar{height:50px;flex-basis:50px;padding-left:10px}
-  .window-titlebar>span{}
   .window-controls{position:absolute;top:4px;right:52px;gap:6px}
   .window-controls button{width:44px;height:40px;font-size:23px}
   .os-window.is-maximized .window-body{padding:24px var(--screen-safe-right) var(--screen-safe-bottom) var(--screen-safe-left)}
-  .projects-index-head h2{}
   .contact-panel{grid-template-columns:1fr;gap:16px}
   .contact-photo{min-height:0;max-height:260px;aspect-ratio:5/4;order:-1}
   .contact-link{display:grid;grid-template-columns:1fr;gap:2px}

@@ -118,9 +118,8 @@ body{background:#080808}
 .project-tile-v2:hover .project-tile-main strong,.project-tile-v2:focus-visible .project-tile-main strong,.project-tile-v2.mobile-signal .project-tile-main strong,.project-tile-v2.is-pressed .project-tile-main strong{color:#f4f4f4;text-shadow:0 0 5px rgba(243,243,243,.30),0 0 14px rgba(179,179,179,.14)}
 .screen.crt-sync-hit::before{background:rgba(222,222,222,.12);box-shadow:0 -3px 12px rgba(179,179,179,.12),0 3px 12px rgba(179,179,179,.12)}
 .phosphor-ghost{border-color:rgba(243,243,243,.13);background:rgba(222,222,222,.02);box-shadow:0 0 18px rgba(179,179,179,.045),inset 0 0 22px rgba(199,199,199,.02)}
-.screen.crt-degauss::after{background:rgba(244,244,244,.92);box-shadow:0 0 8px rgba(243,243,243,.92),0 0 24px rgba(199,199,199,.30),0 0 64px rgba(199,199,199,.16)}
+.screen:is(.crt-degauss,.crt-boot-degauss)::after{background:rgba(244,244,244,.92);box-shadow:0 0 8px rgba(243,243,243,.92),0 0 24px rgba(199,199,199,.30),0 0 64px rgba(199,199,199,.16)}
 .boot-loader{text-shadow:0 0 5px rgba(243,243,243,.44),0 0 12px rgba(199,199,199,.24)}
-.boot-loader::after{background:linear-gradient(to bottom,transparent,rgba(222,222,222,.09),transparent)}
 .scanlines{background:repeating-linear-gradient(to bottom,rgba(222,222,222,.012) 0 1px,transparent 1px 2px,rgba(8,8,8,.74) 3px 4px)}
 .crt-stage::before{
   background:#f4f4f4;
@@ -131,17 +130,11 @@ body{background:#080808}
 }
 
 /* The longer portfolio name keeps the approved two-line hero footprint. */
-.hero-intro h1{}
 @media(max-width:720px){
-  .hero-intro h1{}
 }
 
 
 /* V31.5-LW2 / resource-aware boot state */
-.boot-line[data-state="done"] .tag{color:var(--bright)}
-.boot-line[data-state="done"] .muted::after{content:"  [OK]";color:var(--phosphor-2)}
-.boot-line[data-state="warn"] .muted::after{content:"  [FALLBACK]";color:var(--dim)}
-.boot-line[data-state="pending"] .muted::after{content:"  ...";color:var(--dim);animation:blink .8s steps(2,end) infinite}
 
 
 /* V31.5-LW3 / cinematic resource-aware launch --------------------------------
@@ -163,62 +156,16 @@ body.booting .shell{
   visibility:hidden;
   pointer-events:none;
 }
-.boot-line{
-  opacity:0;
-  transform:translateY(5px);
-  filter:blur(.35px);
-  transition:opacity .24s ease,transform .32s cubic-bezier(.22,.61,.36,1),filter .3s ease;
-  animation:none;
-}
-.boot-line.is-shown{
-  opacity:1;
-  transform:translateY(0);
-  filter:none;
-}
-.boot-line[data-state="done"] .muted,
-.boot-line[data-state="warn"] .muted{
-  transition:color .25s ease,text-shadow .25s ease;
-}
-.boot-line[data-state="done"] .muted{
-  color:#c7c7c7;
-}
-.boot-line[data-state="done"] .tag{
-  text-shadow:0 0 8px rgba(222,222,222,.18);
-}
-
-/* Site elements arrive as one composition rather than popping in at once. */
-body.site-entering .crt-head-feature.is-ready{
-  transition:opacity .88s cubic-bezier(.22,.61,.36,1) .04s;
-}
-body.site-entering .hero-intro > *,
-body.site-entering .desktop-icons .desktop-icon{
-  animation:siteElementIn .72s cubic-bezier(.22,.61,.36,1) both;
-}
-body.site-entering .hero-intro .system-label{animation-delay:.10s}
-body.site-entering .hero-intro h1{animation-delay:.17s}
-body.site-entering .hero-intro .hero-copy{animation-delay:.25s}
-body.site-entering .hero-intro .primary-action{animation-delay:.33s}
-body.site-entering .desktop-icons .desktop-icon:nth-child(1){animation-delay:.38s}
-body.site-entering .desktop-icons .desktop-icon:nth-child(2){animation-delay:.43s}
-body.site-entering .desktop-icons .desktop-icon:nth-child(3){animation-delay:.48s}
-body.site-entering .desktop-icons .desktop-icon:nth-child(4){animation-delay:.53s}
-body.site-entering .desktop-icons .desktop-icon:nth-child(5){animation-delay:.58s}
-
-@keyframes siteElementIn{
-  from{opacity:0;transform:translateY(9px);filter:blur(1.2px)}
-  55%{filter:blur(.15px)}
-  to{opacity:1;transform:translateY(0);filter:none}
-}
 
 @media(prefers-reduced-motion:reduce){
-  .shell,.boot-loader,.boot-line,.crt-head-feature{transition:none!important}
-  body.site-entering .hero-intro > *,
-  body.site-entering .desktop-icons .desktop-icon{animation:none!important}
+.shell,
+.boot-loader,
+.crt-head-feature{transition:none!important}
 }
 
 /* V31.6 / consent-first boot gate -------------------------------------------
-   Resources load behind this screen; the original terminal boot becomes the
-   final transition after the user's explicit enter gesture. */
+   The loader contains only the label and progress bar. The restored CRT
+   Degauss starts after the loader has been dismissed. */
 .boot-gate{
   position:absolute;
   z-index:4;
@@ -229,18 +176,8 @@ body.site-entering .desktop-icons .desktop-icon:nth-child(5){animation-delay:.58
   gap:14px;
   padding:var(--screen-safe-top) var(--screen-safe-right) var(--screen-safe-bottom) var(--screen-safe-left);
   text-align:center;
-  transition:opacity .42s cubic-bezier(.22,.61,.36,1),filter .42s ease,visibility .42s ease;
 }
-.boot-gate-kicker,
-.boot-gate-status,
-.boot-gate-note{margin:0;color:var(--dim);text-transform:uppercase}
-.boot-gate-kicker{}
 .boot-gate h2{position:relative;width:min(100%,780px);min-height:.92em;margin:0;color:var(--bright);text-align:center;text-shadow:0 0 8px rgba(243,243,243,.24),0 0 22px rgba(199,199,199,.14)}
-.boot-gate-status{width:min(100%,760px);min-height:1.2em;text-align:center}
-.boot-gate-note{width:min(100%,520px);min-height:1.2em;text-transform:none;text-align:center;color:#b3b3b3}
-@media (hover:hover) and (pointer:fine){
-  .boot-gate-note{visibility:hidden}
-}
 .boot-progress{
   position:absolute;
   z-index:5;
@@ -264,35 +201,8 @@ body.site-entering .desktop-icons .desktop-icon:nth-child(5){animation-delay:.58
   box-shadow:0 0 10px rgba(222,222,222,.62);
   will-change:transform;
 }
-.boot-loader.is-loaded .boot-progress,
-.boot-loader.is-ready .boot-progress{opacity:0;visibility:hidden}
-.boot-enter{
-  margin-top:8px;
-  border:1px solid var(--line-strong);
-  background:rgba(222,222,222,.06);
-  color:var(--bright);
-  padding:12px 18px;
-
-
-  cursor:pointer;
-  opacity:0;
-  visibility:hidden;
-  transform:translateY(6px);
-  transition:opacity .28s ease,transform .34s cubic-bezier(.22,.61,.36,1),background .18s ease,color .18s ease,visibility .28s ease;
-}
-.boot-loader.is-ready .boot-enter{opacity:1;visibility:visible;transform:none}
-.boot-enter:hover,.boot-enter:focus-visible{background:rgba(199,199,199,.11);color:#f4f4f4;outline:1px dashed rgba(243,243,243,.48);outline-offset:4px}
-.boot-enter:disabled{cursor:wait;opacity:0;visibility:hidden}
-.boot-loader:not(.is-sequencing) .boot-output,
-.boot-loader:not(.is-sequencing) .boot-prompt{opacity:0;visibility:hidden}
-.boot-loader.is-sequencing .boot-gate{opacity:0;visibility:hidden;filter:blur(1.8px);pointer-events:none}
-.boot-loader.is-sequencing .boot-output,
-.boot-loader.is-sequencing .boot-prompt{opacity:1;visibility:visible;transition:opacity .28s ease .16s,visibility .28s ease .16s}
 @media(max-width:720px){
   .boot-gate{gap:11px}
-  .boot-gate h2{}
-  .boot-enter{width:min(100%,300px);padding:13px 14px}
-  .boot-gate-note{max-width:300px}
 }
 
 .language-toggle,.privacy-toggle,.privacy-panel{text-shadow:0 0 7px rgba(199,199,199,.38)}
@@ -325,7 +235,6 @@ body.site-entering .desktop-icons .desktop-icon:nth-child(5){animation-delay:.58
   .privacy-widget{left:calc(var(--stage-gap) + var(--bezel-x) + var(--screen-safe-left) + 54px);right:calc(var(--stage-gap) + var(--bezel-x) + var(--screen-safe-right) + 2px);bottom:calc(var(--stage-gap) + var(--bezel-y) + var(--screen-safe-bottom) + 2px);max-width:none}
   .privacy-toggle{padding:6px 8px}
   .privacy-panel{width:100%;max-width:none;padding:13px}
-  .privacy-panel p{}
   .privacy-actions{justify-content:stretch}
   .privacy-actions button{flex:1;min-width:0}
 }

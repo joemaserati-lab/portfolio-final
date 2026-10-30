@@ -198,12 +198,29 @@ button {
 }
 .resume-row strong, .meta-card b { font-family: var(--font-content-subhead); }
 /* Navigation, interactive labels and interface chrome. */
-.primary-action, .desktop-icon, .desktop-icon > span:nth-child(2),
-.window-titlebar, .window-titlebar > span, .footerbar, .language-toggle,
-.privacy-toggle, .privacy-actions button, .case-back-v2, .case-live-link,
-.boot-enter, .boot-skip, .terminal-toggle, .scroll-portfolio .scroll-index,
-.scroll-portfolio .scroll-section-name, .not-found-actions a, .scene__home,
-.static-reader nav, .static-reader footer, .footerbar button {
+.primary-action,
+ .desktop-icon,
+ .desktop-icon > span:nth-child(2),
+
+.window-titlebar,
+ .window-titlebar > span,
+ .footerbar,
+ .language-toggle,
+
+.privacy-toggle,
+ .privacy-actions button,
+ .case-back-v2,
+ .case-live-link,
+ .terminal-toggle,
+ .scroll-portfolio .scroll-index,
+
+.scroll-portfolio .scroll-section-name,
+ .not-found-actions a,
+ .scene__home,
+
+.static-reader nav,
+ .static-reader footer,
+ .footerbar button{
   font-family: var(--font-ui);
   font-size: var(--type-ui);
   font-weight: 500;
@@ -211,14 +228,40 @@ button {
   letter-spacing: .015em;
 }
 /* Metadata and captions share a minimum; they never shrink in landscape. */
-.system-label, .window-eyebrow, .resume-section-title, .resume-period,
-.resume-row small, .desktop-icon small, .desktop-note, .meta-card small,
-.project-tile-main small, .project-tile-main small::after, .project-tile-details small,
-.tags span, .projects-index-side, .project-cover-id, .project-cover-type,
-.project-cover-open, .case-topline, .case-role-v2 > span, .case-facts-v2 dt,
-.case-story-label, .case-story-copy span, .case-media-v2 figcaption,
-.case-tags-v2 > span, .case-nav-v2 small, .privacy-status, .boot-gate-kicker,
-.boot-gate-status, .boot-gate-note, .not-found-kicker, .topline, .static-reader dt {
+.system-label,
+ .window-eyebrow,
+ .resume-section-title,
+ .resume-period,
+
+.resume-row small,
+ .desktop-icon small,
+ .desktop-note,
+ .meta-card small,
+
+.project-tile-main small,
+ .project-tile-main small::after,
+ .project-tile-details small,
+
+.tags span,
+ .projects-index-side,
+ .project-cover-id,
+ .project-cover-type,
+
+.project-cover-open,
+ .case-topline,
+ .case-role-v2 > span,
+ .case-facts-v2 dt,
+
+.case-story-label,
+ .case-story-copy span,
+ .case-media-v2 figcaption,
+
+.case-tags-v2 > span,
+ .case-nav-v2 small,
+ .privacy-status,
+ .not-found-kicker,
+ .topline,
+ .static-reader dt{
   font-family: var(--font-ui);
   font-size: var(--type-caption);
   font-weight: 500;

@@ -36,28 +36,6 @@ body::before {
 /* Post-loader terminal sequence -------------------------------------------
    Keep the generated boot lines anchored near the lower CRT edge. As new
    lines arrive the block grows upward, while the prompt stays at the bottom. */
-.boot-loader.is-sequencing {
-  --boot-terminal-bottom: max(22px, calc(var(--screen-safe-bottom) - 46px));
-}
-
-.boot-loader.is-sequencing .boot-output {
-  position: absolute;
-  left: var(--screen-safe-left);
-  right: var(--screen-safe-right);
-  bottom: calc(var(--boot-terminal-bottom) + 1.75em);
-  max-width: none;
-  max-height: min(46vh, 16em);
-  overflow: hidden;
-}
-
-.boot-loader.is-sequencing .boot-prompt {
-  position: absolute;
-  left: var(--screen-safe-left);
-  right: var(--screen-safe-right);
-  bottom: var(--boot-terminal-bottom);
-  max-width: none;
-  margin-top: 0;
-}
 
 /* Project index ------------------------------------------------------------
    Covers remain image-led and must never collapse in the two-column layout.
@@ -125,12 +103,6 @@ html[lang="it"] .project-tile-v2[data-project-slug="colorcopy-large-format"] .pr
 
 /* Internal case-study titles use the interface typeface rather than the
    editorial Redaction display face. */
-.case-title-v2 h2 {
-
-
-
-
-}
 
 /* Window chrome glyph alignment --------------------------------------------
    Keep the Doto characters as the visible icons, but position each glyph
@@ -182,14 +154,6 @@ html[lang="it"] .project-tile-v2[data-project-slug="colorcopy-large-format"] .pr
     filter: drop-shadow(0 0 2px rgba(199,199,199, .20));
   }
 
-  .boot-loader.is-sequencing {
-    --boot-terminal-bottom: max(18px, calc(var(--screen-safe-bottom) - 40px));
-  }
-
-  .boot-loader.is-sequencing .boot-output {
-    max-height: 42vh;
-  }
-
   .project-cover-v2 {
     min-height: 0;
     aspect-ratio: 4 / 3;
@@ -203,13 +167,6 @@ html[lang="it"] .project-tile-v2[data-project-slug="colorcopy-large-format"] .pr
   .projects-close::before,
   .window-controls button[data-close]::before {
     font-size: 23px;
-  }
-}
-
-@media (max-height: 520px) {
-  .boot-loader.is-sequencing .boot-output {
-    bottom: calc(var(--boot-terminal-bottom) + 1.6em);
-    max-height: 34vh;
   }
 }
 
