@@ -187,11 +187,7 @@ body.fx-off #crt-fx,body.fx-off .noise,body.fx-off .scanlines{opacity:0!importan
 body.booting .shell{visibility:hidden}
  .boot-loader{position:fixed;z-index:100;left:calc(var(--stage-gap) + var(--bezel-x));right:calc(var(--stage-gap) + var(--bezel-x));top:calc(var(--stage-gap) + var(--bezel-y));bottom:calc(var(--stage-gap) + var(--bezel-y));overflow:hidden;clip-path:url(#crtScreenClip);-webkit-clip-path:url(#crtScreenClip);background:radial-gradient(circle at 50% 46%,rgba(60,60,60,.54),rgba(15,15,15,.9) 35%,rgba(8,8,8,.985) 78%);padding:var(--screen-safe-top) var(--screen-safe-right) var(--screen-safe-bottom) var(--screen-safe-left);color:var(--phosphor);text-shadow:0 0 5px rgba(199,199,199,.9),0 0 14px rgba(179,179,179,.35);transition:opacity .7s ease,visibility .7s ease}
 .boot-loader::before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0 2px,rgba(8,8,8,.48) 3px 4px);opacity:.5;mix-blend-mode:multiply}
-.boot-loader::after{content:"";position:absolute;left:0;right:0;height:14%;top:-16%;pointer-events:none;background:linear-gradient(to bottom,transparent,rgba(199,199,199,.09),transparent);transform:translate3d(0,0,0);will-change:transform;animation:bootRoll 2.2s linear infinite}
-.boot-cursor{animation:blink .75s steps(2,end) infinite}.boot-skip:hover{color:var(--bright)}
 
-@keyframes bootLineIn{from{opacity:0;transform:translateY(2px)}to{opacity:1;transform:none}}
-@keyframes bootRoll{to{transform:translate3d(0,943%,0)}}
 
 /* Vignette is now atmospheric only; it never blackens the corners. */
 .vignette{background:radial-gradient(ellipse at center,transparent 0 72%,rgba(60,60,60,.08) 88%,rgba(8,8,8,.14) 100%);z-index:32}
