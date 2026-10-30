@@ -244,8 +244,10 @@
       backend:state.backend, renderer:state.renderer,
       execution:workerReady?'worker':'main',
       fpsBudget:currentFps(), lastDrawMs:state.lastDrawMs,
-      backgroundPixels:workerReady?workerStats.backgroundPixels:bg.width*bg.height,
-      overlayPixels:workerReady?workerStats.overlayPixels:fx.width*fx.height,
+      // A transferred canvas retains HTML width/height attributes even before
+      // its worker has allocated actual GPU buffers. Report zero until ready.
+      backgroundPixels:workerReady?workerStats.backgroundPixels:worker?0:bg.width*bg.height,
+      overlayPixels:workerReady?workerStats.overlayPixels:worker?0:fx.width*fx.height,
       surfaceResizes:state.surfaceResizes
     })
   };
