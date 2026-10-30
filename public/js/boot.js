@@ -334,27 +334,28 @@
   }
 
   function dismissLoader() {
-    const screen = document.getElementById('screen');
-    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // The loader is the opaque CRT signal curtain. Keep it on top while the
+    // original degauss line plays; the prepared homepage must NEVER appear
+    // between the loading screen and the end of the ignition animation.
+    if (initialCase || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      loader.remove();
+      return;
+    }
     let completed = false;
-    // Reuse the original 340 ms CRT Degauss animation on the fully loaded
-    // homepage. Start it only after the opaque loader is removed so that
-    // the simulated signal ignition is visible, never hidden behind it.
+    let fallbackTimer;
     const finish = () => {
       if (completed) return;
       completed = true;
+      clearTimeout(fallbackTimer);
       loader.remove();
-      if (reducedMotion || !screen || initialCase) return;
-      screen.classList.add('crt-boot-degauss');
-      setTimeout(() => screen.classList.remove('crt-boot-degauss'), 370);
     };
-    loader.classList.add('done');
-    if (reducedMotion) { finish(); return; }
-    loader.addEventListener('transitionend', event => {
-      if (event.target === loader && event.propertyName === 'opacity') finish();
+    loader.addEventListener('animationend', event => {
+      if (event.target === loader && event.animationName === 'crtDegaussLine') finish();
     });
-    // A browser that suppresses transitions must still enter the site.
-    setTimeout(finish, 500);
+    // The loader stays fully opaque until the 340 ms signal has completed.
+    // Guard against disabled animations or throttled browser events.
+    loader.classList.add('crt-boot-degauss');
+    fallbackTimer = setTimeout(finish, 430);
   }
   function reveal() {
     if (finished) return;
