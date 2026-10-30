@@ -13,7 +13,10 @@
     frameHandle: 0,
     lastDraw: 0,
     largeSurface: false,
-    contentOpen: false
+    contentOpen: false,
+    backend: 'normal', renderer: '', lastDrawMs: 0,
+    slowDraws: 0, slowIntervals: 0, lastTick: 0,
+    surfaceResizes: 0
   };
 
   const PRESETS = {
@@ -80,26 +83,69 @@
     maxDpr: 1.0,
     normalFps: 30,
     largeFps: 24,
-    contentFps: 12
+    contentFps: 12,
+    // Software GL renders synchronously on the UI CPU. Retain the exact
+    // shader formula while scaling pixel and frame work to available power.
+    softwareMobile: {maxPixels: 90000, maxDpr: .65, fps: 6},
+    softwareDesktop: {maxPixels: 240000, maxDpr: .65, fps: 10},
+    strugglingMobile: {maxPixels: 180000, maxDpr: .80, fps: 12},
+    strugglingDesktop: {maxPixels: 400000, maxDpr: .85, fps: 16}
   });
 
+  const coarse = matchMedia('(pointer: coarse)').matches;
+  try {
+    const gl = bgP.gl;
+    const ext = gl.getExtension('WEBGL_debug_renderer_info');
+    state.renderer = String(ext
+      ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) || ''
+      : gl.getParameter(gl.RENDERER) || '');
+    if (/swiftshader|llvmpipe|softpipe|software rasterizer/i.test(state.renderer))
+      state.backend='software';
+  } catch {}
+  const profile = () => state.backend === 'software'
+    ? PERFORMANCE[coarse ? 'softwareMobile' : 'softwareDesktop']
+    : state.backend === 'struggling'
+      ? PERFORMANCE[coarse ? 'strugglingMobile' : 'strugglingDesktop']
+      : null;
+  function enterConstrainedMode() {
+    if (state.backend !== 'normal') return;
+    state.backend='struggling';
+    // Defer allocation until the current frame has finished.
+    queueMicrotask(resize);
+  }
+
   function currentFps(){
+    const effective=profile();
+    if(effective) return effective.fps;
     if(state.contentOpen) return PERFORMANCE.contentFps;
     return state.largeSurface ? PERFORMANCE.largeFps : PERFORMANCE.normalFps;
   }
 
-  function resizeOne(canvas, P, width, height, maxPixels){
-    const nativeDpr=Math.min(devicePixelRatio||1,PERFORMANCE.maxDpr);
+  function resizeOne(canvas, P, width, height, maxPixels, maxDpr){
+    const nativeDpr=Math.min(devicePixelRatio||1,maxDpr);
     const budgetDpr=Math.sqrt(maxPixels/Math.max(1,width*height));
-    const dpr=Math.max(0.34,Math.min(nativeDpr,budgetDpr));
-    canvas.width=Math.max(1,Math.round(width*dpr)); canvas.height=Math.max(1,Math.round(height*dpr));
-    P.gl.viewport(0,0,canvas.width,canvas.height); P.gl.useProgram(P.pr); P.gl.uniform2f(P.uniforms.r,canvas.width,canvas.height);
+    const dpr=Math.max(0.12,Math.min(nativeDpr,budgetDpr));
+    const nextW=Math.max(1,Math.round(width*dpr));
+    const nextH=Math.max(1,Math.round(height*dpr));
+    // Setting unchanged canvas dimensions resets WebGL buffers and can
+    // incur expensive software-GPU reallocation.
+    if(P.lastW===nextW && P.lastH===nextH) return false;
+    canvas.width=nextW; canvas.height=nextH;
+    P.lastW=nextW;P.lastH=nextH;
+    state.surfaceResizes++;
+    P.gl.viewport(0,0,nextW,nextH);
+    P.gl.useProgram(P.pr);
+    P.gl.uniform2f(P.uniforms.r,nextW,nextH);
+    return true;
   }
   function resize(){
     const width=Math.max(screen.clientWidth,1), height=Math.max(screen.clientHeight,1);
     const estimated=width*height*Math.pow(Math.min(devicePixelRatio||1,1.5),2);
     state.largeSurface=estimated>PERFORMANCE.largeSurfaceThreshold;
-    const maxPixels=state.largeSurface?PERFORMANCE.largeMaxPixels:PERFORMANCE.maxPixels;
+    const runtime=profile();
+    const maxPixels=runtime?.maxPixels ||
+      (state.largeSurface?PERFORMANCE.largeMaxPixels:PERFORMANCE.maxPixels);
+    const maxDpr=runtime?.maxDpr || PERFORMANCE.maxDpr;
     document.body.classList.toggle('perf-crt-large',state.largeSurface);
     document.body.classList.toggle(
       'perf-large-surface',
@@ -107,8 +153,9 @@
       document.body.classList.contains('perf-crt-large') ||
       document.body.classList.contains('perf-constrained')
     );
-    resizeOne(bg,bgP,width,height,maxPixels); resizeOne(fx,fxP,width,height,maxPixels);
-    state.lastDraw=0;
+    const bgChanged=resizeOne(bg,bgP,width,height,maxPixels,maxDpr);
+    const fxChanged=resizeOne(fx,fxP,width,height,maxPixels,maxDpr);
+    if(bgChanged || fxChanged) state.lastDraw=0;
   }
   addEventListener('resize',resize,{passive:true});
   if('ResizeObserver' in window) new ResizeObserver(resize).observe(screen);
@@ -118,7 +165,16 @@
     state.preset=name; document.body.classList.remove('fx-medium','fx-low','fx-off');
     if(name==='medium')document.body.classList.add('fx-medium'); if(name==='low')document.body.classList.add('fx-low'); if(name==='off')document.body.classList.add('fx-off');
   }
-  window.CRT = { setPreset, getPreset:()=>state.preset, presets:['high','medium','low','off'] };
+  window.CRT = {
+    setPreset, getPreset:()=>state.preset, presets:['high','medium','low','off'],
+    getRenderStats:()=>({
+      backend:state.backend, renderer:state.renderer,
+      fpsBudget:currentFps(), lastDrawMs:state.lastDrawMs,
+      backgroundPixels:bg.width*bg.height,
+      overlayPixels:fx.width*fx.height,
+      surfaceResizes:state.surfaceResizes
+    })
+  };
   if(state.reduced) setPreset('low');
 
   function syncHit(now,p){
@@ -130,6 +186,7 @@
   }
 
   function draw(now){
+    const begin=performance.now();
     const t=(now-state.start)/1000, p=PRESETS[state.preset];
     for(const P of [bgP,fxP]){P.gl.useProgram(P.pr);P.gl.uniform1f(P.uniforms.t,t);}
     fxP.gl.uniform1f(fxP.uniforms.raster,p.raster); fxP.gl.uniform1f(fxP.uniforms.triad,p.triad); fxP.gl.uniform1f(fxP.uniforms.noise,p.noise); fxP.gl.uniform1f(fxP.uniforms.roll,p.roll);
@@ -139,6 +196,12 @@
     const flick = 1 - p.flicker*(.35+.65*Math.abs(Math.sin(t*16.1)+Math.sin(t*3.2))*.5);
     screen.style.setProperty('--crt-brightness',flick.toFixed(4));
     syncHit(now,p);
+    state.lastDrawMs=performance.now()-begin;
+    if(state.backend==='normal') {
+      if(state.lastDrawMs>=75) state.slowDraws++;
+      else state.slowDraws=Math.max(0,state.slowDraws-1);
+      if(state.slowDraws>=2) enterConstrainedMode();
+    }
   }
 
   function animate(now){
@@ -146,6 +209,14 @@
     state.frameHandle = requestAnimationFrame(animate);
     if(document.hidden || state.caseOpen) return;
     const frameMs=1000/currentFps();
+    // React to sustained long rAF intervals when the GL vendor string is
+    // unavailable (for example, a browser hiding software rasterizer info).
+    if(state.backend==='normal' && state.lastTick) {
+      if(now-state.lastTick>Math.max(110,frameMs*2.8)) state.slowIntervals++;
+      else state.slowIntervals=Math.max(0,state.slowIntervals-1);
+      if(state.slowIntervals>=4) enterConstrainedMode();
+    }
+    state.lastTick=now;
     if(!state.lastDraw || now - state.lastDraw >= frameMs - 1.0){
       state.lastDraw = now;
       draw(now);
