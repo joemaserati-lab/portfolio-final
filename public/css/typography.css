@@ -558,3 +558,6 @@ button {
 .boot-gate h2::before { content: "["; margin-right: .55em; }
 .primary-action::after,
 .boot-gate h2::after { content: "]"; margin-left: .55em; }
+
+/* Preserve the email as a single readable unit, including the static reader. */
+.static-reader a[href^="mailto:"] {white-space:nowrap;overflow-wrap:normal;word-break:normal}

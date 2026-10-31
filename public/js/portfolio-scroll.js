@@ -25,6 +25,15 @@
   const clamp = value => Math.max(0, Math.min(1, value));
   const mix = (a,b,p) => a + (b-a)*p;
 
+  // Keep the live canvas connected to one parent for its entire render lifetime.
+  // Reparenting a WebGL/OffscreenCanvas during scroll can discard its compositor
+  // surface in desktop browsers. A non-rendering anchor retains the hero layout.
+  const headAnchor = document.createElement('div');
+  headAnchor.className = 'crt-head-feature scroll-head-anchor';
+  headAnchor.setAttribute('aria-hidden', 'true');
+  head.before(headAnchor);
+  screen.appendChild(head);
+
   launchers.forEach(launcher => {
     const kind = launcher.dataset.open === 'projects' ? 'work' : launcher.dataset.open;
     const button = document.createElement('button');
@@ -83,8 +92,8 @@
       const r = launcher.getBoundingClientRect();
       launcherRects.set(launcher, {left:r.left-parent.left, top:r.top-parent.top+viewport.scrollTop, width:r.width, height:r.height});
     });
-    if (!docked) {
-      const r = head.getBoundingClientRect();
+    {
+      const r = headAnchor.getBoundingClientRect();
       headRect = {left:r.left-parent.left, top:r.top-parent.top+viewport.scrollTop, width:r.width, height:r.height};
     }
     windows.forEach(entry => {
@@ -92,6 +101,17 @@
     });
 
   }
+  function placeHeroHead() {
+    head.style.width = `${headRect.width}px`;
+    head.style.height = `${headRect.height}px`;
+    head.style.left = `${headRect.left}px`;
+    head.style.top = `${headRect.top - viewport.scrollTop}px`;
+    head.style.transformOrigin = '0 0';
+    head.style.transform = 'none';
+  }
+  // Establish the original hero geometry before the renderer initializes.
+  measure();
+  placeHeroHead();
   function renderContents() {
     const api = window.Portfolio;
     if (!api) return;
@@ -219,11 +239,8 @@
     document.body.classList.toggle('scroll-head-docked', !compact.matches && y > 1);
     let settledRenderScale = 1;
     if (pose > 0) {
-      if (!docked) {
-        screen.appendChild(head);
-        head.classList.add('scroll-portrait-docked');
-        docked = true;
-      }
+      head.classList.add('scroll-portrait-docked');
+      docked = true;
       const sr = screen.getBoundingClientRect();
       const slot = portraitSlot.getBoundingClientRect();
       // Small at the CENTER TOP, in the same dark header band as the mini
@@ -251,11 +268,10 @@
       head.style.top = `${headRect.top}px`;
       head.style.transformOrigin = '0 0';
       head.style.transform = `translate3d(${left-headRect.left}px, ${top-headRect.top}px, 0) scale(${scale})`;
-    } else if (docked) {
-      desktop.prepend(head);
+    } else {
       head.classList.remove('scroll-portrait-docked');
-      head.removeAttribute('style');
       docked = false;
+      placeHeroHead();
     }
     const progress = clamp(y / Math.max(1, viewport.scrollHeight - h));
     dispatchEvent(new CustomEvent('portfolio:scroll-pose', {detail:{heroPresence:compact.matches ? 1 - pose : 0, yaw:compact.matches ? (reduced.matches ? 0 : progress * Math.PI * 2) : null, renderScale:settledRenderScale}}));
@@ -348,7 +364,7 @@
     go(typeof detail === 'string' ? detail : detail?.kind || current, {historyUpdate:false, focusTarget:detail?.focusTarget});
   });
   viewport.addEventListener('scroll', schedule, {passive:true});
-  addEventListener('resize', () => { if (docked) { desktop.prepend(head); head.removeAttribute('style'); head.classList.remove('scroll-portrait-docked'); docked = false; } measure(); schedule(); });
+  addEventListener('resize', () => { measure(); if (!docked) placeHeroHead(); schedule(); });
   addEventListener('portfolio:runtime-ready', renderContents);
   addEventListener('portfolio:head-settled', schedule);
   addEventListener('portfolio:langchange', () => {

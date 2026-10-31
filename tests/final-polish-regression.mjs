@@ -1,0 +1,84 @@
+import assert from 'node:assert/strict';
+import {mkdir} from 'node:fs/promises';
+import {chromium, firefox, webkit} from 'playwright';
+
+const engine = process.env.BROWSER || 'chromium';
+const base = process.env.AUDIT_URL || 'http://127.0.0.1:4321/portfolio-final/';
+const output = process.env.QA_DIR || '/tmp/portfolio-polish';
+await mkdir(output, {recursive:true});
+const browser = await ({chromium, firefox, webkit}[engine]).launch({headless:true,
+  ...(engine === 'chromium' ? {args:['--use-gl=swiftshader','--enable-webgl']} : {})});
+try {
+  for (const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]) {
+    const page = await browser.newPage({viewport:{width,height}});
+    await page.goto(base);
+    await page.waitForFunction(()=>document.body.classList.contains('site-ready'));
+    await page.evaluate(()=>document.fonts.ready);
+    await page.waitForFunction(()=>document.querySelector('#crt-head-feature').classList.contains('is-ready'));
+    // Observe the real canvas through scroll, project open/close and return home.
+    await page.evaluate(()=>{
+      window.polishHead = document.querySelector('#crt-head-canvas');
+      window.polishParent = window.polishHead.parentElement.parentElement;
+    });
+    for (const kind of ['work','contact','home']) {
+      await page.evaluate(kind=>dispatchEvent(new CustomEvent('portfolio:scroll-to',{detail:kind})),kind);
+      await page.waitForFunction(kind=>document.querySelector('.scroll-index [aria-current]')?.dataset.scrollSection===kind,kind);
+      await page.waitForTimeout(800);
+      assert(await page.evaluate(()=>{
+        const head = document.querySelector('#crt-head-feature');
+        const style = getComputedStyle(head);
+        return document.querySelector('#crt-head-canvas')===window.polishHead &&
+          head.parentElement===window.polishParent && head.classList.contains('is-ready') &&
+          style.visibility==='visible' && Number(style.opacity)>0;
+      }), `${engine} ${width} ${kind}: portrait surface was replaced or hidden`);
+      if (kind==='contact') {
+        const email = await page.locator('.contact-link[href^="mailto:"] b').evaluate(e=>{
+          const range = document.createRange(); range.selectNodeContents(e);
+          const rect = e.closest('a').getBoundingClientRect();
+          const fragments = [...range.getClientRects()];
+          return {lines:fragments.length, size:parseFloat(getComputedStyle(e).fontSize),
+            fits:fragments.every(r=>r.left>=rect.left-1 && r.right<=rect.right+1)};
+        });
+        assert(email.lines===1 && email.size>=16 && email.fits,`${engine} ${width}: email must fit on one line at 16px minimum: ${JSON.stringify(email)}`);
+      }
+      if (width>1024 && kind!=='home') {
+        const colors = await page.locator('.scroll-section-name [data-scroll-label], .desktop-icon > [data-i18n]').evaluateAll(els=>els.map(e=>getComputedStyle(e).color));
+        assert(colors.every(c=>c==='rgb(255, 45, 58)'),`${engine}: scrolled labels changed color`);
+      }
+    }
+    await page.evaluate(()=>dispatchEvent(new CustomEvent('portfolio:scroll-to',{detail:'work'})));
+    await page.waitForFunction(()=>document.querySelector('#scroll-work .scroll-window').classList.contains('is-revealed'));
+    // Capture the animation via its class mutations, without relying on a
+    // screenshot happening to land in a 155ms transition window.
+    await page.evaluate(()=>{
+      window.polishDegauss = false;
+      new MutationObserver(()=>{
+        if(document.querySelector('#screen').classList.contains('crt-degauss')) window.polishDegauss=true;
+      }).observe(document.querySelector('#screen'),{attributes:true,attributeFilter:['class']});
+    });
+    await page.locator('#scroll-work [data-project-slug]').first().click();
+    await page.waitForFunction(()=>document.body.classList.contains('project-case-open'));
+    assert(await page.evaluate(()=>window.polishDegauss),`${engine}: missing project entry degauss`);
+    await page.waitForTimeout(450);
+    await page.locator('[data-projects-close]').click();
+    await page.waitForFunction(()=>!document.body.classList.contains('project-case-open') && document.querySelector('#crt-head-feature').classList.contains('is-ready'));
+    assert(await page.evaluate(()=>document.querySelector('#crt-head-canvas')===window.polishHead),`${engine}: head not preserved after closing case`);
+    await page.screenshot({path:`${output}/${engine}-${width}.png`});
+    console.log('FINAL POLISH PASS',engine,width,height);
+    await page.close();
+  }
+  const page = await browser.newPage();
+  await page.goto(new URL('404.html',base).href);
+  assert.equal(await page.locator('#page-title').evaluate(e=>getComputedStyle(e,'::after').color),'rgb(255, 45, 58)');
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await page.goto(base);
+  await page.waitForFunction(()=>document.body.classList.contains('site-ready'));
+  await page.clock.install();
+  await page.evaluate(()=>document.dispatchEvent(new Event('pointermove')));
+  await page.clock.fastForward(60_000);
+  const frame = page.frameLocator('#idle-screensaver-scene');
+  await frame.locator('#page-title .doto-glyph').waitFor();
+  assert.equal(await frame.locator('.topline__idle-status').count(),0);
+  assert.equal(await frame.locator('#page-title .doto-glyph').evaluate(e=>getComputedStyle(e).color),'rgb(255, 45, 58)');
+  console.log('404 / IDLE GLYPHS PASS',engine);
+} finally { await browser.close(); }

@@ -22,7 +22,7 @@ const fontSheet = typographyMode === 'doto-mono'
 <style is:global>
 @font-face {font-family:'Doto';src:url('/portfolio-final/assets/font/Doto-500.woff2') format('woff2');font-style:normal;font-weight:500;font-display:swap}
 @font-face {font-family:'Redaction 50';src:url('/portfolio-final/assets/font/redaction-50-latin-400-normal.woff') format('woff');font-style:normal;font-weight:400;font-display:swap}
-:root {color-scheme:dark;--bg:#050505;--text:#f5f5f5;--secondary:#b9b9b9;--line:rgba(255,255,255,.18);--accent:#f5f5f5;--mint:#80FFCC}
+:root {color-scheme:dark;--bg:#050505;--text:#f5f5f5;--secondary:#b9b9b9;--line:rgba(255,255,255,.18);--accent:#f5f5f5;--mint:#80FFCC;--red:#FF2D3A}
 *,*::before,*::after {box-sizing:border-box}
 html,body {margin:0;width:100%;height:100%;background:var(--bg)}
 body {color:var(--text);overflow:hidden;-webkit-font-smoothing:antialiased}
@@ -68,7 +68,17 @@ a {-webkit-tap-highlight-color:transparent}
 <link rel="stylesheet" href={fontSheet} />
 <link rel="stylesheet" href={`/portfolio-final/css/typography.css?v=${packageInfo.version}`} />
 <style is:global>
-/* Shared 404 asset: no new image, mask, font family or type scale is introduced. */
+/* Shared red Doto marks for the standalone error and idle scene. */
+.scene .doto-glyph,
+.scene__copy h1::after,
+.scene__home::before,
+.scene__home::after {color:var(--red);font-family:var(--font-ui);font-weight:500}
+.scene__copy h1::after {content:'.'}
+.scene__home::before {content:'<';margin-right:.5em}
+.scene__home::after {content:'>';margin-left:.5em}
+html.is-idle-screensaver .scene__copy h1::after {content:none}
+html.is-idle-screensaver .scene__home::before {content:'['}
+html.is-idle-screensaver .scene__home::after {content:']'}
 html.is-idle-screensaver .scene__copy h1{
  font-size:clamp(var(--type-h2),6vw,var(--type-display));
  overflow-wrap:anywhere;
@@ -213,24 +223,25 @@ html.is-idle-screensaver .topline__brand{pointer-events:none;cursor:default}
  reducedQuery.addEventListener('change',()=>{paused=reducedQuery.matches;if(paused)stopFrame();else startFrame()});
  const lang=(()=>{try{return localStorage.getItem('portfolioLang')==='it'?'it':'en'}catch{return 'en'}})();
  const idleWords={
-  en:{title:'IDLE MODE.',description:'The screen is taking a break. Your place in the portfolio is saved.',resume:'MOVE / TAP / PRESS A KEY TO RESUME',status:'PORTFOLIO OS / IDLE',aria:'Portfolio screensaver'},
-  it:{title:'IN PAUSA.',description:'Lo schermo si prende una pausa. La pagina rimane esattamente dove l’hai lasciata.',resume:'MUOVI / TOCCA / PREMI UN TASTO',status:'PORTFOLIO OS / PAUSA',aria:'Salvaschermo del portfolio'}
+  en:{title:'IDLE MODE.',description:'The screen is taking a break. Your place in the portfolio is saved.',resume:'MOVE / TAP / PRESS A KEY TO RESUME',aria:'Portfolio screensaver'},
+  it:{title:'IN PAUSA.',description:'Lo schermo si prende una pausa. La pagina rimane esattamente dove l’hai lasciata.',resume:'MUOVI / TOCCA / PREMI UN TASTO',aria:'Salvaschermo del portfolio'}
  };
- let idleStatus=null;
  function applyIdleCopy(language,words){
   const next=language==='it'?'it':'en',copy={...idleWords[next],...(words||{})};
   document.documentElement.lang=next;
-  document.querySelector('#page-title').textContent=copy.title;
+  const title=document.querySelector('#page-title');
+  title.textContent=copy.title.replace(/\.$/,'');
+  const point=document.createElement('span');
+  point.className='doto-glyph';
+  point.setAttribute('aria-hidden','true');
+  point.textContent='.';
+  title.append(point);
   document.querySelector('[data-copy]').textContent=copy.description;
   document.querySelector('[data-home]').textContent=copy.resume;
-  if(idleStatus)idleStatus.textContent=copy.status;
   stage.setAttribute('aria-label',copy.aria);
  }
  if(isIdleEmbed){
   document.title='Screensaver — Edoardo Rappanello';
-  idleStatus=document.createElement('span');
-  idleStatus.className='topline__idle-status';
-  document.querySelector('.topline').append(idleStatus);
   for(const selector of ['.topline__brand','[data-home]']){
    const link=document.querySelector(selector);
    link.removeAttribute('href');link.tabIndex=-1;

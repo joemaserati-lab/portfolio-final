@@ -17,7 +17,7 @@
     const t = key => window.PortfolioI18n?.t?.(key) || key;
     send('copy', { lang: window.PortfolioI18n?.lang || document.documentElement.lang,
       copy:{ title:t('idle.title'), description:t('idle.copy'), resume:t('idle.resume'),
-        status:t('idle.status'), aria:t('idle.aria') } });
+        aria:t('idle.aria') } });
   }
   scene.addEventListener('load', () => {
     if (!sceneRequested) return;

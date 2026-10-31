@@ -183,6 +183,7 @@
 
 
 /* Original CRT collapse for navigation; post-loader ignition reuses its signal line. */
+.screen.crt-degauss #projects-view,
 .screen.crt-degauss .desktop,
 .screen.crt-degauss .terminal-dock,
 .screen.crt-degauss .footerbar,
@@ -308,7 +309,7 @@
 }
 
 @media (prefers-reduced-motion:reduce){
-  .screen.crt-degauss .desktop,.screen.crt-degauss .terminal-dock,.screen.crt-degauss .footerbar,.screen.crt-degauss #crt-bg,.screen.crt-degauss #crt-fx,.screen.crt-degauss .noise,.screen.crt-degauss .scanlines{animation:none!important}
+  .screen.crt-degauss #projects-view,.screen.crt-degauss .desktop,.screen.crt-degauss .terminal-dock,.screen.crt-degauss .footerbar,.screen.crt-degauss #crt-bg,.screen.crt-degauss #crt-fx,.screen.crt-degauss .noise,.screen.crt-degauss .scanlines{animation:none!important}
   .screen.crt-degauss::after,.screen.micro-glitch .desktop,.screen.micro-glitch .terminal-dock,.screen.micro-glitch .footerbar,.screen.micro-glitch #crt-fx,.project-cover-v2::after{animation:none!important}
 }
 

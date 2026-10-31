@@ -18,7 +18,7 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
    const target = Math.min(section.offsetTop, viewport.scrollHeight - viewport.clientHeight);
    return Math.abs(viewport.scrollTop - target) < 2
      && document.querySelector('.scroll-index [aria-current]')?.dataset.scrollSection === kind
-     && (kind !== 'home' || document.getElementById('crt-head-feature').parentElement.id === 'desktop')
+     && (kind !== 'home' || document.getElementById('crt-head-feature').parentElement.id === 'screen')
      && (kind === 'home' || section.querySelector('.scroll-window').classList.contains('is-revealed'))
      && (kind === 'home' || matchMedia('(min-width:1025px)').matches || Math.abs(document.getElementById('crt-head-feature').getBoundingClientRect().height-document.querySelector('.scroll-portrait-slot').getBoundingClientRect().height)<1);
  }, kind, {timeout:15000});
@@ -223,7 +223,7 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  await settle('home');
  await select('home');await settle('home');
  assert.equal(await page.locator('#scroll-viewport').evaluate(e=>e.scrollTop),0);
- assert.equal(await page.locator('#crt-head-feature').evaluate(e=>e.parentElement.id),'desktop');
+ assert.equal(await page.locator('#crt-head-feature').evaluate(e=>e.parentElement.id),'screen');
  await page.waitForFunction(()=>document.querySelector('#crt-head-feature').classList.contains('is-ready'));
  assert(await page.locator('#crt-head-feature').isVisible(),'Head failed to resume on home');
  assert.equal(errors.length,0,errors.join('\n'));
