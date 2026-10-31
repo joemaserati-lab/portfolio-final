@@ -9,7 +9,7 @@
 - When editing CSS, preserve computed styles and breakpoint behaviour. Do not reorder modules without visual and interaction regression checks.
 
 ## Design
-Read `DESIGN.md` first. Preserve monochrome #050505/#252525/#B9B9B9/#F5F5F5 with restrained #80FFCC interactive accents and #FF2D3A exclusively for Doto glyphs (`.`, `•`, `[ ]`, `<>`). Keep both signals functionally distinct. The hero CTA and loader use square brackets, project cards use bullet plus year/status, CV places use brackets, and scrolled navigation labels stay white with a leading red Doto bullet. The doto-mono reading font is JetBrains Mono.
+Read `DESIGN.md` first. Preserve monochrome #050505/#252525/#B9B9B9/#F5F5F5 with restrained #80FFCC interactive accents and #FF2D3A exclusively for Doto glyphs (`.`, `•`, `[ ]`, `<>`). Keep both signals functionally distinct. The hero CTA and loader use square brackets, project cards use bullet plus year/status, CV places use brackets, and navigation labels stay white; the red Doto bullet appears only in the final horizontal desktop caption and active mobile label, never on transitioning desktop launchers. The doto-mono reading font is JetBrains Mono.
 Do not add generic gradients, glass panels, rounded cards or stock interfaces.
 Project thumbnails stay grayscale at rest. Desktop hover/focus reveals color; mobile uses the most visible card with a CRT scan transition and preserves single-tap project opening.
 Never replace actual project covers with decorative placeholders; do not load a duplicate CSS background image for an existing project cover. Case-study media are pending real production assets; do not invent them.

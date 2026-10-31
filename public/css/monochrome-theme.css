@@ -172,7 +172,6 @@ body { color: var(--white); }
 .scroll-portfolio .scroll-index a[aria-current] [data-scroll-label] {
   color: var(--white);
 }
-.scroll-portfolio.scroll-reading .desktop-icon > [data-i18n]::before,
 .scroll-portfolio .scroll-section-name [data-scroll-label]::before,
 .scroll-portfolio .scroll-index a[aria-current] [data-scroll-label]::before {
   color: var(--red);
