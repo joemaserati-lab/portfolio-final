@@ -10,7 +10,7 @@ const browser = await ({chromium, firefox, webkit}[engine]).launch({headless:eng
   ...(engine === 'firefox' ? {firefoxUserPrefs:{'webgl.force-enabled':true,'gfx.webrender.all':true}} : {}),
   ...(engine === 'chromium' ? {args:['--use-gl=swiftshader','--enable-webgl']} : {})});
 try {
-  for (const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]) {
+  for (const [width,height] of [[1440,900],[320,568],[360,800],[390,844],[667,375]]) {
     const page = await browser.newPage({viewport:{width,height}});
     const errors=[];
     page.on('pageerror',error=>errors.push(String(error)));
