@@ -55,6 +55,9 @@ try {
     }
     await page.evaluate(()=>dispatchEvent(new CustomEvent('portfolio:scroll-to',{detail:'work'})));
     await page.waitForFunction(()=>document.querySelector('#scroll-work .scroll-window').classList.contains('is-revealed'));
+    // Wait for smooth scrolling to finish before Playwright tries to scroll
+    // the project card into view itself (Firefox otherwise cancels the handoff).
+    await page.waitForFunction(()=>Math.abs(document.querySelector('#scroll-viewport').scrollTop-document.querySelector('#scroll-work').offsetTop)<2);
     // Capture the animation via its class mutations, without relying on a
     // screenshot happening to land in a 155ms transition window.
     await page.evaluate(()=>{
