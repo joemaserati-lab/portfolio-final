@@ -35,7 +35,7 @@ jobs:
           LIBGL_ALWAYS_SOFTWARE: '1'
           AUDIT_URL: http://127.0.0.1:4321/portfolio-final/
           QA_DIR: /tmp/portfolio-polish
-        run: node tests/final-polish-regression.mjs
+        run: xvfb-run -a node tests/final-polish-regression.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

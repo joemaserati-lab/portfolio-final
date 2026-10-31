@@ -859,3 +859,9 @@
   /* Give the unbroken address its full line before reducing any type size. */
   .scroll-portfolio #scroll-contact .contact-link {padding-inline:0;border-inline:0}
 }
+
+@media (max-width:359px) {
+  .scroll-portfolio #scroll-contact.scroll-section {
+    padding-inline:max(10px,var(--device-screen-left)) max(10px,var(--device-screen-right));
+  }
+}

@@ -6,15 +6,21 @@ const engine = process.env.BROWSER || 'chromium';
 const base = process.env.AUDIT_URL || 'http://127.0.0.1:4321/portfolio-final/';
 const output = process.env.QA_DIR || '/tmp/portfolio-polish';
 await mkdir(output, {recursive:true});
-const browser = await ({chromium, firefox, webkit}[engine]).launch({headless:true,
+const browser = await ({chromium, firefox, webkit}[engine]).launch({headless:engine!=='firefox',
+  ...(engine === 'firefox' ? {firefoxUserPrefs:{'webgl.force-enabled':true,'gfx.webrender.all':true}} : {}),
   ...(engine === 'chromium' ? {args:['--use-gl=swiftshader','--enable-webgl']} : {})});
 try {
   for (const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]) {
     const page = await browser.newPage({viewport:{width,height}});
+    const errors=[];
+    page.on('pageerror',error=>errors.push(String(error)));
+    page.on('console',msg=>{if(['error','warning'].includes(msg.type()))errors.push(msg.text())});
     await page.goto(base);
     await page.waitForFunction(()=>document.body.classList.contains('site-ready'));
     await page.evaluate(()=>document.fonts.ready);
-    await page.waitForFunction(()=>document.querySelector('#crt-head-feature').classList.contains('is-ready'));
+    await page.waitForFunction(()=>window.__portfolioHeadState?.settled);
+    assert(await page.locator('#crt-head-feature').evaluate(e=>e.classList.contains('is-ready')),
+      `${engine}: head failed to initialize: ${JSON.stringify(await page.evaluate(()=>window.__portfolioHeadState))} ${errors.join('\n')}`);
     // Observe the real canvas through scroll, project open/close and return home.
     await page.evaluate(()=>{
       window.polishHead = document.querySelector('#crt-head-canvas');
