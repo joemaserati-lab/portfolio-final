@@ -70,9 +70,17 @@ try {
     await page.waitForFunction(()=>document.body.classList.contains('project-case-open'));
     assert(await page.evaluate(()=>window.polishDegauss),`${engine}: missing project entry degauss`);
     await page.waitForTimeout(450);
-    await page.locator('[data-projects-close]').click();
+    await page.locator('[data-projects-back]').click();
+    await page.waitForFunction(()=>!document.querySelector('#screen').classList.contains('crt-degauss'));
+    await page.waitForTimeout(100);
     await page.waitForFunction(()=>!document.body.classList.contains('project-case-open') && document.querySelector('#crt-head-feature').classList.contains('is-ready'));
     assert(await page.evaluate(()=>document.querySelector('#crt-head-canvas')===window.polishHead),`${engine}: head not preserved after closing case`);
+    const proportions = await page.evaluate(()=>{
+      const head=document.querySelector('#crt-head-feature').getBoundingClientRect();
+      const anchor=document.querySelector('.scroll-head-anchor').getBoundingClientRect();
+      return Math.abs(head.width/head.height-anchor.width/anchor.height);
+    });
+    assert(proportions<.02,`${engine}: degauss corrupted the restored head proportions`);
     await page.screenshot({path:`${output}/${engine}-${width}.png`});
     console.log('FINAL POLISH PASS',engine,width,height);
     await page.close();

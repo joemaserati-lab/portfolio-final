@@ -85,6 +85,9 @@
   compact.addEventListener('change', positionControls);
   positionControls();
   function measure() {
+    // The desktop is scaled during degauss. Keep the last stable layout until
+    // the transition ends instead of caching its compressed bounding boxes.
+    if (headRect && screen.classList.contains('crt-degauss')) return;
     const parent = screen.getBoundingClientRect();
     launchers.forEach(launcher => {
       launcher.style.removeProperty('transform');
@@ -367,6 +370,7 @@
   addEventListener('resize', () => { measure(); if (!docked) placeHeroHead(); schedule(); });
   addEventListener('portfolio:runtime-ready', renderContents);
   addEventListener('portfolio:head-settled', schedule);
+  addEventListener('portfolio:layout-settled', () => { measure(); schedule(); });
   addEventListener('portfolio:langchange', () => {
     // content.js and portfolio.js are loaded after this listener by the loader.
     // Let both synchronous dictionary listeners finish before reading their data.

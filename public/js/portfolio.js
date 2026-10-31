@@ -14,8 +14,11 @@
   function cancelTransition() {
     clearTimeout(transitionSwap); clearTimeout(transitionEnd);
     transitionSwap = null; transitionEnd = null;
-    document.getElementById('screen').classList.remove('crt-degauss');
+    const screen = document.getElementById('screen');
+    const wasAnimating = screen.classList.contains('crt-degauss');
+    screen.classList.remove('crt-degauss');
     projectsView.style.removeProperty('animation-delay');
+    if (wasAnimating) dispatchEvent(new Event('portfolio:layout-settled'));
   }
   function crtTransition(action) {
     cancelTransition();
