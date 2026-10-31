@@ -861,6 +861,10 @@
 }
 
 @media (max-width:359px) {
+  /* Native scrollbar gutters otherwise consume the email's final characters.
+     Scrolling remains available to touch, wheel and keyboard. */
+  .scroll-portfolio .scroll-viewport {scrollbar-width:none}
+  .scroll-portfolio .scroll-viewport::-webkit-scrollbar {width:0;height:0}
   .scroll-portfolio #scroll-contact.scroll-section {
     padding-inline:max(10px,var(--device-screen-left)) max(10px,var(--device-screen-right));
   }
