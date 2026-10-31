@@ -48,9 +48,9 @@ try {
         if(!email.fits) await page.screenshot({path:`${output}/${engine}-${width}-email.png`});
         assert(email.lines===1 && email.size>=16 && email.fits,`${engine} ${width}: email must fit on one line at 16px minimum: ${JSON.stringify(email)}`);
       }
-      if (width>1024 && kind!=='home') {
-        const colors = await page.locator('.scroll-section-name [data-scroll-label], .desktop-icon > [data-i18n]').evaluateAll(els=>els.map(e=>getComputedStyle(e).color));
-        assert(colors.every(c=>c==='rgb(255, 45, 58)'),`${engine}: scrolled labels changed color`);
+      if (kind!=='home') {
+        const labels = await page.locator(width>1024 ? '.scroll-section-name [data-scroll-label], .desktop-icon > [data-i18n]' : '.scroll-index a[aria-current] [data-scroll-label]').evaluateAll(els=>els.map(e=>({text:getComputedStyle(e).color,mark:getComputedStyle(e,'::before').content,color:getComputedStyle(e,'::before').color})));
+        assert(labels.every(x=>x.text==='rgb(245, 245, 245)' && x.mark.includes('•') && x.color==='rgb(255, 45, 58)'),`${engine}: navigation needs white labels and a red bullet`);
       }
     }
     await page.evaluate(()=>dispatchEvent(new CustomEvent('portfolio:scroll-to',{detail:'work'})));

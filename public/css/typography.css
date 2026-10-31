@@ -561,3 +561,15 @@ button {
 
 /* Preserve the email as a single readable unit, including the static reader. */
 .static-reader a[href^="mailto:"] {white-space:nowrap;overflow-wrap:normal;word-break:normal}
+
+/* A separate decorative mark preserves white, localized navigation text. */
+.scroll-portfolio.scroll-reading .desktop-icon > [data-i18n]::before,
+.scroll-portfolio .scroll-section-name [data-scroll-label]::before,
+.scroll-portfolio .scroll-index a[aria-current] [data-scroll-label]::before {
+  content:"•";
+  display:inline-block;
+  font-family:var(--font-ui);
+  font-weight:700;
+  line-height:1;
+  margin-right:.45em;
+}
