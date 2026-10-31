@@ -213,7 +213,7 @@
           </div>
         </div>
         <figure class="contact-photo">
-          <img src="assets/images/profilephoto.webp" alt="${esc(t('portfolio.portraitAlt'))}" loading="lazy" decoding="async">
+          <img src="${esc(new URL('assets/images/profilephoto.webp', BASE_URL).href)}" alt="${esc(t('portfolio.portraitAlt'))}" width="1254" height="1254" loading="eager" decoding="async">
         </figure>
       </div>`,
 
