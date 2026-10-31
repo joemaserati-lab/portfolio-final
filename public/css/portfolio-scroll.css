@@ -843,6 +843,8 @@
 /* An email address is one typographic unit. Keep its full measure while the
    adjacent portrait yields space; the shared type scale stays unchanged. */
 .scroll-portfolio #scroll-contact .contact-link[href^="mailto:"] b {
+  width:max-content;
+  max-width:none;
   white-space:nowrap;
   overflow-wrap:normal;
   word-break:normal;
@@ -866,6 +868,6 @@
   .scroll-portfolio .scroll-viewport {scrollbar-width:none}
   .scroll-portfolio .scroll-viewport::-webkit-scrollbar {width:0;height:0}
   .scroll-portfolio #scroll-contact.scroll-section {
-    padding-inline:max(10px,var(--device-screen-left)) max(10px,var(--device-screen-right));
+    padding-inline:max(5px,var(--device-screen-left)) max(5px,var(--device-screen-right));
   }
 }
