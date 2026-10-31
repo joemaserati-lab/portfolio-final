@@ -76,8 +76,9 @@ scroll, resize, project close and home return. An invisible, empty
 `.scroll-head-anchor` in the desktop retains the original responsive hero
 geometry; only the live portrait's CSS transform and settled render budget
 change during docking. Do not move a running WebGL canvas between parents.
-Scrolled launcher labels and the minimenu caption remain white with a leading
-red Doto bullet throughout the handoff. Project entry reuses the existing reduced-motion-aware CRT degauss.
+Desktop launcher labels remain plain white throughout the handoff. Only the
+final horizontal minimenu caption and active mobile label have a leading red
+Doto bullet. Project entry reuses the existing reduced-motion-aware CRT degauss.
 
 The 404 adds a red Doto title point and angle marks around its return link.
 Its shared idle scene uses a red title point and square brackets around the
