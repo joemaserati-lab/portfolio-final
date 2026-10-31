@@ -437,7 +437,15 @@
 
 @media (prefers-reduced-motion: reduce) { .scroll-portfolio .scroll-index .icon-glyph, .scroll-portfolio .scroll-index [data-scroll-label] { transition: none; } }
 
-.scroll-portfolio .contact-photo img { filter: grayscale(1) contrast(1.08) brightness(.88); }
+.scroll-portfolio .contact-photo img {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+  filter:grayscale(1) contrast(1.08) brightness(.88);
+}
 
 
 @keyframes scroll-color-scan { from { top: 0; opacity: .35; } to { top: 100%; opacity: 0; } }
@@ -689,9 +697,6 @@
     max-height:338px;
     aspect-ratio:4/5;
     margin:clamp(12px,2vw,28px) 0 0;
-  }
-  .scroll-portfolio #scroll-contact .contact-photo img {
-    width:100%;height:100%;object-fit:contain;object-position:center;
   }
   /* A solid high-contrast backing, consistent with the hero CTA, protects
      each desktop launcher from the decorative 3D artwork. */

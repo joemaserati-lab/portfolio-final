@@ -85,3 +85,10 @@ Its shared idle scene uses a red title point and square brackets around the
 resume instruction; the redundant PORTFOLIO OS status line is removed.
 Contact email addresses remain unbroken at the existing type size. The
 adjacent desktop photo yields space, and narrow phones release link padding.
+
+## Contact portrait
+
+The contact portrait loads eagerly as the hidden scroll sections are created,
+using the stable portfolio base URL and its intrinsic 1254×1254 dimensions.
+It fills the existing responsive frame with absolute positioning and cover
+cropping on desktop and mobile; do not restore contain letterboxing.

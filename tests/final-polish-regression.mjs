@@ -18,6 +18,11 @@ try {
     await page.goto(base);
     await page.waitForFunction(()=>document.body.classList.contains('site-ready'));
     await page.evaluate(()=>document.fonts.ready);
+    // The portrait must finish loading while Contacts is still offscreen.
+    await page.waitForFunction(()=>{
+      const photo=document.querySelector('#scroll-contact .contact-photo img');
+      return photo?.complete && photo.naturalWidth>0;
+    },null,{timeout:10000});
     await page.waitForFunction(()=>window.__portfolioHeadState?.settled);
     assert(await page.locator('#crt-head-feature').evaluate(e=>e.classList.contains('is-ready')),
       `${engine}: head failed to initialize: ${JSON.stringify(await page.evaluate(()=>window.__portfolioHeadState))} ${errors.join('\n')}`);
@@ -38,6 +43,13 @@ try {
           style.visibility==='visible' && Number(style.opacity)>0;
       }), `${engine} ${width} ${kind}: portrait surface was replaced or hidden`);
       if (kind==='contact') {
+        const portrait = await page.locator('.contact-photo img').evaluate(e=>{
+          const image=e.getBoundingClientRect(), frame=e.parentElement;
+          return {loaded:e.complete && e.naturalWidth>0,fit:getComputedStyle(e).objectFit,
+            fills:Math.abs(image.width-frame.clientWidth)<1 && Math.abs(image.height-frame.clientHeight)<1};
+        });
+        assert(portrait.loaded && portrait.fit==='cover' && portrait.fills,
+          `${engine} ${width}: contact portrait must load and fill its frame: ${JSON.stringify(portrait)}`);
         const email = await page.locator('.contact-link[href^="mailto:"] b').evaluate(e=>{
           const range = document.createRange(); range.selectNodeContents(e);
           const rect = e.closest('a').getBoundingClientRect();
