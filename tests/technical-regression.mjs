@@ -37,6 +37,7 @@ try {
     await page.keyboard.press('Tab');
     assert(await page.evaluate(()=>!document.activeElement.closest('#scroll-viewport')),'Focus returned to hidden directory');
     await page.locator('.case-nav-v2 [data-project-slug=pholia]').click();
+    await page.waitForFunction(()=>document.querySelector('#projects-view').dataset.project==='pholia');
     const metadata=await page.evaluate(()=>({image:document.querySelector('meta[property="og:image"]').content,schema:JSON.parse(document.querySelector('script[type="application/ld+json"]').textContent)}));
     assert(metadata.image.endsWith('/assets/images/Pholia.webp'));
     assert.equal(metadata.schema['@type'],'CreativeWork');
