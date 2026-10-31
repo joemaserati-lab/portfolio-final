@@ -42,9 +42,10 @@ try {
           const range = document.createRange(); range.selectNodeContents(e);
           const rect = e.closest('a').getBoundingClientRect();
           const fragments = [...range.getClientRects()];
-          return {lines:fragments.length, size:parseFloat(getComputedStyle(e).fontSize),
+          return {lines:fragments.length, size:parseFloat(getComputedStyle(e).fontSize), font:getComputedStyle(e).font, link:rect.toJSON(),fragments:fragments.map(r=>r.toJSON()), viewport:innerWidth,screen:document.querySelector('#screen').getBoundingClientRect().toJSON(),
             fits:fragments.every(r=>r.left>=rect.left-1 && r.right<=rect.right+1)};
         });
+        if(!email.fits) await page.screenshot({path:`${output}/${engine}-${width}-email.png`});
         assert(email.lines===1 && email.size>=16 && email.fits,`${engine} ${width}: email must fit on one line at 16px minimum: ${JSON.stringify(email)}`);
       }
       if (width>1024 && kind!=='home') {
