@@ -68,3 +68,19 @@ The CodePen-inspired global SVG `feDisplacementMap` treatment was removed after 
 
 ### Publication alignment and containment
 Desktop hero icons share the H1 top anchor through `--hero-top-gap`; the icon hit area retains its padding and mobile navigation stays unchanged. Below 1025px, Selected Work and case title wrappers stretch to their grid track so the heading's own box can contain its text. The existing long-word fitter also recognizes semantic CV H4 titles. `tests/containment-regression.mjs` checks actual text fragments against their own container bounds after fitting, all sections and five projects in EN/IT at eight viewports, plus desktop hero alignment. Media regression requires no ancestor optical filter, preserving source video, opacity, aspect ratio and absence of overlays.
+
+## Final browser polish
+
+The live portrait canvas remains under `#screen` from initialization through
+scroll, resize, project close and home return. An invisible, empty
+`.scroll-head-anchor` in the desktop retains the original responsive hero
+geometry; only the live portrait's CSS transform and settled render budget
+change during docking. Do not move a running WebGL canvas between parents.
+Scrolled launcher labels and the minimenu caption remain red throughout the
+handoff. Project entry reuses the existing reduced-motion-aware CRT degauss.
+
+The 404 adds a red Doto title point and angle marks around its return link.
+Its shared idle scene uses a red title point and square brackets around the
+resume instruction; the redundant PORTFOLIO OS status line is removed.
+Contact email addresses remain unbroken at the existing type size. The
+adjacent desktop photo yields space, and narrow phones release link padding.

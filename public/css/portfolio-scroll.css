@@ -98,6 +98,7 @@
 .scroll-portfolio .scroll-window .contact-photo { max-width: 280px; }
 .scroll-portfolio .scroll-portrait-docked { z-index: 13; transition: none; }
 .scroll-portfolio .scroll-portrait-slot { display: none; }
+.scroll-portfolio .scroll-head-anchor { visibility: hidden; pointer-events: none; }
 .scroll-portfolio .scroll-minimenu {
   position: absolute;
   z-index: 18;
@@ -836,5 +837,36 @@
   .scroll-portfolio #scroll-about .window-body > p {
     width: 100%;
     max-width: 100%;
+  }
+}
+
+/* An email address is one typographic unit. Keep its full measure while the
+   adjacent portrait yields space; the shared type scale stays unchanged. */
+.scroll-portfolio #scroll-contact .contact-link[href^="mailto:"] b {
+  width:max-content;
+  max-width:none;
+  white-space:nowrap;
+  overflow-wrap:normal;
+  word-break:normal;
+  hyphens:none;
+}
+@media (min-width:1025px) {
+  .scroll-portfolio #scroll-contact .contact-panel {
+    grid-template-columns:minmax(max-content,1fr) minmax(0,270px);
+    gap:clamp(24px,3vw,44px);
+  }
+}
+
+@media (max-width:400px) {
+  /* Give the unbroken address its full line before reducing any type size. */
+  .scroll-portfolio #scroll-contact .contact-link {padding-inline:0;border-inline:0}
+  /* Native scrollbar gutters otherwise consume the email's final characters.
+     Scrolling remains available to touch, wheel and keyboard. */
+  .scroll-portfolio .scroll-viewport {scrollbar-width:none}
+  .scroll-portfolio .scroll-viewport::-webkit-scrollbar {width:0;height:0}
+  .scroll-portfolio #scroll-contact.scroll-section {
+    padding-inline:
+      max(var(--device-screen-left),clamp(5px,calc((100vw - 310px) / 2),var(--ui-safe-left)))
+      max(var(--device-screen-right),clamp(5px,calc((100vw - 310px) / 2),var(--ui-safe-right)));
   }
 }

@@ -82,7 +82,7 @@ try {
   if(width>1024){
     assert(await page.locator('#crt-head-feature').isVisible(),'Desktop head should dock at the bottom during reading');
     await page.evaluate(()=>dispatchEvent(new CustomEvent('portfolio:scroll-to',{detail:'home'})));
-    await page.waitForFunction(()=>document.querySelector('#crt-head-feature').parentElement.id==='desktop'&&document.querySelector('#crt-head-feature').classList.contains('is-ready'));
+    await page.waitForFunction(()=>!document.querySelector('#crt-head-feature').classList.contains('scroll-portrait-docked')&&document.querySelector('#crt-head-feature').classList.contains('is-ready'));
     assert(await page.locator('#crt-head-feature').isVisible(),'Head did not resume on desktop hero');
   } else {
     assert(await page.locator('#crt-head-feature').isVisible(),'Mobile head did not resume on return');

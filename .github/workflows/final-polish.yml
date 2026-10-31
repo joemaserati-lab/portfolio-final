@@ -1,0 +1,46 @@
+name: Final Polish Browser Checks
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build && npm run check
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Start built preview
+        run: |
+          (npm run preview -- --host 127.0.0.1 --port 4321 > /tmp/portfolio.log 2>&1 &)
+          for i in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:4321/portfolio-final/ > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Scroll portrait, labels, email, degauss and glyphs
+        env:
+          BROWSER: ${{ matrix.browser }}
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          AUDIT_URL: http://127.0.0.1:4321/portfolio-final/
+          QA_DIR: /tmp/portfolio-polish
+        run: xvfb-run -a node tests/final-polish-regression.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: final-polish-${{ matrix.browser }}
+          path: |
+            /tmp/portfolio-polish
+            /tmp/portfolio.log
+          retention-days: 7

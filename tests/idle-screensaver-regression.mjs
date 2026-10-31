@@ -34,6 +34,8 @@ try {
   assert(asset.canvas,'Original 404 portrait canvas missing');
   assert(asset.mask.includes('data:image/png;base64,'),'Original DVD disc PNG mask missing');
   assert(asset.videoMask.includes('data:image/png;base64,'),'Original VIDEO PNG mask missing');
+  assert.equal(await embedded.locator('.topline__idle-status').count(),0,'Idle status label must be removed');
+  assert.equal(await embedded.locator('#page-title .doto-glyph').evaluate(e=>getComputedStyle(e).color),'rgb(255, 45, 58)');
   assert.equal(asset.typeMode,'doto-mono');
   assert(asset.displayFont.includes('Doto'),'404 display typography is not inherited');
   assert(asset.readingFont.includes('JetBrains Mono'),'404 body typography is not inherited');

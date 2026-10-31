@@ -14,13 +14,23 @@
   function cancelTransition() {
     clearTimeout(transitionSwap); clearTimeout(transitionEnd);
     transitionSwap = null; transitionEnd = null;
-    document.getElementById('screen').classList.remove('crt-degauss');
+    const screen = document.getElementById('screen');
+    const wasAnimating = screen.classList.contains('crt-degauss');
+    screen.classList.remove('crt-degauss');
+    projectsView.style.removeProperty('animation-delay');
+    if (wasAnimating) dispatchEvent(new Event('portfolio:layout-settled'));
   }
   function crtTransition(action) {
     cancelTransition();
     if (matchMedia('(prefers-reduced-motion:reduce)').matches) { action(); return; }
     document.getElementById('screen').classList.add('crt-degauss');
-    transitionSwap = setTimeout(()=>{ transitionSwap = null; action(); },155);
+    const opening = projectsView.hidden;
+    transitionSwap = setTimeout(()=>{
+      transitionSwap = null;
+      // Newly displayed content joins the expansion at the same phase.
+      if (opening) projectsView.style.animationDelay = '-155ms';
+      action();
+    },155);
     transitionEnd = setTimeout(cancelTransition,370);
   }
 
@@ -382,9 +392,11 @@
     if (!project) return;
     returnSection = 'work';
     const route = {type:'project',slug:project.slug};
-    history.pushState({portfolioProject:project.slug}, '', routePath(route));
-    updateRouteMeta(route);
-    renderProjectCase(project);
+    crtTransition(() => {
+      history.pushState({portfolioProject:project.slug}, '', routePath(route));
+      updateRouteMeta(route);
+      renderProjectCase(project);
+    });
   }
   function returnToScroll(kind=returnSection) {
     const focusTarget = close();
