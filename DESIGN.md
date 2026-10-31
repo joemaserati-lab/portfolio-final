@@ -14,7 +14,7 @@ Intermediate black/gray values may exist in the CRT shader, alpha transparency a
 
 ## Usage rules
 - Mint must **not** be used on backgrounds, panels, window chrome, default icon borders or secondary hover states.
-- Red is reserved for deliberate Doto punctuation and docked navigation labels; it does not become the default for all links, hovers, focus, backgrounds or status indicators. Decorative Doto glyphs remain red in all interaction states; ordinary punctuation in prose, email addresses and URLs is not recolored.
+- Red is reserved for deliberate Doto punctuation, including the leading bullet on white navigation labels; it does not become the default for all links, hovers, focus, backgrounds or status indicators. Decorative Doto glyphs remain red in all interaction states; ordinary punctuation in prose, email addresses and URLs is not recolored.
 - Window surfaces stay charcoal with dark-gray titlebars. Text hierarchy: white for primary content, light gray for secondary copy.
 - The 3D portrait is white/gray with only a few mint contours. Avoid broad luminous color effects.
 - Preserve CRT framing, animation, clipping and mobile safe zones. The live `doto-mono` mode uses bold Doto for display, headings and project titles, Doto medium for UI/navigation/metadata, and JetBrains Mono for extended reading and captions; all headings use Doto. The earlier `pixel-editorial` (Geist Pixel Square/Geist Sans/Doto), `digital` (Doto/Geist Pixel), `balanced` (Redaction/Doto/Inter), and `original` (Redaction/Doto) modes remain reversible through the single type-mode switch. Do not add decorative pixel effects on top of the fonts.
@@ -25,7 +25,7 @@ Intermediate black/gray values may exist in the CRT shader, alpha transparency a
 Astro serves `public/` and builds from `src/layouts/PortfolioShell.astro`. Root-level legacy snapshots are removed; `public/` and `src/` are authoritative. Production bundles the eleven CSS source files in the documented order; development loads those same sources separately. The former monolithic `style.css` is split in place without changing rules or cascade order.
 
 ## Red Doto glyph language
-The visual signature uses four Doto marks: point `.` closes headings, bullet `•` precedes dates and ongoing status, square brackets `[ ]` frame the full hero CTA, loader and only the two main CV headings (experience and education); angle brackets `<>` remain available for external case links, not the hero CTA. Project cards show exactly one metadata line with `• YEAR` or localized `• IN CORSO` above the project title, without a duplicate CSS-generated year. Dates in the CV retain the red bullet; locations and minor headings are unmarked. On desktop the About section's paragraphs can occupy the full content width. Scrolled navigation labels are red and the mobile active work label reads `Works`. The canonical color token is `--red` in `public/css/monochrome-theme.css`. `public/css/typography.css` owns glyph typography and pseudo-element layout; dynamic case-study and directory marks live in `public/js/portfolio.js`. Keep title fitting, physical CRT space, mobile layouts and original project covers unchanged. See `TYPOGRAPHY.md`.
+The visual signature uses four Doto marks: point `.` closes headings, bullet `•` precedes dates and ongoing status, square brackets `[ ]` frame the full hero CTA, loader and only the two main CV headings (experience and education); angle brackets `<>` remain available for external case links, not the hero CTA. Project cards show exactly one metadata line with `• YEAR` or localized `• IN CORSO` above the project title, without a duplicate CSS-generated year. Dates in the CV retain the red bullet; locations and minor headings are unmarked. On desktop the About section's paragraphs can occupy the full content width. Scrolled navigation labels are white with a leading red Doto bullet and the mobile active work label reads `Works`. The canonical color token is `--red` in `public/css/monochrome-theme.css`. `public/css/typography.css` owns glyph typography and pseudo-element layout; dynamic case-study and directory marks live in `public/js/portfolio.js`. Keep title fitting, physical CRT space, mobile layouts and original project covers unchanged. See `TYPOGRAPHY.md`.
 
 ## Project covers
 Project directory covers are grayscale at rest. Desktop hover or keyboard focus reveals the original artwork; on touch devices, a **single tap** reveals the original colors and opens the project after a 280 ms preview. On mobile, only the most visible project card plays its video, with hysteresis between adjacent cards. The previous card immediately returns to its logo cover; the cover stays visible until a decoded video frame is available. Cards without a video retain the 650 ms CRT color scan.
@@ -76,8 +76,8 @@ scroll, resize, project close and home return. An invisible, empty
 `.scroll-head-anchor` in the desktop retains the original responsive hero
 geometry; only the live portrait's CSS transform and settled render budget
 change during docking. Do not move a running WebGL canvas between parents.
-Scrolled launcher labels and the minimenu caption remain red throughout the
-handoff. Project entry reuses the existing reduced-motion-aware CRT degauss.
+Scrolled launcher labels and the minimenu caption remain white with a leading
+red Doto bullet throughout the handoff. Project entry reuses the existing reduced-motion-aware CRT degauss.
 
 The 404 adds a red Doto title point and angle marks around its return link.
 Its shared idle scene uses a red title point and square brackets around the

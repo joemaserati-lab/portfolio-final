@@ -71,6 +71,7 @@ try {
       contactDotColor:document.querySelector('#scroll-contact .contact-copy h2') ? getComputedStyle(document.querySelector('#scroll-contact .contact-copy h2'),'::after').color : null,
       navigationLabel:document.querySelector('.scroll-index a[aria-current] [data-scroll-label]')?.textContent,
       navigationColor:document.querySelector('.scroll-index a[aria-current] [data-scroll-label]') ? getComputedStyle(document.querySelector('.scroll-index a[aria-current] [data-scroll-label]')).color : null,
+      navigationMarks:[...document.querySelectorAll('.scroll-section-name [data-scroll-label], .scroll-index a[aria-current] [data-scroll-label]')].map(e=>({text:getComputedStyle(e).color,bullet:getComputedStyle(e,'::before').content,color:getComputedStyle(e,'::before').color})),
       dockLabelColor:document.querySelector('.scroll-section-name [data-scroll-label]') ? getComputedStyle(document.querySelector('.scroll-section-name [data-scroll-label]')).color : null,
       desktopBodySize:parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--type-body')),
       heroSecondary:document.querySelectorAll('.desktop-icons .desktop-icon small').length,
@@ -133,10 +134,11 @@ try {
        x.available>0 && x.measure>=x.available-2),`${route}: desktop about paragraphs are still width-limited`);
      assert(!result.contactHeading?.endsWith('.'),`${route}: contact title contains redundant punctuation`);
      assert.equal(result.contactDotColor,'rgb(255, 45, 58)',`${route}: contact signature point is not red`);
-     assert.equal(result.dockLabelColor,'rgb(255, 45, 58)',`${route}: docked navigation label is not red`);
+     assert.equal(result.dockLabelColor,'rgb(245, 245, 245)',`${route}: docked navigation label must stay white`);
+     assert(result.navigationMarks.every(x=>x.text==='rgb(245, 245, 245)' && x.bullet.includes('•') && x.color==='rgb(255, 45, 58)'),`${route}: navigation needs white text and a separate red bullet`);
      if(width<=720 && route==='work/') {
        assert.equal(result.navigationLabel,'Works',`${route}: mobile active work label must be Works`);
-       assert.equal(result.navigationColor,'rgb(255, 45, 58)',`${route}: active mobile label must be red`);
+       assert.equal(result.navigationColor,'rgb(245, 245, 245)',`${route}: active mobile label must stay white`);
      }
      if(width>=1025) assert.equal(result.desktopBodySize,16,`${route}: desktop reading size should be 16px`);
    }
