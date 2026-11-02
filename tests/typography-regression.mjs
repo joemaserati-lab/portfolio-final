@@ -68,7 +68,7 @@ try {
         beforeColor:getComputedStyle(e,'::before').color,
         afterColor:getComputedStyle(e,'::after').color
       })),
-      desktopAbout:[...document.querySelectorAll('#scroll-about .window-body > p')].map(e=>({
+      desktopCvCopy:[...document.querySelectorAll('#scroll-resume .resume-header > p, #scroll-resume .resume-row p')].map(e=>({
         measure:e.getBoundingClientRect().width,
         available:e.parentElement.getBoundingClientRect().width
       })),
@@ -135,8 +135,8 @@ try {
            x.beforeColor==='rgb(255, 45, 58)' && x.afterColor==='rgb(255, 45, 58)'
          : !x.framed && (x.prefix==='none' || x.prefix==='normal')),
        `${route}: only experience and education need red square brackets`);
-     if(width>=1025) assert(result.desktopAbout.length>0 && result.desktopAbout.every(x=>
-       x.available>0 && x.measure>=x.available-2),`${route}: desktop about paragraphs are still width-limited`);
+     if(width>=1025) assert(result.desktopCvCopy.length>0 && result.desktopCvCopy.every(x=>
+       x.available>0 && x.measure>=x.available-2),`${width} ${route}: desktop CV paragraphs are still width-limited ${JSON.stringify(result.desktopCvCopy)}`);
      assert(!result.contactHeading?.endsWith('.'),`${route}: contact title contains redundant punctuation`);
      assert.equal(result.contactDotColor,'rgb(255, 45, 58)',`${route}: contact signature point is not red`);
      assert.equal(result.dockLabelColor,'rgb(245, 245, 245)',`${route}: docked navigation label must stay white`);
