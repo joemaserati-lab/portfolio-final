@@ -107,7 +107,7 @@ const ogImageUrl = new URL(ogImage, rootUrl);
     <link rel="preload" href="assets/models/human_head_reference3.glb" as="fetch" crossorigin="anonymous" fetchpriority="high" media="(min-width: 1025px)" />
     <link rel="preload" href={asset('assets/images/mobile-head-poster.png')} as="image" type="image/png" fetchpriority="high" media="(max-width: 1024px)" />
   </>}
-  <link rel="stylesheet" href={asset('css/idle-screensaver.css')} />
+  {!import.meta.env.PROD && <link rel="stylesheet" href={asset('css/idle-screensaver.css')} />}
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href={fontSheet} />
