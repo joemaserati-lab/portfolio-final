@@ -1,9 +1,13 @@
 ---
+import packageInfo from "../../../package.json";
 const basePath = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const canonical = new URL(basePath, Astro.site);
 ---
 <!doctype html><html lang="en"><head>
 <meta charset="utf-8" /><meta name="robots" content="noindex, follow" />
+<link rel="icon" href={`${basePath}assets/favicon/favicon-32.png?v=${packageInfo.version}`} sizes="32x32" type="image/png" />
+<link rel="icon" href={`${basePath}assets/favicon/favicon-64.png?v=${packageInfo.version}`} sizes="64x64" type="image/png" />
+<link rel="shortcut icon" href={`${basePath}assets/favicon/favicon-32.png?v=${packageInfo.version}`} type="image/png" />
 <link rel="canonical" href={canonical} /><title>Portfolio — Edoardo Rappanello</title>
 <script is:inline define:vars={{basePath}}>
   const hash = location.hash.slice(1);
