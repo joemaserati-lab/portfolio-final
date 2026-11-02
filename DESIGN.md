@@ -92,3 +92,9 @@ The contact portrait loads eagerly as the hidden scroll sections are created,
 using the stable portfolio base URL and its intrinsic 1254×1254 dimensions.
 It fills the existing responsive frame with absolute positioning and cover
 cropping on desktop and mobile; do not restore contain letterboxing.
+
+## Desktop CV paragraph measure
+
+Above 1024px, CV introduction and experience/education descriptions fill the
+available width of their content column. Keep the date column, type scale,
+alignment and mobile reading measure unchanged.
