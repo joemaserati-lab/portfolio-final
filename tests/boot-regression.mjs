@@ -8,8 +8,16 @@ try {
    const context = await browser.newContext({viewport:{width,height},hasTouch:width<768,isMobile:width<768,reducedMotion});
    const page = await context.newPage();
    const errors=[];page.on('pageerror',e=>errors.push(e.message));
+   const ambientRequests=[];page.on('request',r=>{if(r.url().includes('/crt-ambient.webm'))ambientRequests.push(r.url())});
    await page.addInitScript(()=>{
     window.__bootEvents=[];
+    window.__minimumBootTimers=[];
+    const originalTimeout=window.setTimeout;
+    window.setTimeout=function(callback,delay,...args){
+      if(delay>=1950&&delay<=2000&&new Error().stack.includes('/js/boot.js'))
+        window.__minimumBootTimers.push(delay);
+      return originalTimeout(callback,delay,...args);
+    };
     window.__bootStart=performance.now();
     window.__degaussEvents=[];
     document.addEventListener('DOMContentLoaded',()=>{
@@ -82,13 +90,15 @@ try {
    release();
    await page.waitForFunction(()=>document.body.classList.contains('site-ready')&&!document.getElementById('boot-loader'),null,{timeout:45000});
    const visibleDuration=await page.evaluate(()=>performance.now()-window.__bootStart);
-   assert(visibleDuration>=1950,`Loader must remain for at least 2000ms (observed ${Math.round(visibleDuration)}ms)`);
+   if(width>1024) assert(visibleDuration>=1950,`Loader must remain for at least 2000ms (observed ${Math.round(visibleDuration)}ms)`);
    const events=await page.evaluate(()=>window.__bootEvents);
    assert.deepEqual(events.map(e=>e.name),['booted','ready']);
    assert.equal(events[0].booting,false);
    assert.equal(events[0].opacity,'1');
-   assert.equal(events[0].head,true,'Boot released before the 3D model was ready');
-   assert.equal(events[0].headVisible,true,'Head not visible at the boot event');
+   if(width>1024) {
+     assert.equal(events[0].head,true,'Desktop boot released before the 3D model was ready');
+     assert.equal(events[0].headVisible,true,'Desktop head not visible at the boot event');
+   } else assert(await page.locator('.crt-head-poster').evaluate(e=>e.complete && e.naturalWidth>0), 'Mobile poster did not load');
    const ignition=await page.evaluate(()=>window.__degaussEvents);
    const loaderIndex=ignition.indexOf('loader-removed');
    const ignitionIndex=ignition.indexOf('degauss-start');
@@ -142,11 +152,11 @@ try {
    await page.reload();
    await page.waitForFunction(()=>document.body.classList.contains('site-ready')&&!document.getElementById('boot-loader'),null,{timeout:45000});
    const repeatDuration=await page.evaluate(()=>performance.now()-window.__bootStart);
-   assert(repeatDuration>=1950,`Return-visit loader too short: ${Math.round(repeatDuration)}ms`);
+   if(width>1024) assert(repeatDuration>=1950,`Return-visit loader too short: ${Math.round(repeatDuration)}ms`);
    assert.equal(await page.evaluate(()=>document.documentElement.classList.contains('returning-visit')),true);
    assert.equal(await page.evaluate(()=>document.body.classList.contains('site-entering')),false);
    assert.deepEqual(await page.evaluate(()=>window.__bootEvents.map(e=>e.name)),['booted','ready']);
-   assert.equal(await page.evaluate(()=>window.__bootEvents[0].head),true,'Returning visitor saw homepage before head initialized');
+   if(width>1024) assert.equal(await page.evaluate(()=>window.__bootEvents[0].head),true,'Desktop returning visitor saw homepage before head initialized');
    const repeatIgnition=await page.evaluate(()=>window.__degaussEvents);
    assert.equal(repeatIgnition.filter(x=>x==='degauss-start').length,
      reducedMotion==='no-preference'?1:0,
@@ -155,11 +165,32 @@ try {
      assert(repeatIgnition.indexOf('degauss-start')<repeatIgnition.indexOf('loader-removed'),
        'Return visit revealed homepage before completing CRT ignition');
    }
+   if(width<=1024){
+     assert.deepEqual(await page.evaluate(()=>window.__minimumBootTimers),[], 'Mobile retained an artificial two-second timer');
+     assert.deepEqual(ambientRequests,[], 'Mobile fetched the disabled CRT background video');
+     assert.equal(await page.locator('.crt-background-video source').getAttribute('src'),null);
+   } else assert(ambientRequests.length>0,'Desktop ambient video was removed');
    assert.equal(errors.length,0,errors.join('\n'));
-   console.log('BOOT PASS',`${width}x${height}`,reducedMotion,'minimal 2s progress screen, synchronized reveal, repeat visit');
+   console.log('BOOT PASS',`${width}x${height}`,reducedMotion,'device-specific progress screen, first head frame, repeat visit, ambient policy');
    await context.close();
   }
  }
+ // A delayed 3D module must not hold the mobile H1 behind the loader.
+ const progressive=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+ let releaseModule;
+ const slowModule=new Promise(resolve=>releaseModule=resolve);
+ await progressive.route('**/js/head3d.js*', async route=>{await slowModule;await route.continue()});
+ try {
+   await progressive.goto(url,{waitUntil:'domcontentloaded'});
+   await progressive.waitForFunction(()=>document.body.classList.contains('site-ready')&&!document.getElementById('boot-loader'),null,{timeout:30000});
+   assert.notEqual(await progressive.evaluate(()=>window.__portfolioHeadState?.ready),true,'Mobile homepage incorrectly waited for WebGL');
+   assert(await progressive.locator('.hero-intro h1').isVisible(),'Mobile H1 should appear before WebGL');
+   assert(await progressive.locator('.crt-head-poster').evaluate(e=>e.complete&&e.naturalWidth>0),'Mobile poster must load');
+   assert(await progressive.locator('#crt-head-feature').isVisible(),'Mobile poster must be visible during slow WebGL startup');
+ } finally {releaseModule()}
+ await progressive.waitForFunction(()=>window.__portfolioHeadState?.ready&&document.querySelector('#crt-head-feature')?.classList.contains('is-ready'),null,{timeout:30000});
+ await progressive.close();
+ console.log('BOOT PASS mobile text and poster before delayed WebGL');
  const page=await browser.newPage();
  await page.addInitScript(()=>sessionStorage.setItem('portfolioBootSeen','1'));
  await page.route('**/js/content.js*',route=>route.abort());

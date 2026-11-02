@@ -32,7 +32,7 @@ Project directory covers are grayscale at rest. Desktop hover or keyboard focus 
 
 ## Current interface simplification
 
-The cinematic first-visit terminal animation and its extra entry button are removed. The site displays a single localized loading label plus progress bar for a **minimum of two seconds on every visit**, and enters automatically when the application and first head frame are ready. Reduced-motion users see the same two-second minimum. The loading overlay retains an accessible progressbar. No extra hero cursor or blinking underscore is rendered.
+The cinematic first-visit terminal animation and its extra entry button are removed. The site displays a single localized loading label plus progress bar until the application and first head frame are ready. Desktop retains a **minimum of two seconds**; mobile (up to 1024px) has no artificial minimum, including reduced motion. The loading overlay retains an accessible progressbar. No extra hero cursor or blinking underscore is rendered.
 
 The Selected Work introductory panel retains only its description, while About no longer renders the three summary cards; its main paragraphs are unchanged. CV capabilities now include **UI & UX DESIGN** instead of WEB DESIGN, with 3D visualization/design tools removed in EN and IT. CV skill and tool tokens use literal visual angle brackets (via pseudo-elements), not bordered chips. Project discipline tags are unchanged. A separate content-editing pass will follow later.
 
@@ -98,3 +98,14 @@ cropping on desktop and mobile; do not restore contain letterboxing.
 Above 1024px, CV introduction and experience/education descriptions fill the
 available width of their content column. Keep the date column, type scale,
 alignment and mobile reading measure unchanged.
+
+## Mobile hero and ambient video
+
+Portrait mobile places the live head above the title, introduction and CTA. The
+non-rendering anchor defines its initial bounds; the existing canvas remains
+under #screen, with unchanged scroll docking and rotation. Short portrait homes
+grow naturally so copy never overlaps the head or fixed navigation. Short
+landscape keeps its protected two-column composition. Mobile never attaches the
+ambient CRT video source, so it is neither downloaded nor decoded; desktop
+retains playback. The mobile loader has no minimum timer but still waits for
+typography, application and the head's first rendered frame.

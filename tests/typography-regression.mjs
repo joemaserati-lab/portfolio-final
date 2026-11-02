@@ -11,6 +11,10 @@ try {
    await page.goto(new URL(route,base).href);
    if(route!=='404.html') await page.waitForFunction(()=>document.body.classList.contains('site-ready'));
    if(route==='work/' && width<=720) await page.waitForFunction(()=>document.querySelector('.scroll-index [aria-current]')?.dataset.scrollSection==='work');
+   if(route==='work/' && width<=720) await page.waitForFunction(()=>{
+     const label=document.querySelector('.scroll-index a[aria-current] [data-scroll-label]');
+     return label && label.textContent===(label.dataset.activeLabel||label.dataset.scrollLabel);
+   });
    await page.evaluate(()=>document.fonts.ready);
    if(route==='') await page.waitForFunction(()=>window.__portfolioHeadState?.ready);
    const result=await page.evaluate(()=>{
@@ -29,6 +33,7 @@ try {
     // Loader is intentionally removed after boot: probe its CSS signature without reopening it.
     const bootProbe=document.createElement('div');
     bootProbe.id='boot-gate';
+    bootProbe.className='boot-gate';
     bootProbe.innerHTML='<h2>LOADING</h2>';
     document.body.append(bootProbe);
     const bootTitle=bootProbe.querySelector('h2');
@@ -63,7 +68,7 @@ try {
         beforeColor:getComputedStyle(e,'::before').color,
         afterColor:getComputedStyle(e,'::after').color
       })),
-      desktopAbout:[...document.querySelectorAll('#scroll-about .window-body > p')].map(e=>({
+      desktopCvCopy:[...document.querySelectorAll('#scroll-resume .resume-header > p, #scroll-resume .resume-row p')].map(e=>({
         measure:e.getBoundingClientRect().width,
         available:e.parentElement.getBoundingClientRect().width
       })),
@@ -130,8 +135,8 @@ try {
            x.beforeColor==='rgb(255, 45, 58)' && x.afterColor==='rgb(255, 45, 58)'
          : !x.framed && (x.prefix==='none' || x.prefix==='normal')),
        `${route}: only experience and education need red square brackets`);
-     if(width>=1025) assert(result.desktopAbout.length>0 && result.desktopAbout.every(x=>
-       x.available>0 && x.measure>=x.available-2),`${route}: desktop about paragraphs are still width-limited`);
+     if(width>=1025) assert(result.desktopCvCopy.length>0 && result.desktopCvCopy.every(x=>
+       x.available>0 && x.measure>=x.available-2),`${width} ${route}: desktop CV paragraphs are still width-limited ${JSON.stringify(result.desktopCvCopy)}`);
      assert(!result.contactHeading?.endsWith('.'),`${route}: contact title contains redundant punctuation`);
      assert.equal(result.contactDotColor,'rgb(255, 45, 58)',`${route}: contact signature point is not red`);
      assert.equal(result.dockLabelColor,'rgb(245, 245, 245)',`${route}: docked navigation label must stay white`);
@@ -182,8 +187,28 @@ try {
    }
    assert(result.overflow.every(o=>!o),`${width} ${route}: horizontal overflow`);
    if(route===''&&width<=1024){
-    const geometry=await page.evaluate(()=>({cta:document.querySelector('.primary-action').getBoundingClientRect().bottom,nav:document.querySelector('.scroll-index').getBoundingClientRect().top}));
-    assert(geometry.cta<=geometry.nav-4,`${width}: hero CTA crosses navigation ${JSON.stringify(geometry)}`);
+    // Short portrait heroes grow naturally: the CTA may start below the fold.
+    // Verify it can be scrolled into view ABOVE fixed navigation instead of
+    // treating offscreen content as a collision on the first viewport.
+    const geometry=await page.evaluate(async()=>{
+      const viewport=document.getElementById('scroll-viewport');
+      const action=document.querySelector('.primary-action');
+      const nav=document.querySelector('.scroll-index');
+      const initial=action.getBoundingClientRect();
+      const navTop=nav.getBoundingClientRect().top;
+      if(initial.bottom>navTop-4){
+        viewport.scrollTop+=initial.bottom-navTop+20;
+        await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+      }
+      const cta=action.getBoundingClientRect();
+      const fits=cta.bottom<=nav.getBoundingClientRect().top-4;
+      const target=document.elementFromPoint(cta.left+cta.width/2,cta.top+cta.height/2);
+      const hit=action===target||action.contains(target);
+      const output={fits,hit,ctaBottom:cta.bottom,navTop:nav.getBoundingClientRect().top,scrollTop:viewport.scrollTop};
+      viewport.scrollTop=0;
+      return output;
+    });
+    assert(geometry.fits&&geometry.hit,`${width}: mobile CTA must remain scroll-reachable above navigation ${JSON.stringify(geometry)}`);
    }
    if(process.env.QA_DIR&&['','resume/','404.html'].includes(route)){
     await mkdir(process.env.QA_DIR,{recursive:true});

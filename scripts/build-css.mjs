@@ -14,7 +14,8 @@ const sources = [
   'monochrome-theme.css',
   'crt-outline.css',
   'portfolio-scroll.css',
-  'typography.css'
+  'typography.css',
+  'idle-screensaver.css'
 ];
 const contents = sources.map(name =>
   `/* Source: ${name} */\n` + readFileSync(resolve(root, 'public/css', name), 'utf8')

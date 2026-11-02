@@ -41,6 +41,35 @@
   .crt-head-feature{transition:none}
 }
 
+/* Progressive mobile hero: a lightweight capture of the real 3D head is
+   visible until WebGL has produced its first ready frame. Desktop is unchanged. */
+.crt-head-poster { display:none; }
+@media (max-width:1024px) {
+  .crt-head-feature > .crt-head-poster {
+    display:block;
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    object-position:center;
+    pointer-events:none;
+    opacity:1;
+    transition:opacity .16s ease;
+  }
+  body.site-ready:not(.project-case-open):not(.screensaver-on) .crt-head-feature:not(.is-ready) {
+    visibility:visible;
+    opacity:.72;
+  }
+  body.site-ready:not(.project-case-open):not(.screensaver-on) .crt-head-feature.is-failed {
+    display:block;
+  }
+  .crt-head-feature:not(.is-ready) #crt-head-canvas { opacity:0; }
+  .crt-head-feature.is-ready > .crt-head-poster { opacity:0; }
+  body.project-case-open .crt-head-feature:not(.is-ready),
+  body.screensaver-on .crt-head-feature:not(.is-ready) { opacity:0;visibility:hidden; }
+}
+
 /* V31.5 / IRIDESCENT UI PALETTE ---------------------------------------------
    Color-only override. Layout, typography, motion and CRT geometry remain
    unchanged. Goal: align the UI with the head palette using restrained,

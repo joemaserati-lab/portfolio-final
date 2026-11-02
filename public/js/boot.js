@@ -1,13 +1,14 @@
 (() => {
-  // Minimal loading state: keep the loading title and progress bar visible for
-  // at least two seconds on every visit. No terminal sequence or entry click.
+  // Reveal mobile as soon as the application, typography and first head frame
+  // are ready. Desktop retains its existing minimum loading presentation.
   const loader = document.getElementById('boot-loader');
   const bar = document.getElementById('boot-progress-bar');
   const progress = document.getElementById('boot-progress');
   const title = document.querySelector('#boot-gate h2');
   if (!loader || !bar || !progress || !title) return;
 
-  const MINIMUM_VISIBLE_MS = 2000;
+  const mobileLayout = matchMedia('(max-width: 1024px)');
+  const MINIMUM_VISIBLE_MS = mobileLayout.matches ? 0 : 2000;
   const HEAD_READY_TIMEOUT_MS = 8000;
   const FONT_READY_TIMEOUT_MS = 9000;
   const SCRIPT_LOAD_TIMEOUT_MS = 12000;
@@ -256,7 +257,7 @@
       // The required Doto/Geist faces are already verified above. Do not
       // allow unrelated, slow stylesheet font requests to keep the loader
       // hidden forever on weak connections; use the same 9-second deadline.
-      await Promise.race([document.fonts.ready, timeout]);
+      if (!mobileLayout.matches) await Promise.race([document.fonts.ready, timeout]);
       root.classList.remove('fonts-pending');
       root.classList.add('fonts-ready');
       return {source:'Doto + JetBrains Mono'};
@@ -285,18 +286,32 @@
   }));
   const ambientVideo = document.querySelector('.crt-background-video');
   function startAmbientVideo() {
-    if (!ambientVideo || document.body.classList.contains('project-case-open')) return;
+    if (!ambientVideo || mobileLayout.matches || document.body.classList.contains('project-case-open')) return;
     try {
+      const source = ambientVideo.querySelector('source[data-src]');
+      if (source && !source.hasAttribute('src')) {
+        source.src = source.dataset.src;
+        ambientVideo.load();
+      }
       ambientVideo.preload = 'auto';
       ambientVideo.play()?.catch(() => {});
     } catch {}
   }
+  mobileLayout.addEventListener('change', () => {
+    if (!ambientVideo) return;
+    if (mobileLayout.matches) {
+      ambientVideo.pause();
+      ambientVideo.preload = 'none';
+      ambientVideo.querySelector('source')?.removeAttribute('src');
+      ambientVideo.load();
+    } else startAmbientVideo();
+  });
   const applicationReady = track('app', loadApplication());
   const workPath = new URL('work/', document.baseURI).pathname;
   const initialCase = location.pathname.startsWith(workPath) && location.pathname !== workPath;
   // Decode the 14 KB ambient video behind the existing opaque loader rather
   // than starting its request ~900 ms after reveal. This retains the same video
-  // and all CRT effects while preventing a late video-frame LCP on mobile.
+  // and all desktop CRT effects. Mobile never attaches the ambient source.
   // Direct project pages keep the original deferred-video behavior.
   if (!initialCase) startAmbientVideo();
   const headReady = track('head', initialCase ? Promise.resolve({ready:true,deferred:true}) : domReady.then(loadHead));
@@ -328,8 +343,8 @@
       }
     };
 
-    // CRT noise/video may remain deferred on touch; the hero head itself is
-    // already ready before the page is revealed.
+    // Mobile paints the poster and DOM first; the 3D head may initialize afterward.
+    // Ambient CRT effects remain deferred on touch to avoid competing with the hero.
     setTimeout(startCrt, 900);
   }
 
@@ -387,7 +402,13 @@
   }
   (async () => {
     try {
-      await Promise.all([applicationReady, domReady, headReady, fontsReady]);
+      // Desktop retains the original full 3D gate. On mobile the live head
+      // initializes in parallel; it must not hide text or delay the LCP.
+      if (mobileLayout.matches && !initialCase) {
+        await Promise.all([applicationReady, domReady, fontsReady]);
+      } else {
+        await Promise.all([applicationReady, domReady, fontsReady, ...(mobileLayout.matches && !initialCase ? [] : [headReady])]);
+      }
       await minimumVisible;
       setProgressTarget(100);
       progressValue = 100;
