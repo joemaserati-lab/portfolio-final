@@ -257,7 +257,7 @@
       // The required Doto/Geist faces are already verified above. Do not
       // allow unrelated, slow stylesheet font requests to keep the loader
       // hidden forever on weak connections; use the same 9-second deadline.
-      await Promise.race([document.fonts.ready, timeout]);
+      if (!mobileLayout.matches) await Promise.race([document.fonts.ready, timeout]);
       root.classList.remove('fonts-pending');
       root.classList.add('fonts-ready');
       return {source:'Doto + JetBrains Mono'};
@@ -343,8 +343,8 @@
       }
     };
 
-    // CRT noise/video may remain deferred on touch; the hero head itself is
-    // already ready before the page is revealed.
+    // Mobile paints the poster and DOM first; the 3D head may initialize afterward.
+    // Ambient CRT effects remain deferred on touch to avoid competing with the hero.
     setTimeout(startCrt, 900);
   }
 
@@ -402,7 +402,13 @@
   }
   (async () => {
     try {
-      await Promise.all([applicationReady, domReady, headReady, fontsReady]);
+      // Desktop retains the original full 3D gate. On mobile the live head
+      // initializes in parallel; it must not hide text or delay the LCP.
+      if (mobileLayout.matches && !initialCase) {
+        await Promise.all([applicationReady, domReady, fontsReady]);
+      } else {
+        await Promise.all([applicationReady, domReady, headReady, fontsReady]);
+      }
       await minimumVisible;
       setProgressTarget(100);
       progressValue = 100;
