@@ -183,8 +183,28 @@ try {
    }
    assert(result.overflow.every(o=>!o),`${width} ${route}: horizontal overflow`);
    if(route===''&&width<=1024){
-    const geometry=await page.evaluate(()=>({cta:document.querySelector('.primary-action').getBoundingClientRect().bottom,nav:document.querySelector('.scroll-index').getBoundingClientRect().top}));
-    assert(geometry.cta<=geometry.nav-4,`${width}: hero CTA crosses navigation ${JSON.stringify(geometry)}`);
+    // Short portrait heroes grow naturally: the CTA may start below the fold.
+    // Verify it can be scrolled into view ABOVE fixed navigation instead of
+    // treating offscreen content as a collision on the first viewport.
+    const geometry=await page.evaluate(async()=>{
+      const viewport=document.getElementById('scroll-viewport');
+      const action=document.querySelector('.primary-action');
+      const nav=document.querySelector('.scroll-index');
+      const initial=action.getBoundingClientRect();
+      const navTop=nav.getBoundingClientRect().top;
+      if(initial.bottom>navTop-4){
+        viewport.scrollTop+=initial.bottom-navTop+20;
+        await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+      }
+      const cta=action.getBoundingClientRect();
+      const fits=cta.bottom<=nav.getBoundingClientRect().top-4;
+      const target=document.elementFromPoint(cta.left+cta.width/2,cta.top+cta.height/2);
+      const hit=action===target||action.contains(target);
+      const output={fits,hit,ctaBottom:cta.bottom,navTop:nav.getBoundingClientRect().top,scrollTop:viewport.scrollTop};
+      viewport.scrollTop=0;
+      return output;
+    });
+    assert(geometry.fits&&geometry.hit,`${width}: mobile CTA must remain scroll-reachable above navigation ${JSON.stringify(geometry)}`);
    }
    if(process.env.QA_DIR&&['','resume/','404.html'].includes(route)){
     await mkdir(process.env.QA_DIR,{recursive:true});
