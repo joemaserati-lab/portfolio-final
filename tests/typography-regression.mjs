@@ -11,6 +11,10 @@ try {
    await page.goto(new URL(route,base).href);
    if(route!=='404.html') await page.waitForFunction(()=>document.body.classList.contains('site-ready'));
    if(route==='work/' && width<=720) await page.waitForFunction(()=>document.querySelector('.scroll-index [aria-current]')?.dataset.scrollSection==='work');
+   if(route==='work/' && width<=720) await page.waitForFunction(()=>{
+     const label=document.querySelector('.scroll-index a[aria-current] [data-scroll-label]');
+     return label && label.textContent===(label.dataset.activeLabel||label.dataset.scrollLabel);
+   });
    await page.evaluate(()=>document.fonts.ready);
    if(route==='') await page.waitForFunction(()=>window.__portfolioHeadState?.ready);
    const result=await page.evaluate(()=>{
