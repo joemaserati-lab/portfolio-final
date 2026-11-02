@@ -82,6 +82,13 @@ try {
         if(document.querySelector('#screen').classList.contains('crt-degauss')) window.polishDegauss=true;
       }).observe(document.querySelector('#screen'),{attributes:true,attributeFilter:['class']});
     });
+    // Firefox may auto-scroll the first project tile while the CRT window is
+    // still powering up; finish that scroll and reveal before dispatching input.
+    await page.locator('#scroll-work [data-project-slug]').first().scrollIntoViewIfNeeded();
+    await page.waitForFunction(()=>{
+      const panel=document.querySelector('#scroll-work .scroll-window');
+      return panel.classList.contains('is-revealed') && !panel.classList.contains('is-powering');
+    });
     await page.locator('#scroll-work [data-project-slug]').first().click();
     await page.waitForFunction(()=>document.body.classList.contains('project-case-open'));
     assert(await page.evaluate(()=>window.polishDegauss),`${engine}: missing project entry degauss`);
