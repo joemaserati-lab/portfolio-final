@@ -407,7 +407,7 @@
       if (mobileLayout.matches && !initialCase) {
         await Promise.all([applicationReady, domReady, fontsReady]);
       } else {
-        await Promise.all([applicationReady, domReady, headReady, fontsReady]);
+        await Promise.all([applicationReady, domReady, fontsReady, ...(mobileLayout.matches && !initialCase ? [] : [headReady])]);
       }
       await minimumVisible;
       setProgressTarget(100);
