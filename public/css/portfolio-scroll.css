@@ -648,7 +648,7 @@
     width: 100%;
     gap: clamp(16px,2vw,28px);
   }
-  .scroll-portfolio #scroll-resume .resume-header > p { max-width: 60ch; }
+  .scroll-portfolio #scroll-resume .resume-header > p { width:100%;max-width:100%; }
   .scroll-portfolio #scroll-resume .resume-list,
   .scroll-portfolio #scroll-resume .resume-row {
     width: 100%;
@@ -661,7 +661,7 @@
     align-items: start;
   }
   .scroll-portfolio #scroll-resume .resume-row > div:last-child { min-width:0; }
-  .scroll-portfolio #scroll-resume .resume-row p { max-width: 65ch; }
+  .scroll-portfolio #scroll-resume .resume-row p { width:100%;max-width:100%; }
   /* Contact links now use full lines, not competing inline label/value columns. */
   .scroll-portfolio #scroll-contact .contact-panel {
     display:grid;
