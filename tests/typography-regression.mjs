@@ -29,6 +29,7 @@ try {
     // Loader is intentionally removed after boot: probe its CSS signature without reopening it.
     const bootProbe=document.createElement('div');
     bootProbe.id='boot-gate';
+    bootProbe.className='boot-gate';
     bootProbe.innerHTML='<h2>LOADING</h2>';
     document.body.append(bootProbe);
     const bootTitle=bootProbe.querySelector('h2');
