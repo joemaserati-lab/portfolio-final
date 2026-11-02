@@ -35,6 +35,19 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  assert.equal(await page.locator('#scroll-work .project-tile-v2').count(),5);
  await page.waitForFunction(()=>document.querySelector('#crt-head-feature').classList.contains('is-ready'),null,{timeout:30000});
  const initialCanvasWidth=await page.evaluate(()=>window.PortfolioMotion.getRenderStats().width);
+ if(width<=1024 && height>width) {
+   const stacked=await page.evaluate(()=>{
+     const head=document.getElementById('crt-head-feature').getBoundingClientRect();
+     const intro=document.querySelector('.hero-intro').getBoundingClientRect();
+     const viewport=document.getElementById('scroll-viewport');
+     return {headBottom:head.bottom, textTop:intro.top,
+       headTop:head.top,screenTop:viewport.getBoundingClientRect().top,
+       overflow:viewport.scrollWidth>viewport.clientWidth+1};
+   });
+   assert(stacked.headBottom<=stacked.textTop-12,'Mobile head overlaps the lower text area');
+   assert(stacked.headTop>=stacked.screenTop,'Mobile head escaped the CRT safe area');
+   assert(!stacked.overflow,'Stacked mobile hero has horizontal overflow');
+ }
  await screenshot(page,`original-hero-${width}.png`);
  if(width>1024) {
    assert.equal(await page.locator('.scroll-minimenu button').count(),4);
@@ -59,7 +72,7 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
    assert.equal(await page.locator('#crt-head-feature').evaluate(e=>e.parentElement.id),'screen','Desktop portrait must dock to CRT');
    assert(await page.locator('#crt-head-feature').isVisible(),'Desktop docked portrait must remain visible');
  }
- await page.evaluate(()=>{const v=document.getElementById('scroll-viewport');v.scrollTop=v.clientHeight*.91});
+ await page.evaluate(()=>{const v=document.getElementById('scroll-viewport');v.scrollTop=document.getElementById('scroll-work').offsetTop-v.clientHeight*.09});
  await page.waitForFunction(()=>document.querySelector('#scroll-work .scroll-window').classList.contains('is-scanning'));
  assert.notEqual(await page.locator('#scroll-work .window-body').evaluate(e=>getComputedStyle(e).clipPath),'none','Missing CRT raster reveal');
  await screenshot(page,`crt-reveal-${width}.png`);
