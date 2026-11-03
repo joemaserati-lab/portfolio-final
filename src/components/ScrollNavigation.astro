@@ -1,9 +1,9 @@
 ---
 const { basePath } = Astro.props;
-const sections = [['home','Home'], ['work','Selected Works'], ['about','About'], ['resume','Resume'], ['contact','Contact']];
+const sections = [['home','Home'], ['work','Selected Work'], ['about','About'], ['resume','Resume'], ['contact','Contact']];
 ---
-<nav class="scroll-minimenu" aria-label="Portfolio shortcuts" inert></nav>
-<nav class="scroll-index" aria-label="Scroll sections">
+<nav class="scroll-minimenu" aria-label="Portfolio shortcuts" data-i18n-aria="nav.shortcuts" inert></nav>
+<nav class="scroll-index" aria-label="Portfolio sections" data-i18n-aria="nav.scroll">
   {sections.map(([id,name]) => <a href={`${basePath}${id === 'home' ? '' : id + '/'}`} data-scroll-section={id} aria-current={id === 'home' ? 'location' : undefined}>
     <span aria-hidden="true" data-scroll-label={name}>{name}</span><span class="scroll-sr">{name}</span>
   </a>)}

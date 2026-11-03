@@ -2,6 +2,7 @@ import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import assert from 'node:assert/strict';
 import { projects } from '../src/data/routes.mjs';
+import { portfolioDictionaries } from '../src/data/portfolio.mjs';
 import packageInfo from '../package.json' with { type: 'json' };
 
 const root = resolve(import.meta.dirname, '..');
@@ -40,8 +41,9 @@ assert.ok(bundle.includes('grayscale('), 'Project grayscale interaction missing'
 assert.ok(!existsSync(dir('public/css/style.css')), 'Monolithic style.css was reintroduced');
 
 /* Keep the Astro route registry aligned with the browser project directory. */
-const runtimeSource = readFileSync(dir('src/data/portfolio.mjs'), 'utf8');
-const browserSlugs = [...runtimeSource.matchAll(/slug:'([^']+)'/g)].map(match => match[1]);
+const browserSlugs = portfolioDictionaries.en.projects.map(project => project.slug);
+const italianSlugs = portfolioDictionaries.it.projects.map(project => project.slug);
+assert.deepEqual(italianSlugs, browserSlugs, 'Italian and English project slugs differ');
 const routeSlugs = projects.map(project => project.slug);
 assert.deepEqual(browserSlugs, routeSlugs, 'Astro and browser project slugs differ');
 for (const project of projects) {
@@ -68,5 +70,8 @@ for (const route of ['about/', 'resume/', 'contact/', 'work/platinum-technologie
   assert.ok(html.includes('static-reader'), `Missing static content: ${route}`);
   if (route === 'contact/') assert.ok(html.includes('mailto:edoardo.rappanello@gmail.com'), 'Static email missing');
   if (route === 'resume/') assert.ok(html.includes('SWS PRINTING'), 'Static resume missing');
-  if (route === 'work/platinum-technologies/') assert.ok(html.includes('ten times'), 'Static project results missing');
+  if (route === 'work/platinum-technologies/') {
+    assert.ok(html.includes('EDITORIAL ADVERTISING'), 'Approved editorial advertising content missing');
+    assert.ok(!html.includes('ten times') && !html.includes('dieci volte'), 'Confidential campaign metrics leaked into static output');
+  }
 }

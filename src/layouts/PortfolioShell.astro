@@ -11,8 +11,8 @@ import { typographyMode } from '../data/typography.mjs';
 import FontResources from '../components/FontResources.astro';
 
 const {
-  title = 'Edoardo Rappanello — Multidisciplinary Designer',
-  description = 'Portfolio of Edoardo Rappanello. Graphic design, web and digital marketing across independent projects and ongoing communication work.',
+  title = 'Edoardo Rappanello — Graphic Design, Web & Marketing',
+  description = 'Portfolio of Edoardo Rappanello: graphic design, web design, visual identities and digital marketing across independent and in-house projects.',
   canonicalPath = '',
   ogImage = 'assets/images/profilephoto.webp',
   ogType = 'website',
@@ -124,14 +124,14 @@ const ogImageUrl = new URL(ogImage, rootUrl);
   <section class="boot-loader" id="boot-loader" aria-label="Loading portfolio" data-i18n-aria="boot.label">
     <div class="boot-gate" id="boot-gate">
       <h2 aria-label="LOADING">LOADING</h2>
-      <div class="boot-progress" id="boot-progress" role="progressbar" aria-label="Loading" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="boot-progress-bar"></span></div>
+      <div class="boot-progress" id="boot-progress" role="progressbar" aria-label="Loading portfolio" data-i18n-aria="boot.label" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="boot-progress-bar"></span></div>
     </div>
     <span class="boot-signal-line" aria-hidden="true"></span>
   </section>
 
   <main class="shell">
     <div class="crt-stage" id="crt-stage">
-      <section class="screen" id="screen" aria-label="Interactive multidisciplinary design portfolio">
+      <section class="screen" id="screen" aria-label="Edoardo Rappanello’s interactive portfolio" data-i18n-aria="screen.aria">
         <video class="crt-background-video" muted loop playsinline preload="none" aria-hidden="true">
           <source data-src="assets/video/crt-ambient.webm" type="video/webm" />
         </video>
@@ -142,7 +142,7 @@ const ogImageUrl = new URL(ogImage, rootUrl);
         <div class="screen-reflection" aria-hidden="true"></div>
         <div class="edge-light" aria-hidden="true"></div>
 
-        <div class="scroll-viewport" id="scroll-viewport" tabindex="0" aria-label="Scrollable portfolio">
+        <div class="scroll-viewport" id="scroll-viewport" tabindex="0" aria-label="Portfolio content" data-i18n-aria="scroll.aria">
         <section class="scroll-home" id="scroll-home" aria-label="Home">
         <div class="desktop" id="desktop">
           <div class="crt-head-feature" id="crt-head-feature" aria-hidden="true">
@@ -155,8 +155,8 @@ const ogImageUrl = new URL(ogImage, rootUrl);
 
           <section class="hero-intro" aria-label="Portfolio introduction" data-i18n-aria="hero.aria">
             <h1>EDOARDO<br /><span class="hero-name-last">RAPPANELLO<span class="doto-glyph" aria-hidden="true">.</span></span></h1>
-            <p class="hero-copy" data-i18n="hero.copy">I work across graphic design, web and digital marketing, with a focus on how each project works in context.</p>
-            <button class="primary-action" data-open="projects" data-i18n="hero.cta">ENTER SELECTED WORK</button>
+            <p class="hero-copy" data-i18n="hero.copy">For over five years, I have worked in graphic design, web and communication, designing and producing websites, advertising campaigns, and materials for print and events.</p>
+            <button class="primary-action" data-open="projects" data-i18n="hero.cta">VIEW SELECTED WORK</button>
           </section>
 
           <nav class="desktop-icons" aria-label="Portfolio sections" data-i18n-aria="nav.aria">
@@ -189,7 +189,7 @@ const ogImageUrl = new URL(ogImage, rootUrl);
         <div class="scroll-folder-morph" aria-hidden="true"></div>
 
         <button class="language-toggle" id="language-toggle" type="button" aria-label="Switch language">IT</button>
-        <aside class="privacy-widget" aria-label="Privacy and cookie preferences">
+        <aside class="privacy-widget" aria-label="Privacy and cookie preferences" data-i18n-aria="privacy.aria">
           <button class="privacy-toggle" id="privacy-toggle" type="button" aria-expanded="false" aria-controls="privacy-panel" data-i18n="privacy.button">PRIVACY / COOKIES</button>
           <div class="privacy-panel" id="privacy-panel" hidden>
             <div class="privacy-status" id="privacy-status" aria-live="polite">ANALYTICS: NOT SET</div>

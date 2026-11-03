@@ -84,7 +84,7 @@ for(const [width,height] of [[1440,900],[320,568],[390,844],[667,375]]){
  assert.equal(await page.locator('.scroll-index [aria-current]').getAttribute('data-scroll-section'),'work');
  await screenshot(page,`original-work-${width}.png`);
  if(width>1024) {
-   assert.equal(await page.locator('.scroll-section-name .scroll-sr').textContent(),'Selected Works');
+   assert.equal(await page.locator('.scroll-section-name .scroll-sr').textContent(),'Selected Work');
    const labelPosition=await page.evaluate(()=>{
      const icon=document.querySelector('.scroll-mini-icon').getBoundingClientRect();
      const label=document.querySelector('.scroll-section-name').getBoundingClientRect();

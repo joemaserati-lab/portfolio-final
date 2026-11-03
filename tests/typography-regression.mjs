@@ -142,7 +142,7 @@ try {
      assert.equal(result.dockLabelColor,'rgb(245, 245, 245)',`${route}: docked navigation label must stay white`);
      assert(result.navigationMarks.every(x=>x.text==='rgb(245, 245, 245)' && x.bullet.includes('•') && x.color==='rgb(255, 45, 58)'),`${route}: navigation needs white text and a separate red bullet`);
      if(width<=720 && route==='work/') {
-       assert.equal(result.navigationLabel,'Works',`${route}: mobile active work label must be Works`);
+       assert.equal(result.navigationLabel,process.env.TYPO_LANG==='it'?'Progetti':'Works',`${route}: mobile active work label must match the selected language`);
        assert.equal(result.navigationColor,'rgb(245, 245, 245)',`${route}: active mobile label must stay white`);
      }
      if(width>=1025) assert.equal(result.desktopBodySize,16,`${route}: desktop reading size should be 16px`);
