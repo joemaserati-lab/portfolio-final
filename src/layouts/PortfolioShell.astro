@@ -105,7 +105,7 @@ const ogImageUrl = new URL(ogImage, rootUrl);
     <!-- Keep the large main-thread Three.js bundle out of the preload chain:
          Chromium uses the Worker bundle and fallback browsers request it on demand. -->
     <link rel="preload" href="assets/models/human_head_reference3.glb" as="fetch" crossorigin="anonymous" fetchpriority="high" media="(min-width: 1025px)" />
-    <link rel="preload" href={asset('assets/images/mobile-head-poster.png')} as="image" type="image/png" fetchpriority="high" media="(max-width: 1024px)" />
+    <link rel="preload" href={asset('assets/images/mobile-head-poster.webp')} as="image" type="image/webp" fetchpriority="high" media="(max-width: 1024px)" />
   </>}
   {!import.meta.env.PROD && <link rel="stylesheet" href={asset('css/idle-screensaver.css')} />}
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -150,7 +150,7 @@ const ogImageUrl = new URL(ogImage, rootUrl);
         <section class="scroll-home" id="scroll-home" aria-label="Home">
         <div class="desktop" id="desktop">
           <div class="crt-head-feature" id="crt-head-feature" aria-hidden="true">
-            <img class="crt-head-poster" src={asset('assets/images/mobile-head-poster.png')} width="280" height="403" alt="" loading="eager" decoding="async" fetchpriority="high" draggable="false" />
+            <img class="crt-head-poster" src={asset('assets/images/mobile-head-poster.webp')} width="749" height="1000" alt="" loading="eager" decoding="async" fetchpriority="high" draggable="false" />
             <canvas id="crt-head-canvas"></canvas>
           </div>
 
