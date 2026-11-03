@@ -25,6 +25,11 @@
   --type-h3: clamp(20px, 1.53vw, 22px);
   --type-h4: clamp(18px, 1.39vw, 20px);
   --type-h5: clamp(16px, 1.18vw, 17px);
+  /* Editorial hierarchy for content groups across the site.
+     Doto requires a larger optical size than JetBrains Mono to establish
+     emphasis; these are content headings, not UI labels or metadata. */
+  --type-section-label: clamp(24px, 1.9vw, 26px);
+  --type-group-heading: clamp(21px, 1.65vw, 23px);
   --type-label: 13px;
   --type-button: 14px;
   --weight-heading: 700;
@@ -338,6 +343,39 @@ button {
   font-weight: 600;
   line-height: 1.4;
   letter-spacing: .035em;
+}
+
+/* Content heading / group heading / reading copy: one sitewide contract.
+   Do not repeat or override these font roles in workspace component CSS.
+   Major CV headings are distinct from utility captions and keep the
+   same optical hierarchy at desktop, mobile and short-landscape sizes. */
+.resume-columns .resume-section-title {
+  font-family: var(--font-content-subhead);
+  font-variation-settings: var(--font-content-subhead-settings);
+  font-size: var(--type-section-label);
+  font-weight: var(--weight-heading);
+  line-height: var(--leading-subheading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--bright);
+}
+.resume-skill-group h4 {
+  font-family: var(--font-content-subhead);
+  font-variation-settings: var(--font-content-subhead-settings);
+  font-size: var(--type-group-heading);
+  font-weight: var(--weight-heading);
+  line-height: var(--leading-subheading);
+  letter-spacing: 0;
+  color: var(--bright);
+}
+.resume-skill-group p {
+  font-family: var(--font-reading);
+  font-variation-settings: var(--font-reading-settings);
+  font-size: var(--type-body);
+  font-weight: var(--weight-reading);
+  line-height: var(--leading-body);
+  letter-spacing: var(--tracking-body);
+  color: var(--dim);
+  max-width: var(--measure-body);
 }
 .resume-row { padding-block: clamp(20px, 2vw, 28px); }
 .resume-row p { margin-top: 14px; }
