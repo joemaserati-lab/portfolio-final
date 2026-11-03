@@ -119,6 +119,15 @@
     const api = window.Portfolio;
     if (!api) return;
     api.refresh();
+    // Labels belong to the current UI locale, including the mobile work caption.
+    links.forEach(link => {
+      const kind = link.dataset.scrollSection;
+      const localized = window.PortfolioI18n?.t?.(`scroll.${kind}`) || kind;
+      const visible = link.querySelector('[data-scroll-label]');
+      visible.dataset.scrollLabel = localized;
+      visible.textContent = localized;
+      link.querySelector('.scroll-sr').textContent = localized;
+    });
     delete morph.dataset.kind;
     launchers.forEach(launcher => {
       const kind = launcher.dataset.open === 'projects' ? 'work' : launcher.dataset.open;
@@ -152,7 +161,7 @@
     schedule();
   }
   function active(kind, displayName) {
-    const visibleName = kind === 'work' && phoneLabels.matches ? 'Works' : displayName;
+    const visibleName = kind === 'work' && phoneLabels.matches ? (window.PortfolioI18n?.t?.('scroll.workMobile') || 'Works') : displayName;
     if (kind === current && captionLabel.dataset.scrollLabel === visibleName) return;
     current = kind;
     cancelAnimationFrame(scramble);
@@ -160,7 +169,7 @@
       const selected = link.dataset.scrollSection === kind;
       if (selected) link.setAttribute('aria-current', 'location'); else link.removeAttribute('aria-current');
       const label = link.querySelector('[data-scroll-label]');
-      const visibleLabel = selected && kind === 'work' && phoneLabels.matches ? 'Works' : label.dataset.scrollLabel;
+      const visibleLabel = selected && kind === 'work' && phoneLabels.matches ? (window.PortfolioI18n?.t?.('scroll.workMobile') || 'Works') : label.dataset.scrollLabel;
       label.dataset.activeLabel = visibleLabel;
       label.textContent = visibleLabel;
       link.classList.remove('is-changing');
