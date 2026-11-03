@@ -33,8 +33,10 @@ a {-webkit-tap-highlight-color:transparent}
 .scene__copy {position:absolute;z-index:3;left:clamp(24px,5vw,76px);bottom:clamp(36px,7.5vh,100px);max-width:min(550px,calc(100% - 48px));pointer-events:none}
 .scene__copy h1 {margin:0 0 28px -6px;color:var(--text)}
 .scene__copy p {color:var(--secondary);margin:0 0 23px;max-width:31ch}
-.scene__home {display:inline-block;pointer-events:auto;text-decoration:none;border-bottom:1px solid currentColor;padding-bottom:4px;color:var(--text);transition:color .16s}
-.scene__home:hover {color:var(--secondary)}
+.scene__home,.scene__projects {display:inline-block;pointer-events:auto;text-decoration:none;border-bottom:1px solid currentColor;padding-bottom:4px;color:var(--text);transition:color .16s}
+.scene__actions{display:flex;gap:clamp(16px,3vw,30px);flex-wrap:wrap;align-items:center}
+.scene__subtitle{font-family:var(--font-ui);font-size:clamp(15px,1.6vw,20px);font-weight:600;letter-spacing:.04em;color:var(--text)!important;margin:-12px 0 18px!important}
+.scene__home:hover,.scene__projects:hover{color:var(--secondary)}
 /* This is the only moving object: portrait in place of "DVD", original disc and VIDEO underneath. */
 .dvd {--dvd-color:#f5f5f5;position:absolute;z-index:2;top:0;left:0;display:flex;flex-direction:column;align-items:center;width:clamp(160px,17.5vw,246px);height:clamp(158px,18vw,224px);color:var(--dvd-color);transform:translate3d(0,0,0);will-change:transform;pointer-events:none;user-select:none}
 .dvd__face {position:relative;flex:0 0 67%;height:67%;width:65%;display:flex;justify-content:center;align-items:flex-end;overflow:hidden}
@@ -64,10 +66,11 @@ a {-webkit-tap-highlight-color:transparent}
 .scene .doto-glyph,
 .scene__copy h1::after,
 .scene__home::before,
-.scene__home::after {color:var(--red);font-family:var(--font-ui);font-weight:500}
+.scene__projects::before,
+.scene__home::after,.scene__projects::after {color:var(--red);font-family:var(--font-ui);font-weight:500}
 .scene__copy h1::after {content:'.'}
-.scene__home::before {content:'<';margin-right:.5em}
-.scene__home::after {content:'>';margin-left:.5em}
+.scene__home::before,.scene__projects::before {content:'<';margin-right:.5em}
+.scene__home::after,.scene__projects::after {content:'>';margin-left:.5em}
 html.is-idle-screensaver .scene__copy h1::after {content:none}
 html.is-idle-screensaver .scene__home::before {content:'['}
 html.is-idle-screensaver .scene__home::after {content:']'}
@@ -75,6 +78,7 @@ html.is-idle-screensaver .scene__copy h1{
  font-size:clamp(var(--type-h2),6vw,var(--type-display));
  overflow-wrap:anywhere;
 }
+html.is-idle-screensaver .scene__subtitle,html.is-idle-screensaver .scene__projects{display:none}
 html.is-idle-screensaver .scene__home,
 html.is-idle-screensaver .topline__brand{pointer-events:none;cursor:default}
 </style>
@@ -94,8 +98,12 @@ html.is-idle-screensaver .topline__brand{pointer-events:none;cursor:default}
   </div>
   <section class="scene__copy" aria-labelledby="page-title">
     <h1 id="page-title">404</h1>
-    <p data-copy>Nothing at this address.</p>
-    <a class="scene__home" data-home href="https://joemaserati-lab.github.io/portfolio-final/">← BACK TO PORTFOLIO</a>
+    <p class="scene__subtitle" data-error-label>PAGE NOT FOUND</p>
+    <p data-copy>The page you are looking for does not exist. Return to the homepage or explore the projects.</p>
+    <div class="scene__actions">
+      <a class="scene__home" data-home href="https://joemaserati-lab.github.io/portfolio-final/">RETURN HOME</a>
+      <a class="scene__projects" data-projects href="https://joemaserati-lab.github.io/portfolio-final/work/">OPEN PROJECTS.DIR</a>
+    </div>
   </section>
 </main>
 <script is:inline>
@@ -215,8 +223,8 @@ html.is-idle-screensaver .topline__brand{pointer-events:none;cursor:default}
  reducedQuery.addEventListener('change',()=>{paused=reducedQuery.matches;if(paused)stopFrame();else startFrame()});
  const lang=(()=>{try{return localStorage.getItem('portfolioLang')==='it'?'it':'en'}catch{return 'en'}})();
  const idleWords={
-  en:{title:'IDLE MODE.',description:'The screen is taking a break. Your place in the portfolio is saved.',resume:'MOVE / TAP / PRESS A KEY TO RESUME',aria:'Portfolio screensaver'},
-  it:{title:'IN PAUSA.',description:'Lo schermo si prende una pausa. La pagina rimane esattamente dove l’hai lasciata.',resume:'MUOVI / TOCCA / PREMI UN TASTO',aria:'Salvaschermo del portfolio'}
+  en:{title:'IDLE MODE.',description:'The portfolio stays exactly where you left it.',resume:'MOVE / TAP / PRESS A KEY TO RESUME',aria:'Portfolio screensaver'},
+  it:{title:'IN PAUSA.',description:'Il portfolio rimane esattamente dove l\'hai lasciato.',resume:'MUOVI / TOCCA / PREMI UN TASTO PER RIPRENDERE',aria:'Salvaschermo del portfolio'}
  };
  function applyIdleCopy(language,words){
   const next=language==='it'?'it':'en',copy={...idleWords[next],...(words||{})};
@@ -249,8 +257,10 @@ html.is-idle-screensaver .topline__brand{pointer-events:none;cursor:default}
   });
  }else if(lang==='it'){
   document.documentElement.lang='it';
-  document.querySelector('[data-copy]').textContent='Non c’è nulla a questo indirizzo.';
-  document.querySelector('[data-home]').textContent='← TORNA AL PORTFOLIO';
+  document.querySelector('[data-error-label]').textContent='PAGE NOT FOUND';
+  document.querySelector('[data-copy]').textContent='La pagina che cerchi non esiste. Puoi tornare alla homepage oppure esplorare i progetti.';
+  document.querySelector('[data-home]').textContent='TORNA ALLA HOME';
+  document.querySelector('[data-projects]').textContent='APRI PROGETTI.DIR';
  }
  const faceImage=new Image();
  faceImage.onload=()=>sample(faceImage,faceImage.naturalWidth,faceImage.naturalHeight);
