@@ -68,6 +68,19 @@ try {
         beforeColor:getComputedStyle(e,'::before').color,
         afterColor:getComputedStyle(e,'::after').color
       })),
+      cvSkillHierarchy:[...document.querySelectorAll('#scroll-resume .resume-columns > section')].map(section=>{
+        const major=section.querySelector('.resume-section-title');
+        const majorStyle=getComputedStyle(major);
+        const groups=[...section.querySelectorAll('.resume-skill-group')].map(group=>{
+          const heading=getComputedStyle(group.querySelector('h4'));
+          const copy=getComputedStyle(group.querySelector('p'));
+          return {headingSize:parseFloat(heading.fontSize),copySize:parseFloat(copy.fontSize),
+            headingFamily:heading.fontFamily,copyFamily:copy.fontFamily,
+            headingWeight:Number(heading.fontWeight),copyWeight:Number(copy.fontWeight)};
+        });
+        return {majorSize:parseFloat(majorStyle.fontSize),majorFamily:majorStyle.fontFamily,
+          majorWeight:Number(majorStyle.fontWeight),groups};
+      }),
       desktopCvCopy:[...document.querySelectorAll('#scroll-resume .resume-header > p, #scroll-resume .resume-row p')].map(e=>({
         measure:e.getBoundingClientRect().width,
         available:e.parentElement.getBoundingClientRect().width
@@ -114,6 +127,18 @@ try {
    assert(result.scale.every((x,i,a)=>!i||a[i-1].size>x.size),`${width} ${route}: H1–H5 must descend strictly`);
    assert.equal(result.emptyHeadings,0,`${route}: empty heading`);
    assert(result.cvHierarchy,`${route}: CV hierarchy must be H2/H3/H4`);
+   if(route!=='404.html' && result.mode==='doto-mono') {
+     assert.equal(result.cvSkillHierarchy.length,2,`${width} ${route}: CV must have two skill/tool columns`);
+     assert(result.cvSkillHierarchy.every(section=>
+       section.majorSize>=24 && section.majorWeight>=600 && section.majorFamily.includes('Doto') &&
+       section.groups.length>=3 && section.groups.every(group=>
+         section.majorSize>group.headingSize && group.headingSize>=20 &&
+         group.headingSize>group.copySize+3 && group.copySize>=16 &&
+         group.headingWeight>=600 && group.copyWeight===400 &&
+         group.headingFamily.includes('Doto') && group.copyFamily.includes('JetBrains Mono')
+       )
+     ),`${width} ${route}: Doto CV headings must read larger than JetBrains skill copy: ${JSON.stringify(result.cvSkillHierarchy)}`);
+   }
    if(route!=='404.html' && result.mode==='doto-mono') {
      assert.equal(result.redToken,'#ff2d3a',`${route}: red signature token changed`);
      assert(result.glyphCount>0,`${route}: red Doto glyphs missing`);

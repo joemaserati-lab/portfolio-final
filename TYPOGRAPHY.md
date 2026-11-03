@@ -51,6 +51,21 @@ Dopo la modifica occorre ricompilare e pubblicare il sito. Il sistema seleziona 
 
 `tests/typography-regression.mjs` verifica 320×568, 390×844, 667×375 e 1440×900, sulle pagine home, directory, profilo, CV, contatti, singolo progetto e 404. Controlla dimensioni minime, font-family per ruolo, peso Doto 700, asse Square dove previsto, caricamento dei webfont, overflow e distanze della CTA. I controlli IT/EN, la regressione dell'interfaccia e Lighthouse rimangono parte della CI. Le valutazioni estetiche e la resa su dispositivo reale richiedono una revisione visiva separata.
 
+## Gerarchia ottica globale — Doto / JetBrains Mono
+
+La gerarchia viene definita **una sola volta** in `public/css/typography.css`, senza hardcoding di font-size, famiglia, peso o interlinea nei componenti. Doto ha una presenza ottica inferiore rispetto a JetBrains Mono allo stesso corpo nominale: un'intestazione di contenuto deve quindi essere visivamente dominante, non soltanto avere lo stesso numero di pixel.
+
+Per la modalità attiva `doto-mono`:
+
+- **Intestazioni di gruppi di contenuti** (`.type-section-label`, come COMPETENZE e SOFTWARE E STRUMENTI): `--type-section-label` = 24–26px, Doto 700.
+- **Sottogruppi informativi** (`.type-group-heading`, come GRAPHIC & VISUAL DESIGN): `--type-group-heading` = 21–23px, Doto 700.
+- **Testo di lettura** (`.type-body` e contenuti descrittivi): `--type-body` = almeno 16px, JetBrains Mono 400, interlinea 1.6.
+- **Etichette di interfaccia e metadati**: 13–14px Doto, intenzionalmente subordinate al testo di lettura; non vanno confuse con i titoli semantici.
+
+La regola ottica si applica ai gruppi di contenuto del CV su desktop, tablet, mobile portrait e landscape. Le dimensioni specifiche dei titoli scenografici, del progetto, della navigazione e delle didascalie restano quelle del sistema precedente. Le altre modalità tipografiche mantengono il proprio peso dei sottotitoli tramite `--font-content-subhead-weight`. Per futuri gruppi analoghi usare le classi di ruolo condivise `.type-section-label` e `.type-group-heading`, evitando nuove scale locali.
+
+La disposizione a due colonne su desktop e una colonna su mobile rimane invariata. `tests/typography-regression.mjs` controlla che il corpo Doto dei due livelli di heading superi quello JetBrains del testo e che non vengano introdotti testi sotto 16px o overflow.
+
 ## Scala semantica completa
 
 Valori mobile → desktop; nessuna modifica ai testi, alla griglia o alle altre modalità.
