@@ -8,6 +8,7 @@ import packageInfo from '../../package.json';
 import StaticReader from '../components/StaticReader.astro';
 import { portfolioDictionaries } from '../data/portfolio.mjs';
 import { typographyMode } from '../data/typography.mjs';
+import FontResources from '../components/FontResources.astro';
 
 const {
   title = 'Edoardo Rappanello — Multidisciplinary Designer',
@@ -19,17 +20,14 @@ const {
   project = null
 } = Astro.props;
 
-const fontSheet = typographyMode === 'doto-mono'
-  ? 'https://fonts.googleapis.com/css2?family=Doto:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap'
-  : typographyMode === 'pixel-editorial'
-  ? 'https://fonts.googleapis.com/css2?family=Doto:wght@400;500;600;700&family=Geist+Pixel:ELSH@0..100&family=Geist:wght@400;500;600;700&display=swap'
-  : typographyMode === 'balanced'
-  ? 'https://fonts.googleapis.com/css2?family=Doto:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap'
-  : typographyMode === 'digital'
-  ? 'https://fonts.googleapis.com/css2?family=Doto:wght@400;500;600;700&family=Geist+Pixel:ELSH@0..100&display=swap'
-  : 'https://fonts.googleapis.com/css2?family=Doto:wght@400;500;600;700&display=swap';
 const assetVersion = packageInfo.version;
 const asset = path => `${path}?v=${assetVersion}`;
+const mobileHeadSrcset = [
+  ['mobile-head-poster-mobile-360.webp', 360],
+  ['mobile-head-poster-mobile-540.webp', 540],
+  ['mobile-head-poster.webp', 749]
+].map(([name, width]) => `${asset(`assets/images/${name}`)} ${width}w`).join(', ');
+const mobileHeadSizes = '(orientation: portrait) min(calc(100vw - 80px), clamp(127px, 29.96svh, 285px)), 35vw';
 const basePath = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 const rootUrl = new URL(basePath, Astro.site ?? Astro.url.origin);
 const canonicalUrl = new URL(canonicalPath, rootUrl);
@@ -105,12 +103,10 @@ const ogImageUrl = new URL(ogImage, rootUrl);
     <!-- Keep the large main-thread Three.js bundle out of the preload chain:
          Chromium uses the Worker bundle and fallback browsers request it on demand. -->
     <link rel="preload" href="assets/models/human_head_reference3.glb" as="fetch" crossorigin="anonymous" fetchpriority="high" media="(min-width: 1025px)" />
-    <link rel="preload" href={asset('assets/images/mobile-head-poster.webp')} as="image" type="image/webp" fetchpriority="high" media="(max-width: 1024px)" />
+    <link rel="preload" href={asset('assets/images/mobile-head-poster-mobile-360.webp')} imagesrcset={mobileHeadSrcset} imagesizes={mobileHeadSizes} as="image" type="image/webp" fetchpriority="high" media="(max-width: 1024px)" />
   </>}
   {!import.meta.env.PROD && <link rel="stylesheet" href={asset('css/idle-screensaver.css')} />}
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href={fontSheet} />
+  <FontResources />
   {(typographyMode === 'balanced' || typographyMode === 'original') && <link rel="preload" href="assets/font/redaction-50-latin-400-normal.woff" as="font" type="font/woff" crossorigin />}
   <link rel="preload" as="image" href="assets/cursors/default-alt-mono.svg" type="image/svg+xml" media="(hover:hover) and (pointer:fine)" />
   <link rel="preload" as="image" href="assets/cursors/pointer-mono.svg" type="image/svg+xml" media="(hover:hover) and (pointer:fine)" />
@@ -150,7 +146,10 @@ const ogImageUrl = new URL(ogImage, rootUrl);
         <section class="scroll-home" id="scroll-home" aria-label="Home">
         <div class="desktop" id="desktop">
           <div class="crt-head-feature" id="crt-head-feature" aria-hidden="true">
-            <img class="crt-head-poster" src={asset('assets/images/mobile-head-poster.webp')} width="749" height="1000" alt="" loading="eager" decoding="async" fetchpriority="high" draggable="false" />
+            <picture>
+              <source media="(max-width: 1024px)" srcset={mobileHeadSrcset} sizes={mobileHeadSizes} type="image/webp" />
+              <img class="crt-head-poster" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='749' height='1000'/%3E" width="749" height="1000" alt="" loading="eager" decoding="async" fetchpriority="high" draggable="false" />
+            </picture>
             <canvas id="crt-head-canvas"></canvas>
           </div>
 
@@ -223,5 +222,6 @@ const ogImageUrl = new URL(ogImage, rootUrl);
   <script is:inline defer src={asset('js/privacy.js')}></script>
   <script is:inline defer src={asset('js/portfolio-scroll.js')}></script>
   <script is:inline defer src={asset('js/idle-screensaver.js')}></script>
+  {import.meta.env.PROD && <script is:inline defer src={asset('js/asset-cache.js')}></script>}
 </body>
 </html>

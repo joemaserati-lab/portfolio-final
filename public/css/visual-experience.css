@@ -45,7 +45,7 @@
    visible until WebGL has produced its first ready frame. Desktop is unchanged. */
 .crt-head-poster { display:none; }
 @media (max-width:1024px) {
-  .crt-head-feature > .crt-head-poster {
+  .crt-head-feature .crt-head-poster {
     display:block;
     position:absolute;
     inset:0;
@@ -65,7 +65,7 @@
     display:block;
   }
   .crt-head-feature:not(.is-ready) #crt-head-canvas { opacity:0; }
-  .crt-head-feature.is-ready > .crt-head-poster { opacity:0; }
+  .crt-head-feature.is-ready .crt-head-poster { opacity:0; }
   body.project-case-open .crt-head-feature:not(.is-ready),
   body.screensaver-on .crt-head-feature:not(.is-ready) { opacity:0;visibility:hidden; }
 }

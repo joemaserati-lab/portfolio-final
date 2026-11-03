@@ -1,15 +1,7 @@
 ---
 import packageInfo from "../../package.json";
 import { typographyMode } from "../data/typography.mjs";
-const fontSheet = typographyMode === 'doto-mono'
-  ? 'https://fonts.googleapis.com/css2?family=Doto:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap'
-  : typographyMode === 'pixel-editorial'
-  ? 'https://fonts.googleapis.com/css2?family=Doto:wght@400;500;600;700&family=Geist+Pixel:ELSH@0..100&family=Geist:wght@400;500;600;700&display=swap'
-  : typographyMode === 'balanced'
-  ? 'https://fonts.googleapis.com/css2?family=Doto:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap'
-  : typographyMode === 'digital'
-  ? 'https://fonts.googleapis.com/css2?family=Doto:wght@400;500;600;700&family=Geist+Pixel:ELSH@0..100&display=swap'
-  : 'https://fonts.googleapis.com/css2?family=Doto:wght@400;500;600;700&display=swap';
+import FontResources from "../components/FontResources.astro";
 ---
 <!doctype html>
 <html lang="en" data-typography={typographyMode}>
@@ -23,7 +15,6 @@ const fontSheet = typographyMode === 'doto-mono'
 <link rel="shortcut icon" href={`/portfolio-final/assets/favicon/favicon-32.png?v=${packageInfo.version}`} type="image/png" />
 <title>404 — Edoardo Rappanello </title>
 <style is:global>
-@font-face {font-family:'Doto';src:url('/portfolio-final/assets/font/Doto-500.woff2') format('woff2');font-style:normal;font-weight:500;font-display:swap}
 @font-face {font-family:'Redaction 50';src:url('/portfolio-final/assets/font/redaction-50-latin-400-normal.woff') format('woff');font-style:normal;font-weight:400;font-display:swap}
 :root {color-scheme:dark;--bg:#050505;--text:#f5f5f5;--secondary:#b9b9b9;--line:rgba(255,255,255,.18);--accent:#f5f5f5;--mint:#80FFCC;--red:#FF2D3A}
 *,*::before,*::after {box-sizing:border-box}
@@ -66,9 +57,7 @@ a {-webkit-tap-highlight-color:transparent}
 
 
 </style>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href={fontSheet} />
+<FontResources />
 <link rel="stylesheet" href={`/portfolio-final/css/typography.css?v=${packageInfo.version}`} />
 <style is:global>
 /* Shared red Doto marks for the standalone error and idle scene. */

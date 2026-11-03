@@ -64,7 +64,9 @@
   const projectById = id => projects.find(p => p.id === String(id).padStart(2,'0'));
   const projectBySlug = slug => projects.find(p => p.slug === slug);
   const backGlyph = '<span class="doto-glyph" aria-hidden="true" style="display:inline-block;line-height:1;transform:translate(1px,-1px)">&lt;</span>';
-  const projectImage = p => p.cover ? `<img class="project-cover-img" src="${esc(p.cover)}" alt="${esc(p.title)}" loading="lazy" decoding="async">${p.video ? `<video class="project-cover-video" data-src="${esc(p.video)}" muted loop playsinline preload="none" poster="${esc(p.cover)}" aria-hidden="true"></video>` : ''}` : '<span class="project-cover-art" aria-hidden="true"></span>';
+  const mobileImage = (src, width) => src.replace(/\.webp$/, `-mobile-${width}.webp`);
+  const mobileSources = src => `${esc(mobileImage(src,480))} 480w, ${esc(mobileImage(src,720))} 720w, ${esc(src)} ${src.includes('profilephoto') ? 1254 : 1280}w`;
+  const projectImage = p => p.cover ? `<picture><source media="(max-width:1024px)" srcset="${mobileSources(p.cover)}" sizes="(max-width:600px) calc(100vw - 90px), calc(100vw - 160px)" type="image/webp"><img class="project-cover-img" src="${esc(p.cover)}" alt="${esc(p.title)}" loading="lazy" decoding="async"></picture>${p.video ? `<video class="project-cover-video" data-src="${esc(p.video)}" muted loop playsinline preload="none" poster="${esc(matchMedia('(max-width:1024px)').matches ? mobileImage(p.cover,720) : p.cover)}" aria-hidden="true"></video>` : ''}` : '<span class="project-cover-art" aria-hidden="true"></span>';
   // One shared lifecycle for the directory, including language rerenders.
   const previewRoot = document.getElementById('scroll-work');
   const previewVideos = new Map();
@@ -213,7 +215,7 @@
           </div>
         </div>
         <figure class="contact-photo">
-          <img src="${esc(new URL('assets/images/profilephoto.webp', BASE_URL).href)}" alt="${esc(t('portfolio.portraitAlt'))}" width="1254" height="1254" loading="eager" decoding="async">
+          <picture><source media="(max-width:1024px)" srcset="${mobileSources(new URL('assets/images/profilephoto.webp', BASE_URL).href)}" sizes="(max-width:600px) calc(100vw - 90px), 280px" type="image/webp"><img src="${esc(new URL('assets/images/profilephoto.webp', BASE_URL).href)}" alt="${esc(t('portfolio.portraitAlt'))}" width="1254" height="1254" loading="eager" decoding="async"></picture>
         </figure>
       </div>`,
 

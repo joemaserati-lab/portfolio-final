@@ -187,12 +187,13 @@ try {
    assert(await progressive.locator('.hero-intro h1').isVisible(),'Mobile H1 should appear before WebGL');
    assert(await progressive.locator('.crt-head-poster').evaluate(e=>e.complete&&e.naturalWidth>0),'Mobile poster must load');
    const poster=progressive.locator('.crt-head-poster');
-   const posterSource=await poster.getAttribute('src');
-   assert(new URL(posterSource,url).pathname.endsWith('/assets/images/mobile-head-poster.webp'),'Mobile poster must use the supplied WebP');
-   assert.deepEqual(await poster.evaluate(e=>[e.naturalWidth,e.naturalHeight]),[749,1000],'Mobile poster intrinsic dimensions changed');
-   assert.deepEqual(await poster.evaluate(e=>[e.getAttribute('width'),e.getAttribute('height')]),['749','1000'],'Mobile poster dimensions must match the asset');
+   const source=progressive.locator('#crt-head-feature picture source');
+   const posterSource=await poster.evaluate(e=>e.currentSrc);
+   assert(/mobile-head-poster(?:-mobile-(?:360|540))?\.webp$/.test(new URL(posterSource).pathname),'Mobile poster must select a responsive WebP');
+   assert.deepEqual(await poster.evaluate(e=>[e.getAttribute('width'),e.getAttribute('height')]),['749','1000'],'Mobile poster must retain its intrinsic aspect ratio');
    const preload=progressive.locator('link[rel="preload"][as="image"][href*="mobile-head-poster"]');
-   assert.equal(await preload.getAttribute('href'),posterSource,'Mobile poster and preload must use the same asset');
+   assert.equal(await preload.getAttribute('imagesrcset'),await source.getAttribute('srcset'),'Preload and image must select the same variant');
+   assert.equal(await preload.getAttribute('imagesizes'),await source.getAttribute('sizes'));
    assert.equal(await preload.getAttribute('type'),'image/webp');
    assert.equal(await preload.getAttribute('media'),'(max-width: 1024px)');
    assert(await progressive.locator('#crt-head-feature').isVisible(),'Mobile poster must be visible during slow WebGL startup');

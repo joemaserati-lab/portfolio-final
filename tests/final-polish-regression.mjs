@@ -44,7 +44,7 @@ try {
       }), `${engine} ${width} ${kind}: portrait surface was replaced or hidden`);
       if (kind==='contact') {
         const portrait = await page.locator('.contact-photo img').evaluate(e=>{
-          const image=e.getBoundingClientRect(), frame=e.parentElement;
+          const image=e.getBoundingClientRect(), frame=e.closest('.contact-photo');
           return {loaded:e.complete && e.naturalWidth>0,fit:getComputedStyle(e).objectFit,
             fills:Math.abs(image.width-frame.clientWidth)<1 && Math.abs(image.height-frame.clientHeight)<1};
         });
@@ -116,7 +116,7 @@ try {
   await page.waitForFunction(()=>document.body.classList.contains('site-ready'));
   await page.clock.install();
   await page.evaluate(()=>document.dispatchEvent(new Event('pointermove')));
-  await page.clock.fastForward(60_000);
+  await page.clock.fastForward(30_000);
   const frame = page.frameLocator('#idle-screensaver-scene');
   await frame.locator('#page-title .doto-glyph').waitFor();
   assert.equal(await frame.locator('.topline__idle-status').count(),0);
