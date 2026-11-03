@@ -1,6 +1,6 @@
 export const profile = {
   name: 'Edoardo Rappanello',
-  defaultTitle: 'Edoardo Rappanello — Graphic Designer & Digital Marketing Specialist',
+  defaultTitle: 'Edoardo Rappanello — Graphic Design, Web & Marketing',
   defaultDescription: 'Portfolio of Edoardo Rappanello: graphic design, web design, visual identities and digital marketing across independent and in-house projects.',
   defaultImage: 'assets/images/profilephoto.webp'
 };
@@ -52,14 +52,14 @@ export const projects = [
   },
   {
     slug: 'platinum-technologies',
-    title: 'Platinum Technologies — Brand Identity & Digital Marketing | Edoardo Rappanello',
+    title: 'Platinum Technologies — Brand Identity | Edoardo Rappanello',
     name: 'PLATINUM TECHNOLOGIES',
     description: 'In-house visual identity, editorial advertising, website redesign, SEO and digital marketing for Platinum Technologies.',
     image: 'assets/images/PlatinumTechnologies.webp'
   },
   {
     slug: 'colorcopy-large-format',
-    title: 'Colorcopy — Graphic Design & Digital Marketing | Edoardo Rappanello',
+    title: 'Colorcopy — Graphic Design & SEO | Edoardo Rappanello',
     name: 'COLORCOPY LARGE FORMAT',
     description: 'In-house graphic design, event communication, catalogues, visual identity and SEO for Colorcopy Large Format.',
     image: 'assets/images/ColorcopyLargeFormat.webp'
