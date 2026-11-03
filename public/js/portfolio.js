@@ -59,7 +59,7 @@
     updateRouteMeta(route);
   }
   const esc = s => String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-  const paragraphs = value => [].concat(value || []).map(text => `<p>${esc(text)}</p>`).join('');
+  const paragraphs = value => [].concat(value || []).flatMap(text => String(text).split(/\n\s*\n/)).filter(Boolean).map(text => `<p>${esc(text)}</p>`).join('');
   const projectYear = project => project.year === 'ONGOING' ? t('portfolio.ongoing') : project.year;
   const projectById = id => projects.find(p => p.id === String(id).padStart(2,'0'));
   const projectBySlug = slug => projects.find(p => p.slug === slug);
@@ -150,25 +150,17 @@
   function updateRouteMeta(route){
     let title=t('title');
     let description=t('description');
-    if(route.type==='section'){
-      if(route.kind==='about'){
-        title=`${t('window.about').replace(/\.TXT$/,'')} — Edoardo Rappanello`;
-        description=profile.intro?.[0] || description;
-      } else if(route.kind==='resume'){
-        title=`${t('window.resume').replace(/\.TXT$/,'')} — Edoardo Rappanello`;
-        description=resume.intro || description;
-      } else if(route.kind==='contact'){
-        title=`${t('window.contact').replace(/\.EXE$/,'')} — Edoardo Rappanello`;
-        description=t('portfolio.contactCopy');
-      }
+    if(route.type==='section' && ['about','resume','contact'].includes(route.kind)){
+      title=t(`seo.${route.kind}.title`);
+      description=t(`seo.${route.kind}.description`);
     } else if(route.type==='work'){
-      title=`${t('portfolio.selectedWorkText')} — Edoardo Rappanello`;
-      description=t('portfolio.selectedCopy');
+      title=t('seo.work.title');
+      description=t('seo.work.description');
     } else if(route.type==='project'){
       const project=projectBySlug(route.slug) || projectById(route.slug);
       if(project){
-        title=`${project.title} — Edoardo Rappanello`;
-        description=project.intro || description;
+        title=t(`seo.project.${project.slug}.title`);
+        description=t(`seo.project.${project.slug}.description`);
       }
     }
     document.title=title;
@@ -199,6 +191,12 @@
   }
 
   const tagList = (items, className = '') => `<div class="tags${className ? ` ${className}` : ''}">${items.map(t=>`<span>${esc(t)}</span>`).join('')}</div>`;
+  // Compact grouped skill lists preserve the approved categories without
+  // rendering dozens of individual chips on narrow CV layouts.
+  const skillGroupList = (groups, fallback) => !Array.isArray(groups) || !groups.length
+    ? tagList(fallback, 'skill-list')
+    : `<div class="resume-skill-groups">${groups.map(group=>`<div class="resume-skill-group"><h4>${esc(group.title)}</h4><p>${esc(group.items)}</p></div>`).join('')}</div>`;
+
 
   const contents = {
     about:() => `
@@ -240,8 +238,8 @@
             <article class="resume-row compact"><div class="resume-period"><span class="doto-glyph" aria-hidden="true">•</span> ${esc(item.period)}</div><div><h4 class="resume-role">${esc(item.course)}</h4><strong>${esc(item.school)}</strong>${paragraphs(item.description)}</div></article>`).join('')}</div>
         </section>
         <div class="resume-columns">
-          <section><h3 class="resume-section-title">${esc(t('resume.capabilities'))}</h3>${tagList(resume.capabilities, 'skill-list')}</section>
-          <section><h3 class="resume-section-title">${esc(t('resume.tools'))}</h3>${tagList(resume.tools, 'skill-list')}</section>
+          <section><h3 class="resume-section-title">${esc(t('resume.capabilities'))}</h3>${skillGroupList(resume.capabilityGroups, resume.capabilities)}</section>
+          <section><h3 class="resume-section-title">${esc(t('resume.tools'))}</h3>${skillGroupList(resume.toolGroups, resume.tools)}</section>
         </div>
       </section>`,
 
@@ -340,8 +338,8 @@
         <section class="case-story-v2">
           <div class="case-story-label">${esc(t('case.notes'))}</div>
           <div class="case-story-copy">
-            <article><span><span class="doto-glyph" aria-hidden="true">[</span> 01 <span class="doto-glyph" aria-hidden="true">]</span> <span class="doto-glyph" aria-hidden="true">•</span> ${esc(t('case.context'))}</span><p>${esc(p.context)}</p></article>
-            <article><span><span class="doto-glyph" aria-hidden="true">[</span> 02 <span class="doto-glyph" aria-hidden="true">]</span> <span class="doto-glyph" aria-hidden="true">•</span> ${esc(t('case.direction'))}</span><p>${esc(p.direction)}</p></article>
+            <article><span><span class="doto-glyph" aria-hidden="true">[</span> 01 <span class="doto-glyph" aria-hidden="true">]</span> <span class="doto-glyph" aria-hidden="true">•</span> ${esc(t('case.context'))}</span>${paragraphs(p.context)}</article>
+            <article><span><span class="doto-glyph" aria-hidden="true">[</span> 02 <span class="doto-glyph" aria-hidden="true">]</span> <span class="doto-glyph" aria-hidden="true">•</span> ${esc(t('case.direction'))}</span>${paragraphs(p.direction)}</article>
           </div>
         </section>
         ${gallery ? `<section class="case-gallery-v2" aria-label="${esc(t('case.gallery'))}">${gallery}</section>` : ''}
