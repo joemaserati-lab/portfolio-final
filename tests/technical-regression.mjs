@@ -73,7 +73,7 @@ try {
   console.log('TECHNICAL PASS loader holds for the first 3D frame');
   const noJs=await browser.newContext({javaScriptEnabled:false});
   const reader=await noJs.newPage();
-  for(const [path,text] of [['resume/','SWS PRINTING'],['contact/','edoardo.rappanello@gmail.com'],['work/platinum-technologies/','ten times']]){
+  for(const [path,text] of [['resume/','SWS PRINTING'],['contact/','edoardo.rappanello@gmail.com'],['work/platinum-technologies/','EDITORIAL ADVERTISING']]){
     await reader.goto(new URL(path,base).href);
     assert(await reader.locator('.static-reader[data-reader-lang=en]').isVisible(),
       'The no-JavaScript reading view is hidden by the font-loading gate: '+path);
