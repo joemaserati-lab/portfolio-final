@@ -186,9 +186,19 @@ try {
    assert.notEqual(await progressive.evaluate(()=>window.__portfolioHeadState?.ready),true,'Mobile homepage incorrectly waited for WebGL');
    assert(await progressive.locator('.hero-intro h1').isVisible(),'Mobile H1 should appear before WebGL');
    assert(await progressive.locator('.crt-head-poster').evaluate(e=>e.complete&&e.naturalWidth>0),'Mobile poster must load');
+   const poster=progressive.locator('.crt-head-poster');
+   const posterSource=await poster.getAttribute('src');
+   assert(new URL(posterSource,url).pathname.endsWith('/assets/images/mobile-head-poster.webp'),'Mobile poster must use the supplied WebP');
+   assert.deepEqual(await poster.evaluate(e=>[e.naturalWidth,e.naturalHeight]),[749,1000],'Mobile poster intrinsic dimensions changed');
+   assert.deepEqual(await poster.evaluate(e=>[e.getAttribute('width'),e.getAttribute('height')]),['749','1000'],'Mobile poster dimensions must match the asset');
+   const preload=progressive.locator('link[rel="preload"][as="image"][href*="mobile-head-poster"]');
+   assert.equal(await preload.getAttribute('href'),posterSource,'Mobile poster and preload must use the same asset');
+   assert.equal(await preload.getAttribute('type'),'image/webp');
+   assert.equal(await preload.getAttribute('media'),'(max-width: 1024px)');
    assert(await progressive.locator('#crt-head-feature').isVisible(),'Mobile poster must be visible during slow WebGL startup');
  } finally {releaseModule()}
  await progressive.waitForFunction(()=>window.__portfolioHeadState?.ready&&document.querySelector('#crt-head-feature')?.classList.contains('is-ready'),null,{timeout:30000});
+ await progressive.waitForFunction(()=>getComputedStyle(document.querySelector('.crt-head-poster')).opacity==='0');
  await progressive.close();
  console.log('BOOT PASS mobile text and poster before delayed WebGL');
  const page=await browser.newPage();
