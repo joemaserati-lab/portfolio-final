@@ -47,7 +47,7 @@ export const projects = [
     slug: 'sapy',
     title: 'Sapy — Website Redesign | Edoardo Rappanello',
     name: 'SAPY',
-    description: 'Redesign of Sapy's website into a clear, accessible multipage experience for teachers and education professionals.',
+    description: "Redesign of Sapy\'s website into a clear, accessible multipage experience for teachers and education professionals.",
     image: 'assets/images/Sapy.webp'
   },
   {
