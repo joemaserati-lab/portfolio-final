@@ -3,7 +3,7 @@
   const FALLBACK_LANG = 'en';
   const MESSAGES = {
     en: {
-       title: "Edoardo Rappanello — Graphic Designer & Digital Marketing Specialist",
+       title: "Edoardo Rappanello — Graphic Design, Web & Marketing",
        description: "Portfolio of Edoardo Rappanello: graphic design, web design, visual identities and digital marketing across independent and in-house projects.",
       'boot.label': 'Loading portfolio',
       'boot.kicker': '',
@@ -107,9 +107,9 @@
        'seo.project.pholia.description': "Digital identity, web design and Three.js 3D cube for Pholià, with content architecture and front-end development.",
        'seo.project.sapy.title': "Sapy — Website Redesign | Edoardo Rappanello",
        'seo.project.sapy.description': "Redesign of Sapy's website into a clear, accessible multipage experience for teachers and education professionals.",
-       'seo.project.colorcopy-large-format.title': "Colorcopy — Graphic Design & Digital Marketing | Edoardo Rappanello",
+       'seo.project.colorcopy-large-format.title': "Colorcopy — Graphic Design & SEO | Edoardo Rappanello",
        'seo.project.colorcopy-large-format.description': "In-house graphic design, event communication, catalogues, visual identity and SEO for Colorcopy Large Format.",
-       'seo.project.platinum-technologies.title': "Platinum Technologies — Brand Identity & Digital Marketing | Edoardo Rappanello",
+       'seo.project.platinum-technologies.title': "Platinum Technologies — Brand Identity | Edoardo Rappanello",
        'seo.project.platinum-technologies.description': "In-house visual identity, editorial advertising, website redesign, SEO and digital marketing for Platinum Technologies.",
       '404.title': '404 — Edoardo Rappanello',
        '404.label': "404 / PAGE NOT FOUND",
@@ -119,7 +119,7 @@
        '404.projects': "OPEN PROJECTS.DIR"
     },
     it: {
-       title: "Edoardo Rappanello — Graphic Designer & Digital Marketing Specialist",
+       title: "Edoardo Rappanello — Graphic Design, Web & Marketing",
        description: "Portfolio di Edoardo Rappanello: graphic design, web design, identità visive e digital marketing tra progetti indipendenti e aziendali.",
       'boot.label': 'Caricamento portfolio',
       'boot.kicker': '',
@@ -223,9 +223,9 @@
        'seo.project.pholia.description': "Identità digitale, web design e cubo 3D sviluppato con Three.js per Pholià, con progettazione dei contenuti e sviluppo front-end.",
        'seo.project.sapy.title': "Sapy — Website Redesign | Edoardo Rappanello",
        'seo.project.sapy.description': "Redesign multipagina del sito Sapy per una comunicazione istituzionale, chiara e intuitiva rivolta agli insegnanti.",
-       'seo.project.colorcopy-large-format.title': "Colorcopy — Graphic Design & Digital Marketing | Edoardo Rappanello",
+       'seo.project.colorcopy-large-format.title': "Colorcopy — Graphic Design & SEO | Edoardo Rappanello",
        'seo.project.colorcopy-large-format.description': "Graphic design interno, eventi, cataloghi, identità visiva e SEO per Colorcopy Large Format.",
-       'seo.project.platinum-technologies.title': "Platinum Technologies — Brand Identity & Digital Marketing | Edoardo Rappanello",
+       'seo.project.platinum-technologies.title': "Platinum Technologies — Brand Identity | Edoardo Rappanello",
        'seo.project.platinum-technologies.description': "Brand identity, advertising editoriale, redesign web, SEO e digital marketing per Platinum Technologies.",
       '404.title': '404 — Edoardo Rappanello',
        '404.label': "404 / PAGE NOT FOUND",
