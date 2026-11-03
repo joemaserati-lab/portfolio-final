@@ -30,6 +30,8 @@
      emphasis; these are content headings, not UI labels or metadata. */
   --type-section-label: clamp(24px, 1.9vw, 26px);
   --type-group-heading: clamp(21px, 1.65vw, 23px);
+  --weight-section-label: var(--font-content-subhead-weight);
+  --weight-group-heading: var(--font-content-subhead-weight);
   --type-label: 13px;
   --type-button: 14px;
   --weight-heading: 700;
@@ -119,6 +121,8 @@
   --font-case-title: var(--font-ui);
   --font-case-title-weight: 700;
   --font-resume-heading-weight: 600;
+  --weight-section-label: 700;
+  --weight-group-heading: 700;
   --measure-body: 58ch;
   --type-hero-display: var(--type-h1);
   --type-hero-copy: clamp(16px, 1.12vw, 17px);
@@ -349,20 +353,22 @@ button {
    Do not repeat or override these font roles in workspace component CSS.
    Major CV headings are distinct from utility captions and keep the
    same optical hierarchy at desktop, mobile and short-landscape sizes. */
+.type-section-label,
 .resume-columns .resume-section-title {
   font-family: var(--font-content-subhead);
   font-variation-settings: var(--font-content-subhead-settings);
   font-size: var(--type-section-label);
-  font-weight: var(--weight-heading);
+  font-weight: var(--weight-section-label);
   line-height: var(--leading-subheading);
   letter-spacing: var(--tracking-heading);
   color: var(--bright);
 }
+.type-group-heading,
 .resume-skill-group h4 {
   font-family: var(--font-content-subhead);
   font-variation-settings: var(--font-content-subhead-settings);
   font-size: var(--type-group-heading);
-  font-weight: var(--weight-heading);
+  font-weight: var(--weight-group-heading);
   line-height: var(--leading-subheading);
   letter-spacing: 0;
   color: var(--bright);
