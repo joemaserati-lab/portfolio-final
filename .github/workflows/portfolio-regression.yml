@@ -33,6 +33,7 @@ jobs:
           npm ci --no-audit --no-fund
           npm run build
           npm run check
+          node tests/asset-cache-unit.mjs
       - name: Start preview
         run: |
           (npm run preview -- --host 127.0.0.1 --port 4321 > /tmp/portfolio.log 2>&1 &)
@@ -51,6 +52,7 @@ jobs:
         run: |
           node tests/project-presentation.mjs
           node tests/boot-regression.mjs
+          node tests/asset-delivery-regression.mjs
           node tests/portfolio-regression.mjs
       - name: Verify source and bundle style parity
         env:

@@ -13,8 +13,10 @@ try {
   assert.equal(await iframe.getAttribute('src'),null, `${width}: 404 asset must not load before idle`);
   await page.clock.install();
   await page.evaluate(()=>document.dispatchEvent(new Event('pointermove')));
-  await page.clock.fastForward(60_000);
-  assert(await layer.isVisible(),`${width}: screensaver must activate at 60 seconds`);
+  await page.clock.fastForward(29_999);
+  assert(await layer.isHidden(),`${width}: screensaver must not activate before 30 seconds`);
+  await page.clock.fastForward(1);
+  assert(await layer.isVisible(),`${width}: screensaver must activate at 30 seconds`);
   assert.match(await iframe.getAttribute('src'),/404\.html\?mode=screensaver$/, 'Must reuse the actual 404 page');
   await embedded.locator('.dvd.has-image').waitFor({timeout:25000});
   await page.waitForFunction(()=>document.querySelector('#idle-screensaver-scene').classList.contains('is-ready'));
@@ -42,9 +44,9 @@ try {
   await page.evaluate(()=>document.dispatchEvent(new Event('keydown',{bubbles:true,cancelable:true})));
   assert(await layer.isHidden(),'Keyboard failed to dismiss screensaver');
   // Allow cross-frame focus callbacks to settle, then run beyond the configured
-  // 60s inactivity threshold. The implementation remains exactly 60s.
+  // 30s inactivity threshold. The implementation remains exactly 30s.
   await page.evaluate(()=>document.dispatchEvent(new Event('pointermove',{bubbles:true})));
-  await page.clock.fastForward(65_000);
+  await page.clock.fastForward(35_000);
   assert(await layer.isVisible(),'Screensaver did not re-arm');
   await page.evaluate(()=>window.PortfolioI18n.setLang('it'));
   await page.waitForFunction(()=>document.querySelector('#idle-screensaver-scene').contentDocument?.querySelector('#page-title')?.textContent==='IN PAUSA.');
@@ -53,11 +55,11 @@ try {
   assert(await layer.isHidden(),'Pointer failed to dismiss screensaver');
   await page.emulateMedia({reducedMotion:'reduce'});
   // Media-query responsive changes can dispatch scroll events. Define the
-  // new 60-second idle window from an explicit interaction.
+  // new 30-second idle window from an explicit interaction.
   await page.evaluate(()=>document.dispatchEvent(new Event('pointermove',{bubbles:true})));
   // Run scheduled events in order under the newly changed media query instead
   // of jumping over frame and visibility callbacks in a single clock tick.
-  await page.clock.runFor(65_000);
+  await page.clock.runFor(35_000);
   if (!(await layer.isVisible())) {
     console.log('IDLE REDUCED DEBUG',JSON.stringify(await page.evaluate(()=>({
       documentHidden:document.hidden,visibility:document.visibilityState,

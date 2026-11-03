@@ -162,39 +162,6 @@
     return applicationPromise;
   }
 
-  function preloadImage(src) {
-    return new Promise(resolve => {
-      const image = new Image();
-      image.decoding = 'async';
-      const done = async ok => {
-        image.onload = null;
-        image.onerror = null;
-        if (ok && typeof image.decode === 'function') {
-          try { await image.decode(); } catch {}
-        }
-        resolve({ ok, src });
-      };
-      image.onload = () => done(true);
-      image.onerror = () => done(false);
-      image.src = src;
-      if (image.complete) done(image.naturalWidth > 0);
-    });
-  }
-
-  async function preloadPortfolioImages() {
-    const covers = [...new Set(
-      (window.PORTFOLIO_DATA?.projects || [])
-        .map(project => project?.cover)
-        .filter(Boolean)
-    )];
-    if (!covers.length) return { ok: true, count: 0 };
-    const results = await Promise.all(covers.map(preloadImage));
-    return {
-      ok: results.every(result => result.ok),
-      count: results.length
-    };
-  }
-
   function loadHead() {
     if (headPromise) return headPromise;
     headPromise = new Promise(resolve => {
@@ -321,16 +288,6 @@
     else { startAmbientVideo(); loadCrtRuntime(); }
   }, { once: true });
 
-  function scheduleDeferredCovers() {
-    const start = () => {
-      preloadPortfolioImages().catch?.(() => {});
-    };
-    setTimeout(() => {
-      if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 6000 });
-      else start();
-    }, 900);
-  }
-
   function scheduleDeferredTouchVisuals() {
     const startCrt = () => {
       startAmbientVideo();
@@ -356,7 +313,6 @@
     document.body.classList.add('site-ready');
     window.dispatchEvent(new CustomEvent('portfolio:booted'));
     window.dispatchEvent(new CustomEvent('portfolio:site-ready'));
-    scheduleDeferredCovers();
     scheduleDeferredTouchVisuals();
     loader.remove();
   }

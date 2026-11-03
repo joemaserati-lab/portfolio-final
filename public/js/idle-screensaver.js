@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const WAIT_MS = 60_000;
+  const WAIT_MS = 30_000;
   const layer = document.getElementById('idle-screensaver');
   const scene = document.getElementById('idle-screensaver-scene');
   if (!layer || !scene) return;

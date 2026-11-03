@@ -107,5 +107,32 @@ under #screen, with unchanged scroll docking and rotation. Short portrait homes
 grow naturally so copy never overlaps the head or fixed navigation. Short
 landscape keeps its protected two-column composition. Mobile never attaches the
 ambient CRT video source, so it is neither downloaded nor decoded; desktop
-retains playback. The mobile loader has no minimum timer but still waits for
-typography, application and the head's first rendered frame.
+retains playback. The mobile loader has no minimum timer and waits for typography
+and the application; a responsive poster remains visible while 3D initializes.
+
+## Local typography and responsive assets
+
+The active `doto-mono` mode uses the original variable Doto and JetBrains Mono
+WOFF2 files under `public/assets/font/`, including Latin extended subsets and
+their OFL licenses. `FontResources.astro` shares font declarations and Latin
+preloads between the main shell and the 404/idle scene. Previous type modes remain
+reversible. Mobile image sources use responsive WebP derivatives; desktop keeps
+the original covers/photo and does not download the mobile head poster. Preserve
+the poster's contain geometry, aspect ratio and fade into the live canvas.
+
+## Asset cache and idle timing
+
+GitHub Pages' HTTP cache policy is unchanged. `scripts/build-cache.mjs` generates
+a scoped service worker after the Astro build using SHA-256 asset revisions.
+Registration runs after the homepage is ready. The cache fills only on demand,
+never precaches the media library, and bypasses HTML, video and range requests.
+Only requests tagged with the worker's deployment version may use its cache; new
+page versions and unversioned assets bypass older workers, even while an update waits.
+Responses are cached only when their bytes match the manifest; unavailable
+storage falls back to the network. Updates wait for existing controlled tabs to
+close, and activation removes only obsolete caches from this portfolio's scope.
+Do not add HTML/offline-navigation fallbacks or force updates during a session.
+
+The screensaver starts after exactly 30 seconds without pointer, keyboard, wheel
+or touch activity. Keep existing dismissal, focus restoration, language switching
+and reduced-motion behavior.
