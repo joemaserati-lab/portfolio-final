@@ -91,7 +91,7 @@ const IT = {
     "capabilityGroups": [
       {
         "title": "GRAPHIC & VISUAL DESIGN",
-        "items": "Graphic Design · Brand Identity · Print & Editorial Design · Prestampa Large Format · Exhibition Design"
+        "items": "Graphic Design · Brand Identity · Print & Editorial Design · Prestampa grande formato · Exhibition Design"
       },
       {
         "title": "WEB DESIGN & DEVELOPMENT",
@@ -340,7 +340,7 @@ const IT = {
       "deliverables": "Brand Identity / Advertising / Editorial / Digital Marketing / Events",
       "intro": "Attività continuativa di progettazione grafica, comunicazione e marketing digitale per Platinum Technologies | LIYU Italia, marchio specializzato in tecnologie industriali di fascia alta per la stampa digitale e il taglio di grande formato.",
       "context": "Platinum Technologies si rivolge alle aziende della stampa industriale con soluzioni tecnologiche avanzate e un posizionamento di mercato di fascia alta.\n\nLa comunicazione deve valorizzare innovazione, prestazioni e qualità industriale attraverso un linguaggio visivo coerente con i valori del marchio, mantenendo precisione tecnica e riconoscibilità su tutti i canali.",
-      "direction": "Come Graphic Designer & Marketing Specialist interno, gestisco trasversalmente la comunicazione visiva e digitale dell'azienda, dalla progettazione grafica alla gestione del sito, fino alla realizzazione di campagne pubblicitarie, materiali editoriali, contenuti digitali e allestimenti.\n\nPartendo dal logo preesistente, ho sviluppato l'identità visiva di Platinum Technologies e un sistema di immagine coordinata applicato al sito web, ai cataloghi, ai social media, ai materiali commerciali e alla documentazione aziendale.\n\nIl lavoro ha compreso il redesign del sito e le attività di ottimizzazione SEO, con miglioramenti nel posizionamento organico. Un obiettivo centrale è stato costruire una comunicazione capace di rispecchiare il posizionamento e i valori del marchio.\n\nTra i progetti più rappresentativi rientra una serie di pagine pubblicitarie per riviste specializzate, sviluppata attraverso una direzione grafica comune. La continuità tra composizione, tipografia e trattamento delle immagini permette di mantenere riconoscibile il marchio, adattando i contenuti alle diverse tecnologie presentate.",
+      "direction": "Come Graphic Designer & Marketing Specialist interno, curo la comunicazione visiva e digitale dell'azienda: sito web, campagne pubblicitarie, materiali editoriali, contenuti digitali e allestimenti.\n\nPartendo dal logo preesistente, ho sviluppato l'identità visiva di Platinum Technologies e un sistema di immagine coordinata applicato al sito web, ai cataloghi, ai social media, ai materiali commerciali e alla documentazione aziendale.\n\nIl lavoro ha compreso il redesign del sito e le attività di ottimizzazione SEO, con miglioramenti nel posizionamento organico.\n\nTra i progetti più rappresentativi rientra una serie di pagine pubblicitarie per riviste specializzate, sviluppata attraverso una direzione grafica comune. La continuità tra composizione, tipografia e trattamento delle immagini permette di mantenere riconoscibile il marchio, adattando i contenuti alle diverse tecnologie presentate.",
       "tags": [
         "BRAND IDENTITY",
         "GRAPHIC DESIGN",
@@ -374,7 +374,7 @@ const IT = {
       "proof": {
         "label": "SEO & ORGANIC VISIBILITY",
         "eyebrow": "POSIZIONAMENTO ORGANICO",
-        "text": "Redesign del sito e ottimizzazione SEO, con miglioramenti nel posizionamento organico. I dati interni e le metriche delle campagne non sono pubblicati."
+        "text": "Redesign del sito e ottimizzazione SEO, con miglioramenti nel posizionamento organico."
       },
       "media": [
         {
@@ -414,7 +414,7 @@ const IT = {
       "deliverables": "Brand Identity / Advertising / Catalogue / Digital Marketing / Events",
       "intro": "Attività continuativa di progettazione grafica, comunicazione e marketing digitale per Colorcopy Large Format, azienda specializzata nella vendita, consulenza e assistenza di tecnologie per la stampa digitale professionale.",
       "context": "Colorcopy distribuisce tecnologie di diversi produttori, rivolgendosi a professionisti e aziende con esigenze di stampa differenti. Il suo posizionamento valorizza la consulenza, la competenza tecnica e l'assistenza al cliente.\n\nLa comunicazione comprende la promozione dei prodotti, il supporto alle attività commerciali, la presenza digitale e l'organizzazione di fiere ed eventi, con la necessità di mantenere un'identità riconoscibile attraverso marchi e supporti differenti.",
-      "direction": "Come Graphic Designer & Marketing Specialist interno, gestisco le attività grafiche e di comunicazione dell'azienda, dallo sviluppo dell'identità visiva alla realizzazione di materiali commerciali, campagne pubblicitarie, contenuti digitali e allestimenti.\n\nPartendo dal logo preesistente, ho sviluppato un linguaggio grafico coordinato e ne curo l'applicazione nei diversi strumenti di comunicazione. Il lavoro comprende inoltre lo sviluppo e la gestione del sito web, la produzione di contenuti editoriali, le newsletter e le attività di digital marketing.\n\nParticolare attenzione è dedicata alla SEO, attraverso keyword research, ottimizzazione on-page, miglioramento delle prestazioni del sito e monitoraggio con Google Search Console. Questo lavoro ha contribuito alla crescita del traffico organico, al posizionamento in prima pagina per keyword competitive e all'acquisizione di nuovi contatti commerciali.",
+      "direction": "Come Graphic Designer & Marketing Specialist interno, gestisco le attività grafiche e di comunicazione dell'azienda, dallo sviluppo dell'identità visiva alla realizzazione di materiali commerciali, campagne pubblicitarie, contenuti digitali e allestimenti.\n\nPartendo dal logo preesistente, ho sviluppato un linguaggio grafico coordinato e ne curo l'applicazione nei diversi strumenti di comunicazione. Il lavoro comprende inoltre lo sviluppo e la gestione del sito web, la produzione di contenuti editoriali, le newsletter e le attività di digital marketing.\n\nParticolare attenzione è dedicata alla SEO, attraverso keyword research, ottimizzazione on-page, miglioramento delle prestazioni del sito e monitoraggio con Google Search Console. Questo lavoro ha contribuito alla crescita del traffico organico, al posizionamento in prima pagina per parole chiave competitive e all'acquisizione di nuovi contatti commerciali.",
       "tags": [
         "GRAPHIC DESIGN",
         "VISUAL IDENTITY",
@@ -448,7 +448,7 @@ const IT = {
       "proof": {
         "label": "SEO & ORGANIC GROWTH",
         "eyebrow": "VISIBILITÀ ORGANICA",
-        "text": "Keyword research, ottimizzazione on-page, miglioramento delle prestazioni e monitoraggio con Search Console hanno accompagnato la crescita del traffico organico, il posizionamento in prima pagina per keyword competitive e l'acquisizione di lead, senza esporre metriche riservate."
+        "text": "Ricerca delle parole chiave, ottimizzazione on-page, miglioramento delle prestazioni e monitoraggio con Search Console hanno accompagnato la crescita del traffico organico, il posizionamento in prima pagina per parole chiave competitive e l'acquisizione di contatti."
       },
       "media": [
         {
@@ -567,7 +567,7 @@ const EN = {
     "capabilityGroups": [
       {
         "title": "GRAPHIC & VISUAL DESIGN",
-        "items": "Graphic Design · Brand Identity · Print & Editorial Design · Prestampa Large Format · Exhibition Design"
+        "items": "Graphic Design · Brand Identity · Print & Editorial Design · Large-Format Prepress · Exhibition Design"
       },
       {
         "title": "WEB DESIGN & DEVELOPMENT",
@@ -755,7 +755,7 @@ const EN = {
       "role": "Web Redesign / UI Design / Development",
       "deliverables": "Multipage Website / Information Architecture / UI / Front-End",
       "intro": "Redesign and development of the Sapy website, an AI-powered virtual assistant designed to support teachers in their everyday educational work.",
-      "context": "The previous Sapy website was an improvised, limited online showcase whose content did not adequately represent the project.\n\nThe redesign aimed to turn it into a professional multipage website that could clearly present the product, its features and additional information.\n\nWith teachers as the main audience, the design called for an intuitive, restrained and institutional visual language, prioritising simplicity and readability.",
+      "context": "The previous Sapy website was a simple online showcase with a limited structure and content that did not fully present the project.\n\nThe redesign aimed to turn it into a professional multipage website that could clearly present the product, its features and additional information.\n\nWith teachers as the main audience, the design called for a restrained, professional visual style, prioritising simplicity and readability.",
       "direction": "I redesigned the information architecture, organising content into dedicated pages and sections with a clearer hierarchy between the product, its features and supporting information.\n\nThe interfaces focus on readability, straightforward navigation and visual consistency, avoiding unnecessary decoration in favour of a clear, accessible experience.",
       "tags": [
         "WEB REDESIGN",
@@ -816,7 +816,7 @@ const EN = {
       "deliverables": "Brand Identity / Advertising / Editorial / Digital Marketing / Events",
       "intro": "Ongoing graphic design, communication and digital marketing work for Platinum Technologies | LIYU Italia, a brand specialising in high-end industrial large-format printing and cutting technology.",
       "context": "Platinum Technologies serves industrial print businesses with advanced technology and a high-end market positioning.\n\nCommunication needs to convey innovation, performance and industrial quality through a visual language that reflects the brand's values, with technical accuracy and consistency across channels.",
-      "direction": "As an in-house Graphic Designer & Marketing Specialist, I manage the company's visual and digital communication across graphic design, website management, advertising campaigns, editorial materials, digital content and exhibition graphics.\n\nStarting from the existing logo, I developed the Platinum Technologies visual identity and a coordinated design system applied to the website, catalogues, social media, sales materials and internal documents.\n\nMy work also included a website redesign and SEO improvements that strengthened organic search visibility. The goal was to build communication that matched the brand's positioning and values.\n\nAmong the selected projects is a series of magazine advertisements created with a shared art direction. Consistent composition, typography and image treatment make the brand recognisable while accommodating different technologies and messages.",
+      "direction": "As an in-house Graphic Designer & Marketing Specialist, I work on the company's visual and digital communication: its website, advertising campaigns, editorial materials, digital content and exhibition graphics.\n\nStarting from the existing logo, I developed the Platinum Technologies visual identity and a coordinated design system applied to the website, catalogues, social media, sales materials and internal documents.\n\nMy work also included a website redesign and SEO improvements that strengthened organic search visibility.\n\nAmong the selected projects is a series of magazine advertisements created with a shared art direction. Consistent composition, typography and image treatment make the brand recognisable while accommodating different technologies and messages.",
       "tags": [
         "BRAND IDENTITY",
         "GRAPHIC DESIGN",
@@ -850,7 +850,7 @@ const EN = {
       "proof": {
         "label": "SEO & ORGANIC VISIBILITY",
         "eyebrow": "ORGANIC SEARCH",
-        "text": "The website redesign and SEO work improved organic search visibility. Internal performance figures and campaign metrics are not published."
+        "text": "The website redesign and SEO work improved organic search visibility."
       },
       "media": [
         {
@@ -924,7 +924,7 @@ const EN = {
       "proof": {
         "label": "SEO & ORGANIC GROWTH",
         "eyebrow": "ORGANIC VISIBILITY",
-        "text": "Keyword research, on-page SEO, site performance improvements and Search Console monitoring supported organic traffic growth, first-page rankings for competitive keywords and lead acquisition without publishing confidential metrics."
+        "text": "Keyword research, on-page SEO, site performance improvements and Search Console monitoring supported organic traffic growth, first-page rankings for competitive keywords and lead acquisition."
       },
       "media": [
         {

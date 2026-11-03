@@ -210,7 +210,7 @@
           <p>${esc(t('portfolio.contactCopy'))}</p>
           <div class="contact-links">
             <a class="contact-link" href="mailto:${esc(profile.email)}"><span>EMAIL</span><b>${esc(profile.email)}</b></a>
-            <a class="contact-link" href="${esc(profile.linkedin)}" target="_blank" rel="noopener noreferrer"><span>LINKEDIN</span><b>@edoardorappanello</b></a>
+            <a class="contact-link" href="${esc(profile.linkedin)}" aria-label="${esc(t('contact.linkedinLabel'))}" target="_blank" rel="noopener noreferrer"><span>LINKEDIN</span><b>@edoardorappanello</b></a>
           </div>
         </div>
         <figure class="contact-photo">
@@ -293,7 +293,7 @@
 
   function liveSiteLink(p){
     if(!p.liveUrl) return '';
-    return `<a class="case-live-link" href="${esc(p.liveUrl)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(t('case.visitLive'))} ${esc(p.title)}">${esc(t('case.visitLive'))}</a>`;
+    return `<a class="case-live-link" href="${esc(p.liveUrl)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(t('case.visitLiveLabel').replace('{project}', p.title))}">${esc(t('case.visitLive'))}</a>`;
   }
 
   function renderProjectCase(p){
