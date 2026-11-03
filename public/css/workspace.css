@@ -30,6 +30,13 @@
 .resume-columns{display:grid;grid-template-columns:1fr 1fr;gap:clamp(26px,4vw,56px);border-top:1px solid var(--line);padding-top:clamp(20px,2.5vw,30px)}
 .resume-columns .tags{margin-top:14px}
 
+/* CV skill groups: concise approved taxonomy instead of a long row of chips. */
+.resume-skill-groups{display:grid;gap:clamp(16px,1.8vw,22px);margin-top:16px}
+.resume-skill-group{min-width:0}
+.resume-skill-group h4{margin:0 0 7px;font-family:var(--font-ui);font-size:clamp(14px,1.05vw,16px);font-weight:600;line-height:1.4;color:var(--bright)}
+.resume-skill-group p{margin:0;font-size:16px;line-height:1.6;color:var(--dim);overflow-wrap:anywhere}
+
+
 @media(max-width:1024px){
   .os-window{width:100%!important;height:100%!important;max-width:none!important;max-height:none!important}
   .resume-header{grid-template-columns:1fr;align-items:start}
