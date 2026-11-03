@@ -1,4 +1,4 @@
-/* ASSET_REVISIONS and BUILD_REVISION are injected by scripts/build-cache.mjs.
+/* ASSET_REVISIONS, BUILD_REVISION and DEPLOYMENT_VERSION are injected by scripts/build-cache.mjs.
    No precache or HTML interception. A changed worker waits for existing tabs
    to close, preventing a forced renderer/application update mid-session. */
 const prefix = `portfolio-assets:${new URL(self.registration.scope).pathname}:`;
@@ -20,9 +20,11 @@ self.addEventListener('fetch', event => {
   const url = new URL(request.url);
   const revision = assetRevisions.get(url.pathname);
   if (request.method !== 'GET' || request.mode === 'navigate' ||
-      request.headers.has('range') || url.origin !== self.location.origin || !revision) return;
-  // Ignore incidental version query strings only after selecting an exact
-  // manifest entry. Cache keys are tied to actual bytes, not package versions.
+      request.headers.has('range') || url.origin !== self.location.origin || !revision ||
+      url.searchParams.get('v') !== DEPLOYMENT_VERSION) return;
+  // A new network HTML document may still be controlled by an older worker.
+  // Only serve this deployment's versioned requests; newer/unversioned requests
+  // bypass the worker entirely. Content revisions also validate cache writes.
   const key = new URL(url.pathname, self.location.origin);
   key.searchParams.set('revision', revision);
   event.respondWith((async () => {

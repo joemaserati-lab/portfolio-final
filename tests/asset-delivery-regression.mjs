@@ -55,7 +55,9 @@ try {
   await page.waitForFunction(()=>document.body.classList.contains('site-ready'));
   await page.evaluate(()=>navigator.serviceWorker.ready);
   await page.waitForFunction(()=>navigator.serviceWorker.controller!==null);
-  const asset=new URL('assets/font/Doto-latin-variable.woff2',base).href;
+  const fontUrl=new URL('assets/font/Doto-latin-variable.woff2',base);
+  fontUrl.searchParams.set('v',await page.evaluate(()=>window.PORTFOLIO_ASSET_VERSION));
+  const asset=fontUrl.href;
   assert(await page.evaluate(async url=>(await fetch(url)).ok,asset));
   await page.waitForFunction(async()=>{
     const keys=await caches.keys();

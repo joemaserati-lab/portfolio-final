@@ -126,6 +126,8 @@ GitHub Pages' HTTP cache policy is unchanged. `scripts/build-cache.mjs` generate
 a scoped service worker after the Astro build using SHA-256 asset revisions.
 Registration runs after the homepage is ready. The cache fills only on demand,
 never precaches the media library, and bypasses HTML, video and range requests.
+Only requests tagged with the worker's deployment version may use its cache; new
+page versions and unversioned assets bypass older workers, even while an update waits.
 Responses are cached only when their bytes match the manifest; unavailable
 storage falls back to the network. Updates wait for existing controlled tabs to
 close, and activation removes only obsolete caches from this portfolio's scope.

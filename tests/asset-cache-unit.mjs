@@ -13,7 +13,7 @@ let networkContent=content, networkCalls=0;
 const runtime=readFileSync(new URL('../public/js/asset-cache-worker.js',import.meta.url),'utf8');
 const prefix='portfolio-assets:/portfolio-final/:';
 const sandbox={
-  ASSET_REVISIONS:{'assets/font/test.woff2':revision},BUILD_REVISION:'new',
+  ASSET_REVISIONS:{'assets/font/test.woff2':revision},BUILD_REVISION:'new',DEPLOYMENT_VERSION:'1',
   URL,Uint8Array,crypto:webcrypto,
   self:{registration:{scope},location:{origin:'https://example.test'},
     clients:{claim:async()=>{}},addEventListener:(type,handler)=>handlers[type]=handler},
@@ -40,15 +40,17 @@ assert.deepEqual(deleted,[prefix+'old'],'Only obsolete caches from this scope ma
 assert.equal(await (await request('assets/font/test.woff2?v=1')).text(),content);
 assert.equal(store.size,1,'Matching asset bytes must be cached');
 networkContent='changed deployment';
-assert.equal(await (await request('assets/font/test.woff2?v=2')).text(),content);
-assert.equal(networkCalls,1,'A content revision must reuse its cached bytes across version queries');
+assert.equal(await (await request('assets/font/test.woff2?v=1&extra=query')).text(),content);
+assert.equal(networkCalls,1,'Requests from the same deployment must reuse cached bytes');
+assert.equal(await request('assets/font/test.woff2?v=2'),null,'A new HTML deployment must bypass the previous worker cache');
+assert.equal(await request('assets/font/test.woff2'),null,'Unversioned requests must bypass the cache');
 store.clear();
-assert.equal(await (await request('assets/font/test.woff2')).text(),'changed deployment');
+assert.equal(await (await request('assets/font/test.woff2?v=1')).text(),'changed deployment');
 assert.equal(store.size,0,'Changed bytes must never be cached under the previous content revision');
-assert.equal(await request('assets/font/test.woff2',{headers:{range:'bytes=0-5'}}),null);
+assert.equal(await request('assets/font/test.woff2?v=1',{headers:{range:'bytes=0-5'}}),null);
 assert.equal(await request('videos/test.mp4'),null);
 assert.equal(await request('about/'),null);
 assert.equal(await request('https://other.test/assets/font/test.woff2'),null);
 sandbox.caches.open=async()=>{throw new Error('storage disabled')};
-assert.equal(await (await request('assets/font/test.woff2')).text(),'changed deployment');
+assert.equal(await (await request('assets/font/test.woff2?v=1')).text(),'changed deployment');
 console.log('ASSET CACHE UNIT PASS revision validation, scope cleanup, range/video/HTML bypass, storage fallback');

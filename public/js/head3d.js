@@ -10,6 +10,8 @@ function settleHead(ready, error=null) {
  // isolating shader work from clicks, scrolling, fonts and the UI main thread.
  // Safari/Firefox and unsupported canvas implementations retain the existing
  // main-thread module. Worker failures also fall back to that module.
+const modelUrl = new URL('../assets/models/human_head_reference3.glb', import.meta.url);
+modelUrl.searchParams.set('v', window.PORTFOLIO_ASSET_VERSION);
 const effectUrl = new URL('./head-scan-effect.bundle.js', import.meta.url);
 effectUrl.searchParams.set('v', window.PORTFOLIO_ASSET_VERSION);
 const workerProxyUrl = new URL('./head-worker-proxy.js', import.meta.url);
@@ -105,7 +107,7 @@ if (feature && canvas && screenElement) {
   try {
     effect = mountHeadScanEffect({
       container: feature, canvas,
-      modelUrl: new URL('../assets/models/human_head_reference3.glb', import.meta.url).href,
+      modelUrl: modelUrl.href,
       reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches, onError: fail
     });
     addEventListener('pointermove', onPointerMove, { passive: true });
