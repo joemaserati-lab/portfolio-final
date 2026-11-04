@@ -14,9 +14,7 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - 'astro.config.mjs'
-      - '.github/workflows/astro-build.yml'
-      - '.github/workflows/astro-pages.yml'
-      - '.github/workflows/lighthouse-audit.yml'
+      - '.github/workflows/**'
   workflow_dispatch:
 
 permissions:
