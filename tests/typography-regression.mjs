@@ -82,6 +82,16 @@ try {
         return {majorSize:parseFloat(majorStyle.fontSize),majorFamily:majorStyle.fontFamily,
           majorWeight:Number(majorStyle.fontWeight),glyph:glyphStyle.content,glyphColor:glyphStyle.color,groups};
       }),
+      cvRoleHierarchy:[...document.querySelectorAll('#scroll-resume .resume-row .resume-role')].map(role=>{
+        const company=role.nextElementSibling;
+        const rs=getComputedStyle(role), cs=getComputedStyle(company);
+        return {size:parseFloat(rs.fontSize),weight:Number(rs.fontWeight),
+          family:rs.fontFamily,companySize:parseFloat(cs.fontSize)};
+      }),
+      readerCvRoleHierarchy:[...document.querySelectorAll('.static-reader .reader-resume-role')].map(el=>({
+        size:parseFloat(getComputedStyle(el).fontSize),
+        weight:Number(getComputedStyle(el).fontWeight)
+      })),
       readerSkillHierarchy:{
         headings:[...document.querySelectorAll('.static-reader .reader-skill-heading')].map(el=>({
           family:getComputedStyle(el).fontFamily,
@@ -141,22 +151,30 @@ try {
    if(route!=='404.html' && result.mode==='doto-mono') {
      assert.equal(result.cvSkillHierarchy.length,2,`${width} ${route}: CV must have two skill/tool columns`);
      assert(result.cvSkillHierarchy.every(section=>
-       section.majorSize>=25 && section.majorWeight>=600 && section.majorFamily.includes('Doto') &&
+       section.majorSize>=19 && section.majorSize<=20.1 &&
+       section.majorWeight===700 && section.majorFamily.includes('Doto') &&
        section.glyph.includes('•') && section.glyphColor==='rgb(255, 45, 58)' &&
        section.groups.length>=3 && section.groups.every(group=>
-         section.majorSize>group.headingSize && group.headingSize>=22 &&
-         group.headingSize>group.copySize+3 && group.copySize>=17 &&
-         group.headingWeight>=600 && group.copyWeight===500 &&
+         section.majorSize>group.headingSize &&
+         group.headingSize>=17 && group.headingSize<=18.1 &&
+         group.headingSize>group.copySize && group.copySize===16 &&
+         group.headingWeight===600 && group.copyWeight===500 &&
          group.headingFamily.includes('Doto') && group.copyFamily.includes('Doto')
        )
-     ),`${width} ${route}: Doto-only CV taxonomy hierarchy or red section bullets incorrect: ${JSON.stringify(result.cvSkillHierarchy)}`);
+     ),`${width} ${route}: CV Doto section/group/copy size or glyph hierarchy is incorrect: ${JSON.stringify(result.cvSkillHierarchy)}`);
+     assert(result.cvRoleHierarchy.length===8 && result.cvRoleHierarchy.every(role=>
+       role.size>=18 && role.size<=19.1 && role.size>role.companySize &&
+       role.weight===600 && role.family.includes('Doto')
+     ),`${width} ${route}: CV professional roles must be compact and larger than the company line: ${JSON.stringify(result.cvRoleHierarchy)}`);
      if(route==='resume/') {
        assert(result.readerSkillHierarchy.headings.length===4 &&
          result.readerSkillHierarchy.headings.every(x=>
            x.family.includes('Doto') && x.glyph.includes('•') && x.glyphColor==='rgb(255, 45, 58)') &&
          result.readerSkillHierarchy.groupBodies.length===14 &&
-         result.readerSkillHierarchy.groupBodies.every(x=>x.family.includes('Doto') && x.size>=17),
-         `${width} ${route}: no-JS fallback skill taxonomy must use Doto and matching red bullets`);
+         result.readerSkillHierarchy.groupBodies.every(x=>x.family.includes('Doto') && x.size===16) &&
+         result.readerCvRoleHierarchy.length===6 &&
+         result.readerCvRoleHierarchy.every(x=>x.size>=18 && x.size<=19.1 && x.weight===600),
+         `${width} ${route}: no-JS fallback CV typography does not match interactive roles and skills`);
      } else {
        assert.equal(result.readerSkillHierarchy.headings.length,0,
          `${width} ${route}: fallback skills should render only on the resume route`);
