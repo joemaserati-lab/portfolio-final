@@ -131,13 +131,14 @@
   --font-case-title: var(--font-ui);
   --font-case-title-weight: 700;
   --font-resume-heading-weight: 600;
-  /* The CV belongs to the information hierarchy, not the display scale.
-     Heading 19–20 > role 18–19 > group heading 17–18 > tool/skill copy 16.
-     Keep Doto throughout the taxonomy and retain the two red section glyphs. */
+  /* One CV hierarchy, independent of the large editorial headlines:
+     section labels (Experience/Education/Skills/Tools) 15–16px,
+     professional roles and skill categories 18–19px,
+     company names and skill/tool lists 16px. */
   --type-resume-role: clamp(18px, 1.30vw, 19px);
-  --type-section-label: clamp(19px, 1.48vw, 20px);
-  --type-group-heading: clamp(17px, 1.33vw, 18px);
-  --weight-section-label: 700;
+  --type-section-label: clamp(15px, 1.12vw, 16px);
+  --type-group-heading: var(--type-resume-role);
+  --weight-section-label: 600;
   --weight-group-heading: 600;
   --font-skill-reading: var(--font-ui);
   --font-skill-reading-settings: normal;
