@@ -57,6 +57,19 @@ try {
    });
    await page.locator('#crt-head-feature').screenshot({path:path.join(out,prefix+'-model-frame.png'),animations:'disabled'});
    await page.screenshot({path:path.join(out,prefix+'-model-page.png'),animations:'disabled'});
+   // Extract a raw renderer frame against both black and white backgrounds.
+   await page.addStyleTag({content:[
+     'html,body{background:#000!important;background-image:none!important}',
+     '#screen,#desktop,#crt-head-feature{background:transparent!important;background-image:none!important;box-shadow:none!important}',
+     '#crt-head-feature{opacity:1!important}',
+     '.noise,.scanlines,.screen-reflection,.edge-light,.scroll-index,.crt-head-poster{visibility:hidden!important}',
+     '#screen::before,#screen::after,#desktop::before,#desktop::after{content:none!important}'
+   ].join('')});
+   await page.locator('#crt-head-canvas').screenshot({path:path.join(out,prefix+'-model-black.png'),animations:'disabled'});
+   try{await page.locator('#crt-head-canvas').screenshot({path:path.join(out,prefix+'-model-alpha.png'),animations:'disabled',omitBackground:true});}
+   catch(err){console.warn('Alpha canvas capture unavailable',String(err));}
+   await page.evaluate(()=>{document.documentElement.style.setProperty('background','#fff','important');document.body.style.setProperty('background','#fff','important')});
+   await page.locator('#crt-head-canvas').screenshot({path:path.join(out,prefix+'-model-white.png'),animations:'disabled'});
    await writeFile(path.join(out,prefix+'-measure.json'),
      JSON.stringify({poster:posterGeometry,model:modelGeometry,errors},null,2));
    console.log('CAPTURE OK',prefix,source,JSON.stringify({poster:posterGeometry.head,model:modelGeometry.headRect}));
