@@ -360,7 +360,7 @@
       } else {
         await Promise.all([applicationReady, domReady, fontsReady, ...(mobileLayout.matches && !initialCase ? [] : [headReady])]);
       }
-        setProgressTarget(100);
+      setProgressTarget(100);
       progressValue = 100;
       drawProgress();
       try { sessionStorage.setItem('portfolioBootSeen', '1'); } catch {}
