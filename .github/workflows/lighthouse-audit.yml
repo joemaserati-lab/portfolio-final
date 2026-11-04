@@ -1,8 +1,5 @@
 name: Lighthouse Audit
 on:
-  workflow_run:
-    workflows: ["Deploy Astro to Pages"]
-    types: [completed]
   workflow_dispatch:
 permissions:
   contents: read
