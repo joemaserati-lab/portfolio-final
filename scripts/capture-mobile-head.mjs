@@ -63,7 +63,8 @@ try {
      '#screen,#desktop,#crt-head-feature{background:transparent!important;background-image:none!important;box-shadow:none!important}',
      '#crt-head-feature{opacity:1!important}',
      '.noise,.scanlines,.screen-reflection,.edge-light,.scroll-index,.crt-head-poster{visibility:hidden!important}',
-     '#screen::before,#screen::after,#desktop::before,#desktop::after{content:none!important}'
+     '#screen::before,#screen::after,#desktop::before,#desktop::after{content:none!important}',
+     '#screen > :not(#crt-head-feature){visibility:hidden!important}'
    ].join('')});
    await page.locator('#crt-head-canvas').screenshot({path:path.join(out,prefix+'-model-black.png'),animations:'disabled'});
    try{await page.locator('#crt-head-canvas').screenshot({path:path.join(out,prefix+'-model-alpha.png'),animations:'disabled',omitBackground:true});}
