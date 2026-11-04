@@ -33,7 +33,7 @@ const paragraphs = value => [].concat(value || []).flatMap(text => String(text).
       <h2 class="reader-skill-heading reader-skill-heading--framed">{labels.capabilities}</h2>{resume.capabilityGroups
         ? resume.capabilityGroups.map(group => <section class="reader-skill-group"><h3>{group.title}</h3><p>{group.items}</p></section>)
         : <div class="reader-skills">{resume.capabilities.map(item => <span>{item}</span>)}</div>}
-        <h2 class="reader-skill-heading">{labels.tools}</h2>{resume.toolGroups
+        <h2 class="reader-skill-heading reader-skill-heading--framed">{labels.tools}</h2>{resume.toolGroups
         ? resume.toolGroups.map(group => <section class="reader-skill-group"><h3>{group.title}</h3><p>{group.items}</p></section>)
         : <div class="reader-skills">{resume.tools.map(item => <span>{item}</span>)}</div>}
     </>}
