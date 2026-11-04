@@ -51,7 +51,10 @@
     inset:0;
     width:100%;
     height:100%;
-    object-fit:contain;
+    /* Each WebP is rendered from the same camera/pose as its matching
+       mobile WebGL viewport. Fill the exact canvas rect instead of using
+       a portrait image's old aspect ratio and introducing side margins. */
+    object-fit:fill;
     object-position:center;
     pointer-events:none;
     opacity:1;

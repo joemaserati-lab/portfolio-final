@@ -24,9 +24,10 @@ const assetVersion = packageInfo.version;
 const asset = path => `${path}?v=${assetVersion}`;
 const mobileHeadSrcset = [
   ['mobile-head-poster-mobile-360.webp', 360],
-  ['mobile-head-poster-mobile-540.webp', 540],
-  ['mobile-head-poster.webp', 749]
+  ['mobile-head-poster-mobile-540.webp', 540]
 ].map(([name, width]) => `${asset(`assets/images/${name}`)} ${width}w`).join(', ');
+const mobileHeadSmall = asset('assets/images/mobile-head-poster-mobile-320.webp');
+const mobileHeadLandscape = asset('assets/images/mobile-head-poster-mobile-landscape.webp');
 const mobileHeadSizes = '(orientation: portrait) min(calc(100vw - 80px), clamp(127px, 29.96svh, 285px)), 35vw';
 const basePath = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 const rootUrl = new URL(basePath, Astro.site ?? Astro.url.origin);
@@ -103,7 +104,9 @@ const ogImageUrl = new URL(ogImage, rootUrl);
     <!-- Keep the large main-thread Three.js bundle out of the preload chain:
          Chromium uses the Worker bundle and fallback browsers request it on demand. -->
     <link rel="preload" href={asset('assets/models/human_head_reference3.glb')} as="fetch" crossorigin="anonymous" fetchpriority="high" media="(min-width: 1025px)" />
-    <link rel="preload" href={asset('assets/images/mobile-head-poster-mobile-360.webp')} imagesrcset={mobileHeadSrcset} imagesizes={mobileHeadSizes} as="image" type="image/webp" fetchpriority="high" media="(max-width: 1024px)" />
+    <link rel="preload" href={mobileHeadSmall} as="image" type="image/webp" fetchpriority="high" media="(max-width: 340px) and (orientation: portrait)" />
+    <link rel="preload" href={mobileHeadLandscape} as="image" type="image/webp" fetchpriority="high" media="(max-width: 1024px) and (orientation: landscape)" />
+    <link rel="preload" href={asset('assets/images/mobile-head-poster-mobile-360.webp')} imagesrcset={mobileHeadSrcset} imagesizes={mobileHeadSizes} as="image" type="image/webp" fetchpriority="high" media="(min-width: 341px) and (max-width: 1024px) and (orientation: portrait)" />
   </>}
   {!import.meta.env.PROD && <link rel="stylesheet" href={asset('css/idle-screensaver.css')} />}
   <FontResources />
@@ -147,7 +150,9 @@ const ogImageUrl = new URL(ogImage, rootUrl);
         <div class="desktop" id="desktop">
           <div class="crt-head-feature" id="crt-head-feature" aria-hidden="true">
             <picture>
-              <source media="(max-width: 1024px)" srcset={mobileHeadSrcset} sizes={mobileHeadSizes} type="image/webp" />
+              <source media="(max-width: 1024px) and (orientation: landscape)" srcset={mobileHeadLandscape} type="image/webp" />
+              <source media="(max-width: 340px) and (orientation: portrait)" srcset={mobileHeadSmall} type="image/webp" />
+              <source media="(max-width: 1024px) and (orientation: portrait)" srcset={mobileHeadSrcset} sizes={mobileHeadSizes} type="image/webp" />
               <img class="crt-head-poster" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='749' height='1000'/%3E" width="749" height="1000" alt="" loading="eager" decoding="async" fetchpriority="high" draggable="false" />
             </picture>
             <canvas id="crt-head-canvas"></canvas>

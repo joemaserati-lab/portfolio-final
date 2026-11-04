@@ -186,15 +186,15 @@ try {
    assert(await progressive.locator('.hero-intro h1').isVisible(),'Mobile H1 should appear before WebGL');
    assert(await progressive.locator('.crt-head-poster').evaluate(e=>e.complete&&e.naturalWidth>0),'Mobile poster must load');
    const poster=progressive.locator('.crt-head-poster');
-   const source=progressive.locator('#crt-head-feature picture source');
+   const source=progressive.locator('#crt-head-feature picture source[media*="orientation: portrait"]').last();
    const posterSource=await poster.evaluate(e=>e.currentSrc);
-   assert(/mobile-head-poster(?:-mobile-(?:360|540))?\.webp$/.test(new URL(posterSource).pathname),'Mobile poster must select a responsive WebP');
+   assert(/mobile-head-poster-mobile-(?:360|540)\.webp$/.test(new URL(posterSource).pathname),'Mobile poster must select a responsive WebP');
    assert.deepEqual(await poster.evaluate(e=>[e.getAttribute('width'),e.getAttribute('height')]),['749','1000'],'Mobile poster must retain its intrinsic aspect ratio');
-   const preload=progressive.locator('link[rel="preload"][as="image"][href*="mobile-head-poster"]');
+   const preload=progressive.locator('link[rel="preload"][as="image"][imagesrcset*="mobile-head-poster"]');
    assert.equal(await preload.getAttribute('imagesrcset'),await source.getAttribute('srcset'),'Preload and image must select the same variant');
    assert.equal(await preload.getAttribute('imagesizes'),await source.getAttribute('sizes'));
    assert.equal(await preload.getAttribute('type'),'image/webp');
-   assert.equal(await preload.getAttribute('media'),'(max-width: 1024px)');
+   assert.equal(await preload.getAttribute('media'),'(min-width: 341px) and (max-width: 1024px) and (orientation: portrait)');
    assert(await progressive.locator('#crt-head-feature').isVisible(),'Mobile poster must be visible during slow WebGL startup');
  } finally {releaseModule()}
  await progressive.waitForFunction(()=>window.__portfolioHeadState?.ready&&document.querySelector('#crt-head-feature')?.classList.contains('is-ready'),null,{timeout:30000});
