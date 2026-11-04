@@ -62,6 +62,7 @@
   --type-reading-lead: var(--type-body-lg);
   --type-lead: var(--type-body-lg);
   --type-subhead: var(--type-h3);
+  --type-resume-role: var(--type-subhead);
   --type-number: clamp(24px, calc(21px + .6vw), 32px);
   --type-heading: var(--type-h2);
   --type-project-title: clamp(23px, 1.81vw, 26px);
@@ -130,11 +131,17 @@
   --font-case-title: var(--font-ui);
   --font-case-title-weight: 700;
   --font-resume-heading-weight: 600;
+  /* The CV belongs to the information hierarchy, not the display scale.
+     Heading 19–20 > role 18–19 > group heading 17–18 > tool/skill copy 16.
+     Keep Doto throughout the taxonomy and retain the two red section glyphs. */
+  --type-resume-role: clamp(18px, 1.30vw, 19px);
+  --type-section-label: clamp(19px, 1.48vw, 20px);
+  --type-group-heading: clamp(17px, 1.33vw, 18px);
   --weight-section-label: 700;
-  --weight-group-heading: 700;
+  --weight-group-heading: 600;
   --font-skill-reading: var(--font-ui);
   --font-skill-reading-settings: normal;
-  --type-skill-reading: clamp(17px, 1.3vw, 18px);
+  --type-skill-reading: 16px;
   --weight-skill-reading: 500;
   --leading-skill-reading: 1.5;
   --tracking-skill-reading: .005em;
@@ -346,7 +353,7 @@ button {
 }
 .resume-row :is(h3, h4) {
   font-weight: var(--font-resume-heading-weight);
-  font-size: var(--type-subhead);
+  font-size: var(--type-resume-role);
   line-height: 1.35;
   margin-bottom: 8px;
 }
@@ -486,7 +493,9 @@ button {
   letter-spacing: .005em;
   overflow-wrap: anywhere;
 }
-:root[data-typography="doto-mono"] .resume-row :is(h3, h4) {
+:root[data-typography="doto-mono"] .resume-row :is(h3, h4),
+:root[data-typography="doto-mono"] .static-reader .reader-resume-role {
+  font-size: var(--type-resume-role);
   font-weight: 600;
   line-height: 1.3;
 }
