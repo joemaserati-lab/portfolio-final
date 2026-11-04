@@ -384,9 +384,9 @@ button {
   font-variation-settings: var(--font-content-subhead-settings);
   font-size: var(--type-section-label);
   font-weight: var(--weight-section-label);
-  line-height: var(--leading-subheading);
-  letter-spacing: var(--tracking-heading);
-  color: var(--bright);
+  line-height: 1.4;
+  letter-spacing: .035em;
+  color: var(--dim);
 }
 .type-group-heading,
 .resume-skill-group h4,
