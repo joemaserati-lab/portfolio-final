@@ -25,7 +25,11 @@ try {
       },kind);
       assert(geometry.top>=geometry.edge+12,`${kind} title clipped at ${width}: ${JSON.stringify(geometry)}`);
       assert(await page.locator('#privacy-panel').isHidden(),'Unconfigured analytics opened automatically');
-      assert(await page.locator(`#scroll-${kind} .window-body p`).evaluateAll(nodes=>nodes.every(node=>parseFloat(getComputedStyle(node).fontSize)>=16)),'Reading text shrank below 16px');
+      // CV skill lists intentionally use the same 13px metadata type as
+      // BRESCIA, ITALIA. Only long-form paragraphs require 16px minimum.
+      assert(await page.locator(`#scroll-${kind} .window-body p`).evaluateAll(nodes=>
+        nodes.every(node=>node.closest('.resume-skill-group') || parseFloat(getComputedStyle(node).fontSize)>=16)
+      ),'Long-form reading text shrank below 16px');
       if(process.env.QA_DIR&&width===390){await page.locator(`#scroll-${kind} .scroll-window.is-revealed`).waitFor();await page.locator('.scroll-index').evaluate(el=>Promise.all(el.getAnimations({subtree:true}).map(animation=>animation.finished)));await mkdir(process.env.QA_DIR,{recursive:true});await page.screenshot({path:`${process.env.QA_DIR}/${kind}-390.png`});}
     }
     await page.goto(new URL('work/',base).href);

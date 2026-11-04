@@ -19,8 +19,18 @@ try {
    if(route==='') await page.waitForFunction(()=>window.__portfolioHeadState?.ready);
    const result=await page.evaluate(()=>{
     const check=(selector,min)=>[...document.querySelectorAll(selector)].filter(e=>e.getBoundingClientRect().width&&e.getBoundingClientRect().height).filter(e=>parseFloat(getComputedStyle(e).fontSize)<min).map(e=>({selector:e.className,size:getComputedStyle(e).fontSize}));
-    const reading='.window-body p,.case-story-copy p,.case-output-list p,.case-facts-v2 dd,.case-role-v2>p,.privacy-panel p,.scene__copy p';
     const mode=document.documentElement.dataset.typography;
+    // Doto skill/tool lists have the same type role as CV location metadata.
+    const reading=mode==='doto-mono'
+      ? '.window-body p:not(.resume-skill-group p),.case-story-copy p,.case-output-list p,.case-facts-v2 dd,.case-role-v2>p,.privacy-panel p,.scene__copy p'
+      : '.window-body p,.case-story-copy p,.case-output-list p,.case-facts-v2 dd,.case-role-v2>p,.privacy-panel p,.scene__copy p';
+    const cvType=element=>{
+      if(!element)return null;
+      const computed=getComputedStyle(element);
+      return Object.fromEntries(['fontFamily','fontSize','fontWeight','lineHeight','letterSpacing','fontVariationSettings'].map(k=>[k,computed[k]]));
+    };
+    const bbsRow=[...document.querySelectorAll('#scroll-resume .resume-row')].find(el=>
+      el.querySelector('strong')?.textContent.trim()==='BBS SOFTWARE');
     const readingElements=[...document.querySelectorAll(reading)].filter(e=>
       mode!=='doto-mono' || !e.matches('.case-role-v2>p,.case-facts-v2>div:first-child dd,.resume-skill-group p')
     );
@@ -70,6 +80,21 @@ try {
         beforeColor:getComputedStyle(e,'::before').color,
         afterColor:getComputedStyle(e,'::after').color
       })),
+      cvExperienceReference:bbsRow?{
+        role:cvType(bbsRow.querySelector('.resume-role')),
+        company:cvType(bbsRow.querySelector('strong')),
+        location:cvType(bbsRow.querySelector('small'))
+      }:null,
+      cvSkillsType:[...document.querySelectorAll('#scroll-resume .resume-columns > section')].map(section=>({
+        section:cvType(section.querySelector('.resume-section-title')),
+        categories:[...section.querySelectorAll('.resume-skill-group h4')].map(cvType),
+        items:[...section.querySelectorAll('.resume-skill-group p')].map(cvType)
+      })),
+      staticSkillsType:[...document.querySelectorAll('.static-reader[data-reader-lang]')].map(reader=>({
+        sections:[...reader.querySelectorAll('.reader-skill-heading')].map(cvType),
+        categories:[...reader.querySelectorAll('.reader-skill-group h3')].map(cvType),
+        items:[...reader.querySelectorAll('.reader-skill-group p')].map(cvType)
+      })),
       cvSkillHierarchy:[...document.querySelectorAll('#scroll-resume .resume-columns > section')].map(section=>{
         const major=section.querySelector('.resume-section-title');
         const majorStyle=getComputedStyle(major);
@@ -94,11 +119,28 @@ try {
         size:parseFloat(getComputedStyle(el).fontSize),
         weight:Number(getComputedStyle(el).fontWeight)
       })),
+      cvCategoryGlyphs:[...document.querySelectorAll('#scroll-resume .resume-skill-group h4')].map(el=>({
+        prefix:getComputedStyle(el,'::before').content,
+        color:getComputedStyle(el,'::before').color,
+        suffix:getComputedStyle(el,'::after').content
+      })),
       readerSkillHierarchy:{
         headings:[...document.querySelectorAll('.static-reader .reader-skill-heading')].map(el=>({
           family:getComputedStyle(el).fontFamily,
+          framed:el.classList.contains('reader-skill-heading--framed'),
           glyph:getComputedStyle(el,'::before').content,
-          glyphColor:getComputedStyle(el,'::before').color
+          glyphColor:getComputedStyle(el,'::before').color,
+          suffix:getComputedStyle(el,'::after').content,
+          suffixColor:getComputedStyle(el,'::after').color
+        })),
+        education:[...document.querySelectorAll('.static-reader .reader-education-heading')].map(el=>({
+          prefix:getComputedStyle(el,'::before').content,
+          suffix:getComputedStyle(el,'::after').content,
+          color:getComputedStyle(el,'::before').color
+        })),
+        categoryGlyphs:[...document.querySelectorAll('.static-reader .reader-skill-group h3')].map(el=>({
+          glyph:getComputedStyle(el,'::before').content,
+          color:getComputedStyle(el,'::before').color
         })),
         groupBodies:[...document.querySelectorAll('.static-reader .reader-skill-group p')].map(el=>({
           family:getComputedStyle(el).fontFamily,size:parseFloat(getComputedStyle(el).fontSize)
@@ -152,32 +194,64 @@ try {
    assert(result.cvHierarchy,`${route}: CV hierarchy must be H2/H3/H4`);
    if(route!=='404.html' && result.mode==='doto-mono') {
      assert.equal(result.cvSkillHierarchy.length,2,`${width} ${route}: CV must have two skill/tool columns`);
+     assert(result.cvExperienceReference && result.cvSkillsType.length===2,
+       `${width} ${route}: reference BBS SOFTWARE or skill columns missing`);
+     // Compare all computed type properties, rather than inventing another
+     // scale and testing a few arbitrary numeric intervals.
+     const matches=(x,y)=>x&&y&&Object.keys(y).every(k=>x[k]===y[k]);
+     assert(result.cvSkillsType.every(section=>
+       matches(section.section,result.cvExperienceReference.role) &&
+       section.categories.length>=3 &&
+       section.categories.every(x=>matches(x,result.cvExperienceReference.company)) &&
+       section.items.every(x=>matches(x,result.cvExperienceReference.location))
+     ),`${width} ${route}: Skills/Tools must match the actual BBS experience type roles: ${JSON.stringify({reference:result.cvExperienceReference,skills:result.cvSkillsType})}`);
      assert(result.cvSkillHierarchy.every(section=>
-       section.majorSize>=15 && section.majorSize<=16.1 &&
+       section.majorSize>=18 && section.majorSize<=19.1 &&
        section.majorWeight===600 && section.majorFamily.includes('Doto') &&
        section.glyph.includes('•') && section.glyphColor==='rgb(255, 45, 58)' &&
        section.groups.length>=3 && section.groups.every(group=>
-         group.headingSize>section.majorSize &&
-         group.headingSize>=18 && group.headingSize<=19.1 &&
-         group.headingSize>group.copySize && group.copySize===16 &&
-         group.headingWeight===600 && group.copyWeight===500 &&
+         group.headingSize>=16 && group.headingSize<=17.1 &&
+         group.headingSize>group.copySize && group.copySize===13 &&
+         group.headingWeight===500 && group.copyWeight===500 &&
          group.headingFamily.includes('Doto') && group.copyFamily.includes('Doto')
        )
      ),`${width} ${route}: CV Doto section/group/copy size or glyph hierarchy is incorrect: ${JSON.stringify(result.cvSkillHierarchy)}`);
      assert(result.resumeHeadings.length===4 &&
-       result.resumeHeadings.every(h=>h.size>=15 && h.size<=16.1 && h.weight===600) &&
-       result.resumeHeadings.every(h=>Math.abs(h.size-result.resumeHeadings[0].size)<.1),
-       `${width} ${route}: Experience, Education, Skills and Software must share the same section-label scale`);
+       result.resumeHeadings.slice(0,2).every(h=>h.size>=15 && h.size<=16.1 && h.weight===600) &&
+       result.resumeHeadings.slice(2).every(h=>h.size>=18 && h.size<=19.1 && h.weight===600),
+       `${width} ${route}: Skill section headings must match the role style, not the small Experience label`);
+     assert(result.cvCategoryGlyphs.length===7 &&
+       result.cvCategoryGlyphs.every(x=>x.prefix.includes('•') &&
+         x.color==='rgb(255, 45, 58)' && (x.suffix==='none'||x.suffix==='normal')),
+       `${width} ${route}: every Skills and Software category needs one red bullet`);
      assert(result.cvRoleHierarchy.length===8 && result.cvRoleHierarchy.every(role=>
        role.size>=18 && role.size<=19.1 && role.size>role.companySize &&
        role.weight===600 && role.family.includes('Doto')
      ),`${width} ${route}: CV professional roles must be compact and larger than the company line: ${JSON.stringify(result.cvRoleHierarchy)}`);
      if(route==='resume/') {
        assert(result.readerSkillHierarchy.headings.length===4 &&
-         result.readerSkillHierarchy.headings.every(x=>
-           x.family.includes('Doto') && x.glyph.includes('•') && x.glyphColor==='rgb(255, 45, 58)') &&
+         result.readerSkillHierarchy.headings.every((x,i)=>
+           x.family.includes('Doto') &&
+           (i%2===0
+             ? x.framed && x.glyph.includes('[') && x.suffix.includes(']') &&
+               x.glyphColor==='rgb(255, 45, 58)' && x.suffixColor==='rgb(255, 45, 58)'
+             : !x.framed && x.glyph.includes('•') && x.glyphColor==='rgb(255, 45, 58)')) &&
+         result.readerSkillHierarchy.education.length===2 &&
+         result.readerSkillHierarchy.education.every(x=>x.prefix.includes('[') && x.suffix.includes(']') &&
+           x.color==='rgb(255, 45, 58)') &&
+         result.readerSkillHierarchy.categoryGlyphs.length===14 &&
+         result.readerSkillHierarchy.categoryGlyphs.every(x=>x.glyph.includes('•') && x.color==='rgb(255, 45, 58)') &&
          result.readerSkillHierarchy.groupBodies.length===14 &&
-         result.readerSkillHierarchy.groupBodies.every(x=>x.family.includes('Doto') && x.size===16) &&
+         result.readerSkillHierarchy.groupBodies.every(x=>x.family.includes('Doto') && x.size===13) &&
+         result.staticSkillsType.length===2 &&
+         result.staticSkillsType.every(reader=>
+           reader.sections.length===2 &&
+           reader.sections.every(x=>matches(x,result.cvExperienceReference.role)) &&
+           reader.categories.length===7 &&
+           reader.categories.every(x=>matches(x,result.cvExperienceReference.company)) &&
+           reader.items.length===7 &&
+           reader.items.every(x=>matches(x,result.cvExperienceReference.location))
+         ) &&
          result.readerCvRoleHierarchy.length===12 &&
          result.readerCvRoleHierarchy.every(x=>x.size>=18 && x.size<=19.1 && x.weight===600),
          `${width} ${route}: no-JS fallback CV typography does not match interactive roles and skills`);
@@ -202,13 +276,13 @@ try {
      assert(result.resumePeriods.length===8 && result.resumePeriods.every(x=>x.join('')==='•'),`${route}: CV years are missing red bullet`);
      assert(result.resumeLocations.length===6 && result.resumeLocations.every(x=>x.length===0),`${route}: CV locations must be unmarked`);
      assert(result.resumeHeadings.length===4 &&
-       result.resumeHeadings.every((x,i)=>i<2
+       result.resumeHeadings.every((x,i)=>i<3
          ? x.framed && x.prefix.includes('[') && x.suffix.includes(']') &&
            x.beforeColor==='rgb(255, 45, 58)' && x.afterColor==='rgb(255, 45, 58)'
          : !x.framed && x.prefix.includes('•') &&
            x.beforeColor==='rgb(255, 45, 58)' &&
            (x.suffix==='none' || x.suffix==='normal')),
-       `${route}: CV must have square brackets on experience/education and one red bullet on each skill section`);
+       `${route}: Experience, Education and Skills need red brackets; Software keeps its red bullet`);
      if(width>=1025) assert(result.desktopCvCopy.length>0 && result.desktopCvCopy.every(x=>
        x.available>0 && x.measure>=x.available-2),`${width} ${route}: desktop CV paragraphs are still width-limited ${JSON.stringify(result.desktopCvCopy)}`);
      assert(!result.contactHeading?.endsWith('.'),`${route}: contact title contains redundant punctuation`);
@@ -288,6 +362,23 @@ try {
     await mkdir(process.env.QA_DIR,{recursive:true});
     if(route!=='404.html') await page.waitForFunction(()=>!document.body.classList.contains('site-entering'));
     await page.screenshot({path:`${process.env.QA_DIR}/${route===''?'home':route==='404.html'?'404':'resume'}-${width}.png`});
+    // Actual production layout previews for design approval before merge.
+    // Capture the reference experience and both skill columns at desktop/mobile.
+    if(route==='resume/' && [390,1440].includes(width)) {
+      for(const [focus,name] of [['bbs','bbs-reference'],['skills','cv-skills'],['software','cv-software']]) {
+        await page.evaluate(focus=>{
+          const viewport=document.querySelector('#scroll-viewport');
+          const target=focus==='bbs'
+            ? [...document.querySelectorAll('#scroll-resume .resume-row')].find(row=>
+                row.querySelector('strong')?.textContent.trim()==='BBS SOFTWARE')
+            : document.querySelector('#scroll-resume .resume-columns > section:'+(focus==='skills'?'first':'last')+'-child');
+          if(!viewport||!target)throw Error('CV preview target missing: '+focus);
+          viewport.scrollTop+=target.getBoundingClientRect().top-viewport.getBoundingClientRect().top-90;
+        },focus);
+        await page.waitForTimeout(350);
+        await page.screenshot({path:`${process.env.QA_DIR}/${name}-${width}.png`});
+      }
+    }
    }
   }
   await page.close();console.log('TYPOGRAPHY PASS',width,height,'reading, interface, captions, 404, overflow');

@@ -165,6 +165,11 @@ body { color: var(--white); }
 .resume-section-title--framed::after,
 .resume-columns .resume-section-title::before,
 .static-reader .reader-skill-heading::before,
+.static-reader .reader-skill-heading::after,
+.static-reader .reader-education-heading::before,
+.static-reader .reader-education-heading::after,
+.resume-skill-group h4::before,
+.static-reader .reader-skill-group h3::before,
 .case-story-label::before,
 .static-reader h1::after { color: var(--red); }
 

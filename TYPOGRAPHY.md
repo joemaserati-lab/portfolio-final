@@ -51,21 +51,21 @@ Dopo la modifica occorre ricompilare e pubblicare il sito. Il sistema seleziona 
 
 `tests/typography-regression.mjs` verifica 320×568, 390×844, 667×375 e 1440×900, sulle pagine home, directory, profilo, CV, contatti, singolo progetto e 404. Controlla dimensioni minime, font-family per ruolo, peso Doto 700, asse Square dove previsto, caricamento dei webfont, overflow e distanze della CTA. I controlli IT/EN, la regressione dell'interfaccia e Lighthouse rimangono parte della CI. Le valutazioni estetiche e la resa su dispositivo reale richiedono una revisione visiva separata.
 
-## Gerarchia ottica globale — Doto / JetBrains Mono
+## Gerarchia CV — riuso degli stili approvati delle Esperienze
 
-La gerarchia viene definita **una sola volta** in `public/css/typography.css`, senza hardcoding di font-size, famiglia, peso o interlinea nei componenti. Nel CV la dimensione non segue soltanto il livello HTML del titolo: le etichette di sezione sono volutamente più discrete dei nomi dei ruoli e delle categorie, come nel blocco Esperienze. La gerarchia è costruita tramite corpo, peso e contrasto, non attraverso ingrandimenti arbitrari.
+**Non definire una scala autonoma per Competenze e Software e strumenti.** In modalità `doto-mono` gli elementi della tassonomia riutilizzano direttamente gli stili CSS della sezione Esperienze, con identiche proprietà `font-family`, `font-size`, `font-weight`, `line-height`, `letter-spacing` e `font-variation-settings`, anziché introdurre altre dimensioni.
 
-Per la modalità attiva `doto-mono`:
+| Competenze / Software | Riferimento in Esperienze |
+| --- | --- |
+| `COMPETENZE` e `SOFTWARE E STRUMENTI` | `UI DESIGNER — STAGE` (titolo del ruolo) |
+| `GRAPHIC & VISUAL DESIGN`, `DESIGN & VIDEO` e altre categorie | `BBS SOFTWARE` (nome azienda) |
+| `Graphic Design · Brand Identity…` ed elenchi strumenti | `BRESCIA, ITALIA` (località) |
 
-- **Etichette di sezione CV** (Esperienze, Formazione, Competenze, Software e strumenti): 15–16px, Doto 600. I due ultimi titoli conservano un solo glifo `•` rosso, senza assumere una dimensione maggiore degli altri.
-- **Ruoli professionali e titoli delle categorie** (`--type-resume-role` e `--type-group-heading`): 18–19px, Doto 600, senza glifi aggiuntivi.
-- **Elenchi di competenze e software** (anche nel reader senza JavaScript): 16px, Doto 500, interlinea 1.5. I nomi delle aziende rimangono 16–17px in Doto 500.
-- **Testo di lettura generale** (`.type-body` e descrizioni professionali): `--type-body` = almeno 16px, JetBrains Mono 400, interlinea 1.6.
-- **Etichette di interfaccia e metadati**: 13–14px Doto, intenzionalmente subordinate al testo di lettura; non vanno confuse con i titoli semantici.
+Nella configurazione corrente questo significa, indicativamente: ruolo Doto 18–19px / 600; azienda Doto 16–17px / 500; località Doto 13px / 500. **Questi sono valori derivati dai riferimenti del CV**, non nuove variabili da applicare indipendentemente. La corrispondenza vale a tutte le larghezze, per ogni categoria e per entrambe le lingue. Il reader statico segue la stessa mappatura. Competenze ha le parentesi `[ ]` rosse come Formazione; Software e strumenti conserva il suo `•` rosso. Tutte le categorie di competenze e software ricevono un singolo `•` rosso; le singole voci restano senza glifi.
 
-La regola ottica si applica ai gruppi di contenuto del CV su desktop, tablet, mobile portrait e landscape. Doto è un'eccezione circoscritta alla tassonomia delle competenze: il resto dei paragrafi del portfolio rimane JetBrains Mono. Le dimensioni specifiche dei titoli scenografici, del progetto, della navigazione e delle didascalie restano quelle del sistema precedente. Le altre modalità tipografiche mantengono il proprio peso dei sottotitoli tramite `--font-content-subhead-weight`. Per futuri gruppi analoghi usare le classi di ruolo condivise `.type-section-label` e `.type-group-heading`, evitando nuove scale locali.
+La tipografia si mantiene nel file canonico `public/css/typography.css`; `tests/typography-regression.mjs` confronta tutte e sei le proprietà tipografiche calcolate con il ruolo, l'azienda e la località della riga BBS Software, anziché controllare soltanto soglie arbitrarie. Le descrizioni professionali fuori dalla tassonomia mantengono JetBrains Mono e il consueto minimo di leggibilità a 16px. Gli elenchi Competenze/Software hanno volutamente il carattere più piccolo delle località del CV, come richiesto.
 
-La disposizione a due colonne su desktop e una colonna su mobile rimane invariata. `tests/typography-regression.mjs` controlla che le quattro etichette del CV usino la stessa scala, che ruoli e categorie siano più evidenti dei nomi e degli elenchi, che i due glifi `•` siano rossi e che il testo descrittivo resti JetBrains Mono, senza overflow.
+La disposizione a due colonne su desktop e una colonna su mobile, la palette, il ritmo e le altre modalità tipografiche non vengono alterati.
 
 ## Scala semantica completa
 
@@ -84,7 +84,7 @@ Valori mobile → desktop; nessuna modifica ai testi, alla griglia o alle altre 
 | Label/metadati | `--type-label` | 13px | 1.4 | 500 | .04em |
 | Button | `--type-button` | 14px | 1.3 | 500 | .015em |
 
-Heading, ruoli professionali e interfaccia: Doto. Lead, paragrafi e didascalie: JetBrains Mono, con la sola eccezione dei nomi delle competenze e dei software (Doto). I selettori dei componenti mantengono le eccezioni ottiche esistenti: hero 44–68px, titoli del reader 32–40px, titoli progetto nella directory 23–26px, ruoli CV 18–19px (anche come H4), privacy 20–22px. Il titolo 404 conserva la scala scenografica dedicata. In landscape breve il display mantiene il fit precedente; il testo di lettura resta almeno 16px.
+Heading, ruoli professionali e interfaccia: Doto. Lead, paragrafi e didascalie: JetBrains Mono, con la sola eccezione dei nomi delle competenze e dei software (Doto). I selettori dei componenti mantengono le eccezioni ottiche esistenti: hero 44–68px, titoli del reader 32–40px, titoli progetto nella directory 23–26px, ruoli CV 18–19px (anche come H4), con tassonomia Competenze ricondotta ai medesimi ruoli tipografici, privacy 20–22px. Il titolo 404 conserva la scala scenografica dedicata. In landscape breve il display mantiene il fit precedente; il testo di lettura resta almeno 16px.
 
 Gli `span` senza classe ereditano il contesto. Per nuovi contenuti usare `.type-lead`, `.type-body`, `.type-small`, `.type-caption`, `.type-label`, `.type-meta`, `.type-button` secondo il ruolo, mai una regola globale `span`. Non usare un livello heading per ottenere solo una dimensione. H4 e H5 sono disponibili senza introdurre titoli o testi artificiali. Nel CV interattivo: H2 titolo, H3 gruppi, H4 ruoli. Il reader conserva H1 pagina, H2 gruppi, H3 ruoli.
 

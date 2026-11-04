@@ -29,8 +29,8 @@ const paragraphs = value => [].concat(value || []).flatMap(text => String(text).
     {kind === 'contact' && <section><h2>GET IN TOUCH</h2><p>{lang === 'it' ? 'Per progetti, collaborazioni o opportunità professionali, scrivimi via email o su LinkedIn.' : 'For projects, collaborations or professional opportunities, email me or get in touch on LinkedIn.'}</p></section>}
     {kind === 'resume' && <>
       <p>{resume.intro}</p><h2>{labels.experience}</h2>{resume.experience.map(item => <section><h3 class="reader-role reader-resume-role">{item.role}</h3><p>{item.period} · <strong class="reader-company">{item.company}</strong> · {item.location}</p>{paragraphs(item.description).map(text => <p>{text}</p>)}</section>)}
-      <h2>{labels.education}</h2>{resume.education.map(item => <section><h3>{item.course}</h3><p>{item.period} · <strong class="reader-company">{item.school}</strong></p><p>{item.description}</p></section>)}
-      <h2 class="reader-skill-heading">{labels.capabilities}</h2>{resume.capabilityGroups
+      <h2 class="reader-education-heading">{labels.education}</h2>{resume.education.map(item => <section><h3>{item.course}</h3><p>{item.period} · <strong class="reader-company">{item.school}</strong></p><p>{item.description}</p></section>)}
+      <h2 class="reader-skill-heading reader-skill-heading--framed">{labels.capabilities}</h2>{resume.capabilityGroups
         ? resume.capabilityGroups.map(group => <section class="reader-skill-group"><h3>{group.title}</h3><p>{group.items}</p></section>)
         : <div class="reader-skills">{resume.capabilities.map(item => <span>{item}</span>)}</div>}
         <h2 class="reader-skill-heading">{labels.tools}</h2>{resume.toolGroups

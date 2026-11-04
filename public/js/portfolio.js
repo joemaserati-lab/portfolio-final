@@ -238,7 +238,7 @@
             <article class="resume-row compact"><div class="resume-period"><span class="doto-glyph" aria-hidden="true">•</span> ${esc(item.period)}</div><div><h4 class="resume-role">${esc(item.course)}</h4><strong>${esc(item.school)}</strong>${paragraphs(item.description)}</div></article>`).join('')}</div>
         </section>
         <div class="resume-columns">
-          <section><h3 class="resume-section-title">${esc(t('resume.capabilities'))}</h3>${skillGroupList(resume.capabilityGroups, resume.capabilities)}</section>
+          <section><h3 class="resume-section-title resume-section-title--framed">${esc(t('resume.capabilities'))}</h3>${skillGroupList(resume.capabilityGroups, resume.capabilities)}</section>
           <section><h3 class="resume-section-title">${esc(t('resume.tools'))}</h3>${skillGroupList(resume.toolGroups, resume.tools)}</section>
         </div>
       </section>`,
