@@ -163,6 +163,8 @@ body { color: var(--white); }
 .projects-index-head h2::after,
 .resume-section-title--framed::before,
 .resume-section-title--framed::after,
+.resume-columns .resume-section-title::before,
+.static-reader .reader-skill-heading::before,
 .case-story-label::before,
 .static-reader h1::after { color: var(--red); }
 
