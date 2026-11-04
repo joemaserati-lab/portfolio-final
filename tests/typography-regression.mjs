@@ -119,11 +119,28 @@ try {
         size:parseFloat(getComputedStyle(el).fontSize),
         weight:Number(getComputedStyle(el).fontWeight)
       })),
+      cvCategoryGlyphs:[...document.querySelectorAll('#scroll-resume .resume-skill-group h4')].map(el=>({
+        prefix:getComputedStyle(el,'::before').content,
+        color:getComputedStyle(el,'::before').color,
+        suffix:getComputedStyle(el,'::after').content
+      })),
       readerSkillHierarchy:{
         headings:[...document.querySelectorAll('.static-reader .reader-skill-heading')].map(el=>({
           family:getComputedStyle(el).fontFamily,
+          framed:el.classList.contains('reader-skill-heading--framed'),
           glyph:getComputedStyle(el,'::before').content,
-          glyphColor:getComputedStyle(el,'::before').color
+          glyphColor:getComputedStyle(el,'::before').color,
+          suffix:getComputedStyle(el,'::after').content,
+          suffixColor:getComputedStyle(el,'::after').color
+        })),
+        education:[...document.querySelectorAll('.static-reader .reader-education-heading')].map(el=>({
+          prefix:getComputedStyle(el,'::before').content,
+          suffix:getComputedStyle(el,'::after').content,
+          color:getComputedStyle(el,'::before').color
+        })),
+        categoryGlyphs:[...document.querySelectorAll('.static-reader .reader-skill-group h3')].map(el=>({
+          glyph:getComputedStyle(el,'::before').content,
+          color:getComputedStyle(el,'::before').color
         })),
         groupBodies:[...document.querySelectorAll('.static-reader .reader-skill-group p')].map(el=>({
           family:getComputedStyle(el).fontFamily,size:parseFloat(getComputedStyle(el).fontSize)
@@ -203,14 +220,27 @@ try {
        result.resumeHeadings.slice(0,2).every(h=>h.size>=15 && h.size<=16.1 && h.weight===600) &&
        result.resumeHeadings.slice(2).every(h=>h.size>=18 && h.size<=19.1 && h.weight===600),
        `${width} ${route}: Skill section headings must match the role style, not the small Experience label`);
+     assert(result.cvCategoryGlyphs.length===7 &&
+       result.cvCategoryGlyphs.every(x=>x.prefix.includes('•') &&
+         x.color==='rgb(255, 45, 58)' && (x.suffix==='none'||x.suffix==='normal')),
+       `${width} ${route}: every Skills and Software category needs one red bullet`);
      assert(result.cvRoleHierarchy.length===8 && result.cvRoleHierarchy.every(role=>
        role.size>=18 && role.size<=19.1 && role.size>role.companySize &&
        role.weight===600 && role.family.includes('Doto')
      ),`${width} ${route}: CV professional roles must be compact and larger than the company line: ${JSON.stringify(result.cvRoleHierarchy)}`);
      if(route==='resume/') {
        assert(result.readerSkillHierarchy.headings.length===4 &&
-         result.readerSkillHierarchy.headings.every(x=>
-           x.family.includes('Doto') && x.glyph.includes('•') && x.glyphColor==='rgb(255, 45, 58)') &&
+         result.readerSkillHierarchy.headings.every((x,i)=>
+           x.family.includes('Doto') &&
+           (i%2===0
+             ? x.framed && x.glyph.includes('[') && x.suffix.includes(']') &&
+               x.glyphColor==='rgb(255, 45, 58)' && x.suffixColor==='rgb(255, 45, 58)'
+             : !x.framed && x.glyph.includes('•') && x.glyphColor==='rgb(255, 45, 58)')) &&
+         result.readerSkillHierarchy.education.length===2 &&
+         result.readerSkillHierarchy.education.every(x=>x.prefix.includes('[') && x.suffix.includes(']') &&
+           x.color==='rgb(255, 45, 58)') &&
+         result.readerSkillHierarchy.categoryGlyphs.length===14 &&
+         result.readerSkillHierarchy.categoryGlyphs.every(x=>x.glyph.includes('•') && x.color==='rgb(255, 45, 58)') &&
          result.readerSkillHierarchy.groupBodies.length===14 &&
          result.readerSkillHierarchy.groupBodies.every(x=>x.family.includes('Doto') && x.size===13) &&
          result.staticSkillsType.length===2 &&
@@ -246,13 +276,13 @@ try {
      assert(result.resumePeriods.length===8 && result.resumePeriods.every(x=>x.join('')==='•'),`${route}: CV years are missing red bullet`);
      assert(result.resumeLocations.length===6 && result.resumeLocations.every(x=>x.length===0),`${route}: CV locations must be unmarked`);
      assert(result.resumeHeadings.length===4 &&
-       result.resumeHeadings.every((x,i)=>i<2
+       result.resumeHeadings.every((x,i)=>i<3
          ? x.framed && x.prefix.includes('[') && x.suffix.includes(']') &&
            x.beforeColor==='rgb(255, 45, 58)' && x.afterColor==='rgb(255, 45, 58)'
          : !x.framed && x.prefix.includes('•') &&
            x.beforeColor==='rgb(255, 45, 58)' &&
            (x.suffix==='none' || x.suffix==='normal')),
-       `${route}: CV must have square brackets on experience/education and one red bullet on each skill section`);
+       `${route}: Experience, Education and Skills need red brackets; Software keeps its red bullet`);
      if(width>=1025) assert(result.desktopCvCopy.length>0 && result.desktopCvCopy.every(x=>
        x.available>0 && x.measure>=x.available-2),`${width} ${route}: desktop CV paragraphs are still width-limited ${JSON.stringify(result.desktopCvCopy)}`);
      assert(!result.contactHeading?.endsWith('.'),`${route}: contact title contains redundant punctuation`);
