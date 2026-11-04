@@ -89,8 +89,8 @@ try {
    assert.equal(await page.locator('#boot-prompt').count(),0,'Terminal prompt should be removed');
    release();
    await page.waitForFunction(()=>document.body.classList.contains('site-ready')&&!document.getElementById('boot-loader'),null,{timeout:45000});
-   const visibleDuration=await page.evaluate(()=>performance.now()-window.__bootStart);
-   if(width>1024) assert(visibleDuration>=1950,`Loader must remain for at least 2000ms (observed ${Math.round(visibleDuration)}ms)`);
+   assert.deepEqual(await page.evaluate(()=>window.__minimumBootTimers),[],
+     `${width}x${height}: fixed 2000ms loader delay must not be scheduled`);
    const events=await page.evaluate(()=>window.__bootEvents);
    assert.deepEqual(events.map(e=>e.name),['booted','ready']);
    assert.equal(events[0].booting,false);
@@ -151,8 +151,8 @@ try {
    await page.evaluate(()=>sessionStorage.removeItem('portfolioBootSeen'));
    await page.reload();
    await page.waitForFunction(()=>document.body.classList.contains('site-ready')&&!document.getElementById('boot-loader'),null,{timeout:45000});
-   const repeatDuration=await page.evaluate(()=>performance.now()-window.__bootStart);
-   if(width>1024) assert(repeatDuration>=1950,`Return-visit loader too short: ${Math.round(repeatDuration)}ms`);
+   assert.deepEqual(await page.evaluate(()=>window.__minimumBootTimers),[],
+     `${width}x${height}: returning visit scheduled artificial 2000ms delay`);
    assert.equal(await page.evaluate(()=>document.documentElement.classList.contains('returning-visit')),true);
    assert.equal(await page.evaluate(()=>document.body.classList.contains('site-entering')),false);
    assert.deepEqual(await page.evaluate(()=>window.__bootEvents.map(e=>e.name)),['booted','ready']);
@@ -166,12 +166,11 @@ try {
        'Return visit revealed homepage before completing CRT ignition');
    }
    if(width<=1024){
-     assert.deepEqual(await page.evaluate(()=>window.__minimumBootTimers),[], 'Mobile retained an artificial two-second timer');
      assert.deepEqual(ambientRequests,[], 'Mobile fetched the disabled CRT background video');
      assert.equal(await page.locator('.crt-background-video source').getAttribute('src'),null);
    } else assert(ambientRequests.length>0,'Desktop ambient video was removed');
    assert.equal(errors.length,0,errors.join('\n'));
-   console.log('BOOT PASS',`${width}x${height}`,reducedMotion,'device-specific progress screen, first head frame, repeat visit, ambient policy');
+   console.log('BOOT PASS',`${width}x${height}`,reducedMotion,'readiness-gated progress screen without minimum timer, first head frame, repeat visit, ambient policy');
    await context.close();
   }
  }

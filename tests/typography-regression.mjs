@@ -22,7 +22,7 @@ try {
     const reading='.window-body p,.case-story-copy p,.case-output-list p,.case-facts-v2 dd,.case-role-v2>p,.privacy-panel p,.scene__copy p';
     const mode=document.documentElement.dataset.typography;
     const readingElements=[...document.querySelectorAll(reading)].filter(e=>
-      mode!=='doto-mono' || !e.matches('.case-role-v2>p,.case-facts-v2>div:first-child dd')
+      mode!=='doto-mono' || !e.matches('.case-role-v2>p,.case-facts-v2>div:first-child dd,.resume-skill-group p')
     );
     const probe=document.createElement('section');
     probe.innerHTML='<h1>Title</h1><h2>Section</h2><h3>Topic</h3><h4>Detail</h4><h5>Minor</h5><p class="type-body">Body <span>inline</span></p><span class="type-caption">Caption</span><span class="type-label">Label</span><button class="type-button">Action</button>';
@@ -78,9 +78,20 @@ try {
             headingFamily:heading.fontFamily,copyFamily:copy.fontFamily,
             headingWeight:Number(heading.fontWeight),copyWeight:Number(copy.fontWeight)};
         });
+        const glyphStyle=getComputedStyle(major,'::before');
         return {majorSize:parseFloat(majorStyle.fontSize),majorFamily:majorStyle.fontFamily,
-          majorWeight:Number(majorStyle.fontWeight),groups};
+          majorWeight:Number(majorStyle.fontWeight),glyph:glyphStyle.content,glyphColor:glyphStyle.color,groups};
       }),
+      readerSkillHierarchy:{
+        headings:[...document.querySelectorAll('.static-reader .reader-skill-heading')].map(el=>({
+          family:getComputedStyle(el).fontFamily,
+          glyph:getComputedStyle(el,'::before').content,
+          glyphColor:getComputedStyle(el,'::before').color
+        })),
+        groupBodies:[...document.querySelectorAll('.static-reader .reader-skill-group p')].map(el=>({
+          family:getComputedStyle(el).fontFamily,size:parseFloat(getComputedStyle(el).fontSize)
+        }))
+      },
       desktopCvCopy:[...document.querySelectorAll('#scroll-resume .resume-header > p, #scroll-resume .resume-row p')].map(e=>({
         measure:e.getBoundingClientRect().width,
         available:e.parentElement.getBoundingClientRect().width
@@ -130,14 +141,26 @@ try {
    if(route!=='404.html' && result.mode==='doto-mono') {
      assert.equal(result.cvSkillHierarchy.length,2,`${width} ${route}: CV must have two skill/tool columns`);
      assert(result.cvSkillHierarchy.every(section=>
-       section.majorSize>=24 && section.majorWeight>=600 && section.majorFamily.includes('Doto') &&
+       section.majorSize>=25 && section.majorWeight>=600 && section.majorFamily.includes('Doto') &&
+       section.glyph.includes('•') && section.glyphColor==='rgb(255, 45, 58)' &&
        section.groups.length>=3 && section.groups.every(group=>
-         section.majorSize>group.headingSize && group.headingSize>=20 &&
-         group.headingSize>group.copySize+3 && group.copySize>=16 &&
-         group.headingWeight>=600 && group.copyWeight===400 &&
-         group.headingFamily.includes('Doto') && group.copyFamily.includes('JetBrains Mono')
+         section.majorSize>group.headingSize && group.headingSize>=22 &&
+         group.headingSize>group.copySize+3 && group.copySize>=17 &&
+         group.headingWeight>=600 && group.copyWeight===500 &&
+         group.headingFamily.includes('Doto') && group.copyFamily.includes('Doto')
        )
-     ),`${width} ${route}: Doto CV headings must read larger than JetBrains skill copy: ${JSON.stringify(result.cvSkillHierarchy)}`);
+     ),`${width} ${route}: Doto-only CV taxonomy hierarchy or red section bullets incorrect: ${JSON.stringify(result.cvSkillHierarchy)}`);
+     if(route==='resume/') {
+       assert(result.readerSkillHierarchy.headings.length===4 &&
+         result.readerSkillHierarchy.headings.every(x=>
+           x.family.includes('Doto') && x.glyph.includes('•') && x.glyphColor==='rgb(255, 45, 58)') &&
+         result.readerSkillHierarchy.groupBodies.length===14 &&
+         result.readerSkillHierarchy.groupBodies.every(x=>x.family.includes('Doto') && x.size>=17),
+         `${width} ${route}: no-JS fallback skill taxonomy must use Doto and matching red bullets`);
+     } else {
+       assert.equal(result.readerSkillHierarchy.headings.length,0,
+         `${width} ${route}: fallback skills should render only on the resume route`);
+     }
    }
    if(route!=='404.html' && result.mode==='doto-mono') {
      assert.equal(result.redToken,'#ff2d3a',`${route}: red signature token changed`);
@@ -158,8 +181,10 @@ try {
        result.resumeHeadings.every((x,i)=>i<2
          ? x.framed && x.prefix.includes('[') && x.suffix.includes(']') &&
            x.beforeColor==='rgb(255, 45, 58)' && x.afterColor==='rgb(255, 45, 58)'
-         : !x.framed && (x.prefix==='none' || x.prefix==='normal')),
-       `${route}: only experience and education need red square brackets`);
+         : !x.framed && x.prefix.includes('•') &&
+           x.beforeColor==='rgb(255, 45, 58)' &&
+           (x.suffix==='none' || x.suffix==='normal')),
+       `${route}: CV must have square brackets on experience/education and one red bullet on each skill section`);
      if(width>=1025) assert(result.desktopCvCopy.length>0 && result.desktopCvCopy.every(x=>
        x.available>0 && x.measure>=x.available-2),`${width} ${route}: desktop CV paragraphs are still width-limited ${JSON.stringify(result.desktopCvCopy)}`);
      assert(!result.contactHeading?.endsWith('.'),`${route}: contact title contains redundant punctuation`);

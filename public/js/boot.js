@@ -1,6 +1,7 @@
 (() => {
-  // Reveal mobile as soon as the application, typography and first head frame
-  // are ready. Desktop retains its existing minimum loading presentation.
+  // Reveal both desktop and mobile as soon as their required resources are ready.
+  // Desktop still waits for the actual first 3D head frame; mobile paints a
+  // responsive poster while 3D finishes in parallel.
   const loader = document.getElementById('boot-loader');
   const bar = document.getElementById('boot-progress-bar');
   const progress = document.getElementById('boot-progress');
@@ -8,11 +9,9 @@
   if (!loader || !bar || !progress || !title) return;
 
   const mobileLayout = matchMedia('(max-width: 1024px)');
-  const MINIMUM_VISIBLE_MS = mobileLayout.matches ? 0 : 2000;
   const HEAD_READY_TIMEOUT_MS = 8000;
   const FONT_READY_TIMEOUT_MS = 9000;
   const SCRIPT_LOAD_TIMEOUT_MS = 12000;
-  const startedAt = performance.now();
   const touchDevice = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
   const t = key => window.PortfolioI18n?.t?.(key) || key;
   let applicationPromise = null;
@@ -65,10 +64,6 @@
     );
   }
   setProgressTarget(2);
-  const minimumVisible = new Promise(resolve => {
-    setTimeout(resolve, Math.max(0, MINIMUM_VISIBLE_MS - (performance.now() - startedAt)));
-  });
-
   function assetUrl(path) {
     const url = new URL(path, document.baseURI);
     url.searchParams.set('v', window.PORTFOLIO_ASSET_VERSION);
@@ -347,7 +342,6 @@
     dismissLoader();
   }
   async function fallback(error) {
-    await minimumVisible;
     // Fallback reader content is text too: never expose browser fonts.
     await fontsReady;
     console.error('Portfolio application failed to load.', error);
@@ -358,14 +352,14 @@
   }
   (async () => {
     try {
-      // Desktop retains the original full 3D gate. On mobile the live head
-      // initializes in parallel; it must not hide text or delay the LCP.
+      // No artificial visible minimum on any device. Desktop still gates
+      // on the first 3D frame; mobile reveals its poster immediately after
+      // app/DOM/fonts readiness without waiting for WebGL.
       if (mobileLayout.matches && !initialCase) {
         await Promise.all([applicationReady, domReady, fontsReady]);
       } else {
         await Promise.all([applicationReady, domReady, fontsReady, ...(mobileLayout.matches && !initialCase ? [] : [headReady])]);
       }
-      await minimumVisible;
       setProgressTarget(100);
       progressValue = 100;
       drawProgress();

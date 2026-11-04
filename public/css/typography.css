@@ -28,10 +28,19 @@
   /* Editorial hierarchy for content groups across the site.
      Doto requires a larger optical size than JetBrains Mono to establish
      emphasis; these are content headings, not UI labels or metadata. */
-  --type-section-label: clamp(24px, 1.9vw, 26px);
-  --type-group-heading: clamp(21px, 1.65vw, 23px);
+  --type-section-label: clamp(25px, 1.9vw, 26px);
+  --type-group-heading: clamp(22px, 1.65vw, 23px);
   --weight-section-label: var(--font-content-subhead-weight);
   --weight-group-heading: var(--font-content-subhead-weight);
+  /* Specialised content groups reuse the type system rather than redefining
+     font properties in component styles. Other typography modes keep their
+     existing reading voice; doto-mono opts into a Doto-only CV taxonomy. */
+  --font-skill-reading: var(--font-reading);
+  --font-skill-reading-settings: var(--font-reading-settings);
+  --type-skill-reading: var(--type-body);
+  --weight-skill-reading: var(--weight-reading);
+  --leading-skill-reading: var(--leading-body);
+  --tracking-skill-reading: var(--tracking-body);
   --type-label: 13px;
   --type-button: 14px;
   --weight-heading: 700;
@@ -123,6 +132,12 @@
   --font-resume-heading-weight: 600;
   --weight-section-label: 700;
   --weight-group-heading: 700;
+  --font-skill-reading: var(--font-ui);
+  --font-skill-reading-settings: normal;
+  --type-skill-reading: clamp(17px, 1.3vw, 18px);
+  --weight-skill-reading: 500;
+  --leading-skill-reading: 1.5;
+  --tracking-skill-reading: .005em;
   --measure-body: 58ch;
   --type-hero-display: var(--type-h1);
   --type-hero-copy: clamp(16px, 1.12vw, 17px);
@@ -354,7 +369,9 @@ button {
    Major CV headings are distinct from utility captions and keep the
    same optical hierarchy at desktop, mobile and short-landscape sizes. */
 .type-section-label,
-.resume-columns .resume-section-title {
+.resume-columns .resume-section-title,
+.static-reader .reader-skill-heading,
+:root[data-typography="doto-mono"] .static-reader .reader-skill-heading {
   font-family: var(--font-content-subhead);
   font-variation-settings: var(--font-content-subhead-settings);
   font-size: var(--type-section-label);
@@ -364,7 +381,9 @@ button {
   color: var(--bright);
 }
 .type-group-heading,
-.resume-skill-group h4 {
+.resume-skill-group h4,
+.static-reader .reader-skill-group h3,
+:root[data-typography="doto-mono"] .static-reader .reader-skill-group h3 {
   font-family: var(--font-content-subhead);
   font-variation-settings: var(--font-content-subhead-settings);
   font-size: var(--type-group-heading);
@@ -373,15 +392,32 @@ button {
   letter-spacing: 0;
   color: var(--bright);
 }
-.resume-skill-group p {
-  font-family: var(--font-reading);
-  font-variation-settings: var(--font-reading-settings);
-  font-size: var(--type-body);
-  font-weight: var(--weight-reading);
-  line-height: var(--leading-body);
-  letter-spacing: var(--tracking-body);
+.resume-skill-group p,
+.static-reader .reader-skill-group p {
+  font-family: var(--font-skill-reading);
+  font-variation-settings: var(--font-skill-reading-settings);
+  font-size: var(--type-skill-reading);
+  font-weight: var(--weight-skill-reading);
+  line-height: var(--leading-skill-reading);
+  letter-spacing: var(--tracking-skill-reading);
   color: var(--dim);
   max-width: var(--measure-body);
+}
+/* Two red bullets mark the entry points to the CV taxonomy, without
+   decorating all seven groups or individual tools. Text content is unchanged
+   and the marks are decorative pseudo-elements. */
+.resume-columns .resume-section-title::before,
+.static-reader .reader-skill-heading::before {
+  content: "•";
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-variation-settings: normal;
+  font-size: .72em;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+  margin-right: .52em;
+  vertical-align: .07em;
 }
 .resume-row { padding-block: clamp(20px, 2vw, 28px); }
 .resume-row p { margin-top: 14px; }
