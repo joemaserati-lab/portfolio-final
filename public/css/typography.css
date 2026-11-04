@@ -482,11 +482,15 @@ button {
    Long-form descriptions continue to use JetBrains Mono. */
 :root[data-typography="doto-mono"] .resume-row :is(h3, h4),
 :root[data-typography="doto-mono"] .resume-row strong,
+:root[data-typography="doto-mono"] .resume-columns .resume-section-title,
+:root[data-typography="doto-mono"] .resume-skill-group h4,
 :root[data-typography="doto-mono"] .meta-card b,
 :root[data-typography="doto-mono"] .case-role-v2 > p,
 :root[data-typography="doto-mono"] .case-facts-v2 > div:first-child dd,
 :root[data-typography="doto-mono"] .static-reader .reader-role,
-:root[data-typography="doto-mono"] .static-reader .reader-company {
+:root[data-typography="doto-mono"] .static-reader .reader-company,
+:root[data-typography="doto-mono"] .static-reader .reader-skill-heading,
+:root[data-typography="doto-mono"] .static-reader .reader-skill-group h3 {
   font-family: var(--font-ui);
   font-variation-settings: normal;
   font-weight: 500;
@@ -494,15 +498,39 @@ button {
   letter-spacing: .005em;
   overflow-wrap: anywhere;
 }
+/* CV mapping: Skills/Tools headings and role headings use the SAME
+   declarations as UI DESIGNER — STAGE, including the static reader. */
 :root[data-typography="doto-mono"] .resume-row :is(h3, h4),
-:root[data-typography="doto-mono"] .static-reader .reader-resume-role {
+:root[data-typography="doto-mono"] .resume-columns .resume-section-title,
+:root[data-typography="doto-mono"] .static-reader .reader-resume-role,
+:root[data-typography="doto-mono"] .static-reader .reader-skill-heading {
   font-size: var(--type-resume-role);
   font-weight: 600;
   line-height: 1.3;
+  letter-spacing: .005em;
 }
+/* The category headings share the company line (e.g. BBS SOFTWARE). */
 :root[data-typography="doto-mono"] .resume-row strong,
-:root[data-typography="doto-mono"] .static-reader .reader-company {
+:root[data-typography="doto-mono"] .resume-skill-group h4,
+:root[data-typography="doto-mono"] .static-reader .reader-company,
+:root[data-typography="doto-mono"] .static-reader .reader-skill-group h3 {
+  font-size: clamp(16px, 1.18vw, 17px);
   font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: .005em;
+}
+/* Skill/tool items share the location metadata type (e.g. BRESCIA, ITALIA).
+   This is intentionally smaller than body copy and matches the CV exactly. */
+:root[data-typography="doto-mono"] .resume-row small,
+:root[data-typography="doto-mono"] .resume-skill-group p,
+:root[data-typography="doto-mono"] .static-reader .reader-skill-group p {
+  font-family: var(--font-ui);
+  font-variation-settings: normal;
+  font-size: var(--type-caption);
+  font-weight: 500;
+  line-height: var(--leading-ui);
+  letter-spacing: var(--tracking-label);
+  color: var(--dim);
 }
 
 /* Semantic heading defaults also cover future H4/H5 without class dependence.
