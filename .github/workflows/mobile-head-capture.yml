@@ -47,6 +47,19 @@ jobs:
             git commit -m "assets: remove UI artifacts from WebGL poster captures"
             git push origin HEAD:fix/mobile-head-poster-alignment-2026-11-04
           fi
+      - name: Update poster assets using clean mask
+        env:
+          HEAD_CAPTURE_DIR: /tmp/mobile-head-captures
+        run: |
+          python -m pip install --quiet Pillow numpy
+          python scripts/generate-mobile-head-posters.py
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/assets/images/mobile-head-poster-mobile-360.webp public/assets/images/mobile-head-poster-mobile-540.webp public/assets/images/mobile-head-poster-mobile-320.webp public/assets/images/mobile-head-poster-mobile-landscape.webp
+          if ! git diff --cached --quiet; then
+            git commit -m "assets: remove CRT bezel from landscape poster"
+            git push origin HEAD:fix/mobile-head-poster-alignment-2026-11-04
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
