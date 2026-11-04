@@ -334,9 +334,11 @@
           <div><dt>${esc(t('case.deliverables'))}</dt><dd>${esc(p.deliverables)}</dd></div>
           <div><dt>${esc(t('case.year'))}</dt><dd><span class="doto-glyph" aria-hidden="true">•</span> ${esc(projectYear(p))}</dd></div>
         </dl>
-        ${liveSiteLink(p)}
-        <section class="case-story-v2">
-          <div class="case-story-label">${esc(t('case.notes'))}</div>
+        <section class="case-story-v2 case-notes-v2">
+          <div class="case-story-aside">
+            <div class="case-story-label">${esc(t('case.notes'))}</div>
+            ${liveSiteLink(p)}
+          </div>
           <div class="case-story-copy">
             <article><span><span class="doto-glyph" aria-hidden="true">[</span> 01 <span class="doto-glyph" aria-hidden="true">]</span> <span class="doto-glyph" aria-hidden="true">•</span> ${esc(t('case.context'))}</span>${paragraphs(p.context)}</article>
             <article><span><span class="doto-glyph" aria-hidden="true">[</span> 02 <span class="doto-glyph" aria-hidden="true">]</span> <span class="doto-glyph" aria-hidden="true">•</span> ${esc(t('case.direction'))}</span>${paragraphs(p.direction)}</article>

@@ -51,6 +51,29 @@ try {
     const paragraphs=[...document.querySelectorAll('.case-lead-v2>p,.case-role-v2>p,.case-story-copy p,.case-output-list p,.case-facts-v2 dd')];
     return {roleBeforeCover:Boolean(role.compareDocumentPosition(cover)&Node.DOCUMENT_POSITION_FOLLOWING),sizes:paragraphs.map(p=>parseFloat(getComputedStyle(p).fontSize))};
    });
+   // The optional live link belongs to the same notes sidebar; no orphan CTA
+   // may sit above the context/approach columns on any project case study.
+   const notesLayout=await page.evaluate(()=>{
+     const section=document.querySelector('.case-story-v2.case-notes-v2');
+     const aside=section?.querySelector('.case-story-aside');
+     const label=aside?.querySelector('.case-story-label');
+     const context=section?.querySelector('.case-story-copy article');
+     const link=document.querySelector('.case-live-link');
+     const labelBox=label?.getBoundingClientRect();
+     const contextBox=context?.getBoundingClientRect();
+     return {
+       sidebarPresent:Boolean(aside&&label&&context),
+       contextAlignment:labelBox&&contextBox?Math.abs(labelBox.top-contextBox.top):Infinity,
+       liveInsideSidebar:!link||aside?.contains(link),
+       liveBelowLabel:!link||(link.getBoundingClientRect().top>=labelBox.bottom-1),
+       liveFitsSidebar:!link||(link.getBoundingClientRect().width<=aside.getBoundingClientRect().width+1)
+     };
+   });
+   assert(notesLayout.sidebarPresent,'Missing notes sidebar shared by label and optional live CTA');
+   assert(notesLayout.liveInsideSidebar,'Live CTA sits outside the notes sidebar');
+   assert(notesLayout.liveBelowLabel,'Live CTA sits above the notes label');
+   assert(notesLayout.liveFitsSidebar,'Live CTA overflows its notes sidebar');
+   if(width>1024) assert(notesLayout.contextAlignment<=2,'Notes sidebar and context column do not share a top grid edge');
    assert(reading.roleBeforeCover,'Role must precede artwork');
    assert(reading.sizes.every(size=>size>=16),'Case body text shrank below 16px');
    assert.equal(await page.locator('#projects-view .case-media-surface').count(),0,'Decorative placeholder presented as project media');
