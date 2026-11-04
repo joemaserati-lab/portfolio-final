@@ -150,12 +150,17 @@ try {
          group.headingFamily.includes('Doto') && group.copyFamily.includes('Doto')
        )
      ),`${width} ${route}: Doto-only CV taxonomy hierarchy or red section bullets incorrect: ${JSON.stringify(result.cvSkillHierarchy)}`);
-     assert(result.readerSkillHierarchy.headings.length===4 &&
-       result.readerSkillHierarchy.headings.every(x=>
-         x.family.includes('Doto') && x.glyph.includes('•') && x.glyphColor==='rgb(255, 45, 58)') &&
-       result.readerSkillHierarchy.groupBodies.length===14 &&
-       result.readerSkillHierarchy.groupBodies.every(x=>x.family.includes('Doto') && x.size>=17),
-       `${width} ${route}: no-JS fallback skill taxonomy must use Doto and matching red bullets`);
+     if(route==='resume/') {
+       assert(result.readerSkillHierarchy.headings.length===4 &&
+         result.readerSkillHierarchy.headings.every(x=>
+           x.family.includes('Doto') && x.glyph.includes('•') && x.glyphColor==='rgb(255, 45, 58)') &&
+         result.readerSkillHierarchy.groupBodies.length===14 &&
+         result.readerSkillHierarchy.groupBodies.every(x=>x.family.includes('Doto') && x.size>=17),
+         `${width} ${route}: no-JS fallback skill taxonomy must use Doto and matching red bullets`);
+     } else {
+       assert.equal(result.readerSkillHierarchy.headings.length,0,
+         `${width} ${route}: fallback skills should render only on the resume route`);
+     }
    }
    if(route!=='404.html' && result.mode==='doto-mono') {
      assert.equal(result.redToken,'#ff2d3a',`${route}: red signature token changed`);
