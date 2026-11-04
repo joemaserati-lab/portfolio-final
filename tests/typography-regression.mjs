@@ -62,6 +62,8 @@ try {
       resumeLocations:[...document.querySelectorAll('.resume-row small')].map(e=>[...e.querySelectorAll('.doto-glyph')].map(g=>g.textContent)),
       resumeHeadings:[...document.querySelectorAll('#scroll-resume .resume-section-title')].map(e=>({
         text:e.textContent.trim(),
+        size:parseFloat(getComputedStyle(e).fontSize),
+        weight:Number(getComputedStyle(e).fontWeight),
         framed:e.classList.contains('resume-section-title--framed'),
         prefix:getComputedStyle(e,'::before').content,
         suffix:getComputedStyle(e,'::after').content,
@@ -151,17 +153,21 @@ try {
    if(route!=='404.html' && result.mode==='doto-mono') {
      assert.equal(result.cvSkillHierarchy.length,2,`${width} ${route}: CV must have two skill/tool columns`);
      assert(result.cvSkillHierarchy.every(section=>
-       section.majorSize>=19 && section.majorSize<=20.1 &&
-       section.majorWeight===700 && section.majorFamily.includes('Doto') &&
+       section.majorSize>=15 && section.majorSize<=16.1 &&
+       section.majorWeight===600 && section.majorFamily.includes('Doto') &&
        section.glyph.includes('•') && section.glyphColor==='rgb(255, 45, 58)' &&
        section.groups.length>=3 && section.groups.every(group=>
-         section.majorSize>group.headingSize &&
-         group.headingSize>=17 && group.headingSize<=18.1 &&
+         group.headingSize>section.majorSize &&
+         group.headingSize>=18 && group.headingSize<=19.1 &&
          group.headingSize>group.copySize && group.copySize===16 &&
          group.headingWeight===600 && group.copyWeight===500 &&
          group.headingFamily.includes('Doto') && group.copyFamily.includes('Doto')
        )
      ),`${width} ${route}: CV Doto section/group/copy size or glyph hierarchy is incorrect: ${JSON.stringify(result.cvSkillHierarchy)}`);
+     assert(result.resumeHeadings.length===4 &&
+       result.resumeHeadings.every(h=>h.size>=15 && h.size<=16.1 && h.weight===600) &&
+       result.resumeHeadings.every(h=>Math.abs(h.size-result.resumeHeadings[0].size)<.1),
+       `${width} ${route}: Experience, Education, Skills and Software must share the same section-label scale`);
      assert(result.cvRoleHierarchy.length===8 && result.cvRoleHierarchy.every(role=>
        role.size>=18 && role.size<=19.1 && role.size>role.companySize &&
        role.weight===600 && role.family.includes('Doto')
@@ -172,7 +178,7 @@ try {
            x.family.includes('Doto') && x.glyph.includes('•') && x.glyphColor==='rgb(255, 45, 58)') &&
          result.readerSkillHierarchy.groupBodies.length===14 &&
          result.readerSkillHierarchy.groupBodies.every(x=>x.family.includes('Doto') && x.size===16) &&
-         result.readerCvRoleHierarchy.length===6 &&
+         result.readerCvRoleHierarchy.length===12 &&
          result.readerCvRoleHierarchy.every(x=>x.size>=18 && x.size<=19.1 && x.weight===600),
          `${width} ${route}: no-JS fallback CV typography does not match interactive roles and skills`);
      } else {
