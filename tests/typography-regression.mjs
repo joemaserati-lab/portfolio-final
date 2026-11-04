@@ -332,6 +332,23 @@ try {
     await mkdir(process.env.QA_DIR,{recursive:true});
     if(route!=='404.html') await page.waitForFunction(()=>!document.body.classList.contains('site-entering'));
     await page.screenshot({path:`${process.env.QA_DIR}/${route===''?'home':route==='404.html'?'404':'resume'}-${width}.png`});
+    // Actual production layout previews for design approval before merge.
+    // Capture the reference experience and both skill columns at desktop/mobile.
+    if(route==='resume/' && [390,1440].includes(width)) {
+      for(const [focus,name] of [['bbs','bbs-reference'],['skills','cv-skills'],['software','cv-software']]) {
+        await page.evaluate(focus=>{
+          const viewport=document.querySelector('#scroll-viewport');
+          const target=focus==='bbs'
+            ? [...document.querySelectorAll('#scroll-resume .resume-row')].find(row=>
+                row.querySelector('strong')?.textContent.trim()==='BBS SOFTWARE')
+            : document.querySelector('#scroll-resume .resume-columns > section:'+(focus==='skills'?'first':'last')+'-child');
+          if(!viewport||!target)throw Error('CV preview target missing: '+focus);
+          viewport.scrollTop+=target.getBoundingClientRect().top-viewport.getBoundingClientRect().top-90;
+        },focus);
+        await page.waitForTimeout(350);
+        await page.screenshot({path:`${process.env.QA_DIR}/${name}-${width}.png`});
+      }
+    }
    }
   }
   await page.close();console.log('TYPOGRAPHY PASS',width,height,'reading, interface, captions, 404, overflow');
