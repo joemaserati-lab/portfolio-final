@@ -232,10 +232,8 @@ try {
        assert(result.readerSkillHierarchy.headings.length===4 &&
          result.readerSkillHierarchy.headings.every((x,i)=>
            x.family.includes('Doto') &&
-           (i%2===0
-             ? x.framed && x.glyph.includes('[') && x.suffix.includes(']') &&
-               x.glyphColor==='rgb(255, 45, 58)' && x.suffixColor==='rgb(255, 45, 58)'
-             : !x.framed && x.glyph.includes('•') && x.glyphColor==='rgb(255, 45, 58)')) &&
+           x.framed && x.glyph.includes('[') && x.suffix.includes(']') &&
+           x.glyphColor==='rgb(255, 45, 58)' && x.suffixColor==='rgb(255, 45, 58)') &&
          result.readerSkillHierarchy.education.length===2 &&
          result.readerSkillHierarchy.education.every(x=>x.prefix.includes('[') && x.suffix.includes(']') &&
            x.color==='rgb(255, 45, 58)') &&
@@ -276,13 +274,10 @@ try {
      assert(result.resumePeriods.length===8 && result.resumePeriods.every(x=>x.join('')==='•'),`${route}: CV years are missing red bullet`);
      assert(result.resumeLocations.length===6 && result.resumeLocations.every(x=>x.length===0),`${route}: CV locations must be unmarked`);
      assert(result.resumeHeadings.length===4 &&
-       result.resumeHeadings.every((x,i)=>i<3
-         ? x.framed && x.prefix.includes('[') && x.suffix.includes(']') &&
-           x.beforeColor==='rgb(255, 45, 58)' && x.afterColor==='rgb(255, 45, 58)'
-         : !x.framed && x.prefix.includes('•') &&
-           x.beforeColor==='rgb(255, 45, 58)' &&
-           (x.suffix==='none' || x.suffix==='normal')),
-       `${route}: Experience, Education and Skills need red brackets; Software keeps its red bullet`);
+       result.resumeHeadings.every(x=>
+         x.framed && x.prefix.includes('[') && x.suffix.includes(']') &&
+         x.beforeColor==='rgb(255, 45, 58)' && x.afterColor==='rgb(255, 45, 58)'),
+       `${route}: all four CV section headings need matching red brackets`);
      if(width>=1025) assert(result.desktopCvCopy.length>0 && result.desktopCvCopy.every(x=>
        x.available>0 && x.measure>=x.available-2),`${width} ${route}: desktop CV paragraphs are still width-limited ${JSON.stringify(result.desktopCvCopy)}`);
      assert(!result.contactHeading?.endsWith('.'),`${route}: contact title contains redundant punctuation`);
