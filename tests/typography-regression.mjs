@@ -181,8 +181,10 @@ try {
        result.resumeHeadings.every((x,i)=>i<2
          ? x.framed && x.prefix.includes('[') && x.suffix.includes(']') &&
            x.beforeColor==='rgb(255, 45, 58)' && x.afterColor==='rgb(255, 45, 58)'
-         : !x.framed && (x.prefix==='none' || x.prefix==='normal')),
-       `${route}: only experience and education need red square brackets`);
+         : !x.framed && x.prefix.includes('•') &&
+           x.beforeColor==='rgb(255, 45, 58)' &&
+           (x.suffix==='none' || x.suffix==='normal')),
+       `${route}: CV must have square brackets on experience/education and one red bullet on each skill section`);
      if(width>=1025) assert(result.desktopCvCopy.length>0 && result.desktopCvCopy.every(x=>
        x.available>0 && x.measure>=x.available-2),`${width} ${route}: desktop CV paragraphs are still width-limited ${JSON.stringify(result.desktopCvCopy)}`);
      assert(!result.contactHeading?.endsWith('.'),`${route}: contact title contains redundant punctuation`);
