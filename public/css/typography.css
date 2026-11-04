@@ -413,7 +413,7 @@ button {
 }
 /* CV glyphs follow the approved existing vocabulary:
    [ COMPETENZE ] matches already-framed [ FORMAZIONE ];
-   SOFTWARE E STRUMENTI keeps its existing leading bullet;
+   [ SOFTWARE E STRUMENTI ] now uses the same frame as [ COMPETENZE ];
    individual categories (on both sides) receive a single red bullet.
    Decorative marks do not change the three mapped typography roles. */
 .resume-columns .resume-section-title:not(.resume-section-title--framed)::before,
