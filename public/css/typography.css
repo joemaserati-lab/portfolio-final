@@ -370,7 +370,8 @@ button {
    same optical hierarchy at desktop, mobile and short-landscape sizes. */
 .type-section-label,
 .resume-columns .resume-section-title,
-.static-reader .reader-skill-heading {
+.static-reader .reader-skill-heading,
+:root[data-typography="doto-mono"] .static-reader .reader-skill-heading {
   font-family: var(--font-content-subhead);
   font-variation-settings: var(--font-content-subhead-settings);
   font-size: var(--type-section-label);
@@ -381,7 +382,8 @@ button {
 }
 .type-group-heading,
 .resume-skill-group h4,
-.static-reader .reader-skill-group h3 {
+.static-reader .reader-skill-group h3,
+:root[data-typography="doto-mono"] .static-reader .reader-skill-group h3 {
   font-family: var(--font-content-subhead);
   font-variation-settings: var(--font-content-subhead-settings);
   font-size: var(--type-group-heading);
