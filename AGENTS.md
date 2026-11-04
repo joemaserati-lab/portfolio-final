@@ -23,9 +23,9 @@ Never replace actual project covers with decorative placeholders; do not load a 
 - Do not add third-party packages or external assets without a demonstrated requirement.
 
 ## Before proposing a merge
-1. Run `npm run build` and `npm run check`.
-2. Validate narrow and short mobile layouts (320×568, 390×844, 667×375) and desktop (1440×900), including loader, project cover first tap, close/back, 3D head resume.
-3. Review Lighthouse and Playwright logs: a successful build is not sufficient.
+1. Run `npm run build` and `npm run check` (GitHub Actions does this automatically for PRs).
+2. For visual or copy changes, inspect the actual changed pages on desktop and mobile (e.g. 390×844 and 1440×900), without assuming compilation proves visual quality.
+3. For changes to routing, navigation, loading, Three.js or other complex interactions, run the relevant Playwright or Lighthouse GitHub Actions workflow **manually**. The five expensive checks are never triggered by PRs, pushes or deployments.
 4. Preserve source-of-truth and check no legacy root files are reintroduced.
 5. State any untested interactions, regressions or metrics instead of claiming perfection.
-6. Work in feature branches and review diffs before merging to `main`.
+6. Work in feature branches and review diffs before merging to `main`; get the user's approval for visible design changes.
