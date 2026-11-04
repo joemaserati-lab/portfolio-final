@@ -600,6 +600,20 @@
   .scroll-portfolio #projects-view .case-gallery-v2 { margin-block: 36px; }
 }
 
+/* Case studies: align the first reading line and reduce redundant rules.
+   Baseline alignment adapts to different heading sizes without pixel offsets. */
+@media (min-width: 1025px) {
+  .scroll-portfolio #projects-view .case-lead-v2 { align-items: start; }
+  .scroll-portfolio #projects-view .case-title-v2 h2 { margin-top: 0; }
+  .scroll-portfolio #projects-view .case-story-v2,
+  .scroll-portfolio #projects-view .case-outputs-v2 { align-items: baseline; }
+}
+.scroll-portfolio #projects-view .case-story-copy article,
+.scroll-portfolio #projects-view .case-output-list article {
+  border-top: 0;
+  padding-top: 0;
+}
+
 /* Video replaces the monochrome logo only after playback starts.
    Keep the image visible until the first decoded video frame. */
 .project-cover-v2 { position: relative; }
