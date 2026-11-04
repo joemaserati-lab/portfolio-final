@@ -35,7 +35,17 @@ Desktop portrait motion follows the mouse. Mobile portrait rotation follows one 
 
 `tests/portfolio-regression.mjs` checks desktop and 320×568, 390×844, 667×375 touch layouts, loader, portrait, projects, navigation, footer, privacy, language and reduced motion. `tests/routes-regression.mjs` checks direct links, redirects and browser history. `tests/css-render-parity.mjs` compares source styles with the generated bundle.
 
-GitHub Actions runs the static build and browser regression suite. GitHub Pages publishes `dist/` from `main`; Lighthouse reports run after deployment. Scores are reported by each audit rather than kept as permanent claims in this document.
+GitHub Actions automatically runs **Astro Build Check** on pull requests and qualifying pushes to `main`. After a successful build from a push to `main`, **Deploy Astro to Pages** publishes the site. No browser tests or Lighthouse audits run automatically.
+
+The existing heavier checks are preserved as **manual workflows** in GitHub → **Actions** → choose workflow → **Run workflow**:
+
+- **Portfolio Regression** — complete routes, interactive and responsive regression suite.
+- **Final Polish Browser Checks** — Chromium, Firefox and WebKit checks.
+- **Idle Screensaver Smoke** — loader, 3D and idle/motion checks.
+- **Lighthouse Candidate** — Lighthouse for an unmerged candidate branch.
+- **Lighthouse Audit** — Lighthouse for the deployed public site (manual run from `main`).
+
+For routine copy or CSS edits, use the automatic build plus a real visual check at desktop and mobile sizes. For routing, loader, Three.js or other structural changes, manually run the appropriate checks before merging. Performance scores come from the audit run and are not permanent claims.
 
 Production URL: https://joemaserati-lab.github.io/portfolio-final/
 
