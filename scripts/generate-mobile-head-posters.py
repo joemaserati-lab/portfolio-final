@@ -15,6 +15,15 @@ def extract(name):
     # Transparent canvas reconstruction: background is RGB 6–9.
     # Preserve antialiased lines without transferring the black rectangle.
     alpha=np.clip((rgb.max(axis=2)-9.0)/19.0,0.0,1.0)
+    if name=='667x375':
+        # Landscape canvas screenshot also contains the CRT bezel at the
+        # outer perimeter. It is not part of the head: isolate the central
+        # silhouette, with ample transparent margin around the geometry.
+        height,width=alpha.shape
+        alpha[:round(height*.035),:]=0
+        alpha[round(height*.95):,:]=0
+        alpha[:,:round(width*.28)]=0
+        alpha[:,round(width*.72):]=0
     return Image.fromarray(np.concatenate([rgb,(alpha*255)[...,None]],axis=2).astype('uint8'),'RGBA')
 def save(image,width,filename):
     height=round(image.height*width/image.width)
