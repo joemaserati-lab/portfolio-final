@@ -411,11 +411,15 @@ button {
   color: var(--dim);
   max-width: var(--measure-body);
 }
-/* Two red bullets mark the entry points to the CV taxonomy, without
-   decorating all seven groups or individual tools. Text content is unchanged
-   and the marks are decorative pseudo-elements. */
-.resume-columns .resume-section-title::before,
-.static-reader .reader-skill-heading::before {
+/* CV glyphs follow the approved existing vocabulary:
+   [ COMPETENZE ] matches already-framed [ FORMAZIONE ];
+   SOFTWARE E STRUMENTI keeps its existing leading bullet;
+   individual categories (on both sides) receive a single red bullet.
+   Decorative marks do not change the three mapped typography roles. */
+.resume-columns .resume-section-title:not(.resume-section-title--framed)::before,
+.static-reader .reader-skill-heading:not(.reader-skill-heading--framed)::before,
+.resume-skill-group h4::before,
+.static-reader .reader-skill-group h3::before {
   content: "•";
   display: inline-block;
   font-family: var(--font-ui);
@@ -427,6 +431,21 @@ button {
   margin-right: .52em;
   vertical-align: .07em;
 }
+.static-reader .reader-skill-heading--framed::before,
+.static-reader .reader-skill-heading--framed::after,
+.static-reader .reader-education-heading::before,
+.static-reader .reader-education-heading::after {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 1em;
+  line-height: 1;
+  letter-spacing: 0;
+}
+.static-reader .reader-skill-heading--framed::before,
+.static-reader .reader-education-heading::before { content: "["; margin-right: .58em; }
+.static-reader .reader-skill-heading--framed::after,
+.static-reader .reader-education-heading::after { content: "]"; margin-left: .58em; }
 .resume-row { padding-block: clamp(20px, 2vw, 28px); }
 .resume-row p { margin-top: 14px; }
 @media (max-width: 720px) {
@@ -645,8 +664,8 @@ button {
   line-height: 1;
   margin-right: .55em;
 }
-/* Square brackets frame only the two major resume sections.
-   Capabilities and tools deliberately keep clean, unmarked headings. */
+/* Reuse the same red square brackets on Experience, Education and Skills.
+   Software retains a leading bullet; every category receives a small bullet. */
 .resume-section-title--framed::before,
 .resume-section-title--framed::after {
   display: inline-block;
