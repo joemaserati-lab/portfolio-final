@@ -607,6 +607,7 @@
   .scroll-portfolio #projects-view .case-title-v2 h2 { margin-top: 0; }
   .scroll-portfolio #projects-view .case-story-v2,
   .scroll-portfolio #projects-view .case-outputs-v2 { align-items: baseline; }
+  .scroll-portfolio #projects-view .case-story-v2.case-notes-v2 { align-items: start; }
 }
 .scroll-portfolio #projects-view .case-story-copy article,
 .scroll-portfolio #projects-view .case-output-list article {
