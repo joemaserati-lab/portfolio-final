@@ -6,7 +6,7 @@ const out=process.env.HEAD_CAPTURE_DIR || '/tmp/mobile-head-captures';
 await mkdir(out,{recursive:true});
 const browser=await chromium.launch({headless:true,args:['--use-gl=swiftshader','--enable-webgl']});
 try {
- for(const [width,height] of [[360,800],[390,844],[430,932],[667,375]]){
+ for(const [width,height] of [[320,568],[360,800],[390,844],[430,932],[667,375]]){
   const context=await browser.newContext({
    viewport:{width,height},deviceScaleFactor:1,
    isMobile:true,hasTouch:true,reducedMotion:'reduce'
