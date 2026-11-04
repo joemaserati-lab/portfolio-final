@@ -239,7 +239,7 @@
         </section>
         <div class="resume-columns">
           <section><h3 class="resume-section-title resume-section-title--framed">${esc(t('resume.capabilities'))}</h3>${skillGroupList(resume.capabilityGroups, resume.capabilities)}</section>
-          <section><h3 class="resume-section-title">${esc(t('resume.tools'))}</h3>${skillGroupList(resume.toolGroups, resume.tools)}</section>
+          <section><h3 class="resume-section-title resume-section-title--framed">${esc(t('resume.tools'))}</h3>${skillGroupList(resume.toolGroups, resume.tools)}</section>
         </div>
       </section>`,
 
