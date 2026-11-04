@@ -183,7 +183,7 @@
   .case-study-v2{padding:14px 10px 24px}.case-lead-v2{padding:24px 0}.case-media-hero-v2{aspect-ratio:4/3;min-height:220px}
   .case-facts-v2{grid-template-columns:1fr;margin-bottom:24px}.case-facts-v2>div,.case-facts-v2>div:nth-child(2){border-right:0;border-bottom:1px solid var(--line);padding-left:0}.case-facts-v2>div:first-child{padding-left:0}.case-facts-v2>div:last-child{border-bottom:0}
   .case-story-copy,.case-output-list{grid-template-columns:1fr;gap:22px}.case-media-landscape-v2,.case-media-portrait-v2,.case-media-wide-v2{grid-column:auto;aspect-ratio:4/3;margin-top:0}
-  .case-tags-v2{grid-template-columns:1fr;gap:12px;margin:38px 0}.case-nav-v2{grid-template-columns:1fr}.case-nav-v2 button:last-child{text-align:left;align-items:flex-start}
+  .case-tags-v2{grid-template-columns:1fr;gap:12px;margin:38px 0}.case-nav-v2{grid-template-columns:minmax(0,1fr);width:100%}.case-nav-v2>button{box-sizing:border-box;width:100%;min-width:0;justify-self:stretch}.case-nav-v2 button:last-child{text-align:left;align-items:flex-start}
 }
 
 
