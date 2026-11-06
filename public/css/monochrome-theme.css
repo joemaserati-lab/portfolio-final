@@ -28,6 +28,9 @@
   --chrome: var(--gray-dark);
 }
 
+.cursor-project-label{background:var(--white);color:var(--black)}
+.cursor-project-glyph{color:var(--red)}
+
 /* Frame, display and subtle analog texture. */
 html, body, .shell { background: var(--black); color: var(--white); }
 body { color: var(--white); }
