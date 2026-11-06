@@ -28,6 +28,14 @@ Astro serves `public/` and builds from `src/layouts/PortfolioShell.astro`. Root-
 The visual signature uses four Doto marks: point `.` closes headings, bullet `•` precedes dates, ongoing status and every CV skill/tool category; square brackets `[ ]` frame the full hero CTA, loader and all four CV section headings: Experience, Education, Skills and Software & Tools; angle brackets `<>` remain available for external case links, not the hero CTA. Project cards show exactly one metadata line with `• YEAR` or localized `• IN CORSO` above the project title, without a duplicate CSS-generated year. Dates in the CV retain the red bullet; locations and individual skill names are unmarked. On desktop the About section's paragraphs can occupy the full content width. Scrolled navigation labels are white with a leading red Doto bullet and the mobile active work label reads `Works`. The canonical color token is `--red` in `public/css/monochrome-theme.css`. `public/css/typography.css` owns glyph typography and pseudo-element layout; dynamic case-study and directory marks live in `public/js/portfolio.js`. Keep title fitting, physical CRT space, mobile layouts and original project covers unchanged. See `TYPOGRAPHY.md`.
 
 ## Project covers
+On fine hover pointers, only project covers use the System Label A contextual
+state in the existing pixel cursor overlay: square corners, white background,
+black Doto 600 text and a leading red Doto bullet. The caption is VIEW PROJECT
+or VEDI PROGETTO. Movement is direct, with an 18px offset that flips and clamps
+inside the CRT safe bounds; the label fades in 150ms (none with reduced motion).
+The redundant cover CTA is hidden only while this mouse state is active;
+keyboard focus and touch retain it. Other cursor artwork and hotspots stay unchanged.
+
 Project directory covers are grayscale at rest. Desktop hover or keyboard focus reveals the original artwork; on touch devices, a **single tap** reveals the original colors and opens the project after a 280 ms preview. On mobile, only the most visible project card plays its video, with hysteresis between adjacent cards. The previous card immediately returns to its logo cover; the cover stays visible until a decoded video frame is available. Cards without a video retain the 650 ms CRT color scan.
 
 ## Current interface simplification
