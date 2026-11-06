@@ -608,6 +608,17 @@
   .scroll-portfolio #projects-view .case-story-v2,
   .scroll-portfolio #projects-view .case-outputs-v2 { align-items: baseline; }
   .scroll-portfolio #projects-view .case-story-v2.case-notes-v2 { align-items: start; }
+
+  /* Align visible type, not merely nested grid item boxes: the article's
+     inline caption sits lower than the block label inside its line box.
+     Match its optical top, then line up the CTA border with the first
+     paragraph row. These adjustments apply only to desktop case studies. */
+  .scroll-portfolio #projects-view .case-notes-v2 .case-story-aside {
+    gap: 21px;
+  }
+  .scroll-portfolio #projects-view .case-notes-v2 .case-story-aside > .case-story-label {
+    padding-top: 9px;
+  }
 }
 .scroll-portfolio #projects-view .case-story-copy article,
 .scroll-portfolio #projects-view .case-output-list article {
