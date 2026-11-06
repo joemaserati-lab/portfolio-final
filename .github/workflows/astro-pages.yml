@@ -5,6 +5,11 @@ on:
     workflows: ["Astro Build Check"]
     types: [completed]
   workflow_dispatch:
+    inputs:
+      build_only:
+        description: 'Validate build and media preparation without publishing'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -18,7 +23,7 @@ concurrency:
 jobs:
   build:
     if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.event == 'push') }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - name: Checkout verified revision
@@ -35,9 +40,19 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Install media tooling
+        timeout-minutes: 3
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq ffmpeg
+          if ! command -v ffmpeg >/dev/null 2>&1; then
+            # Ignore unrelated third-party feeds when refreshing Ubuntu media packages.
+            sudo apt-get -o Acquire::Retries=1 \
+              -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 \
+              -o Dir::Etc::sourcelist=sources.list.d/ubuntu.sources \
+              -o Dir::Etc::sourceparts=- update
+            sudo apt-get -o Acquire::Retries=1 \
+              -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 \
+              install -y --no-install-recommends ffmpeg
+          fi
+          ffmpeg -version
 
       - name: Prepare MP4 for instant streaming
         run: |
@@ -55,11 +70,11 @@ jobs:
           path: dist/
 
   deploy:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ !inputs.build_only && (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success') }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: build
     timeout-minutes: 10
     steps:
